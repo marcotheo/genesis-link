@@ -4,20 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/marcotheo/justarouter"
+	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/api"
 )
 
 func main() {
-    router := justarouter.CreateRouter()
-
-	router.GET("/health", func(w http.ResponseWriter, r *http.Request,) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "App is Healthy")
-	});
+    router := api.Routes()
 
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: router.Mux,
+		Handler: router,
 	}
 
 	fmt.Println("Server running at port :8080")
@@ -28,5 +23,4 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
 }
