@@ -2,17 +2,17 @@ include .env
 
 .PHONY: run
 
-MIG_DIR=pkg/db/migrations
+MIG_DIR=pkg/sqlc/migrations
 
 run:
 	go run cmd/service/main.go
 
 status:
-	goose -dir pkg/db/migrations turso $(DB_URL) status
+	goose -dir ${MIG_DIR} turso $(DB_URL) status
 
 up:
-	goose -dir pkg/db/migrations turso $(DB_URL) up
+	goose -dir ${MIG_DIR} turso $(DB_URL) up
 
 reset:
-	goose -dir pkg/db/migrations turso $(DB_URL) reset
+	goose -dir ${MIG_DIR} turso $(DB_URL) reset
 
