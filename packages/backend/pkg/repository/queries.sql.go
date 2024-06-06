@@ -9,6 +9,41 @@ import (
 	"context"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (
+  userId, firstName, lastName, email
+) VALUES (
+  ?, ?, ?, ?
+)
+RETURNING userid, firstname, lastname, email, created_at, updated_at
+`
+
+type CreateUserParams struct {
+	Userid    interface{}
+	Firstname string
+	Lastname  string
+	Email     string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Userid,
+		arg.Firstname,
+		arg.Lastname,
+		arg.Email,
+	)
+	var i User
+	err := row.Scan(
+		&i.Userid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT userid, firstname, lastname, email, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
