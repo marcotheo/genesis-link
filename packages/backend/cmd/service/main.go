@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/api"
@@ -15,7 +16,16 @@ func main() {
         log.Println("No .env file found")
     }
 
-	db.Init()
+	db, errdb := db.Init()
+
+	if errdb != nil {
+		fmt.Fprintf(os.Stderr, "failed to open db %s", errdb)
+		os.Exit(1)
+	  }
+  
+	fmt.Println("Tursodb connection successful")
+
+	defer db.Close()
 	
     router := api.Routes()
 

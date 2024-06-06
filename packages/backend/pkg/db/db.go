@@ -9,7 +9,7 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
-func Init() {
+func Init() (*sql.DB, error){
 	dbName := os.Getenv("DB_NAME")
 	dbToken := os.Getenv("DB_TOKEN")
 
@@ -22,12 +22,7 @@ func Init() {
 
 	db, err := sql.Open("libsql", url)
 
-	if err != nil {
-	  fmt.Fprintf(os.Stderr, "failed to open db %s: %s", url, err)
-	  os.Exit(1)
-	}
 
-	fmt.Println("Tursodb connection successful")
 
-	defer db.Close()
+	return db, err
 }
