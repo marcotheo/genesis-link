@@ -22,7 +22,5 @@ func Init() (*sql.DB, error){
 
 	db, err := sql.Open("libsql", url)
 
-
-
 	return db, err
 }

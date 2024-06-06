@@ -27,7 +27,7 @@ func main() {
 
 	defer db.Close()
 	
-    router := api.Routes()
+    router := api.Routes(db)
 
 	server := http.Server{
 		Addr:    ":8080",
