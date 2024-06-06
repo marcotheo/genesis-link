@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    queries: "./pkg/sqlc/queries"
+    schema: "./pkg/sqlc/schema"
+    gen:
+      go:
+        package: "repository"
+        out: "./pkg/repository"

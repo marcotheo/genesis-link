@@ -1,5 +1,3 @@
--- +goose Up
--- +goose StatementBegin
 CREATE TABLE users (
     userId UUID NOT NULL PRIMARY KEY,
     firstName varchar(255) NOT NULL,
@@ -8,9 +6,3 @@ CREATE TABLE users (
     created_at DEFAULT CURRENT_TIMESTAMP,
     updated_at DEFAULT CURRENT_TIMESTAMP
 );
--- +goose StatementEnd
-
--- +goose Down
--- +goose StatementBegin
-DROP TABLE users;
--- +goose StatementEnd
