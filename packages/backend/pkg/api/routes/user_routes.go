@@ -14,14 +14,14 @@ import (
 )
 
 type CreateUserParamsValidation struct {
-    Firstname string `json:"first_name" validate:"required"`
-    Lastname  string `json:"last_name" validate:"required"`
-    Email     string `json:"email" validate:"required,email"`
+	Firstname string `json:"first_name" validate:"required"`
+	Lastname  string `json:"last_name" validate:"required"`
+	Email     string `json:"email" validate:"required,email"`
 }
 
 func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
-	userRoutes :=  func(subRouter justarouter.SubRouter) {
-		subRouter.POST("/create", func(w http.ResponseWriter, r *http.Request,) {
+	userRoutes := func(subRouter justarouter.SubRouter) {
+		subRouter.POST("/create", func(w http.ResponseWriter, r *http.Request) {
 			clog.Logger.Info("(USER) createUser => creating new user")
 
 			var userValidation CreateUserParamsValidation
@@ -47,14 +47,14 @@ func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
 			if errQ != nil {
 				clog.Logger.Error(fmt.Sprintf("(USER) createUser => errQ %s \n", errQ))
 				http.Error(w, "Error creating response", http.StatusInternalServerError)
-            	return
+				return
 			}
 
 			response, errMarshal := json.Marshal(user)
-			if  errMarshal != nil {
+			if errMarshal != nil {
 				clog.Logger.Error(fmt.Sprintf("(USER) createUser => error in json.marshal %s \n", errMarshal))
 				http.Error(w, "Error creating response", http.StatusInternalServerError)
-            	return
+				return
 			}
 
 			clog.Logger.Success("(USER) createUser => create successful")
@@ -63,7 +63,7 @@ func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
 			w.Write(response)
 		})
 
-		subRouter.GET("/{userId}", func(w http.ResponseWriter, r *http.Request,) {
+		subRouter.GET("/{userId}", func(w http.ResponseWriter, r *http.Request) {
 			clog.Logger.Info("(USER) getDetails => get details")
 
 			userId := r.PathValue("userId")
@@ -73,20 +73,20 @@ func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
 			if user.Userid == nil {
 				clog.Logger.Error("(USER) getDetails => user does not exist")
 				errorResponse(w, http.StatusBadRequest, "User does not exist!")
-				return;
+				return
 			}
 
 			if err != nil {
 				fmt.Printf("err %s \n", err)
 				clog.Logger.Error(fmt.Sprintf("(USER) getDetails => error in query get user = (%s) \n", err))
 				errorResponse(w, http.StatusInternalServerError, err.Error())
-				return;
+				return
 			}
 
 			clog.Logger.Success("(USER) getDetails => details successfuly retrieved")
 
 			w.Header().Set("Content-Type", "application/json")
-        	json.NewEncoder(w).Encode(Response{Status: "success", Data: user})
+			json.NewEncoder(w).Encode(Response{Status: "success", Data: user})
 		})
 	}
 
