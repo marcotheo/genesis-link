@@ -9,6 +9,16 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+type Response struct {
+    Status  string `json:"status"`
+    Message string `json:"message"`
+    Data    any    `json:"data,omitempty"`
+}
+
+type ErrorResponse struct {
+    Message string `json:"message"`
+}
+
 func ReadAndValidateBody(r *http.Request, v interface{}) error {
     // Read the request body
     body, err := io.ReadAll(r.Body)
@@ -31,4 +41,10 @@ func ReadAndValidateBody(r *http.Request, v interface{}) error {
     }
 
     return nil
+}
+
+func errorResponse(w http.ResponseWriter, statusCode int, message string) {
+    w.WriteHeader(statusCode)
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(ErrorResponse{Message: message})
 }

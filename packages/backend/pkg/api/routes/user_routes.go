@@ -9,14 +9,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/db"
+	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
 	"github.com/marcotheo/justarouter"
 )
-
-type Response struct {
-    Status  string `json:"status"`
-    Message string `json:"message"`
-    Data    any    `json:"data,omitempty"`
-}
 
 type CreateUserParamsValidation struct {
     Firstname string `json:"first_name" validate:"required"`
@@ -27,7 +22,7 @@ type CreateUserParamsValidation struct {
 func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
 	userRoutes :=  func(subRouter justarouter.SubRouter) {
 		subRouter.POST("/create", func(w http.ResponseWriter, r *http.Request,) {
-			fmt.Println("USER :: CREATE")
+			clog.Logger.Info("(USER) createUser => creating new user")
 
 			var userValidation CreateUserParamsValidation
 
@@ -41,7 +36,8 @@ func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
 			var userData db.CreateUserParams
 			errCopier := copier.Copy(&userData, &userValidation)
 			if errCopier != nil {
-				fmt.Println("Error copying:", errCopier)
+				clog.Logger.Error(fmt.Sprintf("(USER) createUser => Error copying: %s", errCopier))
+				errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
 				return
 			}
 
@@ -49,33 +45,45 @@ func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
 
 			user, errQ := q.CreateUser(context.Background(), userData)
 			if errQ != nil {
-				fmt.Printf("errQ %s \n", errQ)
-			}
-
-			response, errMarshal := json.Marshal(user)
-			if  errMarshal != nil {
+				clog.Logger.Error(fmt.Sprintf("(USER) createUser => errQ %s \n", errQ))
 				http.Error(w, "Error creating response", http.StatusInternalServerError)
             	return
 			}
 
-			fmt.Println("USER :: CREATE SUCCESSFUL")
+			response, errMarshal := json.Marshal(user)
+			if  errMarshal != nil {
+				clog.Logger.Error(fmt.Sprintf("(USER) createUser => error in json.marshal %s \n", errMarshal))
+				http.Error(w, "Error creating response", http.StatusInternalServerError)
+            	return
+			}
+
+			clog.Logger.Success("(USER) createUser => create successful")
 
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(response)
 		})
 
 		subRouter.GET("/{userId}", func(w http.ResponseWriter, r *http.Request,) {
-			fmt.Println("USER :: GET DETAILS")
+			clog.Logger.Info("(USER) getDetails => get details")
 
 			userId := r.PathValue("userId")
 
 			user, err := q.GetUser(context.Background(), userId)
 
-			if err != nil {
-				fmt.Printf("err %s \n", err)
+			if user.Userid == nil {
+				clog.Logger.Error("(USER) getDetails => user does not exist")
+				errorResponse(w, http.StatusBadRequest, "User does not exist!")
+				return;
 			}
 
-			fmt.Println("USER :: GET DETAILS SUCCESSFUL")
+			if err != nil {
+				fmt.Printf("err %s \n", err)
+				clog.Logger.Error(fmt.Sprintf("(USER) getDetails => error in query get user = (%s) \n", err))
+				errorResponse(w, http.StatusInternalServerError, err.Error())
+				return;
+			}
+
+			clog.Logger.Success("(USER) getDetails => details successfuly retrieved")
 
 			w.Header().Set("Content-Type", "application/json")
         	json.NewEncoder(w).Encode(Response{Status: "success", Data: user})
