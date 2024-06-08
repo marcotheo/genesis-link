@@ -51,14 +51,14 @@ func (cl *CustomLogger) Success(message string) {
 
 // logWithPrefix logs a message with a given prefix and color
 func (cl *CustomLogger) logWithPrefix(prefix, color, message string) {
-    formattedPrefix := fmt.Sprintf(" :: %s%s%s :: ", color, prefix, Reset)
+    formattedPrefix := fmt.Sprintf(" [%s%s%s] ", color, prefix, Reset)
     logMessage := fmt.Sprintf("%s%s", formattedPrefix, message)
     cl.logger.Println(logMessage)
 }
 
 // logWithPrefix logs a message with a green prefix
 func (cl *CustomLogger) GreenPrefix(prefix, message string) {
-    formattedPrefix := fmt.Sprintf(" :: %s%s%s :: ", Green, prefix, Reset)
+    formattedPrefix := fmt.Sprintf(" [%s%s%s] ", Green, prefix, Reset)
     logMessage := fmt.Sprintf("%s%s", formattedPrefix, message)
     cl.logger.Println(logMessage)
 }
