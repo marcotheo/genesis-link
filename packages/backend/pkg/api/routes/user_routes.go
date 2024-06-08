@@ -1,13 +1,13 @@
-package userapi
+package routes
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/db"
 	"github.com/marcotheo/justarouter"
 )
@@ -18,37 +18,42 @@ type Response struct {
     Data    any    `json:"data,omitempty"`
 }
 
-func Routes(queries *db.Queries) func(subRouter justarouter.SubRouter) {
-	fmt.Println("running sub routes")
+type CreateUserParamsValidation struct {
+    Firstname string `json:"first_name" validate:"required"`
+    Lastname  string `json:"last_name" validate:"required"`
+    Email     string `json:"email" validate:"required,email"`
+}
 
+func User(q *db.Queries) func(subRouter justarouter.SubRouter) {
 	userRoutes :=  func(subRouter justarouter.SubRouter) {
 		subRouter.POST("/create", func(w http.ResponseWriter, r *http.Request,) {
 			fmt.Println("USER :: CREATE")
-			
-			body, err := io.ReadAll(r.Body)
-			if err != nil {
-				http.Error(w, "Unable to read body", http.StatusBadRequest)
+
+			var userValidation CreateUserParamsValidation
+
+			errRead := ReadAndValidateBody(r, &userValidation)
+			if errRead != nil {
+				http.Error(w, errRead.Error(), http.StatusBadRequest)
 				return
 			}
-			defer r.Body.Close()
 
+			// pass to validated data to actual db params
 			var userData db.CreateUserParams
-
-			err = json.Unmarshal(body, &userData)
-			if err != nil {
-				http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			errCopier := copier.Copy(&userData, &userValidation)
+			if errCopier != nil {
+				fmt.Println("Error copying:", errCopier)
 				return
 			}
 
 			userData.Userid = uuid.New().String()
 
-			user, err := queries.CreateUser(context.Background(), userData)
-			if err != nil {
-				fmt.Printf("err %s \n", err)
+			user, errQ := q.CreateUser(context.Background(), userData)
+			if errQ != nil {
+				fmt.Printf("errQ %s \n", errQ)
 			}
 
-			response, err := json.Marshal(user)
-			if  err != nil {
+			response, errMarshal := json.Marshal(user)
+			if  errMarshal != nil {
 				http.Error(w, "Error creating response", http.StatusInternalServerError)
             	return
 			}
@@ -64,7 +69,7 @@ func Routes(queries *db.Queries) func(subRouter justarouter.SubRouter) {
 
 			userId := r.PathValue("userId")
 
-			user, err := queries.GetUser(context.Background(), userId)
+			user, err := q.GetUser(context.Background(), userId)
 
 			if err != nil {
 				fmt.Printf("err %s \n", err)
