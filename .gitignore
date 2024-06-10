@@ -50,3 +50,4 @@ dist-ssr
 *.sw?
 .aws-sam
 service
+main
