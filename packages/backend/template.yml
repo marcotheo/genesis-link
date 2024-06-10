@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main
+      Runtime: go1.x
+      CodeUri: .
+      MemorySize: 1024
+      Timeout: 10
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
