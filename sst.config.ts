@@ -1,5 +1,7 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+import { main_backend } from "./infra/backend-go";
+
 export default $config({
   app(input) {
     return {
@@ -15,6 +17,11 @@ export default $config({
     };
   },
   async run() {
-    return {};
+    const mainBackendResult = main_backend();
+
+    return {
+      roleName: mainBackendResult.role.name,
+      apiUrl: mainBackendResult.api.apiEndpoint,
+    };
   },
 });

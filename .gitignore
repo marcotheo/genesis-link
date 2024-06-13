@@ -51,3 +51,6 @@ dist-ssr
 .aws-sam
 service
 main
+
+# golang backend
+deployment.zip
