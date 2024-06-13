@@ -7,6 +7,8 @@ import (
 
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/joho/godotenv"
+	handler "github.com/marcotheo/genesis-fleet/packages/backend/pkg/api/handlers"
+	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/api/routes"
 	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/services"
 	"github.com/marcotheo/justarouter"
@@ -32,18 +34,18 @@ func InitializeApp() *http.ServeMux {
 
 	// initialize services and handlers
 	container.Provide(services.InitDataService)
-	// container.Provide(services.InitCognitoService)
-	// container.Provide(handler.InitUserHandler)
+	container.Provide(services.InitCognitoService)
+	container.Provide(handler.InitUserHandler)
 
 	err := container.Invoke(func(
 	dataService *services.DataService,
-	// userHandler *handler.UserHandler,
+	userHandler *handler.UserHandler,
 	) {
 		defer dataService.Conn.Close()
 
 		clog.Logger.Info("INITIALIZING ROUTES")
 
-		// router.AddSubRoutes("/user", routes.User(userHandler))
+		router.AddSubRoutes("/user", routes.User(userHandler))
 
 		router.GET("/health", healthCheckHandler)
 
