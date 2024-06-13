@@ -49,7 +49,6 @@ dist-ssr
 *.sln
 *.sw?
 .aws-sam
-service
 server
 
 # golang backend

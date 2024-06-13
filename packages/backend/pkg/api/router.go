@@ -2,12 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/joho/godotenv"
 	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
@@ -20,18 +17,18 @@ type HealthCheckResponse struct {
 }
 
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("HELLO WORLDS")
-	response := HealthCheckResponse{Message: "App is Healthysss"}
+	response := HealthCheckResponse{Message: "Service Healthy"}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
 
-func Handler() {
+func GetLambdaAdapter() *httpadapter.HandlerAdapterV2 {
 	if err := godotenv.Load(); err != nil {
 		clog.Logger.Error("No .env file found")
-		return
 	}
+
+	var adapterLambda *httpadapter.HandlerAdapterV2
 
 	// Create a new dig container
 	container := dig.New()
@@ -47,35 +44,26 @@ func Handler() {
 	) {
 		// defer dataService.Conn.Close()
 
+		clog.Logger.Info("INITIALIZING ROUTES")
+
 		router := justarouter.CreateRouter()
 
 		// router.AddSubRoutes("/user", routes.User(userHandler))
 
 		router.GET("/health", healthCheckHandler)
 
-		deployment := os.Getenv("GO_DEPLOMENT")
+		clog.Logger.Info("HERE REACHED2")
 
-		if deployment == "server" {
-			server := http.Server{
-				Addr:    ":3000",
-				Handler: router.Mux,
-			}
+		adapterLambda = httpadapter.NewV2(router.Mux)
 
-			clog.Logger.Info("Starting server on :3000")
-
-			err := server.ListenAndServe()
-
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			adapter := httpadapter.New(router.Mux)
-			lambda.Start(adapter.ProxyWithContext)
-		}
-
+		clog.Logger.Info("ROUTES INITIALIZED")
 	})
-
+	
 	if err != nil {
 		log.Fatalf("Failed to invoke dependencies: %s\n", err)
 	}
+
+	clog.Logger.Info("ADAPTER INTIALIZED")
+
+	return adapterLambda
 }
