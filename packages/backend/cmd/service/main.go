@@ -9,7 +9,6 @@ import (
 	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
 )
 
-
 func main() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found")
