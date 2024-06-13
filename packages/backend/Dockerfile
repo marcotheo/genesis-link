@@ -28,4 +28,4 @@ RUN go build -o main .
 RUN strip /app/cmd/service/main
 
 # Command to copy the built binary to the output directory
-CMD ["cp", "/app/cmd/service/main", "/out/main"]
+CMD ["cp", "/app/cmd/service/main", "/out/server"]

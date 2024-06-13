@@ -7,6 +7,12 @@ MIG_DIR=pkg/sqlc/migrations
 run:
 	go run cmd/service/main.go
 
+build:
+	docker build -t golang-lambda-builder .
+	docker run --rm -v "$(PWD)":/out golang-lambda-builder
+	chmod +x bootstrap
+	zip -r deployment.zip server bootstrap
+
 db-status:
 	goose -dir ${MIG_DIR} turso $(DB_URL) status
 
@@ -15,11 +21,3 @@ db-up:
 
 db-reset:
 	goose -dir ${MIG_DIR} turso $(DB_URL) reset
-
-sam-build:
-	docker build -t golang-lambda-builder .
-	docker run --rm -v "$(PWD)":/out golang-lambda-builder
-
-sam-test:
-	./build-test.sh
-

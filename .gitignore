@@ -50,7 +50,7 @@ dist-ssr
 *.sw?
 .aws-sam
 service
-main
+server
 
 # golang backend
 deployment.zip
