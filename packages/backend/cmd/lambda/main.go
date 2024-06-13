@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -10,10 +11,11 @@ import (
 )
 
 var adapterLambda *httpadapter.HandlerAdapterV2
+var conn *sql.DB
 
 // initialize the routes into a lambda adapter
 func init() {
-	adapterLambda = api.GetLambdaAdapter()
+	adapterLambda, conn = api.GetLambdaAdapter()
 }
 
 // Handler will deal with the routers
@@ -22,5 +24,7 @@ func Handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.AP
 }
 
 func main() {
+	defer conn.Close()
+
 	lambda.Start(Handler)
 }
