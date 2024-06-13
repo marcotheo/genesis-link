@@ -1,26 +1,33 @@
 package main
 
 import (
-	"context"
+	"fmt"
+	"net/http"
 
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
+	"github.com/joho/godotenv"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/api"
+	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
 )
 
-var adapterLambda *httpadapter.HandlerAdapterV2
-
-// // initiate
-func init() {
-	adapterLambda = api.GetLambdaAdapter()
-}
-
-// Handler will deal with Fiber working with Lambda
-func Handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
-	return adapterLambda.ProxyWithContext(ctx, req)
-}
 
 func main() {
-	lambda.Start(Handler)
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("No .env file found")
+	}
+
+	router := api.InitializeApp()
+
+	server := http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+
+	clog.Logger.Info("Server running at port :8080")
+
+	err := server.ListenAndServe()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
