@@ -19,6 +19,8 @@ type UserHandler struct {
 }
 
 type CreateUserParamsValidation struct {
+	Username  string `json:"username" validate:"required"`
+	Password  string `json:"password" validate:"required"`
 	Firstname string `json:"first_name" validate:"required"`
 	Lastname  string `json:"last_name" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
@@ -39,6 +41,14 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	errRead := ReadAndValidateBody(r, &userValidation)
 	if errRead != nil {
 		http.Error(w, errRead.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// create user in cognito user pool
+	err := h.cognitoSvc.SignUpUser(userValidation.Username, userValidation.Password)
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error signing up user in cognito: %s", err))
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
 		return
 	}
 

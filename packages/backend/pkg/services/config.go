@@ -8,9 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-type ServicesManager struct {
-	cognitoService *CognitoService
-}
 
 func awsConfigInit() *aws.Config {
 	// Load the AWS configuration with the specified profile
