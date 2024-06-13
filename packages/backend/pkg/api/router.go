@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -26,8 +27,9 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func InitializeApp() *http.ServeMux {
+func InitializeApp() (*http.ServeMux, *sql.DB) {
 	router := justarouter.CreateRouter()
+	var dbConn *sql.DB
 
 	// Create a new dig container
 	container := dig.New()
@@ -41,7 +43,7 @@ func InitializeApp() *http.ServeMux {
 	dataService *services.DataService,
 	userHandler *handler.UserHandler,
 	) {
-		defer dataService.Conn.Close()
+		dbConn = dataService.Conn
 
 		clog.Logger.Info("INITIALIZING ROUTES")
 
@@ -56,20 +58,20 @@ func InitializeApp() *http.ServeMux {
 		log.Fatalf("Failed to invoke dependencies: %s\n", err)
 	}
 
-	return router.Mux
+	return router.Mux, dbConn
 }
 
 
-func GetLambdaAdapter() *httpadapter.HandlerAdapterV2 {
+func GetLambdaAdapter() (*httpadapter.HandlerAdapterV2, *sql.DB) {
 	if err := godotenv.Load(); err != nil {
 		clog.Logger.Error("No .env file found")
 	}
 
-	mux := InitializeApp()
+	mux, dbConn := InitializeApp()
 
 	var adapterLambda *httpadapter.HandlerAdapterV2 = httpadapter.NewV2(mux)
 
 	clog.Logger.Info("ADAPTER INTIALIZED")
 
-	return adapterLambda
+	return adapterLambda, dbConn
 }
