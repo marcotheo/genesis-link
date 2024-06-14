@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -17,19 +16,19 @@ type UserHandler struct {
 	cognitoSvc  *services.CognitoService
 }
 
+func InitUserHandler(dataService *services.DataService, cognitoSvc *services.CognitoService) *UserHandler {
+	return &UserHandler{
+		dataService: dataService,
+		cognitoSvc:  cognitoSvc,
+	}
+}
+
 type CreateUserParamsValidation struct {
 	Username  string `json:"username" validate:"required"`
 	Password  string `json:"password" validate:"required"`
 	Firstname string `json:"first_name" validate:"required"`
 	Lastname  string `json:"last_name" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
-}
-
-func InitUserHandler(dataService *services.DataService, cognitoSvc *services.CognitoService) *UserHandler {
-	return &UserHandler{
-		dataService: dataService,
-		cognitoSvc:  cognitoSvc,
-	}
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -69,17 +68,9 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, errMarshal := json.Marshal(user)
-	if errMarshal != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => error in json.marshal %s \n", errMarshal))
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
-		return
-	}
-
 	clog.Logger.Success("(USER) CreateUser => create successful")
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(response)
+	successResponse(w, user)
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -104,6 +95,32 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(USER) GetUser => details successfuly retrieved")
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(Response{Status: "success", Data: user})
+	successResponse(w, user)
+}
+
+type SignInUserParamsValidation struct {
+	Username  string `json:"username" validate:"required"`
+	Password  string `json:"password" validate:"required"`
+}
+
+func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(USER) SignInUser => invoked")
+
+	var inputValidation SignInUserParamsValidation
+
+	errRead := ReadAndValidateBody(r, &inputValidation)
+	if errRead != nil {
+		errorResponse(w, http.StatusBadRequest, errRead.Error())
+		return
+	}
+
+	res, err := h.cognitoSvc.SignInUser(inputValidation.Username, inputValidation.Password)
+	if err != nil {
+		errorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	clog.Logger.Success("(USER) SignInUser => success")
+
+	successResponse(w, res)
 }

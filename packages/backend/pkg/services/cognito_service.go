@@ -5,11 +5,14 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
 )
 
@@ -38,7 +41,7 @@ func calculateSecretHash(clientID, clientSecret, username string) string {
 }
 
 func (c *CognitoService) SignUpUser(username string, password string) (string, error) {
-	clog.Logger.Info("adding user to user pool")
+	clog.Logger.Info("(COGNITO) adding user")
 
 	secretHash := calculateSecretHash(c.clientId, c.clientSecret, username)
 
@@ -64,7 +67,40 @@ func (c *CognitoService) SignUpUser(username string, password string) (string, e
 		return "", fmt.Errorf("failed to create user: %w", errConfirmSignUp)
 	}
 
-	clog.Logger.Info("user added successfuly to user pool")
+	clog.Logger.Info("(COGNITO) user added successfuly")
 
 	return *res.UserSub, nil
+}
+
+func (c *CognitoService) SignInUser(username string, password string) (types.AuthenticationResultType, error) {
+	clog.Logger.Info("(COGNITO) authenticating user")
+
+	secretHash := calculateSecretHash(c.clientId, c.clientSecret, username)
+
+	input := &cognitoidentityprovider.InitiateAuthInput{
+		ClientId:   &c.clientId,
+		AuthFlow: "USER_PASSWORD_AUTH",
+		AuthParameters: map[string]string{
+            "USERNAME": username,
+            "PASSWORD": password,
+			"SECRET_HASH": secretHash,
+        },
+	}
+
+	result, err := c.Client.InitiateAuth(context.TODO(), input)
+	if err != nil {
+		clog.Logger.Error("(COGNITO) failed authenticate user")
+
+		if strings.Contains(err.Error(), "NotAuthorizedException") {
+			return types.AuthenticationResultType{}, errors.New("invalid credentials")
+		}
+
+		return types.AuthenticationResultType{}, fmt.Errorf("failed authenticate user: %w", err)
+	}
+
+	clog.Logger.Info("(COGNITO) user authenticated")
+
+	// user not expected any challenge since user sign up by themselves
+	return *result.AuthenticationResult, nil
+
 }
