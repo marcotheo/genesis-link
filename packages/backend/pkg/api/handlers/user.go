@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/db"
@@ -99,8 +100,14 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 type SignInUserParamsValidation struct {
-	Username  string `json:"username" validate:"required"`
-	Password  string `json:"password" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type SignInUserResponse struct {
+	AccessToken string
+	IdToken     string
+	ExpiresIn   int32
 }
 
 func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +127,14 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refreshToken",
+		Value:    *res.RefreshToken,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+	})
+
 	clog.Logger.Success("(USER) SignInUser => success")
 
-	successResponse(w, res)
+	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
 }

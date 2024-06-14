@@ -78,13 +78,13 @@ func (c *CognitoService) SignInUser(username string, password string) (types.Aut
 	secretHash := calculateSecretHash(c.clientId, c.clientSecret, username)
 
 	input := &cognitoidentityprovider.InitiateAuthInput{
-		ClientId:   &c.clientId,
+		ClientId: &c.clientId,
 		AuthFlow: "USER_PASSWORD_AUTH",
 		AuthParameters: map[string]string{
-            "USERNAME": username,
-            "PASSWORD": password,
+			"USERNAME":    username,
+			"PASSWORD":    password,
 			"SECRET_HASH": secretHash,
-        },
+		},
 	}
 
 	result, err := c.Client.InitiateAuth(context.TODO(), input)
