@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/db"
 	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
@@ -45,7 +44,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create user in cognito user pool
-	err := h.cognitoSvc.SignUpUser(userValidation.Username, userValidation.Password)
+	userId, err := h.cognitoSvc.SignUpUser(userValidation.Username, userValidation.Password)
 	if err != nil {
 		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error signing up user in cognito: %s", err))
 		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
@@ -61,7 +60,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userData.Userid = uuid.New().String()
+	userData.Userid = userId
 
 	user, errQ := h.dataService.Queries.CreateUser(context.Background(), userData)
 	if errQ != nil {

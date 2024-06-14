@@ -37,7 +37,7 @@ func calculateSecretHash(clientID, clientSecret, username string) string {
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }
 
-func (c *CognitoService) SignUpUser(username string, password string) error {
+func (c *CognitoService) SignUpUser(username string, password string) (string, error) {
 	clog.Logger.Info("adding user to user pool")
 
 	secretHash := calculateSecretHash(c.clientId, c.clientSecret, username)
@@ -49,9 +49,9 @@ func (c *CognitoService) SignUpUser(username string, password string) error {
 		SecretHash: aws.String(secretHash),
 	}
 
-	_, errSignUp := c.Client.SignUp(context.TODO(), input)
+	res, errSignUp := c.Client.SignUp(context.TODO(), input)
 	if errSignUp != nil {
-		return fmt.Errorf("failed to create user: %w", errSignUp)
+		return "", fmt.Errorf("failed to create user: %w", errSignUp)
 	}
 
 	adminConfirmSignUpInput := &cognitoidentityprovider.AdminConfirmSignUpInput{
@@ -61,9 +61,10 @@ func (c *CognitoService) SignUpUser(username string, password string) error {
 
 	_, errConfirmSignUp := c.Client.AdminConfirmSignUp(context.TODO(), adminConfirmSignUpInput)
 	if errConfirmSignUp != nil {
-		return fmt.Errorf("failed to create user: %w", errConfirmSignUp)
+		return "", fmt.Errorf("failed to create user: %w", errConfirmSignUp)
 	}
 
 	clog.Logger.Info("user added successfuly to user pool")
-	return nil
+
+	return *res.UserSub, nil
 }
