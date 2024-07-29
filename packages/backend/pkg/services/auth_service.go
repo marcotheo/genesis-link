@@ -20,40 +20,40 @@ func InitAuthService() *AuthService {
 
 // GenerateSalt generates a random salt
 func GenerateSalt(size int) (string, error) {
-    salt := make([]byte, size)
-    _, err := rand.Read(salt)
-    if err != nil {
-        return "", err
-    }
-    return base64.StdEncoding.EncodeToString(salt), nil
+	salt := make([]byte, size)
+	_, err := rand.Read(salt)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(salt), nil
 }
 
 // CheckPassword compares the hashed password with a plain-text password
 func CheckPassword(password, salt, pepper, hashedPassword string) bool {
-    // Concatenate password, salt, and pepper
-    saltedPepperedPassword := password + salt + pepper
+	// Concatenate password, salt, and pepper
+	saltedPepperedPassword := password + salt + pepper
 
-    // Compare the hashed password with the concatenated value
-    err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(saltedPepperedPassword))
-    return err == nil
+	// Compare the hashed password with the concatenated value
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(saltedPepperedPassword))
+	return err == nil
 }
 
 func (a *AuthService) HashPassword(password string) (string, string, error) {
-    salt, err := GenerateSalt(16)
-    if err != nil {
-        return "", "", err
-    }
+	salt, err := GenerateSalt(16)
+	if err != nil {
+		return "", "", err
+	}
 
-    // Concatenate password, salt, and pepper
-    saltedPepperedPassword := password + salt + a.pepper
+	// Concatenate password, salt, and pepper
+	saltedPepperedPassword := password + salt + a.pepper
 
-    // Hash the concatenated password using bcrypt
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(saltedPepperedPassword), bcrypt.DefaultCost)
-    if err != nil {
-        return "", "", err
-    }
+	// Hash the concatenated password using bcrypt
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(saltedPepperedPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return "", "", err
+	}
 
-    return string(hashedPassword), salt, nil
+	return string(hashedPassword), salt, nil
 }
 
 // func (c *AuthService) SignInUser(username string, password string) (types.AuthenticationResultType, error) {

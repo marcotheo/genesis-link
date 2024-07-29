@@ -1,5 +1,7 @@
 export const main_user_pool = () => {
-  const pool = new sst.aws.CognitoUserPool(`${process.env.PROJ_NAME}MainUserPool`);
+  const pool = new sst.aws.CognitoUserPool(
+    `${process.env.PROJ_NAME}MainUserPool`
+  );
 
   const client = pool.addClient(`${process.env.PROJ_NAME}MainUserClient`, {
     transform: {
