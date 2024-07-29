@@ -4,12 +4,17 @@
 
 package db
 
+import (
+	"database/sql"
+)
+
 type User struct {
 	Userid    interface{}
 	Firstname string
 	Lastname  string
 	Email     string
-	Password  string
+	Password  sql.NullString
+	Salt      sql.NullString
 	CreatedAt interface{}
 	UpdatedAt interface{}
 }
