@@ -1,3 +1,6 @@
+GOPATH := $(shell go env GOPATH)
+GOBIN := $(GOPATH)/bin
+
 include .env
 
 .PHONY: run
