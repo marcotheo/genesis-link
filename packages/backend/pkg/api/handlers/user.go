@@ -2,9 +2,10 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
-	"time"
+	"strings"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/db"
@@ -14,13 +15,15 @@ import (
 
 type UserHandler struct {
 	dataService *services.DataService
-	cognitoSvc  *services.CognitoService
+	authService *services.AuthService
+	utilService *services.UtilService
 }
 
-func InitUserHandler(dataService *services.DataService, cognitoSvc *services.CognitoService) *UserHandler {
+func InitUserHandler(dataService *services.DataService, authService *services.AuthService, utilService *services.UtilService) *UserHandler {
 	return &UserHandler{
 		dataService: dataService,
-		cognitoSvc:  cognitoSvc,
+		authService: authService,
+		utilService: utilService,
 	}
 }
 
@@ -32,7 +35,7 @@ type CreateUserParamsValidation struct {
 	Email     string `json:"email" validate:"required,email"`
 }
 
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) CreateUser => invoked")
 
 	var userValidation CreateUserParamsValidation
@@ -43,15 +46,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// create user in cognito user pool
-	userId, err := h.cognitoSvc.SignUpUser(userValidation.Username, userValidation.Password)
-	if err != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error signing up user in cognito: %s", err))
-		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
-		return
-	}
-
-	// pass to validated data to actual db params
+	// pass the validated data to actual db params
 	var userData db.CreateUserParams
 	errCopier := copier.Copy(&userData, &userValidation)
 	if errCopier != nil {
@@ -60,12 +55,21 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userData.Userid = userId
+	hashedPassword, salt, nil := h.authService.HashPassword(userValidation.Password)
+	userData.Userid = h.utilService.GenerateUUID()
+	userData.Password = sql.NullString{String: hashedPassword, Valid: true}
+	userData.Salt = sql.NullString{String: salt, Valid: true}
 
 	user, errQ := h.dataService.Queries.CreateUser(context.Background(), userData)
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", errQ))
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
+		if strings.Contains(errQ.Error(), "UNIQUE constraint failed") {
+			clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", "Error: email already exists"))
+			errorResponse(w, http.StatusBadRequest, "Error: email already exists")
+			return
+		}
+
+		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", "errQ.Error()"))
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
 		return
 	}
 
@@ -110,31 +114,31 @@ type SignInUserResponse struct {
 	ExpiresIn   int32
 }
 
-func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) SignInUser => invoked")
+// func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
+// 	clog.Logger.Info("(USER) SignInUser => invoked")
 
-	var inputValidation SignInUserParamsValidation
+// 	var inputValidation SignInUserParamsValidation
 
-	errRead := ReadAndValidateBody(r, &inputValidation)
-	if errRead != nil {
-		errorResponse(w, http.StatusBadRequest, errRead.Error())
-		return
-	}
+// 	errRead := ReadAndValidateBody(r, &inputValidation)
+// 	if errRead != nil {
+// 		errorResponse(w, http.StatusBadRequest, errRead.Error())
+// 		return
+// 	}
 
-	res, err := h.cognitoSvc.SignInUser(inputValidation.Username, inputValidation.Password)
-	if err != nil {
-		errorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
+// 	res, err := h.cognitoSvc.SignInUser(inputValidation.Username, inputValidation.Password)
+// 	if err != nil {
+// 		errorResponse(w, http.StatusBadRequest, err.Error())
+// 		return
+// 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refreshToken",
-		Value:    *res.RefreshToken,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-	})
+// 	http.SetCookie(w, &http.Cookie{
+// 		Name:     "refreshToken",
+// 		Value:    *res.RefreshToken,
+// 		Expires:  time.Now().Add(24 * time.Hour),
+// 		HttpOnly: true,
+// 	})
 
-	clog.Logger.Success("(USER) SignInUser => success")
+// 	clog.Logger.Success("(USER) SignInUser => success")
 
-	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
-}
+// 	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
+// }
