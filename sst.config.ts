@@ -3,6 +3,7 @@ import { main_backend } from "./infra/main-backend";
 import { main_user_pool } from "./infra/main-userpool";
 import { images_cdn } from "./infra/images-cdn";
 import { cloudflare_pages } from "./infra/cloudflare-pages";
+
 export default $config({
   app(input) {
     return {
