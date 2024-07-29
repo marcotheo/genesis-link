@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
-	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/api"
+	"github.com/marcotheo/genesis-link/packages/backend/pkg/api"
 )
 
 var adapterLambda *httpadapter.HandlerAdapterV2

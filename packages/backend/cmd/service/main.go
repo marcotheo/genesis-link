@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/joho/godotenv"
-	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/api"
-	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
+	"github.com/marcotheo/genesis-link/packages/backend/pkg/api"
+	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 )
 
 func main() {
