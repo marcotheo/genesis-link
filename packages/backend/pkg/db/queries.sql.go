@@ -7,13 +7,14 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  userId, firstName, lastName, email
+  userId, firstName, lastName, email, password, salt
 ) VALUES (
-  ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?
 )
 RETURNING userid, firstname, lastname, email, password, salt, created_at, updated_at
 `
@@ -23,6 +24,8 @@ type CreateUserParams struct {
 	Firstname string
 	Lastname  string
 	Email     string
+	Password  sql.NullString
+	Salt      sql.NullString
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -31,6 +34,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Firstname,
 		arg.Lastname,
 		arg.Email,
+		arg.Password,
+		arg.Salt,
 	)
 	var i User
 	err := row.Scan(
