@@ -35,13 +35,14 @@ func InitializeApp() (*http.ServeMux, *sql.DB) {
 	container := dig.New()
 
 	// initialize services and handlers
+	container.Provide(services.InitUtilService)
 	container.Provide(services.InitDataService)
-	container.Provide(services.InitCognitoService)
+	container.Provide(services.InitAuthService)
 	container.Provide(handler.InitUserHandler)
 
 	err := container.Invoke(func(
-	dataService *services.DataService,
-	userHandler *handler.UserHandler,
+		dataService *services.DataService,
+		userHandler *handler.UserHandler,
 	) {
 		dbConn = dataService.Conn
 
@@ -53,14 +54,13 @@ func InitializeApp() (*http.ServeMux, *sql.DB) {
 
 		clog.Logger.Info("ROUTES INITIALIZED")
 	})
-	
+
 	if err != nil {
 		log.Fatalf("Failed to invoke dependencies: %s\n", err)
 	}
 
 	return router.Mux, dbConn
 }
-
 
 func GetLambdaAdapter() (*httpadapter.HandlerAdapterV2, *sql.DB) {
 	if err := godotenv.Load(); err != nil {
