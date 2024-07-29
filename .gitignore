@@ -53,3 +53,5 @@ server
 
 # golang backend
 deployment.zip
+
+packages/scripts/src/assets-output/**/*
