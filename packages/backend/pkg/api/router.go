@@ -8,10 +8,10 @@ import (
 
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/joho/godotenv"
-	handler "github.com/marcotheo/genesis-fleet/packages/backend/pkg/api/handlers"
-	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/api/routes"
-	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
-	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/services"
+	handler "github.com/marcotheo/genesis-link/packages/backend/pkg/api/handlers"
+	"github.com/marcotheo/genesis-link/packages/backend/pkg/api/routes"
+	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
+	"github.com/marcotheo/genesis-link/packages/backend/pkg/services"
 	"github.com/marcotheo/justarouter"
 	"go.uber.org/dig"
 )

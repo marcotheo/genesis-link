@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/jinzhu/copier"
-	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/db"
-	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
-	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/services"
+	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
+	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
+	"github.com/marcotheo/genesis-link/packages/backend/pkg/services"
 )
 
 type UserHandler struct {

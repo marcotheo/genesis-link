@@ -1,4 +1,4 @@
-module github.com/marcotheo/genesis-fleet/packages/backend
+module github.com/marcotheo/genesis-link/packages/backend
 
 go 1.22.2
 

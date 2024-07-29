@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/marcotheo/genesis-fleet/packages/backend/pkg/db"
-	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
+	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
+	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 

@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
-	clog "github.com/marcotheo/genesis-fleet/packages/backend/pkg/logger"
+	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 )
 
 type CognitoService struct {

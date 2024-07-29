@@ -1,7 +1,7 @@
 package routes
 
 import (
-	handler "github.com/marcotheo/genesis-fleet/packages/backend/pkg/api/handlers"
+	handler "github.com/marcotheo/genesis-link/packages/backend/pkg/api/handlers"
 	"github.com/marcotheo/justarouter"
 )
 
