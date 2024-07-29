@@ -28,7 +28,6 @@ func InitUserHandler(dataService *services.DataService, authService *services.Au
 }
 
 type CreateUserParamsValidation struct {
-	Username  string `json:"username" validate:"required"`
 	Password  string `json:"password" validate:"required"`
 	Firstname string `json:"first_name" validate:"required"`
 	Lastname  string `json:"last_name" validate:"required"`
@@ -104,7 +103,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 type SignInUserParamsValidation struct {
-	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
 
