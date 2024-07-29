@@ -21,6 +21,7 @@ type HealthCheckResponse struct {
 }
 
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(HEALTH) health check invoked")
 	response := HealthCheckResponse{Message: "Service Healthy"}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
