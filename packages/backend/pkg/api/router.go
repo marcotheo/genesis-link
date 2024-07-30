@@ -38,7 +38,7 @@ func InitializeApp() (*http.ServeMux, *sql.DB) {
 	// initialize services and handlers
 	container.Provide(services.InitUtilService)
 	container.Provide(services.InitDataService)
-	container.Provide(services.InitAuthService)
+	container.Provide(services.InitCognitoService)
 	container.Provide(handler.InitUserHandler)
 
 	err := container.Invoke(func(

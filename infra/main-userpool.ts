@@ -24,8 +24,8 @@ export const main_user_pool = () => {
   });
 
   return {
-    pool,
-    client,
-    clientSecret: client.nodes.client.clientSecret,
+    poolId: pool.id,
+    poolClientId: client.id,
+    poolClientSecret: client.nodes.client.clientSecret,
   };
 };

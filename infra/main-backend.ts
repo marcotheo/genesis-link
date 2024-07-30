@@ -1,6 +1,6 @@
 import * as path from "path";
 
-export const main_backend =  async({
+export const main_backend = async ({
   poolId,
   poolClientId,
   poolClientSecret,
@@ -43,12 +43,12 @@ export const main_backend =  async({
           Resource: "*",
         },
         {
-          Action: [
-            "cognito-idp:*"
-          ],
+          Action: ["cognito-idp:*"],
           Effect: "Allow",
-          Resource: [`arn:aws:cognito-idp:${aws.config.region}:${accountId}:userpool/*`]
-        }
+          Resource: [
+            `arn:aws:cognito-idp:${aws.config.region}:${accountId}:userpool/*`,
+          ],
+        },
       ],
     },
   });
@@ -59,21 +59,24 @@ export const main_backend =  async({
     "deployment.zip"
   );
 
-  const lambdaFunction = new aws.lambda.Function(`${process.env.PROJ_NAME}Lambda`, {
-    runtime: aws.lambda.Runtime.CustomAL2023,
-    code: new $util.asset.FileArchive(filePath),
-    timeout: 10,
-    role: role.arn,
-    handler: "bootstrap", // Custom runtimes can have handler set to an empty string ""
-    environment: {
-      variables: {
-        DB_URL: process.env.DB_URL,
-        POOL_ID: poolId,
-        POOL_CLIENT_ID: poolClientId,
-        POOL_CLIENT_SECRET: poolClientSecret
+  const lambdaFunction = new aws.lambda.Function(
+    `${process.env.PROJ_NAME}Lambda`,
+    {
+      runtime: aws.lambda.Runtime.CustomAL2023,
+      code: new $util.asset.FileArchive(filePath),
+      timeout: 10,
+      role: role.arn,
+      handler: "bootstrap", // Custom runtimes can have handler set to an empty string ""
+      environment: {
+        variables: {
+          DB_URL: process.env.DB_URL,
+          POOL_ID: poolId,
+          POOL_CLIENT_ID: poolClientId,
+          POOL_CLIENT_SECRET: poolClientSecret,
+        },
       },
-    },
-  });
+    }
+  );
 
   // Create an API Gateway
   const api = new aws.apigatewayv2.Api(`${process.env.PROJ_NAME}APIGateway`, {
@@ -105,18 +108,16 @@ export const main_backend =  async({
   });
 
   // Grant permissions
-  new aws.lambda.Permission(
-    `${process.env.PROJ_NAME}APIGatewayPermssions`,
-    {
-      action: "lambda:InvokeFunction",
-      function: lambdaFunction,
-      principal: "apigateway.amazonaws.com",
-      sourceArn: $util.interpolate`${api.executionArn}/*/*`,
-    }
-  );
+  new aws.lambda.Permission(`${process.env.PROJ_NAME}APIGatewayPermssions`, {
+    action: "lambda:InvokeFunction",
+    function: lambdaFunction,
+    principal: "apigateway.amazonaws.com",
+    sourceArn: $util.interpolate`${api.executionArn}/*/*`,
+  });
 
   return {
-    role,
-    api,
+    apiUrl: api.apiEndpoint,
+    functionName: lambdaFunction.name,
+    functionRole: role.name,
   };
 };
