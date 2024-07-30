@@ -35,3 +35,7 @@
 - `make db-status` will check its db migration status
 - `make db-up` will run the db migrations
 - `make db-reset` will reset the migrations
+
+### Docker command for local development
+
+- docker run --rm --env-file ./.env -p 3000:8080 goapp
