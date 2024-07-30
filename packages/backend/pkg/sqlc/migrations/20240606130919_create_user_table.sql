@@ -5,8 +5,6 @@ CREATE TABLE users (
     firstName TEXT NOT NULL,
     lastName TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    password TEXT,
-    salt TEXT,
     google_id TEXT UNIQUE,
     created_at DEFAULT CURRENT_TIMESTAMP,
     updated_at DEFAULT CURRENT_TIMESTAMP
