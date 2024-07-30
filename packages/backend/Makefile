@@ -11,7 +11,7 @@ run:
 	go run cmd/service/main.go
 
 build:
-	docker build -t golang-lambda-builder .
+	docker build -t golang-lambda-builder -f Dockerfile.lambda .
 	docker run --rm -v "$(PWD)":/out golang-lambda-builder
 	chmod +x bootstrap
 	zip -r deployment.zip server bootstrap
