@@ -7,16 +7,15 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  userId, firstName, lastName, email, password, salt
+  userId, firstName, lastName, email
 ) VALUES (
-  ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?
 )
-RETURNING userid, firstname, lastname, email, password, salt, created_at, updated_at
+RETURNING userid, firstname, lastname, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -24,8 +23,6 @@ type CreateUserParams struct {
 	Firstname string
 	Lastname  string
 	Email     string
-	Password  sql.NullString
-	Salt      sql.NullString
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -34,8 +31,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Firstname,
 		arg.Lastname,
 		arg.Email,
-		arg.Password,
-		arg.Salt,
 	)
 	var i User
 	err := row.Scan(
@@ -43,8 +38,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Firstname,
 		&i.Lastname,
 		&i.Email,
-		&i.Password,
-		&i.Salt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -52,7 +45,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT userid, firstname, lastname, email, password, salt, created_at, updated_at FROM users
+SELECT userid, firstname, lastname, email, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
 `
 
@@ -64,8 +57,6 @@ func (q *Queries) GetUser(ctx context.Context, userid interface{}) (User, error)
 		&i.Firstname,
 		&i.Lastname,
 		&i.Email,
-		&i.Password,
-		&i.Salt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
