@@ -2,10 +2,8 @@ package handler
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -14,16 +12,16 @@ import (
 )
 
 type UserHandler struct {
-	dataService *services.DataService
-	authService *services.AuthService
-	utilService *services.UtilService
+	dataService    *services.DataService
+	cognitoService *services.CognitoService
+	utilService    *services.UtilService
 }
 
-func InitUserHandler(dataService *services.DataService, authService *services.AuthService, utilService *services.UtilService) *UserHandler {
+func InitUserHandler(dataService *services.DataService, cognitoService *services.CognitoService, utilService *services.UtilService) *UserHandler {
 	return &UserHandler{
-		dataService: dataService,
-		authService: authService,
-		utilService: utilService,
+		dataService:    dataService,
+		cognitoService: cognitoService,
+		utilService:    utilService,
 	}
 }
 
@@ -34,7 +32,7 @@ type CreateUserParamsValidation struct {
 	Email     string `json:"email" validate:"required,email"`
 }
 
-func (h *UserHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) CreateUser => invoked")
 
 	var userValidation CreateUserParamsValidation
@@ -45,7 +43,15 @@ func (h *UserHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// pass the validated data to actual db params
+	// create user in cognito user pool
+	userId, err := h.cognitoService.SignUpUser(userValidation.Email, userValidation.Password)
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error signing up user in cognito: %s", err))
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
+		return
+	}
+
+	// pass to validated data to actual db params
 	var userData db.CreateUserParams
 	errCopier := copier.Copy(&userData, &userValidation)
 	if errCopier != nil {
@@ -54,21 +60,12 @@ func (h *UserHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, salt, nil := h.authService.HashPassword(userValidation.Password)
-	userData.Userid = h.utilService.GenerateUUID()
-	userData.Password = sql.NullString{String: hashedPassword, Valid: true}
-	userData.Salt = sql.NullString{String: salt, Valid: true}
+	userData.Userid = userId
 
 	user, errQ := h.dataService.Queries.CreateUser(context.Background(), userData)
 	if errQ != nil {
-		if strings.Contains(errQ.Error(), "UNIQUE constraint failed") {
-			clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", "Error: email already exists"))
-			errorResponse(w, http.StatusBadRequest, "Error: email already exists")
-			return
-		}
-
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", "errQ.Error()"))
-		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
+		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", errQ))
+		http.Error(w, "Error creating response", http.StatusInternalServerError)
 		return
 	}
 
@@ -124,7 +121,7 @@ type SignInUserResponse struct {
 // 		return
 // 	}
 
-// 	res, err := h.cognitoSvc.SignInUser(inputValidation.Username, inputValidation.Password)
+// 	res, err := h.cognitoService.SignInUser(inputValidation.Username, inputValidation.Password)
 // 	if err != nil {
 // 		errorResponse(w, http.StatusBadRequest, err.Error())
 // 		return

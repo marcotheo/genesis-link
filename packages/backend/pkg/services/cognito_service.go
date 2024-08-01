@@ -50,21 +50,17 @@ func (c *CognitoService) SignUpUser(username string, password string) (string, e
 		Username:   &username,
 		Password:   &password,
 		SecretHash: aws.String(secretHash),
+		UserAttributes: []types.AttributeType{
+			{
+				Name:  aws.String("email"),
+				Value: aws.String(username),
+			},
+		},
 	}
 
 	res, errSignUp := c.Client.SignUp(context.TODO(), input)
 	if errSignUp != nil {
 		return "", fmt.Errorf("failed to create user: %w", errSignUp)
-	}
-
-	adminConfirmSignUpInput := &cognitoidentityprovider.AdminConfirmSignUpInput{
-		UserPoolId: &c.poolId,
-		Username:   &username,
-	}
-
-	_, errConfirmSignUp := c.Client.AdminConfirmSignUp(context.TODO(), adminConfirmSignUpInput)
-	if errConfirmSignUp != nil {
-		return "", fmt.Errorf("failed to create user: %w", errConfirmSignUp)
 	}
 
 	clog.Logger.Info("(COGNITO) user added successfuly")
