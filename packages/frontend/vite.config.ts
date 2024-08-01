@@ -31,9 +31,16 @@ export default defineConfig(({ command, mode }): UserConfig => {
     plugins: [qwikCity(), qwikVite(), tsconfigPaths()],
 
     define: {
-      "process.env": {
-        CDN_URL: process.env.CDN_URL,
-      },
+      "process.env": Object.keys(process.env).reduce(
+        (acc, key) => {
+          if (key.startsWith("QWIK_")) {
+            acc[key] = process.env[key] as any;
+          }
+
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     },
 
     // This tells Vite which dependencies to pre-build in dev mode.
