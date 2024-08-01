@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { baseApiUrl } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,4 +19,27 @@ export const RegexValidations = {
   hasLowerCase: /[a-z]/,
   hasUpperCase: /[A-Z]/,
   hasSpecialChar: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
+};
+
+// Define a helper function for fetch requests
+export const qwikFetch = async <T>(
+  url?: string,
+  options?: RequestInit,
+): Promise<T> => {
+  let requestUrl: string = baseApiUrl;
+
+  if (url && url.includes("http")) {
+    requestUrl = url;
+  } else {
+    requestUrl = requestUrl + url;
+  }
+
+  const response = await fetch(requestUrl, options);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data: T = await response.json();
+  return data;
 };
