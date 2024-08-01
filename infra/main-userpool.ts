@@ -50,7 +50,17 @@ export const main_user_pool = () => {
   );
 
   const pool = new aws.cognito.UserPool("UserPool", {
+    autoVerifiedAttributes: ["email"],
     usernameAttributes: ["email"],
+    emailConfiguration: {
+      emailSendingAccount: "COGNITO_DEFAULT", // Use Cognito's default email sending
+    },
+    verificationMessageTemplate: {
+      defaultEmailOption: "CONFIRM_WITH_CODE",
+      emailMessage: "Your verification code is {####}.",
+      emailSubject: "Your verification code",
+      smsMessage: "Your verification code is {####}.",
+    },
     lambdaConfig: {
       customMessage: signUpLambdaFunction.arn,
     },

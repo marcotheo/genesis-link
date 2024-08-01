@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -72,6 +73,37 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(USER) CreateUser => create successful")
 
 	successResponse(w, user)
+}
+
+type ConfirmSignUpParamsValidation struct {
+	Username string `json:"username" validate:"required"`
+	Code     string `json:"code" validate:"required"`
+}
+
+type ConfirmSignUpResponse struct {
+	success bool
+}
+
+func (h *UserHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
+	var inputValidation ConfirmSignUpParamsValidation
+
+	errRead := ReadAndValidateBody(r, &inputValidation)
+	if errRead != nil {
+		errorResponse(w, http.StatusBadRequest, errRead.Error())
+		return
+	}
+
+	isConfirmed, err := h.cognitoService.ConfirmUser(inputValidation.Username, inputValidation.Code)
+	if err != nil {
+		if strings.Contains(err.Error(), "CodeMismatchException") {
+			errorResponse(w, http.StatusBadRequest, "Invalid Code")
+		} else {
+			errorResponse(w, http.StatusBadRequest, err.Error())
+		}
+		return
+	}
+
+	successResponse(w, ConfirmSignUpResponse{success: isConfirmed})
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
