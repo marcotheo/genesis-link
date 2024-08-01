@@ -23,17 +23,14 @@ export default $config({
     const mainUserPool = main_user_pool();
 
     const mainBackendResult = await main_backend({
-      poolId: mainUserPool.pool.id,
-      poolClientId: mainUserPool.client.id,
-      poolClientSecret: mainUserPool.clientSecret,
+      poolId: mainUserPool.poolId,
+      poolClientId: mainUserPool.poolClientId,
+      poolClientSecret: mainUserPool.poolClientSecret,
     });
 
     let output = {
-      roleName: mainBackendResult.role.name,
-      apiUrl: mainBackendResult.api.apiEndpoint,
-      poolId: mainUserPool.pool.id,
-      poolClient: mainUserPool.client.id,
-      poolClientSecret: mainUserPool.clientSecret,
+      ...mainBackendResult,
+      ...mainUserPool,
     };
 
     if (!process.env.APP_NAME) {
