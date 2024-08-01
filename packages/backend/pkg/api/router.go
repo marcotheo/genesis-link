@@ -16,19 +16,7 @@ import (
 	"go.uber.org/dig"
 )
 
-type HealthCheckResponse struct {
-	Message string `json:"message"`
-}
-
-func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(HEALTH) health check invoked")
-	response := HealthCheckResponse{Message: "Service Healthy"}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
-
-func InitializeApp() (*http.ServeMux, *sql.DB) {
+func InitializeApp() (*http.Handler, *sql.DB) {
 	router := justarouter.CreateRouter()
 	var dbConn *sql.DB
 
@@ -60,7 +48,9 @@ func InitializeApp() (*http.ServeMux, *sql.DB) {
 		log.Fatalf("Failed to invoke dependencies: %s\n", err)
 	}
 
-	return router.Mux, dbConn
+	httpRoutes := corsMiddleware(router.Mux)
+
+	return &httpRoutes, dbConn
 }
 
 func GetLambdaAdapter() (*httpadapter.HandlerAdapterV2, *sql.DB) {
@@ -70,9 +60,36 @@ func GetLambdaAdapter() (*httpadapter.HandlerAdapterV2, *sql.DB) {
 
 	mux, dbConn := InitializeApp()
 
-	var adapterLambda *httpadapter.HandlerAdapterV2 = httpadapter.NewV2(mux)
+	var adapterLambda *httpadapter.HandlerAdapterV2 = httpadapter.NewV2(*mux)
 
 	clog.Logger.Info("ADAPTER INTIALIZED")
 
 	return adapterLambda, dbConn
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+type HealthCheckResponse struct {
+	Message string `json:"message"`
+}
+
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(HEALTH) health check invoked")
+	response := HealthCheckResponse{Message: "Service Healthy"}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }

@@ -20,7 +20,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":3000",
-		Handler: router,
+		Handler: *router,
 	}
 
 	clog.Logger.Info("Server running at port :3000")
