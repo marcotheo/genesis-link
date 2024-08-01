@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -81,7 +82,7 @@ type ConfirmSignUpParamsValidation struct {
 }
 
 type ConfirmSignUpResponse struct {
-	success bool
+	Confirmed bool
 }
 
 func (h *UserHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
@@ -103,7 +104,7 @@ func (h *UserHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	successResponse(w, ConfirmSignUpResponse{success: isConfirmed})
+	successResponse(w, ConfirmSignUpResponse{Confirmed: isConfirmed})
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -142,31 +143,31 @@ type SignInUserResponse struct {
 	ExpiresIn   int32
 }
 
-// func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
-// 	clog.Logger.Info("(USER) SignInUser => invoked")
+func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(USER) SignInUser => invoked")
 
-// 	var inputValidation SignInUserParamsValidation
+	var inputValidation SignInUserParamsValidation
 
-// 	errRead := ReadAndValidateBody(r, &inputValidation)
-// 	if errRead != nil {
-// 		errorResponse(w, http.StatusBadRequest, errRead.Error())
-// 		return
-// 	}
+	errRead := ReadAndValidateBody(r, &inputValidation)
+	if errRead != nil {
+		errorResponse(w, http.StatusBadRequest, errRead.Error())
+		return
+	}
 
-// 	res, err := h.cognitoService.SignInUser(inputValidation.Username, inputValidation.Password)
-// 	if err != nil {
-// 		errorResponse(w, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	res, err := h.cognitoService.SignInUser(inputValidation.Email, inputValidation.Password)
+	if err != nil {
+		errorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	http.SetCookie(w, &http.Cookie{
-// 		Name:     "refreshToken",
-// 		Value:    *res.RefreshToken,
-// 		Expires:  time.Now().Add(24 * time.Hour),
-// 		HttpOnly: true,
-// 	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refreshToken",
+		Value:    *res.RefreshToken,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+	})
 
-// 	clog.Logger.Success("(USER) SignInUser => success")
+	clog.Logger.Success("(USER) SignInUser => success")
 
-// 	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
-// }
+	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
+}
