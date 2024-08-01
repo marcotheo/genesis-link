@@ -68,6 +68,28 @@ func (c *CognitoService) SignUpUser(username string, password string) (string, e
 	return *res.UserSub, nil
 }
 
+func (c *CognitoService) ConfirmUser(username string, code string) (bool, error) {
+	clog.Logger.Info("(COGNITO) Confirming User")
+
+	secretHash := calculateSecretHash(c.clientId, c.clientSecret, username)
+
+	input := &cognitoidentityprovider.ConfirmSignUpInput{
+		ClientId:         &c.clientId,
+		Username:         &username,
+		SecretHash:       aws.String(secretHash),
+		ConfirmationCode: &code,
+	}
+
+	_, err := c.Client.ConfirmSignUp(context.TODO(), input)
+	if err != nil {
+		return false, fmt.Errorf(err.Error())
+	}
+
+	clog.Logger.Info("(COGNITO) User Confirmed")
+
+	return true, nil
+}
+
 func (c *CognitoService) SignInUser(username string, password string) (types.AuthenticationResultType, error) {
 	clog.Logger.Info("(COGNITO) authenticating user")
 
