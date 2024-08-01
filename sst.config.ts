@@ -11,10 +11,7 @@ export default $config({
       removal: input?.stage === "production" ? "retain" : "remove",
       home: "aws",
       providers: {
-        aws: {
-          profile: process.env.PROFILE,
-          region: process.env.AWS_REGION as any,
-        },
+        aws: true,
         cloudflare: true,
       },
     };
