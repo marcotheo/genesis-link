@@ -37,7 +37,7 @@ const generateWebPImages = async (inputDir, outputDir, sizes, dprs) => {
     }
   }
 
-  return existingImages;
+  return { existingImages, filesProcessed: files.length };
 };
 
 // Function to upload files to S3
@@ -91,17 +91,24 @@ const handler = async () => {
   const dprs = [1, 2];
 
   try {
-    const skipImages = await generateWebPImages(
+    const { skipImages, filesProcessed } = await generateWebPImages(
       inputDir,
       outputDir,
       sizes,
       dprs
     );
+
+    if (filesProcessed < 1) {
+      console.log("No Images to Upload");
+      return;
+    }
+
     const files = fs.readdirSync(outputDir);
 
-    console.log(
-      `Uploading to s3 bucket ${process.env.ASSETS_BUCKET} Optimized Regular Images ...`
-    );
+    if (files.length === 0)
+      console.log(
+        `Uploading to s3 bucket ${process.env.ASSETS_BUCKET} Optimized Regular Images ...`
+      );
 
     for (const file of files) {
       if (!!skipImages.get(file)) continue;
