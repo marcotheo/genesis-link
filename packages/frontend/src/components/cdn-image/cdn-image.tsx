@@ -1,3 +1,4 @@
+import { baseCDNUrl } from "~/common/constants";
 import { component$ } from "@builder.io/qwik";
 
 interface CdnImageProps {
@@ -13,7 +14,7 @@ interface CdnImageProps {
 
 export default component$<CdnImageProps>(
   ({
-    baseUrl = process.env.CDN_URL,
+    baseUrl = baseCDNUrl,
     filename,
     alt,
     height,

@@ -1,3 +1,4 @@
+import { baseCDNUrl } from "~/common/constants";
 import { component$ } from "@builder.io/qwik";
 
 interface LogoImageProps {
@@ -13,7 +14,7 @@ interface LogoImageProps {
 
 export default component$<LogoImageProps>(
   ({
-    baseUrl = process.env.CDN_URL,
+    baseUrl = baseCDNUrl,
     filename,
     alt,
     height,
