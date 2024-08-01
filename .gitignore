@@ -54,4 +54,7 @@ server
 # golang backend
 deployment.zip
 
+# for turso local db development
+tursolocal
+
 packages/scripts/src/assets-output/**/*
