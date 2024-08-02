@@ -21,5 +21,6 @@
     }
   },
   "files": ["./.eslintrc.cjs"],
-  "include": ["src", "./*.d.ts", "./*.config.ts", "postcss.config.js"]
+  "include": ["src", "./*.d.ts", "./*.config.ts", "postcss.config.js"],
+  "exclude": ["node_modules", "dist", "server"]
 }

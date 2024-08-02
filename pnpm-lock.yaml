@@ -20,6 +20,9 @@ importers:
       '@builder.io/qwik-city':
         specifier: ^1.7.1
         version: 1.7.1(@types/node@20.14.13)(rollup@4.19.1)
+      '@modular-forms/qwik':
+        specifier: ^0.26.1
+        version: 0.26.1(@builder.io/qwik-city@1.7.1(@types/node@20.14.13)(rollup@4.19.1))(@builder.io/qwik@1.7.1(@types/node@20.14.13)(undici@6.19.4))(typescript@5.4.5)
       '@types/eslint':
         specifier: ^8.56.10
         version: 8.56.11
@@ -80,6 +83,9 @@ importers:
       undici:
         specifier: '*'
         version: 6.19.4
+      valibot:
+        specifier: ^0.37.0
+        version: 0.37.0(typescript@5.4.5)
       vercel:
         specifier: ^29.1.1
         version: 29.4.0(@types/node@20.14.13)(ts-node@10.9.1(@types/node@20.14.13)(typescript@5.4.5))
@@ -1660,6 +1666,12 @@ packages:
   '@mdx-js/mdx@3.0.1':
     resolution: {integrity: sha512-eIQ4QTrOWyL3LWEe/bu6Taqzq2HQvHcyTMaOrI95P2/LmJE7AsfPfgJGuFLPVqBUE1BC1rik3VIhU+s9u72arA==}
 
+  '@modular-forms/qwik@0.26.1':
+    resolution: {integrity: sha512-8/ANrC719G09NAOrC6PYkNIhjfMDHaoYr0rm8KWvOUvISGUSV8uKz/T6111Wv9e8vHjIooqGVBtEL5ec+nHIZw==}
+    peerDependencies:
+      '@builder.io/qwik': ^1.4.0
+      '@builder.io/qwik-city': ^1.4.0
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -2895,6 +2907,9 @@ packages:
     peerDependenciesMeta:
       supports-color:
         optional: true
+
+  decode-formdata@0.7.5:
+    resolution: {integrity: sha512-zwz+xh+Z2R1s2hk14pGiwgVnYiw1UnlsoxHZ5neSXnslgET1weO0dw0d9dLpf1rxAtcvNXo59IMKq5avdaOcvA==}
 
   decode-named-character-reference@1.0.2:
     resolution: {integrity: sha512-O8x12RzrUF8xyVcY0KJowWsmaJxQbmy0/EtnNtHRpsOcT7dFk5W598coHqBVpmWo1oQQfsCqfCmkZN5DJrZVdg==}
@@ -5604,6 +5619,14 @@ packages:
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
+  valibot@0.37.0:
+    resolution: {integrity: sha512-FQz52I8RXgFgOHym3XHYSREbNtkgSjF9prvMFH1nBsRyfL6SfCzoT1GuSDTlbsuPubM7/6Kbw0ZMQb8A+V+VsQ==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -7962,6 +7985,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@modular-forms/qwik@0.26.1(@builder.io/qwik-city@1.7.1(@types/node@20.14.13)(rollup@4.19.1))(@builder.io/qwik@1.7.1(@types/node@20.14.13)(undici@6.19.4))(typescript@5.4.5)':
+    dependencies:
+      '@builder.io/qwik': 1.7.1(@types/node@20.14.13)(undici@6.19.4)
+      '@builder.io/qwik-city': 1.7.1(@types/node@20.14.13)(rollup@4.19.1)
+      decode-formdata: 0.7.5
+      valibot: 0.37.0(typescript@5.4.5)
+    transitivePeerDependencies:
+      - typescript
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -9630,6 +9662,8 @@ snapshots:
   debug@4.3.6:
     dependencies:
       ms: 2.1.2
+
+  decode-formdata@0.7.5: {}
 
   decode-named-character-reference@1.0.2:
     dependencies:
@@ -13015,6 +13049,10 @@ snapshots:
       sade: 1.8.1
 
   v8-compile-cache-lib@3.0.1: {}
+
+  valibot@0.37.0(typescript@5.4.5):
+    optionalDependencies:
+      typescript: 5.4.5
 
   vary@1.1.2: {}
 
