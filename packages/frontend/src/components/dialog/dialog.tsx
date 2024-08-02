@@ -53,7 +53,9 @@ export default component$<DialogProps>(({ size = "sm", ...props }) => {
       <div
         class={cn(
           "fixed inset-0 w-full top-0 left-0",
-          open.value ? "bg-[rgba(0,0,0,0.5)] z-50" : "bg-transparent z-[-10]",
+          open.value
+            ? "bg-[rgba(0,0,0,0.5)] z-[100]"
+            : "bg-transparent z-[-10]",
         )}
       ></div>
 
@@ -64,7 +66,7 @@ export default component$<DialogProps>(({ size = "sm", ...props }) => {
           "fixed top-0 bottom-0 left-0 right-0 m-auto",
           "w-fit h-fit min-w-[90%] p-5",
           "bg-surface rounded-md shadow-lg",
-          "text-text",
+          "text-text z-[100]",
           sizes[size],
           open.value === null
             ? "hidden"
