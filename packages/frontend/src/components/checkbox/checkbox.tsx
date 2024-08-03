@@ -71,7 +71,14 @@ export default component$<CheckboxProps>(({ errorMsg, inputProps }) => {
         </label>
       </div>
 
-      <p class="text-destructive text-xs">{errorMsg}</p>
+      <p
+        class={cn(
+          "text-destructive text-xs",
+          !!errorMsg ? "animate-fade-in-slide" : "animate-fade-out-slide",
+        )}
+      >
+        {errorMsg}
+      </p>
     </div>
   );
 });
