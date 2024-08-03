@@ -35,7 +35,7 @@ export const useMutate = <T,>(url: string, options?: RequestInit) => {
       state.success = true;
       setTimeout(() => {
         state.success = false;
-      }, 3000);
+      }, 5000);
       return { data, error: null };
     } catch (error) {
       state.error = (error as Error).message;

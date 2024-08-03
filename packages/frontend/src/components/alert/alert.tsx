@@ -27,10 +27,8 @@ export default component$<Props>((props) => {
     <>
       <div
         class={cn(
-          "transition-[max-height] overflow-hidden ease-in",
-          !!props.open
-            ? "max-h-[500px] duration-300"
-            : "max-h-0 ease-out duration-200",
+          "transition-[max-height] overflow-hidden duration-300",
+          !!props.open ? "max-h-[500px] ease-in" : "max-h-0 ease-out",
         )}
       >
         <div
