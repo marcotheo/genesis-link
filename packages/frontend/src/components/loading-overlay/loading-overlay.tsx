@@ -3,7 +3,7 @@ import Heading from "../heading/heading";
 import { cn } from "~/common/utils";
 
 interface LoadingOverlayProps {
-  open: boolean;
+  open: null | boolean;
 }
 
 export default component$<LoadingOverlayProps>(({ open }) => {
