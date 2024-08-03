@@ -24,21 +24,32 @@ export default component$<Props>((props) => {
   };
 
   return (
-    <div
-      class={cn(
-        "flex items-center gap-3 p-3",
-        "rounded-r-sm rounded-br-sm",
-        "border-l-4 bg-surface shadow-md",
-        variantBorder[props.variant],
-        !!props.open ? "animate-fade-in-slide" : "animate-fade-out-slide",
-      )}
-    >
-      <Icon variant={props.variant} />
+    <>
+      <div
+        class={cn(
+          "transition-[max-height] overflow-hidden ease-in",
+          !!props.open
+            ? "max-h-[500px] duration-300"
+            : "max-h-0 ease-out duration-200",
+        )}
+      >
+        <div
+          class={cn(
+            "flex items-center gap-3 p-3",
+            "rounded-r-sm rounded-br-sm",
+            "border-l-4 bg-surface shadow-md",
+            variantBorder[props.variant],
+          )}
+        >
+          <Icon variant={props.variant} />
 
-      <div>
-        <p class="text-lg">{props.title}</p>
-        <p class="text-sm">{props.message}</p>
+          <div>
+            <p class="text-lg">{props.title}</p>
+            <p class="text-sm">{props.message}</p>
+          </div>
+        </div>
+        <div class="w-full h-3" />
       </div>
-    </div>
+    </>
   );
 });
