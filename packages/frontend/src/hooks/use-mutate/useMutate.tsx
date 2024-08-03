@@ -5,6 +5,7 @@ export interface FetchState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
+  success: boolean;
 }
 
 export const useMutate = <T,>(url: string, options?: RequestInit) => {
@@ -12,6 +13,7 @@ export const useMutate = <T,>(url: string, options?: RequestInit) => {
     data: null,
     loading: false,
     error: null,
+    success: false,
   });
 
   const mutate = $(async (json: any) => {
@@ -30,14 +32,16 @@ export const useMutate = <T,>(url: string, options?: RequestInit) => {
       });
 
       state.data = data;
+      state.success = true;
       return { data, error: null };
     } catch (error) {
       state.error = (error as Error).message;
+      state.success = false;
       return { data: null, error: state.error };
     } finally {
       state.loading = false;
     }
   });
 
-  return { ...state, mutate };
+  return { state, mutate };
 };
