@@ -8,7 +8,7 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useMutate = <T,>(url: string, options?: RequestInit) => {
+export const useMutate = <T,>(url: string) => {
   const state = useStore<FetchState<T>>({
     data: null,
     loading: null,
@@ -16,7 +16,7 @@ export const useMutate = <T,>(url: string, options?: RequestInit) => {
     success: false,
   });
 
-  const mutate = $(async (json: any) => {
+  const mutate = $(async (json: any, options?: RequestInit) => {
     state.loading = true;
     state.error = null;
     try {
