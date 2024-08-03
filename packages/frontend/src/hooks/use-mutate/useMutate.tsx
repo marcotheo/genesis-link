@@ -3,7 +3,7 @@ import { qwikFetch } from "~/common/utils";
 
 export interface FetchState<T> {
   data: T | null;
-  loading: boolean;
+  loading: null | boolean;
   error: string | null;
   success: boolean;
 }
@@ -11,7 +11,7 @@ export interface FetchState<T> {
 export const useMutate = <T,>(url: string, options?: RequestInit) => {
   const state = useStore<FetchState<T>>({
     data: null,
-    loading: false,
+    loading: null,
     error: null,
     success: false,
   });
@@ -33,6 +33,9 @@ export const useMutate = <T,>(url: string, options?: RequestInit) => {
 
       state.data = data;
       state.success = true;
+      setTimeout(() => {
+        state.success = false;
+      }, 3000);
       return { data, error: null };
     } catch (error) {
       state.error = (error as Error).message;
