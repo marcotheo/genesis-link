@@ -48,8 +48,8 @@ export default component$<CheckboxProps>(({ errorMsg, inputProps }) => {
           class={cn(
             "p-1 brightness-125 absolute",
             "peer-checked:bg-primary rounded-md",
-            "peer-checked:animate-fade-in-scale",
-            "animate-fade-out-scale",
+            "peer-checked:animate-fade-in-scale peer-checked:block",
+            "animate-fade-out-scale hidden",
           )}
         >
           <CheckIcon />
