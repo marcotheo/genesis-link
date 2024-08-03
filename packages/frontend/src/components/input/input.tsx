@@ -87,7 +87,15 @@ export default component$<InputProps>(
             {label}
           </p>
         </div>
-        <p class="text-destructive text-xs">{errorMsg}</p>
+        {/* <p class="text-destructive text-xs">{errorMsg}</p> */}
+        <p
+          class={cn(
+            "text-destructive text-xs",
+            !!errorMsg ? "animate-fade-in-slide" : "animate-fade-out-slide",
+          )}
+        >
+          {errorMsg}
+        </p>
       </div>
     );
   },
