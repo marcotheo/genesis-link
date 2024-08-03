@@ -11,32 +11,23 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  userId, firstName, lastName, email
+  userId, email
 ) VALUES (
-  ?, ?, ?, ?
+  ?, ?
 )
-RETURNING userid, firstname, lastname, email, created_at, updated_at
+RETURNING userid, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Userid    interface{}
-	Firstname string
-	Lastname  string
-	Email     string
+	Userid interface{}
+	Email  string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.Userid,
-		arg.Firstname,
-		arg.Lastname,
-		arg.Email,
-	)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Userid, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.Userid,
-		&i.Firstname,
-		&i.Lastname,
 		&i.Email,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -45,7 +36,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT userid, firstname, lastname, email, created_at, updated_at FROM users
+SELECT userid, email, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
 `
 
@@ -54,8 +45,6 @@ func (q *Queries) GetUser(ctx context.Context, userid interface{}) (User, error)
 	var i User
 	err := row.Scan(
 		&i.Userid,
-		&i.Firstname,
-		&i.Lastname,
 		&i.Email,
 		&i.CreatedAt,
 		&i.UpdatedAt,

@@ -1,7 +1,5 @@
 CREATE TABLE users (
     userId UUID NOT NULL PRIMARY KEY,
-    firstName TEXT NOT NULL,
-    lastName TEXT NOT NULL,
     email TEXT NOT NULL,
     created_at DEFAULT CURRENT_TIMESTAMP,
     updated_at DEFAULT CURRENT_TIMESTAMP

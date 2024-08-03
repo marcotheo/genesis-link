@@ -6,8 +6,6 @@ package db
 
 type User struct {
 	Userid    interface{}
-	Firstname string
-	Lastname  string
 	Email     string
 	CreatedAt interface{}
 	UpdatedAt interface{}
