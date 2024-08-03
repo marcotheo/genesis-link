@@ -28,7 +28,13 @@ export default defineConfig(({ command, mode }): UserConfig => {
       postcss: "./postcss.config.js",
     },
 
-    plugins: [qwikCity(), qwikVite(), tsconfigPaths()],
+    plugins: [
+      qwikCity({
+        trailingSlash: false,
+      }),
+      qwikVite(),
+      tsconfigPaths(),
+    ],
 
     define: {
       "process.env": Object.keys(process.env).reduce(
