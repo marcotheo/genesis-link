@@ -44,7 +44,7 @@ export default component$<Props>((props) => {
           <Icon variant={props.variant} />
 
           <div>
-            <p class="text-lg">{props.title}</p>
+            <p class="text-lg font-medium">{props.title}</p>
             <p class="text-sm">{props.message}</p>
           </div>
         </div>
