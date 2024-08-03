@@ -19,7 +19,7 @@ export default component$<LoadingOverlayProps>(({ open }) => {
       <div
         class={cn(
           "fixed top-0 bottom-0 left-0 right-0 m-auto",
-          "w-[90%] md:w-[360px] h-fit p-5",
+          "w-[90%] md:w-fit h-fit p-5",
           "bg-surface rounded-md shadow-lg",
           "text-text z-[100]",
           open === null
