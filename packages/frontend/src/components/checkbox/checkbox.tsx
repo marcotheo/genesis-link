@@ -1,4 +1,4 @@
-import { component$, Slot } from "@builder.io/qwik";
+import { component$, Slot, InputHTMLAttributes } from "@builder.io/qwik";
 import { cn } from "~/common/utils";
 
 const CheckIcon = component$<{
@@ -23,17 +23,17 @@ const CheckIcon = component$<{
 });
 
 interface CheckboxProps {
-  name: string;
+  errorMsg?: string;
+  inputProps: InputHTMLAttributes<HTMLInputElement>;
 }
 
-export default component$<CheckboxProps>(({ name }) => {
+export default component$<CheckboxProps>(({ errorMsg, inputProps }) => {
   return (
     <div>
       <div class="flex gap-3 items-center group relative">
         <input
+          {...inputProps}
           type="checkbox"
-          id={name}
-          name={name}
           class={cn(
             "peer absolute z-[60] bg-transparent",
             "appearance-none focus:outline-none",
@@ -66,10 +66,12 @@ export default component$<CheckboxProps>(({ name }) => {
           <CheckIcon class="opacity-0" />
         </div>
 
-        <label for={name}>
+        <label for={inputProps.name}>
           <Slot />
         </label>
       </div>
+
+      <p class="text-destructive text-xs">{errorMsg}</p>
     </div>
   );
 });
