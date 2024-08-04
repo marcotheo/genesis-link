@@ -7,3 +7,10 @@
 ## ENV VARIABLES
 
 - refer to .env.examples
+
+## PRODUCTION DEPLOYMENT
+
+1. build all golang project code (run `make build`) (can be automated later if have a pipeline)
+   - packages/backend
+   - packages/events
+2. run sst dev
