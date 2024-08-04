@@ -4,7 +4,7 @@ import { component$ } from "@builder.io/qwik";
 
 export default component$(() => {
   return (
-    <div>
+    <div class="overflow-hidden">
       <br />
       <div class="flex flex-col gap-3">Testing Unpic</div>
       <CdnImage filename="sample" width={600} height={600} alt="sample" />

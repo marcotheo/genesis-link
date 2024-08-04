@@ -1,4 +1,5 @@
-import { useStore, $ } from "@builder.io/qwik";
+import { AuthContext } from "~/components/auth-provider/auth-provider";
+import { useStore, $, useContext } from "@builder.io/qwik";
 import { qwikFetch } from "~/common/utils";
 
 export interface FetchState<T> {
@@ -9,6 +10,8 @@ export interface FetchState<T> {
 }
 
 export const useMutate = <T,>(url: string) => {
+  const authCtx = useContext(AuthContext);
+
   const state = useStore<FetchState<T>>({
     data: null,
     loading: null,
@@ -26,6 +29,7 @@ export const useMutate = <T,>(url: string) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authCtx.AccessToken}`,
         },
         ...additionalOptions,
         body: JSON.stringify(json),
