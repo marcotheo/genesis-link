@@ -37,7 +37,9 @@ export const qwikFetch = async <T>(
   const response = await fetch(requestUrl, options);
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const err = await response.text();
+    const errorMessage = JSON.parse(err) as { message: string };
+    throw { status: response.status, message: errorMessage.message };
   }
 
   const data: T = await response.json();

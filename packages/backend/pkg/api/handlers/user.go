@@ -94,11 +94,18 @@ func (h *UserHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
 
 	isConfirmed, err := h.cognitoService.ConfirmUser(inputValidation.Username, inputValidation.Code)
 	if err != nil {
-		if strings.Contains(err.Error(), "CodeMismatchException") {
+		errMessage := err.Error()
+
+		if strings.Contains(errMessage, "CodeMismatchException") {
 			errorResponse(w, http.StatusBadRequest, "Invalid Code")
+		} else if strings.Contains(errMessage, "UserNotFoundException") {
+			errorResponse(w, http.StatusBadRequest, "User not found")
+		} else if strings.Contains(errMessage, "LimitExceededException") {
+			errorResponse(w, http.StatusBadRequest, "Verification Attempts Exceeded")
 		} else {
-			errorResponse(w, http.StatusBadRequest, err.Error())
+			errorResponse(w, http.StatusInternalServerError, "Something Went Wrong!")
 		}
+
 		return
 	}
 
