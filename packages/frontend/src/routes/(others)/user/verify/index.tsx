@@ -58,7 +58,12 @@ export default component$(() => {
   if (signal.value.verified)
     return (
       <div
-        class={cn("w-full h-full", "flex justify-center items-center", "gap-3")}
+        class={cn(
+          "w-full h-full",
+          "flex justify-center items-center",
+          "gap-3",
+          "animate-fade-in-scale",
+        )}
       >
         <Card class="max-w-[50rem] min-w-[30rem]">
           <CardHeader>
@@ -82,7 +87,12 @@ export default component$(() => {
 
   return (
     <div
-      class={cn("w-full h-full", "flex justify-center items-center", "gap-3")}
+      class={cn(
+        "w-full h-full",
+        "flex justify-center items-center",
+        "gap-3",
+        "animate-fade-in-scale",
+      )}
     >
       <Card class="max-w-[50rem] min-w-[30rem]">
         <CardHeader>
