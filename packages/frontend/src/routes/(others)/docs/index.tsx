@@ -5,7 +5,7 @@ import Menu, {
   DropDownMenuItem,
   DropDownMenuLabel,
   DropDownSeparator,
-} from "~/components/dropdownmenu/dropdownmenu";
+} from "~/components/drop-down/drop-down";
 import Card, {
   CardContent,
   CardFooter,
