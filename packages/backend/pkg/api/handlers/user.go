@@ -159,9 +159,21 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := h.cognitoService.SignInUser(inputValidation.Email, inputValidation.Password)
+	sub, res, err := h.cognitoService.SignInUser(inputValidation.Email, inputValidation.Password)
 	if err != nil {
 		errorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	cookieValue, err := encrypt(AuthSession{
+		RefreshToken: *res.RefreshToken,
+		Email:        inputValidation.Email,
+		Sub:          sub,
+	})
+
+	if err != nil {
+		fmt.Printf("error ito %v", err.Error())
+		http.Error(w, "Failed to encrypt payload", http.StatusInternalServerError)
 		return
 	}
 
@@ -169,7 +181,7 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refreshToken",
-		Value:    *res.RefreshToken,
+		Value:    cookieValue,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
@@ -177,6 +189,37 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	clog.Logger.Success("(USER) SignInUser => success")
+
+	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
+}
+
+func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(USER) RefreshAccessToken => invoked")
+
+	cookie, err := r.Cookie("refreshToken")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
+			return
+		}
+		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
+		return
+	}
+
+	var decryptedValue AuthSession
+	err = decrypt(cookie.Value, &decryptedValue)
+	if err != nil {
+		http.Error(w, "Failed to decrypt cookie value", http.StatusInternalServerError)
+		return
+	}
+
+	res, err := h.cognitoService.RefreshAccessToken(decryptedValue.Sub, decryptedValue.RefreshToken)
+	if err != nil {
+		errorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	clog.Logger.Info("(USER) RefreshAccessToken => success")
 
 	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
 }

@@ -11,5 +11,6 @@ func User(h *handler.UserHandler) func(subRouter justarouter.SubRouter) {
 		subRouter.POST("/confirm", h.ConfirmSignUp)
 		subRouter.GET("/{userId}", h.GetUser)
 		subRouter.POST("/signin", h.SignInUser)
+		subRouter.POST("/token/refresh", h.RefreshAccessToken)
 	}
 }
