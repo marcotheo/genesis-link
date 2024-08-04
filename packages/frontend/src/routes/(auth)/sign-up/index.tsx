@@ -202,7 +202,7 @@ export const head: DocumentHead = {
   meta: [
     {
       name: "description",
-      content: "Sign Upp here at Genesis Link",
+      content: "Sign Up here at Genesis Link",
     },
   ],
 };
