@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -179,6 +180,11 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 
 	secure := r.TLS != nil
 
+	domain := os.Getenv("COOKIE_DOMAIN")
+	if domain == "" {
+		domain = "localhost" // Default value if the environment variable is not set
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "authSession",
 		Value:    cookieValue,
@@ -186,6 +192,8 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
 		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
 	})
 
 	clog.Logger.Success("(USER) SignInUser => success")
@@ -196,7 +204,8 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) RefreshAccessToken => invoked")
 
-	cookie, err := r.Cookie("refreshToken")
+	cookie, err := r.Cookie("authSession")
+
 	if err != nil {
 		if err == http.ErrNoCookie {
 			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
