@@ -165,11 +165,15 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	secure := r.TLS != nil
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refreshToken",
 		Value:    *res.RefreshToken,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+		Secure:   secure,
 	})
 
 	clog.Logger.Success("(USER) SignInUser => success")
