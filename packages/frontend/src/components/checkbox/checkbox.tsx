@@ -25,14 +25,16 @@ const CheckIcon = component$<{
 interface CheckboxProps {
   errorMsg?: string;
   inputProps: InputHTMLAttributes<HTMLInputElement>;
+  value?: boolean;
 }
 
-export default component$<CheckboxProps>(({ errorMsg, inputProps }) => {
+export default component$<CheckboxProps>(({ errorMsg, inputProps, value }) => {
   return (
     <div>
       <div class="flex gap-3 items-center group relative">
         <input
           {...inputProps}
+          checked={value}
           type="checkbox"
           class={cn(
             "peer absolute z-[60] bg-transparent",

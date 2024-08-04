@@ -1,5 +1,6 @@
 import {
   InitialValues,
+  reset,
   SubmitHandler,
   useForm,
   valiForm$,
@@ -86,7 +87,7 @@ export const useFormLoader = routeLoader$<InitialValues<SignUpForm>>(() => ({
 export default component$(() => {
   const { mutate, state } = useMutate<Response>("/user/create");
 
-  const [_, { Form, Field }] = useForm<SignUpForm>({
+  const [signUpForm, { Form, Field }] = useForm<SignUpForm>({
     loader: useFormLoader(),
     validate: valiForm$(SignUpSchema),
   });
@@ -97,8 +98,12 @@ export default component$(() => {
         email: values.email,
         password: values.password,
       });
-      if (response.data)
+
+      if (response.data) {
         console.log("Form submitted successfully:", response.data.data);
+        reset(signUpForm);
+      }
+
       if (response.error) console.log("Error form", response.error);
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -171,7 +176,11 @@ export default component$(() => {
 
           <Field name="consent" type="boolean">
             {(field, props) => (
-              <Checkbox inputProps={props} errorMsg={field.error}>
+              <Checkbox
+                inputProps={props}
+                value={field.value}
+                errorMsg={field.error}
+              >
                 <p class="max-sm:text-sm">
                   By registering, you agree to the processing of your personal
                   data by Genesis Link as described in the{" "}
