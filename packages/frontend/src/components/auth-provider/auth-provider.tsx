@@ -5,15 +5,20 @@ import {
   useContextProvider,
   useStore,
 } from "@builder.io/qwik";
+import { useRefreshTokenLoader } from "~/routes/layout";
 
 interface AuthState {
-  accessToken: string | null;
+  AccessToken: string | null;
+  IdToken: string | null;
+  ExpiresIn: number | null;
 }
 
 export const AuthContext = createContextId<AuthState>("auth.context");
 
 export default component$(() => {
-  const authState = useStore<AuthState>({ accessToken: null });
+  const result = useRefreshTokenLoader();
+
+  const authState = useStore<AuthState>({ ...result.value });
 
   useContextProvider(AuthContext, authState);
 

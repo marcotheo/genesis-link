@@ -1,5 +1,7 @@
-import type { RequestHandler } from "@builder.io/qwik-city";
+import { routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
+import AuthProvider from "~/components/auth-provider/auth-provider";
 import { component$, Slot } from "@builder.io/qwik";
+import { qwikFetch } from "~/common/utils";
 import Header from "./Header";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
@@ -13,17 +15,64 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
   });
 };
 
+export interface RefreshResponse {
+  status: string;
+  message: string;
+  data: {
+    AccessToken: string;
+    IdToken: string;
+    ExpiresIn: number;
+  };
+}
+
+export const useRefreshTokenLoader = routeLoader$(async (requestEvent) => {
+  const authSession = requestEvent.cookie.get("authSession");
+
+  const noRefresh = {
+    AccessToken: null,
+    IdToken: null,
+    ExpiresIn: null,
+  };
+
+  if (!authSession?.value) return noRefresh;
+
+  try {
+    const headers = new Headers();
+
+    headers.append("cookie", `authSession=${authSession.value}`);
+    headers.append("Content-Type", "application/json");
+
+    const res = await qwikFetch<RefreshResponse>("/user/token/refresh", {
+      method: "POST",
+      headers: headers,
+    });
+
+    if (res.data)
+      return {
+        ...res.data,
+      };
+
+    return noRefresh;
+  } catch (err: any) {
+    console.log("ERROR", err);
+
+    return noRefresh;
+  }
+});
+
 export default component$(() => {
   return (
-    <div class="h-screen flex flex-col">
-      <div class="px-5 sm:px-12 2xl:px-72">
-        <Header />
-      </div>
-      <div class="grow overflow-auto">
-        <div class="h-full px-5 sm:px-12 2xl:px-72">
-          <Slot />
+    <AuthProvider>
+      <div class="h-screen flex flex-col">
+        <div class="px-5 sm:px-12 2xl:px-72">
+          <Header />
+        </div>
+        <div class="grow overflow-auto">
+          <div class="h-full px-5 sm:px-12 2xl:px-72">
+            <Slot />
+          </div>
         </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 });
