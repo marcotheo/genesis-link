@@ -6,6 +6,7 @@ import {
 import { isDev } from "@builder.io/qwik/build";
 import { component$ } from "@builder.io/qwik";
 
+import AuthProvider from "./components/auth-provider/auth-provider";
 import { RouterHead } from "./components/router-head/router-head";
 
 import "./global.css";
@@ -32,7 +33,9 @@ export default component$(() => {
       </head>
 
       <body lang="en">
-        <RouterOutlet />
+        <AuthProvider>
+          <RouterOutlet />
+        </AuthProvider>
         {!isDev && <ServiceWorkerRegister />}
       </body>
     </QwikCityProvider>
