@@ -11,10 +11,11 @@ import {
   routeLoader$,
   useNavigate,
 } from "@builder.io/qwik-city";
-import { $, component$ } from "@builder.io/qwik";
+import { $, component$, useContext } from "@builder.io/qwik";
 import * as v from "valibot";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { AuthContext } from "~/components/auth-provider/auth-provider";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { GoogleIcon } from "~/components/icons/icons";
 import Heading from "~/components/heading/heading";
@@ -27,8 +28,9 @@ interface Response {
   status: string;
   message: string;
   data: {
-    email: string;
-    password: string;
+    AccessToken: string;
+    IdToken: string;
+    ExpiresIn: number;
   };
 }
 
@@ -49,6 +51,7 @@ export const useFormLoader = routeLoader$<InitialValues<SignInForm>>(() => ({
 }));
 
 export default component$(() => {
+  const authCtx = useContext(AuthContext);
   const navigate = useNavigate();
   const { mutate, state } = useMutate<Response>("/user/signin");
 
@@ -71,6 +74,7 @@ export default component$(() => {
 
       if (response.data) {
         console.log("Form submitted successfully:", response.data.data);
+        authCtx.accessToken = response.data.data.AccessToken;
         reset(signInForm);
         navigate("/");
       }
