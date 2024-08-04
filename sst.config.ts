@@ -17,7 +17,24 @@ export default $config({
     };
   },
   async run() {
-    const mainUserPool = main_user_pool();
+    let output = {};
+    let siteUrl = $util.interpolate`${"http://localhost:5173"}`;
+
+    if (
+      process.env.NODE_ENV &&
+      ["production", "preview"].includes(process.env.NODE_ENV)
+    ) {
+      const cloudflareResults = cloudflare_pages();
+
+      siteUrl = cloudflareResults.CloudFlareDomain;
+
+      output = {
+        ...output,
+        ...cloudflareResults,
+      };
+    }
+
+    const mainUserPool = main_user_pool({ siteUrl });
 
     const mainBackendResult = await main_backend({
       poolId: mainUserPool.poolId,
@@ -25,7 +42,7 @@ export default $config({
       poolClientSecret: mainUserPool.poolClientSecret,
     });
 
-    let output = {
+    output = {
       ...mainBackendResult,
       ...mainUserPool,
     };
@@ -41,18 +58,6 @@ export default $config({
       ...output,
       ...cdnInfra,
     };
-
-    if (
-      process.env.NODE_ENV &&
-      ["production", "preview"].includes(process.env.NODE_ENV)
-    ) {
-      const cloudflareResults = cloudflare_pages();
-
-      output = {
-        ...output,
-        ...cloudflareResults,
-      };
-    }
 
     return output;
   },

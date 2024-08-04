@@ -1,6 +1,10 @@
 import path = require("path");
 
-export const main_user_pool = () => {
+export const main_user_pool = ({
+  siteUrl,
+}: {
+  siteUrl: $util.Output<string>;
+}) => {
   // Create an IAM Role for the Lambda function
   const lambdaRole = new aws.iam.Role("SignUpCognitoLambdaRole", {
     assumeRolePolicy: {
@@ -46,6 +50,11 @@ export const main_user_pool = () => {
       role: lambdaRole.arn,
       handler: "bootstrap", // Custom runtimes can have handler set to an empty string ""
       code: new $util.asset.FileArchive(filePath),
+      environment: {
+        variables: {
+          SITE_URL: siteUrl,
+        },
+      },
     }
   );
 
