@@ -180,7 +180,7 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	secure := r.TLS != nil
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "refreshToken",
+		Name:     "authSession",
 		Value:    cookieValue,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
