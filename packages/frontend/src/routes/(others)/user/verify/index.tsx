@@ -1,7 +1,10 @@
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { Link, routeLoader$ } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
 
+import Card, { CardContent, CardHeader } from "~/components/card/card";
+import { CheckIcon, ErrorIcon } from "~/components/icons/icons";
 import Heading from "~/components/heading/heading";
+import Button from "~/components/button/button";
 import { cn, qwikFetch } from "~/common/utils";
 
 interface Response {
@@ -57,7 +60,23 @@ export default component$(() => {
       <div
         class={cn("w-full h-full", "flex justify-center items-center", "gap-3")}
       >
-        <Heading>User Verified</Heading>
+        <Card class="max-w-[50rem] min-w-[30rem]">
+          <CardHeader>
+            <CheckIcon class="size-60 text-success mx-auto" />
+          </CardHeader>
+          <CardContent>
+            <div class="flex flex-col gap-3 pb-5">
+              <Heading class="text-center" size="md">
+                User Verified Successfuly
+              </Heading>
+              <Link href="/sign-in">
+                <Button class="w-full bg-success hover:bg-success hover:brightness-110">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
 
@@ -65,7 +84,23 @@ export default component$(() => {
     <div
       class={cn("w-full h-full", "flex justify-center items-center", "gap-3")}
     >
-      <Heading>{signal.value.message}</Heading>
+      <Card class="max-w-[50rem] min-w-[30rem]">
+        <CardHeader>
+          <ErrorIcon class="size-60 text-destructive mx-auto" />
+        </CardHeader>
+        <CardContent>
+          <div class="flex flex-col gap-3 pb-5">
+            <Heading class="text-center" size="md">
+              {signal.value.message}
+            </Heading>
+            <Link href="/">
+              <Button class="w-full bg-destructive hover:bg-destructive hover:brightness-110">
+                Home
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 });
