@@ -13,7 +13,7 @@ CREATE TABLE posts (
     jobType TEXT CHECK(jobType IN ('full-time', 'part-time', 'contract', 'internship')),
     company TEXT,
     location TEXT,
-    salary TEXT,
+    salary INTEGER,
     wfh INTEGER DEFAULT 0,
     email TEXT,
     phone TEXT,

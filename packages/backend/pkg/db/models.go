@@ -16,7 +16,7 @@ type Post struct {
 	Jobtype     sql.NullString
 	Company     sql.NullString
 	Location    sql.NullString
-	Salary      sql.NullString
+	Salary      sql.NullInt64
 	Wfh         sql.NullInt64
 	Email       sql.NullString
 	Phone       sql.NullString
