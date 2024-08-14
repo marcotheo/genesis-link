@@ -9,3 +9,45 @@ INSERT INTO users (
   ?, ?
 )
 RETURNING *;
+
+-- name: CreateJobPost :exec
+INSERT INTO posts (
+    postId,
+    title,
+    description,
+    postType,
+    jobType,
+    company,
+    location,
+    salary,
+    wfh,
+    email,
+    phone,
+    deadline,
+    posted_at,
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING *;
+
+-- name: CreateVolunteerPost :one
+INSERT INTO posts (
+    postId,
+    title,
+    description,
+    postType,
+    jobType,
+    company,
+    location,
+    salary,
+    wfh,
+    email,
+    phone,
+    deadline,
+    posted_at,
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?, ?
+)
+RETURNING *;
