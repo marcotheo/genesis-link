@@ -168,7 +168,6 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 
 	cookieValue, err := encrypt(AuthSession{
 		RefreshToken: *res.RefreshToken,
-		Email:        inputValidation.Email,
 		Sub:          sub,
 	})
 

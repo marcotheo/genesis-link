@@ -133,6 +133,5 @@ func getSecretKey() []byte {
 
 type AuthSession struct {
 	RefreshToken string `json:"refresh_token"`
-	Email        string `json:"email"`
 	Sub          string `json:"sub"`
 }
