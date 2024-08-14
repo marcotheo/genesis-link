@@ -4,6 +4,27 @@
 
 package db
 
+import (
+	"database/sql"
+)
+
+type Post struct {
+	Postid      string
+	Title       string
+	Description string
+	Posttype    string
+	Jobtype     sql.NullString
+	Company     sql.NullString
+	Location    sql.NullString
+	Salary      sql.NullString
+	Wfh         sql.NullInt64
+	Email       sql.NullString
+	Phone       sql.NullString
+	Deadline    sql.NullTime
+	PostedAt    sql.NullTime
+	UpdatedAt   sql.NullTime
+}
+
 type User struct {
 	Userid    string
 	Email     string
