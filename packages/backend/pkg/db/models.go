@@ -5,7 +5,7 @@
 package db
 
 type User struct {
-	Userid    interface{}
+	Userid    string
 	Email     string
 	CreatedAt interface{}
 	UpdatedAt interface{}

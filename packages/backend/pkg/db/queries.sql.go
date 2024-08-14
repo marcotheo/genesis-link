@@ -19,7 +19,7 @@ RETURNING userid, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Userid interface{}
+	Userid string
 	Email  string
 }
 
@@ -40,7 +40,7 @@ SELECT userid, email, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, userid interface{}) (User, error) {
+func (q *Queries) GetUser(ctx context.Context, userid string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, userid)
 	var i User
 	err := row.Scan(
