@@ -1,11 +1,13 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
 import {
   HamburgerIcon,
   SignInIcon,
   SignUpIcon,
+  UserIcon,
 } from "~/components/icons/icons";
+import { AuthContext } from "~/components/auth-provider/auth-provider";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import LogoImage from "~/components/logo-image/logo-image";
 import DarkMode from "~/components/dark-mode/dark-mode";
@@ -54,6 +56,39 @@ const MobileMenu = component$(() => {
   );
 });
 
+const HeaderItems = component$(() => {
+  const authCtx = useContext(AuthContext);
+
+  if (authCtx.AccessToken)
+    return (
+      <>
+        <div
+          class={cn(
+            "bg-surface shadow-lg",
+            "rounded-full h-14 w-14",
+            "flex items-center justify-center",
+          )}
+        >
+          <UserIcon />
+        </div>
+      </>
+    );
+
+  return (
+    <>
+      <Link href="/sign-in">
+        {" "}
+        <Button variant="outline" size="md">
+          Sign In
+        </Button>
+      </Link>
+      <Link href="/sign-up">
+        <Button size="md">Sign Up</Button>
+      </Link>
+    </>
+  );
+});
+
 export default component$(() => {
   return (
     <div class={cn("flex justify-between items-center", "w-full py-5")}>
@@ -77,15 +112,7 @@ export default component$(() => {
       <MobileMenu />
 
       <div class="flex gap-5 items-center max-md:hidden">
-        <Link href="/sign-in">
-          {" "}
-          <Button variant="outline" size="md">
-            Sign In
-          </Button>
-        </Link>
-        <Link href="/sign-up">
-          <Button size="md">Sign Up</Button>
-        </Link>
+        <HeaderItems />
         <DarkMode />
       </div>
     </div>
