@@ -23,11 +23,9 @@ INSERT INTO posts (
     wfh,
     email,
     phone,
-    deadline,
-    posted_at,
-    updated_at
+    deadline
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
@@ -44,10 +42,8 @@ INSERT INTO posts (
     wfh,
     email,
     phone,
-    deadline,
-    posted_at,
-    updated_at
+    deadline
 ) VALUES (
-    ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?, ?
+    ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?
 )
 RETURNING *;

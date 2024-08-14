@@ -23,11 +23,9 @@ INSERT INTO posts (
     wfh,
     email,
     phone,
-    deadline,
-    posted_at,
-    updated_at
+    deadline
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, posted_at, updated_at
 `
@@ -45,8 +43,6 @@ type CreateJobPostParams struct {
 	Email       sql.NullString
 	Phone       sql.NullString
 	Deadline    sql.NullTime
-	PostedAt    sql.NullTime
-	UpdatedAt   sql.NullTime
 }
 
 func (q *Queries) CreateJobPost(ctx context.Context, arg CreateJobPostParams) error {
@@ -63,8 +59,6 @@ func (q *Queries) CreateJobPost(ctx context.Context, arg CreateJobPostParams) er
 		arg.Email,
 		arg.Phone,
 		arg.Deadline,
-		arg.PostedAt,
-		arg.UpdatedAt,
 	)
 	return err
 }
@@ -108,11 +102,9 @@ INSERT INTO posts (
     wfh,
     email,
     phone,
-    deadline,
-    posted_at,
-    updated_at
+    deadline
 ) VALUES (
-    ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?, ?
+    ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?
 )
 RETURNING postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, posted_at, updated_at
 `
@@ -122,8 +114,7 @@ type CreateVolunteerPostParams struct {
 	Title       string
 	Description string
 	Posttype    string
-	PostedAt    sql.NullTime
-	UpdatedAt   sql.NullTime
+	Deadline    sql.NullTime
 }
 
 func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPostParams) (Post, error) {
@@ -132,8 +123,7 @@ func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPo
 		arg.Title,
 		arg.Description,
 		arg.Posttype,
-		arg.PostedAt,
-		arg.UpdatedAt,
+		arg.Deadline,
 	)
 	var i Post
 	err := row.Scan(
