@@ -7,7 +7,67 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createJobPost = `-- name: CreateJobPost :exec
+INSERT INTO posts (
+    postId,
+    title,
+    description,
+    postType,
+    jobType,
+    company,
+    location,
+    salary,
+    wfh,
+    email,
+    phone,
+    deadline,
+    posted_at,
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, posted_at, updated_at
+`
+
+type CreateJobPostParams struct {
+	Postid      string
+	Title       string
+	Description string
+	Posttype    string
+	Jobtype     sql.NullString
+	Company     sql.NullString
+	Location    sql.NullString
+	Salary      sql.NullString
+	Wfh         sql.NullInt64
+	Email       sql.NullString
+	Phone       sql.NullString
+	Deadline    sql.NullTime
+	PostedAt    sql.NullTime
+	UpdatedAt   sql.NullTime
+}
+
+func (q *Queries) CreateJobPost(ctx context.Context, arg CreateJobPostParams) error {
+	_, err := q.db.ExecContext(ctx, createJobPost,
+		arg.Postid,
+		arg.Title,
+		arg.Description,
+		arg.Posttype,
+		arg.Jobtype,
+		arg.Company,
+		arg.Location,
+		arg.Salary,
+		arg.Wfh,
+		arg.Email,
+		arg.Phone,
+		arg.Deadline,
+		arg.PostedAt,
+		arg.UpdatedAt,
+	)
+	return err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
@@ -30,6 +90,66 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Userid,
 		&i.Email,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createVolunteerPost = `-- name: CreateVolunteerPost :one
+INSERT INTO posts (
+    postId,
+    title,
+    description,
+    postType,
+    jobType,
+    company,
+    location,
+    salary,
+    wfh,
+    email,
+    phone,
+    deadline,
+    posted_at,
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?, ?
+)
+RETURNING postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, posted_at, updated_at
+`
+
+type CreateVolunteerPostParams struct {
+	Postid      string
+	Title       string
+	Description string
+	Posttype    string
+	PostedAt    sql.NullTime
+	UpdatedAt   sql.NullTime
+}
+
+func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPostParams) (Post, error) {
+	row := q.db.QueryRowContext(ctx, createVolunteerPost,
+		arg.Postid,
+		arg.Title,
+		arg.Description,
+		arg.Posttype,
+		arg.PostedAt,
+		arg.UpdatedAt,
+	)
+	var i Post
+	err := row.Scan(
+		&i.Postid,
+		&i.Title,
+		&i.Description,
+		&i.Posttype,
+		&i.Jobtype,
+		&i.Company,
+		&i.Location,
+		&i.Salary,
+		&i.Wfh,
+		&i.Email,
+		&i.Phone,
+		&i.Deadline,
+		&i.PostedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
