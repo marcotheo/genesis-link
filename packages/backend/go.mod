@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/marcotheo/justarouter v1.0.3
+	github.com/marcotheo/justarouter v1.0.4
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240416075003-747366ff79c4
 	go.uber.org/dig v1.17.1

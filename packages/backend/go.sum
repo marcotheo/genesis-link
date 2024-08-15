@@ -60,6 +60,8 @@ github.com/libsql/sqlite-antlr4-parser v0.0.0-20240327125255-dbf53b6cbf06 h1:JLv
 github.com/libsql/sqlite-antlr4-parser v0.0.0-20240327125255-dbf53b6cbf06/go.mod h1:FUkZ5OHjlGPjnM2UyGJz9TypXQFgYqw6AFNO1UiROTM=
 github.com/marcotheo/justarouter v1.0.3 h1:TSO2y0Zb4KmNV4+RiosP/OwnFgrmraVzQdHA91h2AEY=
 github.com/marcotheo/justarouter v1.0.3/go.mod h1:aZ4SBwetsObJaxPJ/+Quh8AG8uFEaAWjKw5k5XpqQhw=
+github.com/marcotheo/justarouter v1.0.4 h1:QzJ88iyUaro/eeUq3BpDfKWMwlx5QP89qyJ5XTVdBHM=
+github.com/marcotheo/justarouter v1.0.4/go.mod h1:aZ4SBwetsObJaxPJ/+Quh8AG8uFEaAWjKw5k5XpqQhw=
 github.com/matoous/go-nanoid/v2 v2.1.0 h1:P64+dmq21hhWdtvZfEAofnvJULaRR1Yib0+PnU669bE=
 github.com/matoous/go-nanoid/v2 v2.1.0/go.mod h1:KlbGNQ+FhrUNIHUxZdL63t7tl4LaPkZNpUULS8H4uVM=
 github.com/nxadm/tail v1.4.11 h1:8feyoE3OzPrcshW5/MJ4sGESc5cqmGkGCWlco4l0bqY=
