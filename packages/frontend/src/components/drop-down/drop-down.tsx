@@ -12,13 +12,18 @@ import Button from "../button/button";
 import { cn } from "~/common/utils";
 
 interface DropDownMenuProps extends HTMLAttributes<HTMLMenuElement> {
-  title: string;
+  triggerTitle?: string;
 }
 
-export default component$<DropDownMenuProps>(({ title, ...props }) => {
+export default component$<DropDownMenuProps>(({ triggerTitle, ...props }) => {
   const isOpen = useSignal<boolean | null>(null);
   const dropdownRef = useSignal<HTMLDivElement>();
   const dropDownContentRef = useSignal<HTMLDivElement>();
+
+  const onTrigger = $(() => {
+    if (isOpen.value === null) isOpen.value = true;
+    else isOpen.value = !isOpen.value;
+  });
 
   const onMenuToggle = $(() => {
     if (!dropDownContentRef.value || !dropdownRef.value) return;
@@ -55,10 +60,34 @@ export default component$<DropDownMenuProps>(({ title, ...props }) => {
       ref={dropdownRef}
     >
       <DropDownMenuTrigger
-        title={title}
+        title={triggerTitle}
         isOpen={isOpen}
         onToggle={onMenuToggle}
       />
+
+      <button
+        class={cn(
+          "bg-surface shadow-lg",
+          "rounded-full h-14 w-14",
+          "flex items-center justify-center",
+          "text-text relative",
+          "hover:brightness-90 dark:hover:brightness-125",
+          "transition-all duration-200 ease-in",
+        )}
+        onClick$={[onTrigger, onMenuToggle]}
+      >
+        <Slot name="trigger-circle-icon" />
+        <div
+          class={cn(
+            "flex items-center justify-center",
+            "bg-surface h-5 w-5  rounded-full",
+            "shadow-lg",
+            "absolute bottom-0 right-0",
+          )}
+        >
+          <ChevronDown isOpen={isOpen.value} />
+        </div>
+      </button>
 
       <div
         ref={dropDownContentRef}
@@ -83,31 +112,34 @@ export default component$<DropDownMenuProps>(({ title, ...props }) => {
   );
 });
 
-const ChevronDown = component$<{ isOpen: boolean | null }>(({ isOpen }) => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="1.5"
-      stroke="currentColor"
-      class={cn(
-        "size-4 bg-transparent",
-        "duration-300 ease-out",
-        isOpen ? "rotate-180" : "",
-      )}
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="m19.5 8.25-7.5 7.5-7.5-7.5"
-      />
-    </svg>
-  );
-});
+const ChevronDown = component$<{ isOpen: boolean | null; class?: string }>(
+  ({ isOpen, ...props }) => {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class={cn(
+          "size-4 bg-transparent",
+          "duration-300 ease-out",
+          isOpen ? "rotate-180" : "",
+          props.class,
+        )}
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m19.5 8.25-7.5 7.5-7.5-7.5"
+        />
+      </svg>
+    );
+  },
+);
 
 const DropDownMenuTrigger = component$<{
-  title: string;
+  title?: string;
   isOpen: Signal<boolean | null>;
   onToggle: QRL<() => void>;
 }>(({ isOpen, title, onToggle }) => {
@@ -119,7 +151,7 @@ const DropDownMenuTrigger = component$<{
   return (
     <>
       <Button
-        class="peer flex gap-3 items-center"
+        class={cn("peer flex gap-3 items-center", !title && "hidden")}
         variant="outline"
         onClick$={[onTrigger, onToggle]}
       >
@@ -133,7 +165,7 @@ export const DropDownMenuLabel = component$(() => {
   return (
     <>
       <div class={cn("p-2 min-w-48")}>
-        <p class="font-secondary font-semibold text-xs">
+        <p class="font-secondary font-semibold text-sm">
           <Slot />
         </p>
       </div>
