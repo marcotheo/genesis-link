@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
-	"strings"
+	"time"
 
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/joho/godotenv"
@@ -19,7 +18,16 @@ import (
 )
 
 func InitializeApp() (*http.Handler, *sql.DB) {
-	router := justarouter.CreateRouter()
+	router := justarouter.CreateRouter(justarouter.ServerRouterOptions{
+		CORS: justarouter.CorsOptions{
+			AllowedOrigins:   []string{"http://localhost:5173"},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowCredentials: true,
+			AllowedHeaders:   []string{"Content-Type", "Authorization"},
+			MaxAge:           3600 * time.Second, // 1 hour
+		},
+	})
+
 	var dbConn *sql.DB
 
 	// Create a new dig container
@@ -43,7 +51,8 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 
 		router.AddSubRoutes("/user", routes.User(userHandler))
 		router.AddSubRoutes("/post", routes.Post(postHandler))
-		router.GET("/health", healthCheckHandler)
+
+		router.POST("/health", healthCheckHandler)
 
 		clog.Logger.Info("ROUTES INITIALIZED")
 	})
@@ -52,9 +61,7 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 		log.Fatalf("Failed to invoke dependencies: %s\n", err)
 	}
 
-	httpRoutes := corsMiddleware(router.Mux)
-
-	return &httpRoutes, dbConn
+	return router.Handler, dbConn
 }
 
 func GetLambdaAdapter() (*httpadapter.HandlerAdapterV2, *sql.DB) {
@@ -62,53 +69,13 @@ func GetLambdaAdapter() (*httpadapter.HandlerAdapterV2, *sql.DB) {
 		clog.Logger.Error("No .env file found")
 	}
 
-	mux, dbConn := InitializeApp()
+	handler, dbConn := InitializeApp()
 
-	var adapterLambda *httpadapter.HandlerAdapterV2 = httpadapter.NewV2(*mux)
+	var adapterLambda *httpadapter.HandlerAdapterV2 = httpadapter.NewV2(*handler)
 
 	clog.Logger.Info("ADAPTER INTIALIZED")
 
 	return adapterLambda, dbConn
-}
-
-func getAllowedOrigins() []string {
-	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
-	if allowedOrigins == "" {
-		return []string{"*"} // Default to allow all origins
-	}
-	return strings.Split(allowedOrigins, ",")
-}
-
-func isOriginAllowed(origin string, allowedOrigins []string) bool {
-	for _, allowedOrigin := range allowedOrigins {
-		if origin == allowedOrigin || allowedOrigin == "*" {
-			return true
-		}
-	}
-	return false
-}
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-		allowedOrigins := getAllowedOrigins()
-
-		if isOriginAllowed(origin, allowedOrigins) {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		} else {
-			w.Header().Set("Access-Control-Allow-Origin", "")
-		}
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }
 
 type HealthCheckResponse struct {

@@ -14,13 +14,13 @@ func main() {
 		fmt.Println("No .env file found")
 	}
 
-	router, dbConn := api.InitializeApp()
+	handler, dbConn := api.InitializeApp()
 
 	defer dbConn.Close()
 
 	server := http.Server{
 		Addr:    ":3000",
-		Handler: *router,
+		Handler: *handler,
 	}
 
 	clog.Logger.Info("Server running at port :3000")
