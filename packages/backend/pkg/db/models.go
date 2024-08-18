@@ -20,7 +20,7 @@ type Post struct {
 	Wfh         sql.NullInt64
 	Email       sql.NullString
 	Phone       sql.NullString
-	Deadline    sql.NullTime
+	Deadline    sql.NullInt64
 	PostedAt    sql.NullTime
 	UpdatedAt   sql.NullTime
 }

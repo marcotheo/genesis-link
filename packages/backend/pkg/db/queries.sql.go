@@ -42,7 +42,7 @@ type CreateJobPostParams struct {
 	Wfh         sql.NullInt64
 	Email       sql.NullString
 	Phone       sql.NullString
-	Deadline    sql.NullTime
+	Deadline    sql.NullInt64
 }
 
 func (q *Queries) CreateJobPost(ctx context.Context, arg CreateJobPostParams) error {
@@ -114,7 +114,7 @@ type CreateVolunteerPostParams struct {
 	Title       string
 	Description string
 	Posttype    string
-	Deadline    sql.NullTime
+	Deadline    sql.NullInt64
 }
 
 func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPostParams) (Post, error) {
@@ -146,20 +146,48 @@ func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPo
 }
 
 const getPosts = `-- name: GetPosts :many
-SELECT postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, posted_at, updated_at FROM posts
+SELECT  
+    postId,
+    title,
+    description,
+    postType,
+    jobType,
+    company,
+    location,
+    salary,
+    wfh,
+    email,
+    phone,
+    deadline
+FROM posts
 ORDER BY posted_at DESC
 LIMIT 10 OFFSET ?
 `
 
-func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]Post, error) {
+type GetPostsRow struct {
+	Postid      string
+	Title       string
+	Description string
+	Posttype    string
+	Jobtype     sql.NullString
+	Company     sql.NullString
+	Location    sql.NullString
+	Salary      sql.NullInt64
+	Wfh         sql.NullInt64
+	Email       sql.NullString
+	Phone       sql.NullString
+	Deadline    sql.NullInt64
+}
+
+func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]GetPostsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPosts, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	var items []GetPostsRow
 	for rows.Next() {
-		var i Post
+		var i GetPostsRow
 		if err := rows.Scan(
 			&i.Postid,
 			&i.Title,
@@ -173,8 +201,6 @@ func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]Post, error) {
 			&i.Email,
 			&i.Phone,
 			&i.Deadline,
-			&i.PostedAt,
-			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

@@ -17,7 +17,7 @@ CREATE TABLE posts (
     wfh INTEGER DEFAULT 0,
     email TEXT,
     phone TEXT,
-    deadline DATE,
+    deadline INTEGER,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

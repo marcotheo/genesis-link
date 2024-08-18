@@ -60,6 +60,14 @@ func ReadAndValidateBody(r *http.Request, v interface{}) error {
 	return nil
 }
 
+func convertToUnixTimestamp(dateStr string) (int64, error) {
+	t, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return 0, err
+	}
+	return t.Unix(), nil
+}
+
 func errorResponse(w http.ResponseWriter, statusCode int, message string) {
 	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "application/json")

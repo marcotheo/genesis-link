@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -51,17 +50,10 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Manually convert Deadline from string to sql.NullTime
-	var deadline sql.NullTime
-	if jobPostValidation.Deadline != "" {
-		parsedDate, err := time.Parse("2006-01-02", jobPostValidation.Deadline)
-		if err != nil {
-			http.Error(w, "Invalid date format", http.StatusBadRequest)
-			return
-		}
-		deadline = sql.NullTime{Time: parsedDate, Valid: true}
-	} else {
-		http.Error(w, "Deadline value is empty", http.StatusBadRequest)
+	// Convert deadline to UNIX timestamp
+	deadlineTimestamp, err := convertToUnixTimestamp(jobPostValidation.Deadline)
+	if err != nil {
+		http.Error(w, "Invalid deadline format", http.StatusBadRequest)
 		return
 	}
 
@@ -81,9 +73,7 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jobPostData.Postid = id
-	jobPostData.Deadline = deadline
-
-	fmt.Printf("DEADLINE %v \n", deadline)
+	jobPostData.Deadline = sql.NullInt64{Int64: deadlineTimestamp, Valid: true}
 
 	errQ := h.dataService.Queries.CreateJobPost(context.Background(), jobPostData)
 	if errQ != nil {
