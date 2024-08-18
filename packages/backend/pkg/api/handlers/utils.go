@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -24,6 +25,12 @@ type Response struct {
 
 type ErrorResponse struct {
 	Message string `json:"message"`
+}
+
+func isValidDate(fl validator.FieldLevel) bool {
+	dateStr := fl.Field().String()
+	_, err := time.Parse("2006-01-02", dateStr)
+	return err == nil
 }
 
 func ReadAndValidateBody(r *http.Request, v interface{}) error {
@@ -42,6 +49,9 @@ func ReadAndValidateBody(r *http.Request, v interface{}) error {
 
 	// Validate the struct
 	validate := validator.New()
+
+	validate.RegisterValidation("date", isValidDate)
+
 	err = validate.Struct(v)
 	if err != nil {
 		return fmt.Errorf("validation failed: %w", err)
