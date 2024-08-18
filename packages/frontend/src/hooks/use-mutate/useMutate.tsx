@@ -22,6 +22,7 @@ export const useMutate = <T,>(url: string) => {
   const mutate = $(async (json: any, options?: RequestInit) => {
     state.loading = true;
     state.error = null;
+
     try {
       const additionalOptions = options ? options : {};
 
