@@ -6,8 +6,7 @@ export default component$(() => {
   return (
     <div class="overflow-hidden">
       <br />
-      <div class="flex flex-col gap-3">Testing Unpic</div>
-      <CdnImage filename="sample" width={600} height={600} alt="sample" />
+      <div class="flex flex-col gap-3 text-center">LANDING PAGE</div>
     </div>
   );
 });

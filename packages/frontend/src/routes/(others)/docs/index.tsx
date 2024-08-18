@@ -12,6 +12,7 @@ import Card, {
   CardHeader,
 } from "~/components/card/card";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
+import CdnImage from "~/components/cdn-image/cdn-image";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
@@ -178,6 +179,13 @@ export default component$(() => {
                 </Card>
               </div>
 
+              <Heading>CDN</Heading>
+              <CdnImage
+                filename="sample"
+                width={600}
+                height={600}
+                alt="sample"
+              />
               <br />
               <br />
             </div>
