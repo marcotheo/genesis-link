@@ -145,6 +145,50 @@ func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPo
 	return i, err
 }
 
+const getPosts = `-- name: GetPosts :many
+SELECT postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, posted_at, updated_at FROM posts
+ORDER BY posted_at DESC
+LIMIT 10 OFFSET ?
+`
+
+func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]Post, error) {
+	rows, err := q.db.QueryContext(ctx, getPosts, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.Postid,
+			&i.Title,
+			&i.Description,
+			&i.Posttype,
+			&i.Jobtype,
+			&i.Company,
+			&i.Location,
+			&i.Salary,
+			&i.Wfh,
+			&i.Email,
+			&i.Phone,
+			&i.Deadline,
+			&i.PostedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUser = `-- name: GetUser :one
 SELECT userid, email, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1

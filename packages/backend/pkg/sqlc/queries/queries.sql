@@ -47,3 +47,9 @@ INSERT INTO posts (
     ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?
 )
 RETURNING *;
+
+-- name: GetPosts :many
+SELECT * FROM posts
+ORDER BY posted_at DESC
+LIMIT 10 OFFSET ?;
+
