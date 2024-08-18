@@ -62,6 +62,10 @@ github.com/marcotheo/justarouter v1.0.3 h1:TSO2y0Zb4KmNV4+RiosP/OwnFgrmraVzQdHA9
 github.com/marcotheo/justarouter v1.0.3/go.mod h1:aZ4SBwetsObJaxPJ/+Quh8AG8uFEaAWjKw5k5XpqQhw=
 github.com/marcotheo/justarouter v1.0.4 h1:QzJ88iyUaro/eeUq3BpDfKWMwlx5QP89qyJ5XTVdBHM=
 github.com/marcotheo/justarouter v1.0.4/go.mod h1:aZ4SBwetsObJaxPJ/+Quh8AG8uFEaAWjKw5k5XpqQhw=
+github.com/marcotheo/justarouter v1.0.5 h1:awktnVaTrYWlIqR/sgchB+2FeK4f+8DJSDF3Z0UbrV0=
+github.com/marcotheo/justarouter v1.0.5/go.mod h1:aZ4SBwetsObJaxPJ/+Quh8AG8uFEaAWjKw5k5XpqQhw=
+github.com/marcotheo/justarouter v1.0.6 h1:N74aWFrDAm2fA73SVO81myvxRIVmTZuiSV7HwVyk9DE=
+github.com/marcotheo/justarouter v1.0.6/go.mod h1:aZ4SBwetsObJaxPJ/+Quh8AG8uFEaAWjKw5k5XpqQhw=
 github.com/matoous/go-nanoid/v2 v2.1.0 h1:P64+dmq21hhWdtvZfEAofnvJULaRR1Yib0+PnU669bE=
 github.com/matoous/go-nanoid/v2 v2.1.0/go.mod h1:KlbGNQ+FhrUNIHUxZdL63t7tl4LaPkZNpUULS8H4uVM=
 github.com/nxadm/tail v1.4.11 h1:8feyoE3OzPrcshW5/MJ4sGESc5cqmGkGCWlco4l0bqY=
