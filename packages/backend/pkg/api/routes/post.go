@@ -22,5 +22,6 @@ func (o *PostRoutes) Routes() func(subRouter justarouter.SubRouter) {
 	return func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 		subRouter.POST("/create", o.handlers.CreateJobPost)
+		subRouter.GET("/list", o.handlers.GetPosts)
 	}
 }
