@@ -42,10 +42,13 @@ export const useRefreshTokenLoader = routeLoader$(async (requestEvent) => {
     headers.append("cookie", `authSession=${authSession.value}`);
     headers.append("Content-Type", "application/json");
 
-    const res = await qwikFetch<RefreshResponse>("/api/v1/user/token/refresh", {
-      method: "POST",
-      headers: headers,
-    });
+    const res = await qwikFetch<RefreshResponse>(
+      "/api/v1/users/token/refresh",
+      {
+        method: "POST",
+        headers: headers,
+      },
+    );
 
     if (res.data)
       return {
