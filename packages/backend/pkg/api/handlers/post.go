@@ -102,7 +102,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, errQ := h.dataService.Queries.GetPosts(context.Background(), int64(paramsValidation.Page))
+	posts, errQ := h.dataService.Queries.GetPosts(context.Background(), int64(paramsValidation.Page-1))
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)

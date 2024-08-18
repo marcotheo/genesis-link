@@ -149,15 +149,9 @@ const getPosts = `-- name: GetPosts :many
 SELECT  
     postId,
     title,
-    description,
-    postType,
     jobType,
     company,
     location,
-    salary,
-    wfh,
-    email,
-    phone,
     deadline
 FROM posts
 ORDER BY posted_at DESC
@@ -165,18 +159,12 @@ LIMIT 10 OFFSET ?
 `
 
 type GetPostsRow struct {
-	Postid      string
-	Title       string
-	Description string
-	Posttype    string
-	Jobtype     sql.NullString
-	Company     sql.NullString
-	Location    sql.NullString
-	Salary      sql.NullInt64
-	Wfh         sql.NullInt64
-	Email       sql.NullString
-	Phone       sql.NullString
-	Deadline    sql.NullInt64
+	Postid   string
+	Title    string
+	Jobtype  sql.NullString
+	Company  sql.NullString
+	Location sql.NullString
+	Deadline sql.NullInt64
 }
 
 func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]GetPostsRow, error) {
@@ -191,15 +179,9 @@ func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]GetPostsRow, er
 		if err := rows.Scan(
 			&i.Postid,
 			&i.Title,
-			&i.Description,
-			&i.Posttype,
 			&i.Jobtype,
 			&i.Company,
 			&i.Location,
-			&i.Salary,
-			&i.Wfh,
-			&i.Email,
-			&i.Phone,
 			&i.Deadline,
 		); err != nil {
 			return nil, err
