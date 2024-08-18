@@ -13,6 +13,7 @@ RETURNING *;
 -- name: CreateJobPost :exec
 INSERT INTO posts (
     postId,
+    userId,
     title,
     description,
     postType,
@@ -25,13 +26,14 @@ INSERT INTO posts (
     phone,
     deadline
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
 -- name: CreateVolunteerPost :one
 INSERT INTO posts (
     postId,
+    userId,
     title,
     description,
     postType,
@@ -44,7 +46,7 @@ INSERT INTO posts (
     phone,
     deadline
 ) VALUES (
-    ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?
+    ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?
 )
 RETURNING *;
 

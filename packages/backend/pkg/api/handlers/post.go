@@ -42,6 +42,8 @@ type CreateJobPostParamsValidation struct {
 func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateUser => invoked")
 
+	userId := getUserId(w, r)
+
 	var jobPostValidation CreateJobPostParamsValidation
 
 	errRead := ReadAndValidateBody(r, &jobPostValidation)
@@ -73,6 +75,7 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jobPostData.Postid = id
+	jobPostData.Userid = userId
 	jobPostData.Deadline = sql.NullInt64{Int64: deadlineTimestamp, Valid: true}
 
 	errQ := h.dataService.Queries.CreateJobPost(context.Background(), jobPostData)
@@ -94,6 +97,8 @@ type GetPostParamsValidation struct {
 func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) GetPosts => invoked")
 
+	userId := getUserId(w, r)
+
 	var paramsValidation GetPostParamsValidation
 
 	errRead := ReadAndValidateBody(r, &paramsValidation)
@@ -102,7 +107,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, errQ := h.dataService.Queries.GetPosts(context.Background(), int64(paramsValidation.Page-1))
+	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64(paramsValidation.Page - 1), Userid: userId})
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)
@@ -112,4 +117,26 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(POST) GetPosts => successful")
 
 	successResponse(w, posts)
+}
+
+func getUserId(w http.ResponseWriter, r *http.Request) string {
+	cookie, err := r.Cookie("authSession")
+
+	if err != nil {
+		if err == http.ErrNoCookie {
+			errorResponse(w, http.StatusUnauthorized, "Unauthorized")
+			return ""
+		}
+		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
+		return ""
+	}
+
+	var decryptedValue AuthSession
+	err = decrypt(cookie.Value, &decryptedValue)
+	if err != nil {
+		http.Error(w, "Failed to decrypt cookie value", http.StatusInternalServerError)
+		return ""
+	}
+
+	return decryptedValue.Sub
 }
