@@ -2,8 +2,10 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -35,17 +37,31 @@ type CreateJobPostParamsValidation struct {
 	Wfh         string `json:"wfh" validate:"required"`
 	Email       string `json:"email" validate:"required"`
 	Phone       string `json:"phone" validate:"required"`
-	Deadline    string `json:"deadline" validate:"required"`
+	Deadline    string `json:"deadline" validate:"required,date"`
 }
 
 func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) CreateUser => invoked")
+	clog.Logger.Info("(POST) CreateUser => invoked")
 
 	var jobPostValidation CreateJobPostParamsValidation
 
 	errRead := ReadAndValidateBody(r, &jobPostValidation)
 	if errRead != nil {
 		http.Error(w, errRead.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Manually convert Deadline from string to sql.NullTime
+	var deadline sql.NullTime
+	if jobPostValidation.Deadline != "" {
+		parsedDate, err := time.Parse("2006-01-02", jobPostValidation.Deadline)
+		if err != nil {
+			http.Error(w, "Invalid date format", http.StatusBadRequest)
+			return
+		}
+		deadline = sql.NullTime{Time: parsedDate, Valid: true}
+	} else {
+		http.Error(w, "Deadline value is empty", http.StatusBadRequest)
 		return
 	}
 
@@ -65,6 +81,9 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jobPostData.Postid = id
+	jobPostData.Deadline = deadline
+
+	fmt.Printf("DEADLINE %v \n", deadline)
 
 	errQ := h.dataService.Queries.CreateJobPost(context.Background(), jobPostData)
 	if errQ != nil {
@@ -76,4 +95,31 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(POST) CreateJobPost => create successful")
 
 	w.WriteHeader(http.StatusOK)
+}
+
+type GetPostParamsValidation struct {
+	Page int `json:"page" validate:"required,numeric"`
+}
+
+func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) GetPosts => invoked")
+
+	var paramsValidation GetPostParamsValidation
+
+	errRead := ReadAndValidateBody(r, &paramsValidation)
+	if errRead != nil {
+		http.Error(w, errRead.Error(), http.StatusBadRequest)
+		return
+	}
+
+	posts, errQ := h.dataService.Queries.GetPosts(context.Background(), int64(paramsValidation.Page))
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
+		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(POST) GetPosts => successful")
+
+	successResponse(w, posts)
 }
