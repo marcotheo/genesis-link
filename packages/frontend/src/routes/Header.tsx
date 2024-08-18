@@ -66,7 +66,9 @@ const HeaderItems = component$(() => {
   if (authCtx.AccessToken)
     return (
       <>
-        <Button variant="transparent">POSTS</Button>
+        <Link href="/posts">
+          <Button variant="transparent">POSTS</Button>
+        </Link>
         <Button variant="transparent">APPLICANTS</Button>
         <Button variant="transparent">APPLICATIONS</Button>
 
