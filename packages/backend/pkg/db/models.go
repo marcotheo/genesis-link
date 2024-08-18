@@ -21,6 +21,7 @@ type Post struct {
 	Email       sql.NullString
 	Phone       sql.NullString
 	Deadline    sql.NullInt64
+	Userid      string
 	PostedAt    sql.NullTime
 	UpdatedAt   sql.NullTime
 }

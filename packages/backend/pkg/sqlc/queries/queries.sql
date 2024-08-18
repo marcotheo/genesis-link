@@ -48,7 +48,7 @@ INSERT INTO posts (
 )
 RETURNING *;
 
--- name: GetPosts :many
+-- name: GetPostsByUserId :many
 SELECT  
     postId,
     title,
@@ -58,6 +58,7 @@ SELECT
     deadline,
     salary
 FROM posts
+WHERE userId = ?
 ORDER BY posted_at DESC
 LIMIT 10 OFFSET ?;
 

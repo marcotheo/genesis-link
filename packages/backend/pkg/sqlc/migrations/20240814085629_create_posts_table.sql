@@ -13,8 +13,10 @@ CREATE TABLE posts (
     email TEXT,
     phone TEXT,
     deadline INTEGER,
+    userId TEXT NOT NULL,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
 CREATE INDEX idx_postType ON posts(postType);
