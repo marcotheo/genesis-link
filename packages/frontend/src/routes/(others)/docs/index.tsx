@@ -69,7 +69,7 @@ export default component$(() => {
               </div>
 
               <div class="flex justify-between gap-5">
-                <Menu title="Menu">
+                <Menu triggerTitle="Menu">
                   <div q:slot="label">
                     <DropDownMenuLabel>Sample Menu</DropDownMenuLabel>
                   </div>
@@ -82,7 +82,7 @@ export default component$(() => {
                   <DropDownMenuItem>Item 3</DropDownMenuItem>
                 </Menu>
 
-                <Menu title="Menu">
+                <Menu triggerTitle="Menu">
                   <DropDownMenuLabel q:slot="label">
                     Sample Menu
                   </DropDownMenuLabel>
