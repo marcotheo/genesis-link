@@ -53,7 +53,7 @@ export const useFormLoader = routeLoader$<InitialValues<SignInForm>>(() => ({
 export default component$(() => {
   const authCtx = useContext(AuthContext);
   const navigate = useNavigate();
-  const { mutate, state } = useMutate<Response>("/user/signin");
+  const { mutate, state } = useMutate<Response>("/api/v1/user/signin");
 
   const [signInForm, { Form, Field }] = useForm<SignInForm>({
     loader: useFormLoader(),
@@ -74,7 +74,7 @@ export default component$(() => {
 
       if (response.data) {
         console.log("Form submitted successfully:", response.data.data);
-        authCtx.accessToken = response.data.data.AccessToken;
+        authCtx.AccessToken = response.data.data.AccessToken;
         reset(signInForm);
         navigate("/");
       }
