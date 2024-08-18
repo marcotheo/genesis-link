@@ -7,6 +7,10 @@ import {
   SignUpIcon,
   UserIcon,
 } from "~/components/icons/icons";
+import Menu, {
+  DropDownMenuItem,
+  DropDownMenuLabel,
+} from "~/components/drop-down/drop-down";
 import { AuthContext } from "~/components/auth-provider/auth-provider";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import LogoImage from "~/components/logo-image/logo-image";
@@ -62,15 +66,19 @@ const HeaderItems = component$(() => {
   if (authCtx.AccessToken)
     return (
       <>
-        <div
-          class={cn(
-            "bg-surface shadow-lg",
-            "rounded-full h-14 w-14",
-            "flex items-center justify-center",
-          )}
-        >
-          <UserIcon />
-        </div>
+        <Button variant="transparent">POSTS</Button>
+        <Button variant="transparent">APPLICANTS</Button>
+        <Button variant="transparent">APPLICATIONS</Button>
+
+        <Menu>
+          <UserIcon q:slot="trigger-circle-icon" />
+
+          <div q:slot="label">
+            <DropDownMenuLabel>My Account</DropDownMenuLabel>
+          </div>
+          <DropDownMenuItem>Settings</DropDownMenuItem>
+          <DropDownMenuItem>Logout</DropDownMenuItem>
+        </Menu>
       </>
     );
 
