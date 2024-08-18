@@ -27,7 +27,7 @@ export default component$<ButtonProps>(
         <button
           {...props}
           class={cn(
-            "peer w-full font-primary",
+            "peer font-primary",
             "rounded-md",
             "duration-150 ease-linear",
             sizes[size],

@@ -1,11 +1,16 @@
 import type { DocumentHead } from "@builder.io/qwik-city";
+import Button from "~/components/button/button";
 import { component$ } from "@builder.io/qwik";
 
 export default component$(() => {
   return (
     <div class="overflow-hidden">
       <br />
-      <div class="flex flex-col gap-3 text-center">LANDING PAGE</div>
+      <div class="flex justify-end">
+        <Button class="text-3xl" size="sm" variant="outline">
+          +
+        </Button>
+      </div>
     </div>
   );
 });
