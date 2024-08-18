@@ -55,7 +55,8 @@ SELECT
     jobType,
     company,
     location,
-    deadline
+    deadline,
+    salary
 FROM posts
 ORDER BY posted_at DESC
 LIMIT 10 OFFSET ?;

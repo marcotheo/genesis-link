@@ -152,7 +152,8 @@ SELECT
     jobType,
     company,
     location,
-    deadline
+    deadline,
+    salary
 FROM posts
 ORDER BY posted_at DESC
 LIMIT 10 OFFSET ?
@@ -165,6 +166,7 @@ type GetPostsRow struct {
 	Company  sql.NullString
 	Location sql.NullString
 	Deadline sql.NullInt64
+	Salary   sql.NullInt64
 }
 
 func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]GetPostsRow, error) {
@@ -183,6 +185,7 @@ func (q *Queries) GetPosts(ctx context.Context, offset int64) ([]GetPostsRow, er
 			&i.Company,
 			&i.Location,
 			&i.Deadline,
+			&i.Salary,
 		); err != nil {
 			return nil, err
 		}
