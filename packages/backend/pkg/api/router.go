@@ -52,8 +52,8 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 
 		clog.Logger.Info("INITIALIZING ROUTES")
 
-		router.AddSubRoutes("/user", userRoutes.Routes())
-		router.AddSubRoutes("/post", postRoutes.Routes())
+		router.AddSubRoutes("/api/v1/user", userRoutes.Routes())
+		router.AddSubRoutes("/api/v1/post", postRoutes.Routes())
 
 		router.POST("/health", healthCheckHandler)
 
