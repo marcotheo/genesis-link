@@ -8,8 +8,6 @@ import {
 import { useRefreshTokenLoader } from "~/routes/layout";
 
 interface AuthState {
-  AccessToken: string | null;
-  IdToken: string | null;
   ExpiresIn: number | null;
 }
 
