@@ -144,9 +144,7 @@ type SignInUserParamsValidation struct {
 }
 
 type SignInUserResponse struct {
-	AccessToken string
-	IdToken     string
-	ExpiresIn   int32
+	ExpiresIn int32
 }
 
 func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
@@ -160,16 +158,11 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sub, res, err := h.cognitoService.SignInUser(inputValidation.Email, inputValidation.Password)
+	res, err := h.cognitoService.SignInUser(inputValidation.Email, inputValidation.Password)
 	if err != nil {
 		errorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	cookieValue, err := encrypt(AuthSession{
-		RefreshToken: *res.RefreshToken,
-		Sub:          sub,
-	})
 
 	if err != nil {
 		fmt.Printf("error ito %v", err.Error())
@@ -185,11 +178,22 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "authSession",
-		Value:    cookieValue,
+		Name:     "refreshToken",
+		Value:    *res.RefreshToken,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "accessToken",
+		Value:    *res.AccessToken,
+		Expires:  time.Now().Add(10 * time.Minute),
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
@@ -197,16 +201,15 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(USER) SignInUser => success")
 
-	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
+	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
 }
 
 func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) RefreshAccessToken => invoked")
 
-	cookie, err := r.Cookie("authSession")
-
-	if err != nil {
-		if err == http.ErrNoCookie {
+	refreshToken, errorRefreshToken := r.Cookie("refreshToken")
+	if errorRefreshToken != nil {
+		if errorRefreshToken == http.ErrNoCookie {
 			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
 			return
 		}
@@ -214,14 +217,23 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var decryptedValue AuthSession
-	err = decrypt(cookie.Value, &decryptedValue)
-	if err != nil {
-		http.Error(w, "Failed to decrypt cookie value", http.StatusInternalServerError)
+	accessToken, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		if errorAccessToken == http.ErrNoCookie {
+			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
+			return
+		}
+		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
 		return
 	}
 
-	res, err := h.cognitoService.RefreshAccessToken(decryptedValue.Sub, decryptedValue.RefreshToken)
+	userId, errUserId := h.cognitoService.GetUserId(accessToken.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	res, err := h.cognitoService.RefreshAccessToken(userId, refreshToken.Value)
 	if err != nil {
 		errorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -229,5 +241,23 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 
 	clog.Logger.Info("(USER) RefreshAccessToken => success")
 
-	successResponse(w, SignInUserResponse{AccessToken: *res.AccessToken, IdToken: *res.IdToken, ExpiresIn: res.ExpiresIn})
+	secure := r.TLS != nil
+
+	domain := os.Getenv("COOKIE_DOMAIN")
+	if domain == "" {
+		domain = "localhost" // Default value if the environment variable is not set
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "accessToken",
+		Value:    *res.AccessToken,
+		Expires:  time.Now().Add(10 * time.Minute),
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
+	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
 }

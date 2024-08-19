@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
@@ -32,21 +31,14 @@ func verifyToken(client *cognitoidentityprovider.Client, token string) (*cognito
 
 func (m *MiddlewareService) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		// Extract token from "Bearer <token>"
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token == authHeader {
+		token, errorAccessToken := r.Cookie("accessToken")
+		if errorAccessToken != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		// Verify the token
-		_, err := verifyToken(m.cognitoService.Client, token)
+		_, err := verifyToken(m.cognitoService.Client, token.Value)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return

@@ -15,14 +15,16 @@ import (
 )
 
 type PostHandler struct {
-	dataService *services.DataService
-	utilService *services.UtilService
+	dataService    *services.DataService
+	utilService    *services.UtilService
+	cognitoService *services.CognitoService
 }
 
-func InitPostHandler(dataService *services.DataService, utilService *services.UtilService) *PostHandler {
+func InitPostHandler(dataService *services.DataService, utilService *services.UtilService, cognitoService *services.CognitoService) *PostHandler {
 	return &PostHandler{
-		dataService: dataService,
-		utilService: utilService,
+		dataService:    dataService,
+		utilService:    utilService,
+		cognitoService: cognitoService,
 	}
 }
 
@@ -43,7 +45,17 @@ type CreateJobPostParamsValidation struct {
 func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateUser => invoked")
 
-	userId := getUserId(w, r)
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
 
 	var jobPostValidation CreateJobPostParamsValidation
 
@@ -106,7 +118,17 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := getUserId(w, r)
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
 
 	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64(page - 1), Userid: userId})
 	if errQ != nil {
@@ -118,26 +140,4 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(POST) GetPosts => successful")
 
 	successResponse(w, posts)
-}
-
-func getUserId(w http.ResponseWriter, r *http.Request) string {
-	cookie, err := r.Cookie("authSession")
-
-	if err != nil {
-		if err == http.ErrNoCookie {
-			errorResponse(w, http.StatusUnauthorized, "Unauthorized")
-			return ""
-		}
-		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
-		return ""
-	}
-
-	var decryptedValue AuthSession
-	err = decrypt(cookie.Value, &decryptedValue)
-	if err != nil {
-		http.Error(w, "Failed to decrypt cookie value", http.StatusInternalServerError)
-		return ""
-	}
-
-	return decryptedValue.Sub
 }

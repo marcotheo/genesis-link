@@ -107,7 +107,7 @@ func decodeJWT(token string) (map[string]interface{}, error) {
 	return claims, nil
 }
 
-func (c *CognitoService) SignInUser(username string, password string) (string, types.AuthenticationResultType, error) {
+func (c *CognitoService) SignInUser(username string, password string) (types.AuthenticationResultType, error) {
 	clog.Logger.Info("(COGNITO) authenticating user")
 
 	secretHash := calculateSecretHash(c.clientId, c.clientSecret, username)
@@ -127,27 +127,31 @@ func (c *CognitoService) SignInUser(username string, password string) (string, t
 		clog.Logger.Error("(COGNITO) failed authenticate user")
 
 		if strings.Contains(err.Error(), "NotAuthorizedException") {
-			return "", types.AuthenticationResultType{}, errors.New("invalid credentials")
+			return types.AuthenticationResultType{}, errors.New("invalid credentials")
 		}
 
-		return "", types.AuthenticationResultType{}, fmt.Errorf("failed authenticate user: %w", err)
-	}
-
-	// Decode the access token to get the 'sub' claim
-	claims, err := decodeJWT(*result.AuthenticationResult.AccessToken)
-	if err != nil {
-		return "", types.AuthenticationResultType{}, fmt.Errorf("failed to decode access token: %w", err)
-	}
-
-	sub, ok := claims["sub"].(string)
-	if !ok {
-		return "", types.AuthenticationResultType{}, fmt.Errorf("'sub' claim not found in access token")
+		return types.AuthenticationResultType{}, fmt.Errorf("failed authenticate user: %w", err)
 	}
 
 	clog.Logger.Info("(COGNITO) user authenticated")
 
 	// user not expected any challenge since user sign up by themselves
-	return sub, *result.AuthenticationResult, nil
+	return *result.AuthenticationResult, nil
+}
+
+func (c *CognitoService) GetUserId(accessToken string) (string, error) {
+	// Decode the access token to get the 'sub' claim
+	claims, err := decodeJWT(accessToken)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode access token: %w", err)
+	}
+
+	sub, ok := claims["sub"].(string)
+	if !ok {
+		return "", fmt.Errorf("'sub' claim not found in access token")
+	}
+
+	return sub, nil
 }
 
 func (c *CognitoService) RefreshAccessToken(userId string, refreshToken string) (types.AuthenticationResultType, error) {
