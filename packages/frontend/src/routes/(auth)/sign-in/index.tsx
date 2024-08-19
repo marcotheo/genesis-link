@@ -28,8 +28,6 @@ interface Response {
   status: string;
   message: string;
   data: {
-    AccessToken: string;
-    IdToken: string;
     ExpiresIn: number;
   };
 }
@@ -72,9 +70,8 @@ export default component$(() => {
         },
       );
 
-      if (response.data) {
-        console.log("Form submitted successfully:", response.data.data);
-        authCtx.AccessToken = response.data.data.AccessToken;
+      if (response.result) {
+        authCtx.ExpiresIn = response.result.data.ExpiresIn;
         reset(signInForm);
         navigate("/");
       }

@@ -99,10 +99,7 @@ export default component$(() => {
         password: values.password,
       });
 
-      if (response.data) {
-        console.log("Form submitted successfully:", response.data.data);
-        reset(signUpForm);
-      }
+      if (response.result) reset(signUpForm);
 
       if (response.error) console.log("Error form", response.error);
     } catch (error) {
