@@ -164,12 +164,6 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err != nil {
-		fmt.Printf("error ito %v", err.Error())
-		http.Error(w, "Failed to encrypt payload", http.StatusInternalServerError)
-		return
-	}
-
 	secure := r.TLS != nil
 
 	domain := os.Getenv("COOKIE_DOMAIN")
