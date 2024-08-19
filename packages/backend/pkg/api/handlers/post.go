@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -90,24 +91,24 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-type GetPostParamsValidation struct {
-	Page int `json:"page" validate:"required,numeric"`
-}
-
 func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) GetPosts => invoked")
 
-	userId := getUserId(w, r)
-
-	var paramsValidation GetPostParamsValidation
-
-	errRead := ReadAndValidateBody(r, &paramsValidation)
-	if errRead != nil {
-		http.Error(w, errRead.Error(), http.StatusBadRequest)
+	pageStr := r.URL.Query().Get("page")
+	if pageStr == "" {
+		http.Error(w, "Page parameter is required", http.StatusBadRequest)
 		return
 	}
 
-	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64(paramsValidation.Page - 1), Userid: userId})
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		http.Error(w, "Page must be a number", http.StatusBadRequest)
+		return
+	}
+
+	userId := getUserId(w, r)
+
+	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64(page - 1), Userid: userId})
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)
