@@ -174,7 +174,7 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refreshToken",
 		Value:    *res.RefreshToken,
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  time.Now().Add(3 * time.Hour),
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
 		Secure:   secure,
@@ -214,7 +214,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 	accessToken, errorAccessToken := r.Cookie("accessToken")
 	if errorAccessToken != nil {
 		if errorAccessToken == http.ErrNoCookie {
-			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
+			errorResponse(w, http.StatusUnauthorized, "No access token found")
 			return
 		}
 		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
