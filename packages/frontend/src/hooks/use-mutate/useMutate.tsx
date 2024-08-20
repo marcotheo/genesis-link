@@ -29,7 +29,7 @@ export const useMutate = <T,>(url: string) => {
           "Content-Type": "application/json",
         },
         ...additionalOptions,
-        body: JSON.stringify(json),
+        body: json ? JSON.stringify(json) : undefined,
       });
 
       state.result = result;
