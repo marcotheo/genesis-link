@@ -19,8 +19,6 @@ export interface RefreshResponse {
   status: string;
   message: string;
   data: {
-    AccessToken: string;
-    IdToken: string;
     ExpiresIn: number;
   };
 }
