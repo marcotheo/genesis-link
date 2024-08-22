@@ -19,7 +19,7 @@ export const AuthContext = createContextId<AuthState>("auth.context");
 export default component$(() => {
   const result = useRefreshTokenLoader();
 
-  const authState = useStore<AuthState>({ ...result.value });
+  const authState = useStore<AuthState>({ ExpiresIn: result.value });
 
   const { mutate } = useMutate<RefreshResponse>("/api/v1/users/token/refresh");
 
