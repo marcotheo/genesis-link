@@ -50,7 +50,9 @@ export const useFormLoader = routeLoader$<InitialValues<SignInForm>>(() => ({
 
 export default component$(() => {
   const authCtx = useContext(AuthContext);
+
   const navigate = useNavigate();
+
   const { mutate, state } = useMutate<Response>("/api/v1/users/signin");
 
   const [signInForm, { Form, Field }] = useForm<SignInForm>({
@@ -71,7 +73,8 @@ export default component$(() => {
       );
 
       if (response.result) {
-        authCtx.ExpiresIn = response.result.data.ExpiresIn;
+        const unixTimestamp = Math.floor(Date.now() / 1000);
+        authCtx.ExpiresIn = response.result.data.ExpiresIn + unixTimestamp;
         reset(signInForm);
         navigate("/");
       }

@@ -24,7 +24,9 @@ export default component$(() => {
   const { mutate } = useMutate<RefreshResponse>("/api/v1/users/token/refresh");
 
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ cleanup }) => {
+  useVisibleTask$(({ cleanup, track }) => {
+    const newExpiresIn = track(() => authState.ExpiresIn);
+
     const timeTrigger = 90; // seconds
     let timeoutId: NodeJS.Timeout | null = null;
 
@@ -56,7 +58,7 @@ export default component$(() => {
       }
     };
 
-    const expiresIn = localStorage.getItem("tokenExpire");
+    const expiresIn = newExpiresIn || localStorage.getItem("tokenExpire");
 
     if (!expiresIn) return;
 
