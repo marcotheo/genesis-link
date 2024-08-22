@@ -45,3 +45,34 @@ export const qwikFetch = async <T>(
   const data: T = await response.json();
   return data;
 };
+
+// Define a helper function for fetch requests
+export const rawFetch = async <T>(
+  url?: string,
+  options?: RequestInit,
+): Promise<{
+  result: T;
+  response: Response;
+}> => {
+  let requestUrl: string = baseApiUrl;
+
+  if (url && url.includes("http")) {
+    requestUrl = url;
+  } else {
+    requestUrl = requestUrl + url;
+  }
+
+  const response = await fetch(requestUrl, options);
+
+  if (!response.ok) {
+    const err = await response.text();
+    const errorMessage = JSON.parse(err) as { message: string };
+    throw { status: response.status, message: errorMessage.message };
+  }
+
+  const data: T = await response.json();
+  return {
+    result: data,
+    response,
+  };
+};
