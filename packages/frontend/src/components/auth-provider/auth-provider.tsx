@@ -5,10 +5,11 @@ import {
   useContextProvider,
   useStore,
   useVisibleTask$,
+  $,
 } from "@builder.io/qwik";
 
-import { RefreshResponse, useRefreshTokenLoader } from "~/routes/layout";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { RefreshResponse } from "~/routes/layout";
 
 interface AuthState {
   ExpiresIn: number | null;
@@ -17,14 +18,23 @@ interface AuthState {
 export const AuthContext = createContextId<AuthState>("auth.context");
 
 export default component$(() => {
-  const result = useRefreshTokenLoader();
-
-  const authState = useStore<AuthState>({ ExpiresIn: result.value });
+  const authState = useStore<AuthState>({ ExpiresIn: null });
 
   const { mutate } = useMutate<RefreshResponse>("/api/v1/users/token/refresh");
 
+  const getCookie = $((name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift();
+    return null;
+  });
+
+  const deleteCookie = $((name: string) => {
+    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+  });
+
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ cleanup, track }) => {
+  useVisibleTask$(async ({ cleanup, track }) => {
     const newExpiresIn = track(() => authState.ExpiresIn);
 
     const timeTrigger = 90; // seconds
@@ -39,26 +49,17 @@ export default component$(() => {
 
       if (response.result) {
         const unixTimestamp = Math.floor(Date.now() / 1000); // time now in seconds
-
         const expiresIn = response.result.data.ExpiresIn + unixTimestamp;
-
-        const timeLeft = expiresIn - unixTimestamp;
-
-        localStorage.setItem("tokenExpire", `${expiresIn}`);
-
-        timeoutId = setTimeout(
-          refreshTokenJob,
-          (timeLeft - timeTrigger) * 1000,
-        );
+        authState.ExpiresIn = expiresIn;
       }
 
       if (response.error) {
-        localStorage.removeItem("tokenExpire");
+        deleteCookie("tokenExpiresIn");
         return;
       }
     };
 
-    const expiresIn = newExpiresIn || localStorage.getItem("tokenExpire");
+    const expiresIn = newExpiresIn || (await getCookie("tokenExpiresIn"));
 
     if (!expiresIn) return;
 
