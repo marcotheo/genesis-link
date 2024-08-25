@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -193,6 +194,19 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 	})
 
+	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "tokenExpiresIn",
+		Value:    strconv.FormatInt(expiresIn, 10),
+		Expires:  time.Now().Add(3 * time.Hour),
+		HttpOnly: false,
+		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
 	clog.Logger.Success("(USER) SignInUser => success")
 
 	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
@@ -247,6 +261,19 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		Value:    *res.AccessToken,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
+	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "tokenExpiresIn",
+		Value:    strconv.FormatInt(expiresIn, 10),
+		Expires:  time.Now().Add(3 * time.Hour),
+		HttpOnly: false,
 		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
 		Secure:   secure,
 		Domain:   domain,
