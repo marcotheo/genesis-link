@@ -1,7 +1,7 @@
 import { routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
 import AuthProvider from "~/components/auth-provider/auth-provider";
 import { component$, Slot } from "@builder.io/qwik";
-import { qwikFetch } from "~/common/utils";
+import { rawFetch } from "~/common/utils";
 import Header from "./Header";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
@@ -23,43 +23,63 @@ export interface RefreshResponse {
   };
 }
 
-export const useRefreshTokenLoader = routeLoader$(async (requestEvent) => {
-  const authSession = requestEvent.cookie.get("authSession");
+export const onRequest: RequestHandler = async ({ cookie, json }) => {
+  const accessToken = cookie.get("accessToken");
+  const refreshToken = cookie.get("refreshToken");
+  const tokenExpiresInCookie = cookie.get("tokenExpiresIn");
 
-  const noRefresh = {
-    AccessToken: null,
-    IdToken: null,
-    ExpiresIn: null,
-  };
+  if (!accessToken || !refreshToken || !tokenExpiresInCookie) return;
 
-  if (!authSession?.value) return noRefresh;
+  const unixTimestamp = Math.floor(Date.now() / 1000);
+  const expiresIn = parseInt(tokenExpiresInCookie.value, 10);
+  const timeLeft = expiresIn - unixTimestamp;
+
+  if (timeLeft > 90) return;
 
   try {
-    const headers = new Headers();
+    const cookies = `refreshToken=${refreshToken.value}; accessToken=${accessToken.value}`;
 
-    headers.append("cookie", `authSession=${authSession.value}`);
-    headers.append("Content-Type", "application/json");
-
-    const res = await qwikFetch<RefreshResponse>(
-      "/api/v1/users/token/refresh",
-      {
-        method: "POST",
-        headers: headers,
+    const res = await rawFetch<RefreshResponse>("/api/v1/users/token/refresh", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookies,
       },
-    );
+      credentials: "include",
+    });
 
-    if (res.data)
-      return {
-        ...res.data,
-      };
+    if (res.result.data)
+      res.response.headers.forEach((cookieValue, cookieKey) => {
+        if (cookieKey.toLowerCase() === "set-cookie") {
+          const [nameValue, ...attributes] = cookieValue.split("; ");
+          const [name, value] = nameValue.split("=");
 
-    return noRefresh;
+          if (!["accessToken", "tokenExpiresIn"].includes(name)) return;
+
+          // Set the cookies using the Qwik `cookie` parameter
+          cookie.set(name, value, {
+            path: "/", // Set the path for the cookie
+            httpOnly: attributes.includes("HttpOnly"),
+            secure: attributes.includes("Secure"),
+            sameSite: attributes
+              .find((attr) => attr.startsWith("SameSite"))
+              ?.split("=")[1] as "Lax" | "Strict" | "None",
+            expires: new Date(
+              attributes
+                .find((attr) => attr.startsWith("Expires"))
+                ?.split("=")[1] || "",
+            ),
+          });
+        }
+      });
+
+    return;
   } catch (err: any) {
-    console.log("ERROR", err);
-
-    return noRefresh;
+    console.log("Middleware Error: ", err);
   }
-});
+
+  json(200, { cookie });
+};
 
 export default component$(() => {
   return (
