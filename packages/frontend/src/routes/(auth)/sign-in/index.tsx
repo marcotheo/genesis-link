@@ -75,10 +75,6 @@ export default component$(() => {
       if (response.result) {
         const unixTimestamp = Math.floor(Date.now() / 1000);
         authCtx.ExpiresIn = response.result.data.ExpiresIn + unixTimestamp;
-        localStorage.setItem(
-          "tokenExpire",
-          `${response.result.data.ExpiresIn + unixTimestamp}`,
-        );
         reset(signInForm);
         navigate("/");
       }
