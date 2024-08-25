@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { baseApiUrl } from "./constants";
+import { $ } from "@builder.io/qwik";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -76,3 +77,14 @@ export const rawFetch = async <T>(
     response,
   };
 };
+
+export const setCookie = $((name: string, value: string, expiresIn: number) => {
+  const now = Math.floor(Date.now() / 1000); // Current Unix timestamp in seconds
+  const tenMinutesFromNow = now + expiresIn;
+
+  // Convert the Unix timestamp to a date string in the GMT format
+  const expiryDate = new Date(tenMinutesFromNow * 1000).toUTCString();
+
+  // Set the cookie with the calculated expiration time
+  document.cookie = `${name}=${value}; expires=${expiryDate}; path=/;`;
+});
