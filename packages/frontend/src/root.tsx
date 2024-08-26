@@ -3,14 +3,16 @@ import {
   RouterOutlet,
   ServiceWorkerRegister,
 } from "@builder.io/qwik-city";
+import { component$, useServerData } from "@builder.io/qwik";
 import { isDev } from "@builder.io/qwik/build";
-import { component$ } from "@builder.io/qwik";
 
 import { RouterHead } from "./components/router-head/router-head";
 
 import "./global.css";
 
 export default component$(() => {
+  const nonce = useServerData<string | undefined>("nonce");
+
   /**
    * The root of a QwikCity site always start with the <QwikCityProvider> component,
    * immediately followed by the document's <head> and <body>.
@@ -33,7 +35,7 @@ export default component$(() => {
 
       <body lang="en">
         <RouterOutlet />
-        {!isDev && <ServiceWorkerRegister />}
+        {!isDev && <ServiceWorkerRegister nonce={nonce} />}
       </body>
     </QwikCityProvider>
   );
