@@ -82,7 +82,7 @@ export default component$(() => {
     );
 
     cleanup(() => {
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
     });
   });
 

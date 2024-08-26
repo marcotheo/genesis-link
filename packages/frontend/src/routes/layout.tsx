@@ -1,5 +1,5 @@
-import { routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
 import AuthProvider from "~/components/auth-provider/auth-provider";
+import { type RequestHandler } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
 import { rawFetch } from "~/common/utils";
 import Header from "./Header";
@@ -48,30 +48,29 @@ export const onRequest: RequestHandler = async ({ cookie, json }) => {
       credentials: "include",
     });
 
-    if (res.result.data)
-      res.response.headers.forEach((cookieValue, cookieKey) => {
-        if (cookieKey.toLowerCase() === "set-cookie") {
-          const [nameValue, ...attributes] = cookieValue.split("; ");
-          const [name, value] = nameValue.split("=");
+    res.response.headers.forEach((cookieValue, cookieKey) => {
+      if (cookieKey.toLowerCase() === "set-cookie") {
+        const [nameValue, ...attributes] = cookieValue.split("; ");
+        const [name, value] = nameValue.split("=");
 
-          if (!["accessToken", "tokenExpiresIn"].includes(name)) return;
+        if (!["accessToken", "tokenExpiresIn"].includes(name)) return;
 
-          // Set the cookies using the Qwik `cookie` parameter
-          cookie.set(name, value, {
-            path: "/", // Set the path for the cookie
-            httpOnly: attributes.includes("HttpOnly"),
-            secure: attributes.includes("Secure"),
-            sameSite: attributes
-              .find((attr) => attr.startsWith("SameSite"))
-              ?.split("=")[1] as "Lax" | "Strict" | "None",
-            expires: new Date(
-              attributes
-                .find((attr) => attr.startsWith("Expires"))
-                ?.split("=")[1] || "",
-            ),
-          });
-        }
-      });
+        // Set the cookies using the Qwik `cookie` parameter
+        cookie.set(name, value, {
+          path: "/", // Set the path for the cookie
+          httpOnly: attributes.includes("HttpOnly"),
+          secure: attributes.includes("Secure"),
+          sameSite: attributes
+            .find((attr) => attr.startsWith("SameSite"))
+            ?.split("=")[1] as "Lax" | "Strict" | "None",
+          expires: new Date(
+            attributes
+              .find((attr) => attr.startsWith("Expires"))
+              ?.split("=")[1] || "",
+          ),
+        });
+      }
+    });
 
     return;
   } catch (err: any) {
