@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
@@ -18,9 +20,11 @@ import (
 )
 
 func InitializeApp() (*http.Handler, *sql.DB) {
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+
 	router := justarouter.CreateRouter(justarouter.ServerRouterOptions{
 		CORS: justarouter.CorsOptions{
-			AllowedOrigins:   []string{"http://localhost:5173"},
+			AllowedOrigins:   strings.Split(allowedOrigins, ","),
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 			AllowCredentials: true,
 			AllowedHeaders:   []string{"Content-Type", "Authorization"},
