@@ -1,10 +1,79 @@
-import type { DocumentHead } from "@builder.io/qwik-city";
+import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
+import dayjs from "dayjs";
+
+import { PHpeso, qwikFetch } from "~/common/utils";
 import Button from "~/components/button/button";
+import { useAuthCheck } from "~/routes/layout";
+
+type Post = {
+  Postid: string;
+  Title: string;
+  Jobtype: {
+    String: string;
+    Valid: true;
+  };
+  Company: {
+    String: string;
+    Valid: true;
+  };
+  Location: {
+    String: string;
+    Valid: true;
+  };
+  Deadline: {
+    Int64: number;
+    Valid: true;
+  };
+  Salary: {
+    Int64: number;
+    Valid: true;
+  };
+};
+
+interface Response {
+  status: string;
+  message: string;
+  data: Post[];
+}
+
+// need access token here
+export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
+  const accessToken = cookie.get("accessToken");
+
+  if (!accessToken?.value) return [];
+
+  const isValid = await resolveValue(useAuthCheck);
+
+  if (!isValid) return [];
+
+  try {
+    const headers = new Headers();
+    headers.append("cookie", `accessToken=${accessToken.value}`);
+    headers.append("Content-Type", "application/json");
+
+    const params = new URLSearchParams();
+    params.append("page", "1");
+
+    const res = await qwikFetch<Response>(
+      `/api/v1/posts/list?${params.toString()}`,
+      {
+        method: "GET",
+        headers: headers,
+      },
+    );
+
+    return res.data;
+  } catch (err: any) {
+    console.log("Error:", err);
+
+    return [];
+  }
+});
 
 const Th = component$(() => {
   return (
-    <th class="py-3 border border-slate-700 ">
+    <th class="p-3 text-left">
       <Slot />
     </th>
   );
@@ -12,13 +81,15 @@ const Th = component$(() => {
 
 const Td = component$(() => {
   return (
-    <td class="py-3 border border-slate-700 ">
+    <td class="px-3 py-5">
       <Slot />
     </td>
   );
 });
 
 export default component$(() => {
+  const result = usePostsLoader();
+
   return (
     <div class="overflow-hidden">
       <br />
@@ -31,31 +102,33 @@ export default component$(() => {
       <br />
 
       <div>
-        <table class="w-full table border border-collapse">
+        <table class="w-full table border-collapse">
           <thead>
-            <tr>
-              <Th>Column 1</Th>
-              <Th>Column 2</Th>
-              <Th>Column 3</Th>
-              <Th>Column 4</Th>
-              <Th>Column 5</Th>
+            <tr class="brightness-125 shadow-md">
+              <Th>Job Title</Th>
+              <Th>Type</Th>
+              <Th>Company</Th>
+              <Th>Location</Th>
+              <Th>Salary</Th>
+              <Th>Deadline</Th>
             </tr>
           </thead>
           <tbody>
-            <tr class="bg-zinc-800">
-              <Td>Row 1, Cell 1</Td>
-              <Td>Row 1, Cell 2</Td>
-              <Td>Row 1, Cell 3</Td>
-              <Td>Row 1, Cell 4</Td>
-              <Td>Row 1, Cell 5</Td>
-            </tr>
-            <tr>
-              <Td>Row 2, Cell 1</Td>
-              <Td>Row 2, Cell 2</Td>
-              <Td>Row 2, Cell 3</Td>
-              <Td>Row 2, Cell 4</Td>
-              <Td>Row 2, Cell 5</Td>
-            </tr>
+            {result.value?.map((item) => (
+              <tr
+                key={item.Postid}
+                class="border-b border-soft cursor-pointer hover:bg-soft duration-200 ease-out"
+              >
+                <Td>{item.Title}</Td>
+                <Td>{item.Jobtype.String}</Td>
+                <Td>{item.Company.String}</Td>
+                <Td>{item.Location.String}</Td>
+                <Td>{PHpeso.format(item.Salary.Int64)}</Td>
+                <Td>
+                  {dayjs.unix(item.Deadline.Int64).format("MMM DD, YYYY")}
+                </Td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -64,11 +137,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Welcome to Qwik",
+  title: "Accounts Posts List",
   meta: [
     {
       name: "description",
-      content: "Qwik site description",
+      content: "accounts list of job/volunteering posts created",
     },
   ],
 };
