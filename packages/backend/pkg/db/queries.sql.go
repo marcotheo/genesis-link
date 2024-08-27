@@ -152,6 +152,20 @@ func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPo
 	return i, err
 }
 
+const getPostCountByUserId = `-- name: GetPostCountByUserId :one
+SELECT  
+    COUNT(*) AS total_count
+FROM posts
+WHERE userId = ?
+`
+
+func (q *Queries) GetPostCountByUserId(ctx context.Context, userid string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getPostCountByUserId, userid)
+	var total_count int64
+	err := row.Scan(&total_count)
+	return total_count, err
+}
+
 const getPostsByUserId = `-- name: GetPostsByUserId :many
 SELECT  
     postId,

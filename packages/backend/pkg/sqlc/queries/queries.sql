@@ -64,3 +64,9 @@ WHERE userId = ?
 ORDER BY posted_at DESC
 LIMIT 10 OFFSET ?;
 
+-- name: GetPostCountByUserId :one
+SELECT  
+    COUNT(*) AS total_count
+FROM posts
+WHERE userId = ?;
+
