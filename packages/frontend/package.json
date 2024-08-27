@@ -40,6 +40,7 @@
     "autoprefixer": "^10.4.19",
     "aws-jwt-verify": "^4.0.1",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-plugin-qwik": "^1.8.0",
