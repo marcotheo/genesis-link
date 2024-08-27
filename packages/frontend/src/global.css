@@ -52,6 +52,7 @@ ol {
 
     /* Neutral Colors */
     --background: #fafafa;
+    --soft: #e5e7eb;
     --surface: #ffffff;
 
     /* Font Colors */
@@ -81,6 +82,7 @@ ol {
 
     /* Neutral Colors */
     --background: #1a1a1a;
+    --soft: #27272a;
     --surface: #242424;
 
     /* Font Colors */
@@ -115,6 +117,8 @@ h3 {
   color: var(--header-color);
 }
 
+th,
+td,
 p,
 span,
 div {

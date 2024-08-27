@@ -43,6 +43,7 @@ const config = {
         popup: "var(--popup)",
         text: "var(--text-color)",
         ghost: "var(--ghost)",
+        soft: "var(--soft)",
       },
 
       keyframes: {
