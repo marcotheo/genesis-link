@@ -22,6 +22,11 @@ export const RegexValidations = {
   hasSpecialChar: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
 };
 
+export const PHpeso = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "PHP",
+});
+
 // Define a helper function for fetch requests
 export const qwikFetch = async <T>(
   url?: string,
