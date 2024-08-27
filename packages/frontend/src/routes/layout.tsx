@@ -90,7 +90,6 @@ const verifier = CognitoJwtVerifier.create({
 });
 
 export const useAuthCheck = routeLoader$(async ({ cookie }) => {
-  // Check if the cookies string contains both 'accessToken' and 'tokenExpiresIn'
   const accessToken = cookie.get("accessToken");
   const tokenExpiresIn = cookie.get("tokenExpiresIn");
 
