@@ -38,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "autoprefixer": "^10.4.19",
+    "aws-jwt-verify": "^4.0.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",

@@ -1,6 +1,9 @@
-import AuthProvider from "~/components/auth-provider/auth-provider";
-import { type RequestHandler } from "@builder.io/qwik-city";
+import { routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
+
+import { awsRegion, poolClientId, userPoolId } from "~/common/constants";
+import AuthProvider from "~/components/auth-provider/auth-provider";
 import { rawFetch } from "~/common/utils";
 import Header from "./Header";
 
@@ -71,14 +74,37 @@ export const onRequest: RequestHandler = async ({ cookie, json }) => {
         });
       }
     });
-
-    return;
   } catch (err: any) {
     console.log("Middleware Error: ", err);
   }
 
   json(200, { cookie });
 };
+
+// Initialize the verifier
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: userPoolId,
+  tokenUse: "access",
+  clientId: poolClientId,
+  region: awsRegion,
+});
+
+export const useAuthCheck = routeLoader$(async ({ cookie }) => {
+  // Check if the cookies string contains both 'accessToken' and 'tokenExpiresIn'
+  const accessToken = cookie.get("accessToken");
+  const tokenExpiresIn = cookie.get("tokenExpiresIn");
+
+  if (!accessToken || !tokenExpiresIn) return false;
+
+  try {
+    await verifier.verify(accessToken.value);
+
+    return true;
+  } catch (err) {
+    console.error("Token verification failed:", err);
+    return false;
+  }
+});
 
 export default component$(() => {
   return (

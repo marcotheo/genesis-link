@@ -1,4 +1,4 @@
-import { component$, useContext } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
 import {
@@ -11,12 +11,12 @@ import Menu, {
   DropDownMenuItem,
   DropDownMenuLabel,
 } from "~/components/drop-down/drop-down";
-import { AuthContext } from "~/components/auth-provider/auth-provider";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import LogoImage from "~/components/logo-image/logo-image";
 import DarkMode from "~/components/dark-mode/dark-mode";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
+import { useAuthCheck } from "./layout";
 import { cn } from "~/common/utils";
 
 const MobileMenu = component$(() => {
@@ -61,9 +61,9 @@ const MobileMenu = component$(() => {
 });
 
 const HeaderItems = component$(() => {
-  const authCtx = useContext(AuthContext);
+  const isAuth = useAuthCheck();
 
-  if (authCtx.AccessToken)
+  if (isAuth.value)
     return (
       <>
         <Link href="/posts">
