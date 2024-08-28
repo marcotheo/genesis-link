@@ -1,10 +1,11 @@
 import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
-import { component$, Slot, useSignal } from "@builder.io/qwik";
+import { $, component$, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
-import { cn, PHpeso, qwikFetch } from "~/common/utils";
 import { useQuery } from "~/hooks/use-query/useQuery";
+import { PHpeso, qwikFetch } from "~/common/utils";
+import { Table } from "~/components/table/table";
 import Button from "~/components/button/button";
 import { useAuthCheck } from "~/routes/layout";
 
@@ -75,47 +76,6 @@ export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
   }
 });
 
-const Th = component$(() => {
-  return (
-    <th class="p-3 text-left whitespace-nowrap">
-      <Slot />
-    </th>
-  );
-});
-
-const Td = component$(() => {
-  return (
-    <td class="px-3 py-4 whitespace-nowrap">
-      <div class="animate-fade-in-slide duration-300 bg-transparent">
-        <Slot />
-      </div>
-    </td>
-  );
-});
-
-const RowSkeleton = component$(() => (
-  <td class="px-3 py-4 animate-pulse">
-    <div class="h-6 bg-soft rounded" />
-  </td>
-));
-
-const TableSkeleton = component$(() => {
-  return (
-    <>
-      {[...Array(10)].map((_, index) => (
-        <tr key={index} class="border-b border-soft">
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-        </tr>
-      ))}
-    </>
-  );
-});
-
 export default component$(() => {
   const result = usePostsLoader();
   const page = useSignal(1);
@@ -132,6 +92,11 @@ export default component$(() => {
     },
   );
 
+  const SalaryRow = $((item: Post) => PHpeso.format(item.Salary.Int64));
+  const DeadlineRow = $((item: Post) =>
+    dayjs.unix(item.Deadline.Int64).format("MMM DD, YYYY"),
+  );
+
   return (
     <div class="overflow-hidden pb-6">
       <br />
@@ -143,46 +108,27 @@ export default component$(() => {
 
       <br />
 
-      <div class="overflow-x-auto lg:overflow-x-visible">
-        <table
-          class={cn(
-            "w-full min-w-[800px] rounded-lg overflow-hidden",
-            "table border-collapse",
-          )}
-        >
-          <thead>
-            <tr class="brightness-125 shadow-md">
-              <Th>Job Title</Th>
-              <Th>Type</Th>
-              <Th>Company</Th>
-              <Th>Location</Th>
-              <Th>Salary</Th>
-              <Th>Deadline</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {state.loading ? (
-              <TableSkeleton />
-            ) : (
-              state.result?.data.Posts.map((item) => (
-                <tr
-                  key={item.Postid}
-                  class="border-b border-soft cursor-pointer hover:bg-soft duration-200 ease-out"
-                >
-                  <Td>{item.Title}</Td>
-                  <Td>{item.Jobtype.String}</Td>
-                  <Td>{item.Company.String}</Td>
-                  <Td>{item.Location.String}</Td>
-                  <Td>{PHpeso.format(item.Salary.Int64)}</Td>
-                  <Td>
-                    {dayjs.unix(item.Deadline.Int64).format("MMM DD, YYYY")}
-                  </Td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        loading={state.loading}
+        data={state.result!.data.Posts}
+        headers={[
+          "Job Title",
+          "Type",
+          "Company",
+          "Location",
+          "Salary",
+          "Deadline",
+        ]}
+        rowDef={[
+          "Title",
+          "Jobtype.String",
+          "Company.String",
+          "Location.String",
+          SalaryRow,
+          DeadlineRow,
+        ]}
+      />
+
       <div class="flex w-full justify-end">
         <Pagination
           totalPages={result.value ? Math.ceil(result.value.Total / 10) : 0}
