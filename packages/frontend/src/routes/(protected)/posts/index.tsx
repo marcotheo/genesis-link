@@ -101,9 +101,11 @@ export default component$(() => {
     "/api/v1/posts/list",
     { page },
     {
-      status: "",
-      message: "",
-      data: result.value ? result.value : { Total: 0, Posts: [] },
+      defaultValues: {
+        status: "",
+        message: "",
+        data: result.value ? result.value : { Total: 0, Posts: [] },
+      },
     },
   );
 

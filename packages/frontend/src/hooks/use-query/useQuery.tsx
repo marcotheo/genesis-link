@@ -27,7 +27,7 @@ export const useQuery = <T,>(
 ) => {
   const queryCtx = useContext(QueryContext);
 
-  const cachedTime = options?.cacheTime || 60000; // ms 1min default
+  const cachedTime = options?.cacheTime || 60000 * 3; // ms 1min default
 
   const state = useStore<FetchState<T>>({
     result: options?.defaultValues ?? null,
