@@ -15,9 +15,9 @@ import { $, component$, useContext } from "@builder.io/qwik";
 import * as v from "valibot";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { AuthContext } from "~/contexts/auth-provider/auth-provider";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { GoogleIcon } from "~/components/icons/icons";
+import { AuthContext } from "~/providers/auth/auth";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
