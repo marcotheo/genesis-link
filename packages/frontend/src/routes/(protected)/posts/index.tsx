@@ -1,7 +1,9 @@
 import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
-import { component$, Slot } from "@builder.io/qwik";
+import { $, component$, Slot, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
+import { Pagination } from "~/components/pagination/pagination";
+import { useQuery } from "~/hooks/use-query/useQuery";
 import { PHpeso, qwikFetch } from "~/common/utils";
 import Button from "~/components/button/button";
 import { useAuthCheck } from "~/routes/layout";
@@ -34,23 +36,25 @@ type Post = {
 interface Response {
   status: string;
   message: string;
-  data: Post[];
+  data: {
+    Posts: Post[];
+    Total: number;
+  };
 }
 
 // need access token here
 export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
   const accessToken = cookie.get("accessToken");
 
-  if (!accessToken?.value) return [];
+  if (!accessToken?.value) return null;
 
   const isValid = await resolveValue(useAuthCheck);
 
-  if (!isValid) return [];
+  if (!isValid) return null;
 
   try {
     const headers = new Headers();
     headers.append("cookie", `accessToken=${accessToken.value}`);
-    headers.append("Content-Type", "application/json");
 
     const params = new URLSearchParams();
     params.append("page", "1");
@@ -63,11 +67,11 @@ export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
       },
     );
 
-    return res.data;
+    return { ...res.data };
   } catch (err: any) {
     console.log("Error:", err);
 
-    return [];
+    return null;
   }
 });
 
@@ -89,9 +93,24 @@ const Td = component$(() => {
 
 export default component$(() => {
   const result = usePostsLoader();
+  const page = useSignal(1);
+
+  const { state } = useQuery<Response>(
+    "/api/v1/posts/list",
+    { page },
+    {
+      status: "",
+      message: "",
+      data: result.value ? result.value : { Total: 0, Posts: [] },
+    },
+  );
+
+  const handlePageChange = $(async (newPage: number) => {
+    page.value = newPage;
+  });
 
   return (
-    <div class="overflow-hidden">
+    <div class="overflow-hidden pb-6">
       <br />
       <div class="flex justify-end">
         <Button class="text-3xl" size="sm" variant="outline">
@@ -102,7 +121,7 @@ export default component$(() => {
       <br />
 
       <div>
-        <table class="w-full table border-collapse">
+        <table class="w-full table border-collapse rounded-lg overflow-hidden">
           <thead>
             <tr class="brightness-125 shadow-md">
               <Th>Job Title</Th>
@@ -114,7 +133,7 @@ export default component$(() => {
             </tr>
           </thead>
           <tbody>
-            {result.value?.map((item) => (
+            {state.result?.data.Posts.map((item) => (
               <tr
                 key={item.Postid}
                 class="border-b border-soft cursor-pointer hover:bg-soft duration-200 ease-out"
@@ -131,6 +150,13 @@ export default component$(() => {
             ))}
           </tbody>
         </table>
+        <div class="flex w-full justify-end">
+          <Pagination
+            totalPages={result.value ? Math.ceil(result.value.Total / 10) : 0}
+            currentPage={1}
+            onPageChange={handlePageChange}
+          />
+        </div>
       </div>
     </div>
   );
