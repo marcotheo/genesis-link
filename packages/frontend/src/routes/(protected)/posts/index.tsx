@@ -1,5 +1,5 @@
 import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
-import { $, component$, Slot, useSignal } from "@builder.io/qwik";
+import { component$, Slot, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
@@ -104,10 +104,6 @@ export default component$(() => {
       data: result.value ? result.value : { Total: 0, Posts: [] },
     },
   );
-
-  const handlePageChange = $(async (newPage: number) => {
-    page.value = newPage;
-  });
 
   return (
     <div class="overflow-hidden pb-6">
