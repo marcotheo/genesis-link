@@ -1,4 +1,6 @@
-import { component$, $, useSignal } from "@builder.io/qwik";
+import { ChevronLeft, ChevronRight } from "../icons/icons";
+import { component$, $ } from "@builder.io/qwik";
+import { cn } from "~/common/utils";
 
 interface PaginationProps {
   totalPages: number;
@@ -18,9 +20,14 @@ export const Pagination = component$<PaginationProps>(
         <button
           onClick$={() => handlePageClick(currentPage - 1)}
           disabled={currentPage === 1}
-          class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          class={cn(
+            "p-2 rounded",
+            "bg-transparent hover:bg-soft",
+            "cursor-pointer disabled:cursor-not-allowed",
+            "transition-[background-color] duration-150 ease-linear text-text",
+          )}
         >
-          Previous
+          <ChevronLeft />
         </button>
 
         {/* Page Numbers */}
@@ -28,7 +35,12 @@ export const Pagination = component$<PaginationProps>(
           <button
             key={page}
             onClick$={() => handlePageClick(page)}
-            class={`px-4 py-2 rounded ${page === currentPage ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            class={cn(
+              "w-8 h-10 rounded",
+              page === currentPage
+                ? "bg-primary text-white"
+                : "border border-soft text-text hover:brightness-75 dark:hover:brightness-125 duration-200 ease-out",
+            )}
           >
             {page}
           </button>
@@ -38,9 +50,14 @@ export const Pagination = component$<PaginationProps>(
         <button
           onClick$={() => handlePageClick(currentPage + 1)}
           disabled={currentPage === totalPages}
-          class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          class={cn(
+            "p-2 rounded",
+            "bg-transparent hover:bg-soft",
+            "cursor-pointer disabled:cursor-not-allowed",
+            "transition-[background-color] duration-150 ease-linear text-text",
+          )}
         >
-          Next
+          <ChevronRight />
         </button>
       </div>
     );
