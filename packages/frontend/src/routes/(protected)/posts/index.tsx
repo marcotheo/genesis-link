@@ -85,7 +85,7 @@ const Th = component$(() => {
 
 const Td = component$(() => {
   return (
-    <td class="px-3 py-5">
+    <td class="px-3 py-4">
       <Slot />
     </td>
   );
@@ -153,7 +153,7 @@ export default component$(() => {
         <div class="flex w-full justify-end">
           <Pagination
             totalPages={result.value ? Math.ceil(result.value.Total / 10) : 0}
-            currentPage={1}
+            currentPage={page.value}
             onPageChange={handlePageChange}
           />
         </div>
