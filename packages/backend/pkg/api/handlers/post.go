@@ -103,6 +103,11 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+type GetPostsResponse struct {
+	Posts []db.GetPostsByUserIdRow
+	Total int64
+}
+
 func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) GetPosts => invoked")
 
@@ -130,7 +135,14 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64(page - 1), Userid: userId})
+	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64((page - 1) * 10), Userid: userId})
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
+		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+		return
+	}
+
+	totalCount, errQ := h.dataService.Queries.GetPostCountByUserId(context.Background(), userId)
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)
@@ -139,5 +151,5 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(POST) GetPosts => successful")
 
-	successResponse(w, posts)
+	successResponse(w, GetPostsResponse{Posts: posts, Total: totalCount})
 }
