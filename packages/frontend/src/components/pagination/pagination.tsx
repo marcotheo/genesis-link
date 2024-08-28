@@ -1,25 +1,24 @@
 import { ChevronLeft, ChevronRight } from "../icons/icons";
-import { component$, $ } from "@builder.io/qwik";
+import { component$, $, Signal } from "@builder.io/qwik";
 import { cn } from "~/common/utils";
 
 interface PaginationProps {
   totalPages: number;
-  currentPage: number;
-  onPageChange: (page: number) => void;
+  currentPage: Signal<number>;
 }
 
 export const Pagination = component$<PaginationProps>(
-  ({ totalPages, currentPage, onPageChange }) => {
-    const handlePageClick = $((page: number) => {
-      onPageChange(page);
+  ({ totalPages, currentPage }) => {
+    const handlePageClick = $((newPage: number) => {
+      currentPage.value = newPage;
     });
 
     return (
       <div class="flex justify-center space-x-2 mt-4">
         {/* Previous Button */}
         <button
-          onClick$={() => handlePageClick(currentPage - 1)}
-          disabled={currentPage === 1}
+          onClick$={() => handlePageClick(currentPage.value - 1)}
+          disabled={currentPage.value === 1}
           class={cn(
             "p-2 rounded",
             "bg-transparent hover:bg-soft",
@@ -37,7 +36,7 @@ export const Pagination = component$<PaginationProps>(
             onClick$={() => handlePageClick(page)}
             class={cn(
               "w-8 h-10 rounded",
-              page === currentPage
+              page === currentPage.value
                 ? "bg-primary text-white"
                 : "border border-soft text-text hover:brightness-75 dark:hover:brightness-125 duration-200 ease-out",
             )}
@@ -48,8 +47,8 @@ export const Pagination = component$<PaginationProps>(
 
         {/* Next Button */}
         <button
-          onClick$={() => handlePageClick(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          onClick$={() => handlePageClick(currentPage.value + 1)}
+          disabled={currentPage.value === totalPages}
           class={cn(
             "p-2 rounded",
             "bg-transparent hover:bg-soft",

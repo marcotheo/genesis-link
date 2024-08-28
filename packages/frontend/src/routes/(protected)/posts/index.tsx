@@ -159,8 +159,7 @@ export default component$(() => {
       <div class="flex w-full justify-end">
         <Pagination
           totalPages={result.value ? Math.ceil(result.value.Total / 10) : 0}
-          currentPage={page.value}
-          onPageChange={handlePageChange}
+          currentPage={page}
         />
       </div>
     </div>
