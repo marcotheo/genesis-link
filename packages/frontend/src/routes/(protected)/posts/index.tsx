@@ -86,7 +86,9 @@ const Th = component$(() => {
 const Td = component$(() => {
   return (
     <td class="px-3 py-4 whitespace-nowrap">
-      <Slot />
+      <div class="animate-fade-in-slide duration-300 bg-transparent">
+        <Slot />
+      </div>
     </td>
   );
 });
