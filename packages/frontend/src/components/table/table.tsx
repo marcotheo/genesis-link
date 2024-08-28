@@ -10,6 +10,7 @@ export type RowDefKeyOf<ObjectType extends object> = {
 interface ITableProps<T extends object> {
   headers: string[];
   data: T[];
+  rowKey: RowDefKeyOf<T>;
   rowDef: (RowDefKeyOf<T> | QRL<(item: T) => JSXOutput>)[];
   loading?: boolean | null;
 }
@@ -57,16 +58,40 @@ const TableHeaders = component$<{ headers: string[] }>(({ headers }) => {
 });
 
 const TableBody = component$(
-  <T extends object>({ headers, loading, data, rowDef }: ITableProps<T>) => {
+  <T extends object>({
+    headers,
+    loading,
+    data,
+    rowKey,
+    rowDef,
+  }: ITableProps<T>) => {
+    const getValue = (item: Object, property: typeof rowKey) => {
+      const keys = property.split(".");
+      let value: any = item;
+
+      for (const key of keys) {
+        if (value && key in value) {
+          value = value[key];
+        } else {
+          value = undefined;
+          break;
+        }
+      }
+
+      return value;
+    };
+
     return (
       <>
         {loading ? (
           <TableSkeleton total={headers.length} />
         ) : (
-          data.map((item, idx) => {
+          data.map((item) => {
+            const rowId = getValue(item, rowKey);
+
             return (
               <tr
-                key={idx}
+                key={rowId}
                 class={cn(
                   "border-b border-soft",
                   "cursor-pointer hover:bg-soft",
@@ -74,18 +99,8 @@ const TableBody = component$(
                 )}
               >
                 {rowDef.map((property, idx) => {
-                  let value: any = item;
-
                   if (typeof property === "string") {
-                    const keys = property.split(".");
-                    for (const key of keys) {
-                      if (value && key in value) {
-                        value = value[key];
-                      } else {
-                        value = undefined;
-                        break;
-                      }
-                    }
+                    const value = getValue(item, property);
 
                     return <Td key={idx}>{value}</Td>;
                   }

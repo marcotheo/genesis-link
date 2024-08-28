@@ -119,6 +119,7 @@ export default component$(() => {
           "Salary",
           "Deadline",
         ]}
+        rowKey={"Postid"}
         rowDef={[
           "Title",
           "Jobtype.String",
