@@ -18,7 +18,7 @@ import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import Alert from "~/components/alert/alert";
 
-interface Response {
+interface SignUpResponse {
   status: string;
   message: string;
   data: {
@@ -85,7 +85,7 @@ export const useFormLoader = routeLoader$<InitialValues<SignUpForm>>(() => ({
 }));
 
 export default component$(() => {
-  const { mutate, state } = useMutate<Response>("/api/v1/users/create");
+  const { mutate, state } = useMutate<SignUpResponse>("/api/v1/users/create");
 
   const [signUpForm, { Form, Field }] = useForm<SignUpForm>({
     loader: useFormLoader(),

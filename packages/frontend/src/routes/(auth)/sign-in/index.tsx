@@ -24,7 +24,7 @@ import Input from "~/components/input/input";
 import Alert from "~/components/alert/alert";
 import { cn } from "~/common/utils";
 
-interface Response {
+interface SignInResponse {
   status: string;
   message: string;
   data: {
@@ -53,7 +53,7 @@ export default component$(() => {
 
   const navigate = useNavigate();
 
-  const { mutate, state } = useMutate<Response>("/api/v1/users/signin");
+  const { mutate, state } = useMutate<SignInResponse>("/api/v1/users/signin");
 
   const [signInForm, { Form, Field }] = useForm<SignInForm>({
     loader: useFormLoader(),
