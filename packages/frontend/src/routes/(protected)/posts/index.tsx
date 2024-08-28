@@ -93,6 +93,29 @@ const Td = component$(() => {
   );
 });
 
+const RowSkeleton = component$(() => (
+  <td class="px-3 py-4 animate-pulse">
+    <div class="h-6 bg-soft rounded" />
+  </td>
+));
+
+const TableSkeleton = component$(() => {
+  return (
+    <>
+      {[...Array(10)].map((_, index) => (
+        <tr key={index} class="border-b border-soft">
+          <RowSkeleton />
+          <RowSkeleton />
+          <RowSkeleton />
+          <RowSkeleton />
+          <RowSkeleton />
+          <RowSkeleton />
+        </tr>
+      ))}
+    </>
+  );
+});
+
 export default component$(() => {
   const result = usePostsLoader();
   const page = useSignal(1);
@@ -138,21 +161,25 @@ export default component$(() => {
             </tr>
           </thead>
           <tbody>
-            {state.result?.data.Posts.map((item) => (
-              <tr
-                key={item.Postid}
-                class="border-b border-soft cursor-pointer hover:bg-soft duration-200 ease-out"
-              >
-                <Td>{item.Title}</Td>
-                <Td>{item.Jobtype.String}</Td>
-                <Td>{item.Company.String}</Td>
-                <Td>{item.Location.String}</Td>
-                <Td>{PHpeso.format(item.Salary.Int64)}</Td>
-                <Td>
-                  {dayjs.unix(item.Deadline.Int64).format("MMM DD, YYYY")}
-                </Td>
-              </tr>
-            ))}
+            {state.loading ? (
+              <TableSkeleton />
+            ) : (
+              state.result?.data.Posts.map((item) => (
+                <tr
+                  key={item.Postid}
+                  class="border-b border-soft cursor-pointer hover:bg-soft duration-200 ease-out"
+                >
+                  <Td>{item.Title}</Td>
+                  <Td>{item.Jobtype.String}</Td>
+                  <Td>{item.Company.String}</Td>
+                  <Td>{item.Location.String}</Td>
+                  <Td>{PHpeso.format(item.Salary.Int64)}</Td>
+                  <Td>
+                    {dayjs.unix(item.Deadline.Int64).format("MMM DD, YYYY")}
+                  </Td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

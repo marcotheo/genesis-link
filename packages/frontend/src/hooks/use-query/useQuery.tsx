@@ -8,6 +8,7 @@ import {
 import { Signal } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
+import { isServer } from "@builder.io/qwik/build";
 import { qwikFetch } from "~/common/utils";
 
 export interface FetchState<T> {
@@ -107,6 +108,8 @@ export const useQuery = <T,>(
     }
 
     // Execute the query when any of the signals change
+    if (isServer) return;
+
     refetch();
   });
 
