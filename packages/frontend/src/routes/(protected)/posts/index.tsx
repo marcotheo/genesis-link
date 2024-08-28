@@ -3,8 +3,8 @@ import { $, component$, Slot, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
+import { cn, PHpeso, qwikFetch } from "~/common/utils";
 import { useQuery } from "~/hooks/use-query/useQuery";
-import { PHpeso, qwikFetch } from "~/common/utils";
 import Button from "~/components/button/button";
 import { useAuthCheck } from "~/routes/layout";
 
@@ -77,7 +77,7 @@ export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
 
 const Th = component$(() => {
   return (
-    <th class="p-3 text-left">
+    <th class="p-3 text-left whitespace-nowrap">
       <Slot />
     </th>
   );
@@ -85,7 +85,7 @@ const Th = component$(() => {
 
 const Td = component$(() => {
   return (
-    <td class="px-3 py-4">
+    <td class="px-3 py-4 whitespace-nowrap">
       <Slot />
     </td>
   );
@@ -120,8 +120,13 @@ export default component$(() => {
 
       <br />
 
-      <div>
-        <table class="w-full table border-collapse rounded-lg overflow-hidden">
+      <div class="overflow-x-auto lg:overflow-x-visible">
+        <table
+          class={cn(
+            "w-full min-w-[800px] rounded-lg overflow-hidden",
+            "table border-collapse",
+          )}
+        >
           <thead>
             <tr class="brightness-125 shadow-md">
               <Th>Job Title</Th>
@@ -150,13 +155,13 @@ export default component$(() => {
             ))}
           </tbody>
         </table>
-        <div class="flex w-full justify-end">
-          <Pagination
-            totalPages={result.value ? Math.ceil(result.value.Total / 10) : 0}
-            currentPage={page.value}
-            onPageChange={handlePageChange}
-          />
-        </div>
+      </div>
+      <div class="flex w-full justify-end">
+        <Pagination
+          totalPages={result.value ? Math.ceil(result.value.Total / 10) : 0}
+          currentPage={page.value}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
