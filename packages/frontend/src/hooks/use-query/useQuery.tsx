@@ -22,7 +22,7 @@ export const useQuery = <T,>(
   signalObject: Record<string, Signal<any>>,
   options?: {
     defaultValues?: T | null;
-    cacheTime?: number;
+    cacheTime?: number; // in milliseconds
   },
 ) => {
   const queryCtx = useContext(QueryContext);
