@@ -1,6 +1,14 @@
-import { useStore, $, useTask$ } from "@builder.io/qwik";
-import { qwikFetch } from "~/common/utils";
+import {
+  useStore,
+  $,
+  useTask$,
+  useContext,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import { Signal } from "@builder.io/qwik";
+
+import { QueryContext } from "~/providers/query/query";
+import { qwikFetch } from "~/common/utils";
 
 export interface FetchState<T> {
   result: T | null;
@@ -12,10 +20,17 @@ export interface FetchState<T> {
 export const useQuery = <T,>(
   baseUrl: string,
   signalObject: Record<string, Signal<any>>,
-  defaultValue?: T | null,
+  options?: {
+    defaultValues?: T | null;
+    cacheTime?: number;
+  },
 ) => {
+  const queryCtx = useContext(QueryContext);
+
+  const cachedTime = options?.cacheTime || 60000; // ms 1min default
+
   const state = useStore<FetchState<T>>({
-    result: defaultValue ?? null,
+    result: options?.defaultValues ?? null,
     loading: null,
     error: null,
     success: false,
@@ -29,6 +44,21 @@ export const useQuery = <T,>(
     return query.toString();
   });
 
+  const getCachedData = $((key: string) => {
+    const cached = queryCtx.cache[key];
+    if (cached && Date.now() - cached.timestamp < cachedTime) {
+      return cached.data;
+    }
+    return null;
+  });
+
+  const setCacheData = $((key: string, data: T) => {
+    queryCtx.cache[key] = {
+      data,
+      timestamp: Date.now(),
+    };
+  });
+
   const refetch = $(async () => {
     state.loading = true;
     state.error = null;
@@ -37,11 +67,23 @@ export const useQuery = <T,>(
 
     const url = `${baseUrl}?${queryString}`;
 
+    // Check the cache first
+    const cachedResult = await getCachedData(url);
+    if (cachedResult) {
+      state.result = cachedResult;
+      state.success = true;
+      state.loading = false;
+      return { result: cachedResult, error: null };
+    }
+
     try {
       const result = await qwikFetch<T>(url, {
         method: "GET", // Adjust method if needed
         credentials: "include",
       });
+
+      // Cache the result
+      await setCacheData(url, result);
 
       state.result = result;
       state.success = true;
@@ -66,6 +108,16 @@ export const useQuery = <T,>(
 
     // Execute the query when any of the signals change
     refetch();
+  });
+
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(async () => {
+    // Cache the default values as well, if provided
+    if (!!options?.defaultValues) {
+      const queryString = await buildQueryString(signalObject);
+      const url = `${baseUrl}?${queryString}`;
+      setCacheData(url, options.defaultValues);
+    }
   });
 
   return { state, refetch };
