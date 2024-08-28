@@ -34,7 +34,7 @@ type Post = {
   };
 };
 
-interface Response {
+interface ListPostsResponse {
   status: string;
   message: string;
   data: {
@@ -60,7 +60,7 @@ export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
     const params = new URLSearchParams();
     params.append("page", "1");
 
-    const res = await qwikFetch<Response>(
+    const res = await qwikFetch<ListPostsResponse>(
       `/api/v1/posts/list?${params.toString()}`,
       {
         method: "GET",
@@ -80,7 +80,7 @@ export default component$(() => {
   const result = usePostsLoader();
   const page = useSignal(1);
 
-  const { state } = useQuery<Response>(
+  const { state } = useQuery<ListPostsResponse>(
     "/api/v1/posts/list",
     { page },
     {
