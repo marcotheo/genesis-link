@@ -36,7 +36,7 @@ type CreateJobPostParamsValidation struct {
 	Company     string `json:"company" validate:"required"`
 	Location    string `json:"location" validate:"required"`
 	Salary      int    `json:"salary" validate:"omitempty,gte=0"` // Ensure Salary is a non-negative integer
-	Wfh         string `json:"wfh" validate:"required"`
+	Wfh         int    `json:"wfh" validate:"required,oneof=0 1"`
 	Email       string `json:"email" validate:"required"`
 	Phone       string `json:"phone" validate:"required"`
 	Deadline    string `json:"deadline" validate:"required,date"`
