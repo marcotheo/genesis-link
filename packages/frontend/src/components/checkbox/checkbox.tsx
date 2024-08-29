@@ -1,4 +1,5 @@
 import { component$, Slot, InputHTMLAttributes } from "@builder.io/qwik";
+import InputError from "../input-error/input-error";
 import { cn } from "~/common/utils";
 
 const CheckIcon = component$<{
@@ -73,14 +74,7 @@ export default component$<CheckboxProps>(({ errorMsg, inputProps, value }) => {
         </label>
       </div>
 
-      <p
-        class={cn(
-          "text-destructive text-xs",
-          !!errorMsg ? "animate-fade-in-slide" : "animate-fade-out-slide",
-        )}
-      >
-        {errorMsg}
-      </p>
+      <InputError errorMsg={errorMsg} />
     </div>
   );
 });

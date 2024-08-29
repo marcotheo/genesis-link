@@ -6,6 +6,7 @@ import {
   useStore,
 } from "@builder.io/qwik";
 import { FormStore, setValue } from "@modular-forms/qwik";
+import InputError from "../input-error/input-error";
 import { cn } from "~/common/utils";
 
 type IOption = {
@@ -180,14 +181,7 @@ export default component$<SelectProps>(
           </div>
         </div>
 
-        <p
-          class={cn(
-            "text-destructive text-xs",
-            !!errorMsg ? "animate-fade-in-slide" : "animate-fade-out-slide",
-          )}
-        >
-          {errorMsg}
-        </p>
+        <InputError errorMsg={errorMsg} />
       </div>
     );
   },
