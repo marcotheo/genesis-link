@@ -1,4 +1,4 @@
-import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
+import { Link, routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 import { $, component$, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
@@ -101,9 +101,11 @@ export default component$(() => {
     <div class="overflow-hidden pb-6">
       <br />
       <div class="flex justify-end">
-        <Button class="text-3xl" size="sm" variant="outline">
-          +
-        </Button>
+        <Link href="/posts/create">
+          <Button class="text-3xl" size="sm" variant="outline">
+            +
+          </Button>
+        </Link>
       </div>
 
       <br />

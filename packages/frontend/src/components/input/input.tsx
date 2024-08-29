@@ -7,47 +7,47 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
 
+const inputVariants = {
+  filled: cn(
+    "bg-ghost px-[10px] pt-5 pb-1",
+    "border-b-[2px] border-r-md border-input",
+    "rounded-t-sm",
+  ),
+  underline: cn("bg-transparent py-2 border-b-[2px] border-input"),
+  default: cn(
+    "bg-transparent rounded-md px-[10px] py-2",
+    "border-[1px] hover:border-primary",
+    "focus:border-primary focus-visible:border-transparent",
+    "focus-visible:ring-2 focus-visible:ring-primary",
+  ),
+};
+
+const middleVariant = {
+  filled: "peer-focus:scale-100",
+  underline: "peer-focus:scale-100",
+  default: "hidden",
+};
+
+const labelVariants = {
+  filled: cn(
+    "top-[12px] ml-[10px] bg-transparent",
+    "translate-x-[-3px] translate-y-[-12px]",
+    "peer-focus:translate-x-[-3px] peer-focus:translate-y-[-12px]",
+  ),
+  underline: cn(
+    "top-[8px]",
+    "translate-x-[-3px] translate-y-[-17px]",
+    "peer-focus:translate-x-[-3px] peer-focus:translate-y-[-17px]",
+  ),
+  default: cn(
+    "top-[8px] ml-[10px]",
+    "translate-x-[-3px] translate-y-[-17px]",
+    "peer-focus:translate-x-[-3px] peer-focus:translate-y-[-17px]",
+  ),
+};
+
 export default component$<InputProps>(
   ({ variant = "default", label, errorMsg, ...props }) => {
-    const inputVariants = {
-      filled: cn(
-        "bg-ghost px-[10px] pt-5 pb-1",
-        "border-b-[2px] border-r-md border-input",
-        "rounded-t-sm",
-      ),
-      underline: cn("bg-transparent py-2 border-b-[2px] border-input"),
-      default: cn(
-        "bg-transparent rounded-md px-[10px] py-2",
-        "border-[1px] hover:border-primary",
-        "focus:border-primary focus-visible:border-transparent",
-        "focus-visible:ring-2 focus-visible:ring-primary",
-      ),
-    };
-
-    const middleVariant = {
-      filled: "peer-focus:scale-100",
-      underline: "peer-focus:scale-100",
-      default: "hidden",
-    };
-
-    const labelVariants = {
-      filled: cn(
-        "top-[12px] ml-[10px] bg-transparent",
-        "translate-x-[-3px] translate-y-[-12px]",
-        "peer-focus:translate-x-[-3px] peer-focus:translate-y-[-12px]",
-      ),
-      underline: cn(
-        "top-[8px]",
-        "translate-x-[-3px] translate-y-[-17px]",
-        "peer-focus:translate-x-[-3px] peer-focus:translate-y-[-17px]",
-      ),
-      default: cn(
-        "top-[8px] ml-[10px]",
-        "translate-x-[-3px] translate-y-[-17px]",
-        "peer-focus:translate-x-[-3px] peer-focus:translate-y-[-17px]",
-      ),
-    };
-
     return (
       <div class="pt-3 w-full">
         <div class="relative w-full">
@@ -87,7 +87,7 @@ export default component$<InputProps>(
             {label}
           </p>
         </div>
-        {/* <p class="text-destructive text-xs">{errorMsg}</p> */}
+
         <p
           class={cn(
             "text-destructive text-xs",

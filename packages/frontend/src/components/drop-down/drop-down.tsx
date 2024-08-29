@@ -182,7 +182,7 @@ export const DropDownMenuItem = component$(() => {
         <div
           class={cn(
             "min-w-48 p-2 rounded-md",
-            "cursor-pointer hover:brightness-105 hover:dark:brightness-150",
+            "cursor-pointer hover:brightness-90 hover:dark:brightness-150",
             "duration-100 ease-out",
           )}
         >
