@@ -5,17 +5,19 @@ import {
   useForm,
   valiForm$,
 } from "@modular-forms/qwik";
+import { $, component$ } from "@builder.io/qwik";
+import * as v from "valibot";
+
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { Link, Form, routeLoader$ } from "@builder.io/qwik-city";
+import TextArea from "~/components/text-area/text-area";
 import { GoogleIcon } from "~/components/icons/icons";
 import Heading from "~/components/heading/heading";
-import { $, component$ } from "@builder.io/qwik";
 import Button from "~/components/button/button";
 import Select from "~/components/select/select";
 import Alert from "~/components/alert/alert";
 import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
-import * as v from "valibot";
 
 const CreatePostSchema = v.object({
   title: v.pipe(v.string("Required"), v.nonEmpty("Please enter title.")),
@@ -101,31 +103,28 @@ export default component$(() => {
         /> */}
 
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
-          <div class="flex gap-3">
-            <Field name="title">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Title"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>{" "}
-            <Field name="description">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Description"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-          </div>
-
+          <Field name="title">
+            {(field, props) => (
+              <Input
+                {...props}
+                label="Title"
+                variant="filled"
+                errorMsg={field.error}
+                value={field.value}
+              />
+            )}
+          </Field>{" "}
+          <Field name="description">
+            {(field, props) => (
+              <TextArea
+                {...props}
+                label="Description"
+                variant="filled"
+                errorMsg={field.error}
+                value={field.value}
+              />
+            )}
+          </Field>
           <div class="flex gap-3">
             <Field name="postType">
               {(field, props) => (
@@ -161,7 +160,6 @@ export default component$(() => {
               )}
             </Field>
           </div>
-
           <Field name="company">
             {(field, props) => (
               <Input
@@ -173,7 +171,6 @@ export default component$(() => {
               />
             )}
           </Field>
-
           <Field name="location">
             {(field, props) => (
               <Input
@@ -185,7 +182,6 @@ export default component$(() => {
               />
             )}
           </Field>
-
           <Field name="email">
             {(field, props) => (
               <Input
@@ -198,13 +194,11 @@ export default component$(() => {
               />
             )}
           </Field>
-
           <Link href="/password/reset" class="w-fit">
             <p class="text-sm text-gray-500 hover:text-info duration-300  transition-all ease-out">
               Forgot Password?
             </p>
           </Link>
-
           <Button type="submit">Submit</Button>
         </Form>
       </div>
