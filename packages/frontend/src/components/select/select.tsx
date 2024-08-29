@@ -68,7 +68,7 @@ const labelVariants = {
 export default component$<SelectProps>(
   ({ variant = "default", label, errorMsg, form, ...props }) => {
     const state = useStore({ selected: props.value || "", isOpen: false });
-    const dropdownRef = useSignal<Element | undefined>();
+    const containerRef = useSignal<Element | undefined>();
 
     const toggleDropdown = $(() => {
       state.isOpen = !state.isOpen;
@@ -86,8 +86,8 @@ export default component$<SelectProps>(
       $((event: any) => {
         if (
           state.isOpen &&
-          dropdownRef.value &&
-          !dropdownRef.value.contains(event.target as Node)
+          containerRef.value &&
+          !containerRef.value.contains(event.target as Node)
         ) {
           state.isOpen = false;
         }
@@ -95,7 +95,7 @@ export default component$<SelectProps>(
     );
 
     return (
-      <div class="pt-3 w-full">
+      <div class="pt-3 w-full" ref={containerRef}>
         <div class="relative w-full">
           <button
             type="button"
@@ -152,7 +152,6 @@ export default component$<SelectProps>(
           </p>
 
           <div
-            ref={dropdownRef}
             class={cn(
               "absolute bg-surface",
               "w-full mt-1 py-1",
