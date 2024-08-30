@@ -73,11 +73,8 @@ RETURNING *;
 SELECT  
     postId,
     title,
-    jobType,
     company,
-    location,
-    deadline,
-    salary
+    deadline
 FROM posts
 WHERE userId = ?
 ORDER BY posted_at DESC
