@@ -1,4 +1,6 @@
 import { component$, InputHTMLAttributes } from "@builder.io/qwik";
+import dayjs from "dayjs";
+
 import InputError from "../input-error/input-error";
 import { cn } from "~/common/utils";
 
@@ -54,6 +56,13 @@ export default component$<InputProps>(
         <div class="relative w-full">
           <input
             {...props}
+            value={
+              props.type === "date"
+                ? !!props.value
+                  ? dayjs(props.value as any).format("YYYY-MM-DD")
+                  : props.value
+                : props.value
+            }
             placeholder=""
             aria-label={label}
             class={cn(

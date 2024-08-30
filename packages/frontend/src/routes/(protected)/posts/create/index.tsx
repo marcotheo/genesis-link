@@ -55,7 +55,7 @@ const CreatePostSchema = v.object({
     v.email("Invalid email"),
   ),
   phone: v.pipe(v.string(), v.nonEmpty("Please enter phone.")),
-  deadline: v.string(),
+  deadline: v.date(),
 });
 
 type CreatePostForm = v.InferInput<typeof CreatePostSchema>;
@@ -228,17 +228,14 @@ export default component$(() => {
 
           <Field name="salary" type="number">
             {(field, props) => (
-              <>
-                {field.value}
-                <NumberInput
-                  {...props}
-                  label="Salary"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                  form={createPostForm}
-                />
-              </>
+              <NumberInput
+                {...props}
+                label="Salary"
+                variant="filled"
+                errorMsg={field.error}
+                value={field.value}
+                form={createPostForm}
+              />
             )}
           </Field>
 
@@ -259,17 +256,16 @@ export default component$(() => {
             )}
           </Field>
 
-          <Field name="deadline">
+          <Field name="deadline" type="Date">
             {(field, props) => (
-              <>
-                <Input
-                  {...props}
-                  label="Deadline"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              </>
+              <Input
+                {...props}
+                type="date"
+                label="Deadline"
+                variant="filled"
+                errorMsg={field.error}
+                value={field.value?.toString()}
+              />
             )}
           </Field>
 
