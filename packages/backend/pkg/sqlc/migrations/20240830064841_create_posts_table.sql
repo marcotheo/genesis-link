@@ -2,9 +2,12 @@
 -- +goose StatementBegin
 CREATE TABLE posts (
     postId TEXT NOT NULL PRIMARY KEY,
+    company TEXT NOT NULL,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    company TEXT,
+    description TEXT,
+    posterLink TEXT,
+    logoLink TEXT,
+    additionalInfo TEXT,
     wfh INTEGER DEFAULT 0,
     email TEXT,
     phone TEXT,
@@ -17,6 +20,7 @@ CREATE TABLE posts (
     FOREIGN KEY (addressId) REFERENCES addresses(addressId)
 );
 
+CREATE INDEX idx_title ON posts(title);
 CREATE INDEX idx_wfh ON posts(wfh);
 CREATE INDEX idx_posted_at ON posts(posted_at);
 
@@ -24,6 +28,7 @@ CREATE INDEX idx_posted_at ON posts(posted_at);
 
 -- +goose Down
 -- +goose StatementBegin
+DROP INDEX idx_title;
 DROP INDEX idx_wfh;
 DROP INDEX idx_posted_at;
 

@@ -19,9 +19,12 @@ CREATE INDEX idx_address ON addresses(country, province, city);
 
 CREATE TABLE posts (
     postId TEXT NOT NULL PRIMARY KEY,
+    company TEXT NOT NULL,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    company TEXT,
+    description TEXT,
+    posterLink TEXT,
+    logoLink TEXT,
+    additionalInfo TEXT,
     wfh INTEGER DEFAULT 0,
     email TEXT,
     phone TEXT,
@@ -34,6 +37,7 @@ CREATE TABLE posts (
     FOREIGN KEY (addressId) REFERENCES addresses(addressId)
 );
 
+CREATE INDEX idx_title ON posts(title);
 CREATE INDEX idx_wfh ON posts(wfh);
 CREATE INDEX idx_posted_at ON posts(posted_at);
 
@@ -49,5 +53,14 @@ CREATE TABLE job_details (
 );
 
 CREATE INDEX idx_jobType ON job_details(jobType);
+
+CREATE TABLE post_requirements (
+    requirementId TEXT NOT NULL PRIMARY KEY,
+    postId TEXT NOT NULL,
+    requirementType TEXT CHECK(requirementType IN ('responsibility', 'qualification')) NOT NULL,
+    requirement TEXT NOT NULL,
+    FOREIGN KEY (postId) REFERENCES posts(postId)
+);
+
 
 
