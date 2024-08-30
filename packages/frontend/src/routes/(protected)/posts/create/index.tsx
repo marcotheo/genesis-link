@@ -5,13 +5,14 @@ import {
   useForm,
   valiForm$,
 } from "@modular-forms/qwik";
-import { $, component$ } from "@builder.io/qwik";
+import { $, component$, Slot } from "@builder.io/qwik";
 import * as v from "valibot";
 
+import RadioButtonGroup from "~/components/radio-button-group/radio-button-group";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import NumberInput from "~/components/number-input/number-input";
 import { Link, Form, routeLoader$ } from "@builder.io/qwik-city";
 import TextArea from "~/components/text-area/text-area";
-import { GoogleIcon } from "~/components/icons/icons";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Select from "~/components/select/select";
@@ -43,15 +44,18 @@ const CreatePostSchema = v.object({
   ),
   company: v.pipe(v.string("Required"), v.nonEmpty("Please enter company.")),
   location: v.pipe(v.string("Required"), v.nonEmpty("Please enter location.")),
-  salary: v.pipe(v.number(), v.toMinValue(1)),
-  wfh: v.boolean(),
+  salary: v.number("Must be a number"),
+  wfh: v.pipe(
+    v.union([v.literal("yes"), v.literal("no")], "Required"),
+    v.nonEmpty("Please choose wfh."),
+  ),
   email: v.pipe(
     v.string("Required"),
     v.nonEmpty("Please enter your email."),
     v.email("Invalid email"),
   ),
   phone: v.pipe(v.string(), v.nonEmpty("Please enter phone.")),
-  deadline: v.date(),
+  deadline: v.string(),
 });
 
 type CreatePostForm = v.InferInput<typeof CreatePostSchema>;
@@ -65,12 +69,20 @@ export const useFormLoader = routeLoader$<InitialValues<CreatePostForm>>(
     company: undefined,
     location: undefined,
     salary: undefined,
-    wfh: false,
+    wfh: undefined,
     email: undefined,
     phone: undefined,
     deadline: undefined,
   }),
 );
+
+const FlexWrapper = component$(() => {
+  return (
+    <div class="flex gap-5">
+      <Slot />
+    </div>
+  );
+});
 
 export default component$(() => {
   const [createPostForm, { Form, Field }] = useForm<CreatePostForm>({
@@ -90,7 +102,7 @@ export default component$(() => {
     <div class="flex h-full w-full justify-center">
       {/* <LoadingOverlay open={state.loading}>Signing In</LoadingOverlay> */}
 
-      <div class={cn("w-[500px] md:mt-[70px]")}>
+      <div class={cn("w-[40em] md:mt-[70px]")}>
         <Heading>Create A Post</Heading>
 
         <br />
@@ -113,7 +125,8 @@ export default component$(() => {
                 value={field.value}
               />
             )}
-          </Field>{" "}
+          </Field>
+
           <Field name="description">
             {(field, props) => (
               <TextArea
@@ -125,7 +138,8 @@ export default component$(() => {
               />
             )}
           </Field>
-          <div class="flex gap-3">
+
+          <FlexWrapper>
             <Field name="postType">
               {(field, props) => (
                 <Select
@@ -159,46 +173,106 @@ export default component$(() => {
                 />
               )}
             </Field>
-          </div>
-          <Field name="company">
+          </FlexWrapper>
+
+          <FlexWrapper>
+            <Field name="company">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="Company"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              )}
+            </Field>
+            <Field name="location">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="Location"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              )}
+            </Field>
+          </FlexWrapper>
+
+          <FlexWrapper>
+            <Field name="email">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  type="email"
+                  label="Email"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              )}
+            </Field>
+            <Field name="phone">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="Phone"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              )}
+            </Field>
+          </FlexWrapper>
+
+          <Field name="salary" type="number">
             {(field, props) => (
-              <Input
-                {...props}
-                label="Company"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-              />
+              <>
+                {field.value}
+                <NumberInput
+                  {...props}
+                  label="Salary"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                  form={createPostForm}
+                />
+              </>
             )}
           </Field>
-          <Field name="location">
+
+          <Field name="wfh">
             {(field, props) => (
-              <Input
-                {...props}
-                label="Location"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-              />
+              <>
+                <RadioButtonGroup
+                  {...props}
+                  label="Remote Work?"
+                  options={[
+                    { value: "yes", label: "Yes" },
+                    { value: "no", label: "No" },
+                  ]}
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              </>
             )}
           </Field>
-          <Field name="email">
+
+          <Field name="deadline">
             {(field, props) => (
-              <Input
-                {...props}
-                type="email"
-                label="Email"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-              />
+              <>
+                <Input
+                  {...props}
+                  label="Deadline"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              </>
             )}
           </Field>
-          <Link href="/password/reset" class="w-fit">
-            <p class="text-sm text-gray-500 hover:text-info duration-300  transition-all ease-out">
-              Forgot Password?
-            </p>
-          </Link>
+
           <Button type="submit">Submit</Button>
         </Form>
       </div>
