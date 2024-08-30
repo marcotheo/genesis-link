@@ -4,11 +4,11 @@ CREATE TABLE job_details (
     jobDetailId TEXT NOT NULL PRIMARY KEY,
     postId TEXT NOT NULL,
     jobType TEXT CHECK(jobType IN ('full-time', 'part-time', 'contract', 'internship')) NOT NULL,
-    salaryType TEXT CHECK(salaryType IN ('fixed', 'hourly', 'monthly')) NULL, 
+    salaryType TEXT CHECK(salaryType IN ('fixed', 'hourly', 'monthly')),
     salaryAmountMin INTEGER,
     salaryAmountMax INTEGER,
     salaryCurrency TEXT DEFAULT 'PHP',
-    FOREIGN KEY (postId) REFERENCES posts(postId) 
+    FOREIGN KEY (postId) REFERENCES posts(postId)
 );
 
 CREATE INDEX idx_jobType ON job_details(jobType);

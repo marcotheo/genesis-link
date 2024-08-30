@@ -12,7 +12,7 @@ CREATE TABLE posts (
     email TEXT,
     phone TEXT,
     deadline INTEGER,
-    addressId TEXT,
+    addressId TEXT NOT NULL,
     userId TEXT NOT NULL,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -12,7 +12,7 @@ CREATE TABLE addresses (
     province TEXT,
     city TEXT,
     barangay TEXT,
-    addressDetails TEXT  -- House number, unit, building, street, etc.
+    addressDetails TEXT
 );
 
 CREATE INDEX idx_address ON addresses(country, province, city);
@@ -29,7 +29,7 @@ CREATE TABLE posts (
     email TEXT,
     phone TEXT,
     deadline INTEGER,
-    addressId TEXT,
+    addressId TEXT NOT NULL,
     userId TEXT NOT NULL,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -45,7 +45,7 @@ CREATE TABLE job_details (
     jobDetailId TEXT NOT NULL PRIMARY KEY,
     postId TEXT NOT NULL,
     jobType TEXT CHECK(jobType IN ('full-time', 'part-time', 'contract', 'internship')) NOT NULL,
-    salaryType TEXT CHECK(salaryType IN ('fixed', 'hourly', 'monthly')) NULL, 
+    salaryType TEXT CHECK(salaryType IN ('fixed', 'hourly', 'monthly')), 
     salaryAmountMin INTEGER,
     salaryAmountMax INTEGER,
     salaryCurrency TEXT DEFAULT 'PHP',
