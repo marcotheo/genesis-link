@@ -10,43 +10,48 @@ INSERT INTO users (
 )
 RETURNING *;
 
--- name: CreateJobPost :exec
-INSERT INTO posts (
-    postId,
-    userId,
-    title,
-    description,
-    postType,
-    jobType,
-    company,
-    location,
-    salary,
-    wfh,
-    email,
-    phone,
-    deadline
+-- name: CreateAddress :exec
+INSERT INTO addresses (
+    addressId,
+    country,
+    region,
+    province,
+    city,
+    barangay,
+    addressDetails
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
--- name: CreateVolunteerPost :one
+-- name: CreatePost :exec
 INSERT INTO posts (
     postId,
-    userId,
     title,
     description,
-    postType,
-    jobType,
     company,
-    location,
-    salary,
     wfh,
     email,
     phone,
-    deadline
+    deadline,
+    addressId,
+    userId
 ) VALUES (
-    ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING *;
+
+-- name: CreateJobDetails :exec
+INSERT INTO job_details (
+    jobDetailId,
+    postId,
+    jobType,
+    salaryType,
+    salaryAmountMin,
+    salaryAmountMax,
+    salaryCurrency
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
