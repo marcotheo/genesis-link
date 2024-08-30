@@ -10,58 +10,163 @@ import (
 	"database/sql"
 )
 
-const createJobPost = `-- name: CreateJobPost :exec
+const createAddress = `-- name: CreateAddress :exec
+INSERT INTO addresses (
+    addressId,
+    country,
+    region,
+    province,
+    city,
+    barangay,
+    addressDetails
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING addressid, country, region, province, city, barangay, addressdetails
+`
+
+type CreateAddressParams struct {
+	Addressid      string
+	Country        string
+	Region         sql.NullString
+	Province       sql.NullString
+	City           sql.NullString
+	Barangay       sql.NullString
+	Addressdetails sql.NullString
+}
+
+func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) error {
+	_, err := q.db.ExecContext(ctx, createAddress,
+		arg.Addressid,
+		arg.Country,
+		arg.Region,
+		arg.Province,
+		arg.City,
+		arg.Barangay,
+		arg.Addressdetails,
+	)
+	return err
+}
+
+const createJobDetails = `-- name: CreateJobDetails :exec
+INSERT INTO job_details (
+    jobDetailId,
+    postId,
+    jobType,
+    salaryType,
+    salaryAmountMin,
+    salaryAmountMax,
+    salaryCurrency
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING jobdetailid, postid, jobtype, salarytype, salaryamountmin, salaryamountmax, salarycurrency
+`
+
+type CreateJobDetailsParams struct {
+	Jobdetailid     string
+	Postid          string
+	Jobtype         string
+	Salarytype      sql.NullString
+	Salaryamountmin sql.NullInt64
+	Salaryamountmax sql.NullInt64
+	Salarycurrency  sql.NullString
+}
+
+func (q *Queries) CreateJobDetails(ctx context.Context, arg CreateJobDetailsParams) error {
+	_, err := q.db.ExecContext(ctx, createJobDetails,
+		arg.Jobdetailid,
+		arg.Postid,
+		arg.Jobtype,
+		arg.Salarytype,
+		arg.Salaryamountmin,
+		arg.Salaryamountmax,
+		arg.Salarycurrency,
+	)
+	return err
+}
+
+const createPost = `-- name: CreatePost :exec
 INSERT INTO posts (
     postId,
-    userId,
+    company,
     title,
     description,
-    postType,
-    jobType,
-    company,
-    location,
-    salary,
+    posterLink,
+    logoLink,
+    additionalInfoLink,
     wfh,
     email,
     phone,
-    deadline
+    deadline,
+    addressId,
+    userId
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
-RETURNING postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, userid, posted_at, updated_at
+RETURNING postid, company, title, description, posterlink, logolink, additionalinfolink, wfh, email, phone, deadline, addressid, userid, posted_at, updated_at
 `
 
-type CreateJobPostParams struct {
-	Postid      string
-	Userid      string
-	Title       string
-	Description string
-	Posttype    string
-	Jobtype     sql.NullString
-	Company     sql.NullString
-	Location    sql.NullString
-	Salary      sql.NullInt64
-	Wfh         sql.NullInt64
-	Email       sql.NullString
-	Phone       sql.NullString
-	Deadline    sql.NullInt64
+type CreatePostParams struct {
+	Postid             string
+	Company            string
+	Title              string
+	Description        sql.NullString
+	Posterlink         sql.NullString
+	Logolink           sql.NullString
+	Additionalinfolink sql.NullString
+	Wfh                sql.NullInt64
+	Email              sql.NullString
+	Phone              sql.NullString
+	Deadline           sql.NullInt64
+	Addressid          string
+	Userid             string
 }
 
-func (q *Queries) CreateJobPost(ctx context.Context, arg CreateJobPostParams) error {
-	_, err := q.db.ExecContext(ctx, createJobPost,
+func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
+	_, err := q.db.ExecContext(ctx, createPost,
 		arg.Postid,
-		arg.Userid,
+		arg.Company,
 		arg.Title,
 		arg.Description,
-		arg.Posttype,
-		arg.Jobtype,
-		arg.Company,
-		arg.Location,
-		arg.Salary,
+		arg.Posterlink,
+		arg.Logolink,
+		arg.Additionalinfolink,
 		arg.Wfh,
 		arg.Email,
 		arg.Phone,
 		arg.Deadline,
+		arg.Addressid,
+		arg.Userid,
+	)
+	return err
+}
+
+const createPostRequirement = `-- name: CreatePostRequirement :exec
+INSERT INTO post_requirements (
+    requirementId,
+    postId,
+    requirementType,
+    requirement
+) VALUES (
+    ?, ?, ?, ?
+)
+RETURNING requirementid, postid, requirementtype, requirement
+`
+
+type CreatePostRequirementParams struct {
+	Requirementid   string
+	Postid          string
+	Requirementtype string
+	Requirement     string
+}
+
+func (q *Queries) CreatePostRequirement(ctx context.Context, arg CreatePostRequirementParams) error {
+	_, err := q.db.ExecContext(ctx, createPostRequirement,
+		arg.Requirementid,
+		arg.Postid,
+		arg.Requirementtype,
+		arg.Requirement,
 	)
 	return err
 }
@@ -92,66 +197,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const createVolunteerPost = `-- name: CreateVolunteerPost :one
-INSERT INTO posts (
-    postId,
-    userId,
-    title,
-    description,
-    postType,
-    jobType,
-    company,
-    location,
-    salary,
-    wfh,
-    email,
-    phone,
-    deadline
-) VALUES (
-    ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?
-)
-RETURNING postid, title, description, posttype, jobtype, company, location, salary, wfh, email, phone, deadline, userid, posted_at, updated_at
-`
-
-type CreateVolunteerPostParams struct {
-	Postid      string
-	Userid      string
-	Title       string
-	Description string
-	Posttype    string
-	Deadline    sql.NullInt64
-}
-
-func (q *Queries) CreateVolunteerPost(ctx context.Context, arg CreateVolunteerPostParams) (Post, error) {
-	row := q.db.QueryRowContext(ctx, createVolunteerPost,
-		arg.Postid,
-		arg.Userid,
-		arg.Title,
-		arg.Description,
-		arg.Posttype,
-		arg.Deadline,
-	)
-	var i Post
-	err := row.Scan(
-		&i.Postid,
-		&i.Title,
-		&i.Description,
-		&i.Posttype,
-		&i.Jobtype,
-		&i.Company,
-		&i.Location,
-		&i.Salary,
-		&i.Wfh,
-		&i.Email,
-		&i.Phone,
-		&i.Deadline,
-		&i.Userid,
-		&i.PostedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const getPostCountByUserId = `-- name: GetPostCountByUserId :one
 SELECT  
     COUNT(*) AS total_count
@@ -170,11 +215,8 @@ const getPostsByUserId = `-- name: GetPostsByUserId :many
 SELECT  
     postId,
     title,
-    jobType,
     company,
-    location,
-    deadline,
-    salary
+    deadline
 FROM posts
 WHERE userId = ?
 ORDER BY posted_at DESC
@@ -189,11 +231,8 @@ type GetPostsByUserIdParams struct {
 type GetPostsByUserIdRow struct {
 	Postid   string
 	Title    string
-	Jobtype  sql.NullString
-	Company  sql.NullString
-	Location sql.NullString
+	Company  string
 	Deadline sql.NullInt64
-	Salary   sql.NullInt64
 }
 
 func (q *Queries) GetPostsByUserId(ctx context.Context, arg GetPostsByUserIdParams) ([]GetPostsByUserIdRow, error) {
@@ -208,11 +247,8 @@ func (q *Queries) GetPostsByUserId(ctx context.Context, arg GetPostsByUserIdPara
 		if err := rows.Scan(
 			&i.Postid,
 			&i.Title,
-			&i.Jobtype,
 			&i.Company,
-			&i.Location,
 			&i.Deadline,
-			&i.Salary,
 		); err != nil {
 			return nil, err
 		}

@@ -8,22 +8,49 @@ import (
 	"database/sql"
 )
 
+type Address struct {
+	Addressid      string
+	Country        string
+	Region         sql.NullString
+	Province       sql.NullString
+	City           sql.NullString
+	Barangay       sql.NullString
+	Addressdetails sql.NullString
+}
+
+type JobDetail struct {
+	Jobdetailid     string
+	Postid          string
+	Jobtype         string
+	Salarytype      sql.NullString
+	Salaryamountmin sql.NullInt64
+	Salaryamountmax sql.NullInt64
+	Salarycurrency  sql.NullString
+}
+
 type Post struct {
-	Postid      string
-	Title       string
-	Description string
-	Posttype    string
-	Jobtype     sql.NullString
-	Company     sql.NullString
-	Location    sql.NullString
-	Salary      sql.NullInt64
-	Wfh         sql.NullInt64
-	Email       sql.NullString
-	Phone       sql.NullString
-	Deadline    sql.NullInt64
-	Userid      string
-	PostedAt    sql.NullTime
-	UpdatedAt   sql.NullTime
+	Postid             string
+	Company            string
+	Title              string
+	Description        sql.NullString
+	Posterlink         sql.NullString
+	Logolink           sql.NullString
+	Additionalinfolink sql.NullString
+	Wfh                sql.NullInt64
+	Email              sql.NullString
+	Phone              sql.NullString
+	Deadline           sql.NullInt64
+	Addressid          string
+	Userid             string
+	PostedAt           sql.NullTime
+	UpdatedAt          sql.NullTime
+}
+
+type PostRequirement struct {
+	Requirementid   string
+	Postid          string
+	Requirementtype string
+	Requirement     string
 }
 
 type User struct {
