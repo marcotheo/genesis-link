@@ -58,6 +58,17 @@ INSERT INTO job_details (
 )
 RETURNING *;
 
+-- name: CreatePostRequirement :exec
+INSERT INTO post_requirements (
+    requirementId,
+    postId,
+    requirementType,
+    requirement
+) VALUES (
+    ?, ?, ?, ?
+)
+RETURNING *;
+
 -- name: GetPostsByUserId :many
 SELECT  
     postId,
