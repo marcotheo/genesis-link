@@ -7,7 +7,7 @@ CREATE TABLE posts (
     description TEXT,
     posterLink TEXT,
     logoLink TEXT,
-    additionalInfo TEXT,
+    additionalInfoLink TEXT,
     wfh INTEGER DEFAULT 0,
     email TEXT,
     phone TEXT,

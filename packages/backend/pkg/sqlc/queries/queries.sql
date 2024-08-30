@@ -27,9 +27,12 @@ RETURNING *;
 -- name: CreatePost :exec
 INSERT INTO posts (
     postId,
+    company,
     title,
     description,
-    company,
+    posterLink,
+    logoLink,
+    additionalInfoLink,
     wfh,
     email,
     phone,
@@ -37,7 +40,7 @@ INSERT INTO posts (
     addressId,
     userId
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
