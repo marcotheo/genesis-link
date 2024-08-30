@@ -35,8 +35,8 @@ type CreateJobPostParamsValidation struct {
 	JobType     string `json:"jobType" validate:"omitempty,oneof=full-time part-time contract internship"`
 	Company     string `json:"company" validate:"required"`
 	Location    string `json:"location" validate:"required"`
-	Salary      int    `json:"salary" validate:"omitempty,gte=0"` // Ensure Salary is a non-negative integer
-	Wfh         int    `json:"wfh" validate:"required,oneof=0 1"`
+	Salary      *int   `json:"salary" validate:"omitempty,gte=0"`
+	Wfh         int    `json:"wfh" validate:"oneof=0 1"`
 	Email       string `json:"email" validate:"required"`
 	Phone       string `json:"phone" validate:"required"`
 	Deadline    string `json:"deadline" validate:"required,date"`
@@ -90,6 +90,10 @@ func (h *PostHandler) CreateJobPost(w http.ResponseWriter, r *http.Request) {
 	jobPostData.Postid = id
 	jobPostData.Userid = userId
 	jobPostData.Deadline = sql.NullInt64{Int64: deadlineTimestamp, Valid: true}
+
+	if jobPostValidation.Salary == nil {
+		jobPostData.Salary.Valid = false
+	}
 
 	errQ := h.dataService.Queries.CreateJobPost(context.Background(), jobPostData)
 	if errQ != nil {
