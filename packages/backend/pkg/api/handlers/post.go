@@ -39,7 +39,7 @@ type CreatePostParams struct {
 	Email              string `json:"email" validate:"required"`
 	Phone              string `json:"phone" validate:"required"`
 	Deadline           string `json:"deadline" validate:"required,date"`
-	AddressId          string `json:"addressId" validate:"required"`
+	AddressId          string `json:"addressId" validate:"required,nanoid"`
 }
 
 type CreatePostResponse struct {
@@ -157,9 +157,9 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 type PostRequirementsParams struct {
-	Postid          string   `json:"postId" validate:"required,nanoid"`
-	RequirementType []string `json:"requirementType" validate:"required,dive,oneof=responsibility qualification"`
-	Requirement     []string `json:"requirement" validate:"required,dive,min=5,max=500"`
+	Postid          string `json:"postId" validate:"required,nanoid"`
+	RequirementType string `json:"requirementType" validate:"required,oneof=responsibility qualification"`
+	Requirement     string `json:"requirement" validate:"required,min=5,max=500"`
 }
 
 func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Request) {

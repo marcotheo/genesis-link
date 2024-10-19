@@ -33,6 +33,15 @@ func isValidDate(fl validator.FieldLevel) bool {
 	return err == nil
 }
 
+// Custom validation function for nanoID
+func nanoidValidation(fl validator.FieldLevel) bool {
+	id := fl.Field().String()
+	if len(id) == 0 {
+		return false
+	}
+	return len(id) == 21 // Assuming the nanoID length is 21
+}
+
 func ReadAndValidateBody(r *http.Request, v interface{}) error {
 	// Read the request body
 	body, err := io.ReadAll(r.Body)
@@ -50,6 +59,8 @@ func ReadAndValidateBody(r *http.Request, v interface{}) error {
 	// Validate the struct
 	validate := validator.New()
 
+	// Register the custom validation function
+	validate.RegisterValidation("nanoid", nanoidValidation)
 	validate.RegisterValidation("date", isValidDate)
 
 	err = validate.Struct(v)
