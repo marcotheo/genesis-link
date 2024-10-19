@@ -59,7 +59,7 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 		router.AddSubRoutes("/api/v1/users", userRoutes.Routes())
 		router.AddSubRoutes("/api/v1/posts", postRoutes.Routes())
 
-		router.POST("/health", healthCheckHandler)
+		router.POST("/api/v1/health", healthCheckHandler)
 
 		clog.Logger.Info("ROUTES INITIALIZED")
 	})
