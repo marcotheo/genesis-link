@@ -44,18 +44,22 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 	container.Provide(services.InitMiddlewareService)
 	container.Provide(handler.InitUserHandler)
 	container.Provide(handler.InitPostHandler)
+	container.Provide(handler.InitAddressHandler)
 	container.Provide(routes.InitUserRoutes)
 	container.Provide(routes.InitPostRoutes)
+	container.Provide(routes.InitAddressRoutes)
 
 	err := container.Invoke(func(
 		dataService *services.DataService,
 		userRoutes *routes.UserRoutes,
 		postRoutes *routes.PostRoutes,
+		addressRoutes *routes.AddressRoutes,
 	) {
 		dbConn = dataService.Conn
 
 		clog.Logger.Info("INITIALIZING ROUTES")
 
+		router.AddSubRoutes("/api/v1/address", addressRoutes.Routes())
 		router.AddSubRoutes("/api/v1/users", userRoutes.Routes())
 		router.AddSubRoutes("/api/v1/posts", postRoutes.Routes())
 
