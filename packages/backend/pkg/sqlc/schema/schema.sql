@@ -12,12 +12,13 @@ CREATE TABLE addresses (
     province TEXT,
     city TEXT,
     barangay TEXT,
-    addressDetails TEXT,
-    userId TEXT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES users(userId),
+    addressDetails TEXT,  -- House number, unit, building, street, etc.
+    userId TEXT,  -- Define userId column
+    FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
 CREATE INDEX idx_address ON addresses(country, province, city);
+CREATE INDEX idx_address_userId ON addresses(userId);
 
 CREATE TABLE posts (
     postId TEXT NOT NULL PRIMARY KEY,
@@ -42,6 +43,8 @@ CREATE TABLE posts (
 CREATE INDEX idx_title ON posts(title);
 CREATE INDEX idx_wfh ON posts(wfh);
 CREATE INDEX idx_posted_at ON posts(posted_at);
+CREATE INDEX idx_posts_userId ON posts(userId);
+CREATE INDEX idx_posts_addressId ON posts(addressId);
 
 CREATE TABLE job_details (
     jobDetailId TEXT NOT NULL PRIMARY KEY,
@@ -55,6 +58,7 @@ CREATE TABLE job_details (
 );
 
 CREATE INDEX idx_jobType ON job_details(jobType);
+CREATE INDEX idx_job_details_postId ON job_details(postId);
 
 CREATE TABLE post_requirements (
     requirementId TEXT NOT NULL PRIMARY KEY,
@@ -64,5 +68,6 @@ CREATE TABLE post_requirements (
     FOREIGN KEY (postId) REFERENCES posts(postId)
 );
 
+CREATE INDEX idx_post_requirements_postId ON post_requirements(postId);
 
 

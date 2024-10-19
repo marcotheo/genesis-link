@@ -18,9 +18,10 @@ INSERT INTO addresses (
     province,
     city,
     barangay,
-    addressDetails
+    addressDetails,
+    userId
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 

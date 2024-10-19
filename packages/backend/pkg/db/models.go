@@ -16,6 +16,7 @@ type Address struct {
 	City           sql.NullString
 	Barangay       sql.NullString
 	Addressdetails sql.NullString
+	Userid         sql.NullString
 }
 
 type JobDetail struct {

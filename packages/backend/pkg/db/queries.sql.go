@@ -18,11 +18,12 @@ INSERT INTO addresses (
     province,
     city,
     barangay,
-    addressDetails
+    addressDetails,
+    userId
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?
 )
-RETURNING addressid, country, region, province, city, barangay, addressdetails
+RETURNING addressid, country, region, province, city, barangay, addressdetails, userid
 `
 
 type CreateAddressParams struct {
@@ -33,6 +34,7 @@ type CreateAddressParams struct {
 	City           sql.NullString
 	Barangay       sql.NullString
 	Addressdetails sql.NullString
+	Userid         sql.NullString
 }
 
 func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) error {
@@ -44,6 +46,7 @@ func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) er
 		arg.City,
 		arg.Barangay,
 		arg.Addressdetails,
+		arg.Userid,
 	)
 	return err
 }
