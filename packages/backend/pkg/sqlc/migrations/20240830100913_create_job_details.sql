@@ -12,11 +12,13 @@ CREATE TABLE job_details (
 );
 
 CREATE INDEX idx_jobType ON job_details(jobType);
+CREATE INDEX idx_job_details_postId ON job_details(postId);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 DROP INDEX idx_jobType;
+DROP INDEX idx_job_details_postId;
 
 DROP TABLE job_details;
 -- +goose StatementEnd

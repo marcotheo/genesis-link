@@ -7,16 +7,19 @@ CREATE TABLE addresses (
     province TEXT,
     city TEXT,
     barangay TEXT,
-    addressDetails TEXT  -- House number, unit, building, street, etc.
+    addressDetails TEXT,  -- House number, unit, building, street, etc.
+    userId TEXT,  -- Define userId column
+    FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
 CREATE INDEX idx_address ON addresses(country, province, city);
-
+CREATE INDEX idx_address_userId ON addresses(userId);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP INDEX idx_address;
+DROP INDEX IF EXISTS idx_address;
+DROP INDEX IF EXISTS idx_address_userId;
 
-DROP TABLE addresses;
+DROP TABLE IF EXISTS addresses;
 -- +goose StatementEnd

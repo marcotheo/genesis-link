@@ -23,7 +23,8 @@ CREATE TABLE posts (
 CREATE INDEX idx_title ON posts(title);
 CREATE INDEX idx_wfh ON posts(wfh);
 CREATE INDEX idx_posted_at ON posts(posted_at);
-
+CREATE INDEX idx_posts_userId ON posts(userId);
+CREATE INDEX idx_posts_addressId ON posts(addressId);
 -- +goose StatementEnd
 
 -- +goose Down
@@ -31,6 +32,8 @@ CREATE INDEX idx_posted_at ON posts(posted_at);
 DROP INDEX idx_title;
 DROP INDEX idx_wfh;
 DROP INDEX idx_posted_at;
+DROP INDEX idx_posts_userId;
+DROP INDEX idx_posts_addressId;
 
 DROP TABLE posts;
 -- +goose StatementEnd

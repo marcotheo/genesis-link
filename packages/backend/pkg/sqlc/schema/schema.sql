@@ -13,6 +13,7 @@ CREATE TABLE addresses (
     city TEXT,
     barangay TEXT,
     addressDetails TEXT
+    FOREIGN KEY (userId) REFERENCES users(userId),
 );
 
 CREATE INDEX idx_address ON addresses(country, province, city);
