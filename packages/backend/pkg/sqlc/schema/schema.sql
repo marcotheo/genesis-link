@@ -12,7 +12,8 @@ CREATE TABLE addresses (
     province TEXT,
     city TEXT,
     barangay TEXT,
-    addressDetails TEXT
+    addressDetails TEXT,
+    userId TEXT NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(userId),
 );
 
