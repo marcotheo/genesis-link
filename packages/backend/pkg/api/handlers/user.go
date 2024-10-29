@@ -290,7 +290,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		Value:    *res.AccessToken,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
@@ -303,7 +303,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		Value:    strconv.FormatInt(expiresIn, 10),
 		Expires:  time.Now().Add(3 * time.Hour),
 		HttpOnly: false,
-		SameSite: http.SameSiteNoneMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
