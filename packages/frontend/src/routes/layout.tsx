@@ -1,5 +1,5 @@
 import { routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
-import { component$, Slot } from "@builder.io/qwik";
+import { component$, noSerialize, Slot } from "@builder.io/qwik";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 import { awsRegion, poolClientId, userPoolId } from "~/common/constants";
@@ -119,6 +119,30 @@ export const useAuthCheck = routeLoader$(async ({ sharedMap }) => {
   const isLoggedIn = sharedMap.get("isLoggedIn");
   return isLoggedIn;
 });
+
+// Helper route loader to build and return headers with accessToken and csrfToken
+export const useAuthHeadersLoader = routeLoader$(
+  async ({ cookie, resolveValue }) => {
+    const accessToken = cookie.get("accessToken");
+    const csrfToken = cookie.get("csrfToken");
+
+    if (!accessToken?.value || !csrfToken?.value) return null;
+
+    const isValid = await resolveValue(useAuthCheck);
+
+    if (!isValid) return null;
+
+    // Build headers
+    const headers = new Headers();
+    headers.append(
+      "cookie",
+      `accessToken=${accessToken.value}; csrfToken=${csrfToken.value}`,
+    );
+    headers.append("X-CSRF-Token", csrfToken.value);
+
+    return noSerialize(headers);
+  },
+);
 
 export default component$(() => {
   return (
