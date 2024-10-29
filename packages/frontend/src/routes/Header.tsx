@@ -1,16 +1,17 @@
 import { component$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
+import Menu, {
+  DropDownMenuItem,
+  DropDownMenuItemLink,
+  DropDownMenuLabel,
+} from "~/components/drop-down/drop-down";
 import {
   HamburgerIcon,
   SignInIcon,
   SignUpIcon,
   UserIcon,
 } from "~/components/icons/icons";
-import Menu, {
-  DropDownMenuItem,
-  DropDownMenuLabel,
-} from "~/components/drop-down/drop-down";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import LogoImage from "~/components/logo-image/logo-image";
 import DarkMode from "~/components/dark-mode/dark-mode";
@@ -78,7 +79,7 @@ const HeaderItems = component$(() => {
           <div q:slot="label">
             <DropDownMenuLabel>My Account</DropDownMenuLabel>
           </div>
-          <DropDownMenuItem>Settings</DropDownMenuItem>
+          <DropDownMenuItemLink link="/settings">Settings</DropDownMenuItemLink>
           <DropDownMenuItem>Logout</DropDownMenuItem>
         </Menu>
       </>

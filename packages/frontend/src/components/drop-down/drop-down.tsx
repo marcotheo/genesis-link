@@ -8,6 +8,8 @@ import {
   Signal,
   QRL,
 } from "@builder.io/qwik";
+import { Link } from "@builder.io/qwik-city";
+
 import Button from "../button/button";
 import { cn } from "~/common/utils";
 
@@ -191,6 +193,28 @@ export const DropDownMenuItem = component$(() => {
           </p>
         </div>
       </div>
+    </>
+  );
+});
+
+export const DropDownMenuItemLink = component$<{ link: string }>(({ link }) => {
+  return (
+    <>
+      <Link href={link}>
+        <div class="w-full px-1">
+          <div
+            class={cn(
+              "min-w-48 p-2 rounded-md",
+              "cursor-pointer hover:brightness-90 hover:dark:brightness-150",
+              "duration-100 ease-out",
+            )}
+          >
+            <p class="font-semibold text-xs">
+              <Slot />
+            </p>
+          </div>
+        </div>
+      </Link>
     </>
   );
 });
