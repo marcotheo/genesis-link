@@ -92,3 +92,34 @@ func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 
 	successResponse(w, CreateAddressResponse{AddressId: id})
 }
+
+func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) GetAddressesByUserId => invoked")
+
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	res, errQ := h.dataService.Queries.GetAllAddressByUserId(context.Background(), sql.NullString{
+		String: userId,
+		Valid:  true, // Indicates the value is not NULL
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) GetAddressesByUserId => errQ %s \n", errQ))
+		http.Error(w, "Error creating response", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(POST) GetAddressesByUserId => create successful")
+
+	successResponse(w, res)
+}

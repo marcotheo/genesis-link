@@ -2,6 +2,10 @@
 SELECT * FROM users
 WHERE userId = ? LIMIT 1;
 
+-- name: GetAllAddressByUserId :many
+SELECT * FROM addresses
+WHERE userId = ?;
+
 -- name: CreateUser :one
 INSERT INTO users (
   userId, email

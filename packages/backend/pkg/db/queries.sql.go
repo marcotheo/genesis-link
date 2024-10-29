@@ -200,6 +200,43 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const getAllAddressByUserId = `-- name: GetAllAddressByUserId :many
+SELECT addressid, country, region, province, city, barangay, addressdetails, userid FROM addresses
+WHERE userId = ?
+`
+
+func (q *Queries) GetAllAddressByUserId(ctx context.Context, userid sql.NullString) ([]Address, error) {
+	rows, err := q.db.QueryContext(ctx, getAllAddressByUserId, userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Address
+	for rows.Next() {
+		var i Address
+		if err := rows.Scan(
+			&i.Addressid,
+			&i.Country,
+			&i.Region,
+			&i.Province,
+			&i.City,
+			&i.Barangay,
+			&i.Addressdetails,
+			&i.Userid,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPostCountByUserId = `-- name: GetPostCountByUserId :one
 SELECT  
     COUNT(*) AS total_count
