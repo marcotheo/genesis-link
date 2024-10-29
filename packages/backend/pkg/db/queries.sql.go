@@ -200,6 +200,21 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteAddress = `-- name: DeleteAddress :exec
+DELETE FROM addresses
+WHERE addressId = ? AND userId = ?
+`
+
+type DeleteAddressParams struct {
+	Addressid string
+	Userid    sql.NullString
+}
+
+func (q *Queries) DeleteAddress(ctx context.Context, arg DeleteAddressParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAddress, arg.Addressid, arg.Userid)
+	return err
+}
+
 const getAllAddressByUserId = `-- name: GetAllAddressByUserId :many
 SELECT addressid, country, region, province, city, barangay, addressdetails, userid FROM addresses
 WHERE userId = ?

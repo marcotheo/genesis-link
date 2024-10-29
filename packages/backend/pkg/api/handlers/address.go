@@ -104,7 +104,7 @@ type AddressResponse struct {
 }
 
 func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(POST) GetAddressesByUserId => invoked")
+	clog.Logger.Info("(GET) GetAddressesByUserId => invoked")
 
 	token, errorAccessToken := r.Cookie("accessToken")
 	if errorAccessToken != nil {
@@ -124,12 +124,12 @@ func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Req
 	})
 
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) GetAddressesByUserId => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) GetAddressesByUserId => errQ %s \n", errQ))
 		http.Error(w, "Error creating response", http.StatusInternalServerError)
 		return
 	}
 
-	clog.Logger.Success("(POST) GetAddressesByUserId => create successful")
+	clog.Logger.Success("(GET) GetAddressesByUserId => create successful")
 
 	var addressResponses []AddressResponse
 
@@ -148,4 +148,40 @@ func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Req
 	}
 
 	successResponse(w, addressResponses)
+}
+
+func (h *AddressHandler) DeleteAddressById(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(DELETE) DeleteAddressById => invoked")
+
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	addressId := r.PathValue("addressId")
+
+	errQ := h.dataService.Queries.DeleteAddress(context.Background(), db.DeleteAddressParams{
+		Userid: sql.NullString{
+			String: userId,
+			Valid:  true,
+		},
+		Addressid: addressId,
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(DELETE) DeleteAddressById => errQ %s \n", errQ))
+		http.Error(w, "Error creating response", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(DELETE) DeleteAddressById => delete successful")
+
+	successResponse(w, true)
 }

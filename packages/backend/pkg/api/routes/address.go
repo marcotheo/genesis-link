@@ -25,5 +25,6 @@ func (o *AddressRoutes) Routes() func(subRouter justarouter.SubRouter) {
 
 		subRouter.POST("/create", o.handlers.CreateAddress)
 		subRouter.GET("/", o.handlers.GetAddressesByUserId)
+		subRouter.DELETE("/{addressId}", o.handlers.DeleteAddressById)
 	}
 }

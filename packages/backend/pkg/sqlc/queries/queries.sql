@@ -29,6 +29,10 @@ INSERT INTO addresses (
 )
 RETURNING *;
 
+-- name: DeleteAddress :exec
+DELETE FROM addresses
+WHERE addressId = ? AND userId = ?;
+
 -- name: CreatePost :exec
 INSERT INTO posts (
     postId,
