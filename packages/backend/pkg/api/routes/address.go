@@ -20,7 +20,9 @@ func InitAddressRoutes(handlers *handler.AddressHandler, middlewareService *serv
 
 func (o *AddressRoutes) Routes() func(subRouter justarouter.SubRouter) {
 	return func(subRouter justarouter.SubRouter) {
+		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
+
 		subRouter.POST("/create", o.handlers.CreateAddress)
 		subRouter.GET("/", o.handlers.GetAddressesByUserId)
 	}
