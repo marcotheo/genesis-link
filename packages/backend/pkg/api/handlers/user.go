@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
@@ -148,6 +150,16 @@ type SignInUserResponse struct {
 	ExpiresIn int32
 }
 
+// Generates a random CSRF token
+func generateCSRFToken() (string, error) {
+	token := make([]byte, 32)
+	_, err := rand.Read(token)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(token), nil
+}
+
 func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) SignInUser => invoked")
 
@@ -165,12 +177,29 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	csrfToken, err := generateCSRFToken()
+	if err != nil {
+		errorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	secure := r.TLS != nil
 
 	domain := os.Getenv("COOKIE_DOMAIN")
 	if domain == "" {
 		domain = "localhost" // Default value if the environment variable is not set
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "csrfToken",
+		Value:    csrfToken,
+		Expires:  time.Now().Add(3 * time.Hour),
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refreshToken",
