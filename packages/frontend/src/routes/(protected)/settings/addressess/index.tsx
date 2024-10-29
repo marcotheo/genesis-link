@@ -1,11 +1,18 @@
-import { type DocumentHead } from "@builder.io/qwik-city";
+import { Link, type DocumentHead } from "@builder.io/qwik-city";
+import Button from "~/components/button/button";
 import { component$ } from "@builder.io/qwik";
 
 export default component$(() => {
   return (
-    <div class="overflow-hidden pb-6 w-full flex justify-center items-center">
+    <div class="overflow-hidden pb-6 w-full">
       <br />
-      Addressess
+      <div class="flex justify-end">
+        <Link href="/settings/addressess/create">
+          <Button class="text-3xl" size="sm" variant="outline">
+            +
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 });
