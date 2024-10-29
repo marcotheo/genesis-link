@@ -59,7 +59,7 @@ export default component$(() => {
 
       <div class="flex flex-col gap-5">
         {result.value?.addresses.map((v) => (
-          <div key={v.Addressid} class="p-3 shadow-sm bg-surface">
+          <div key={v.Addressid} class="p-3 shadow-sm bg-surface rounded-md">
             <p>
               {v.Addressdetails}, {v.Barangay},
             </p>
