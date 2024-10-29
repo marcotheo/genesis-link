@@ -30,8 +30,8 @@
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.8.0",
-    "@builder.io/qwik-city": "^1.8.0",
+    "@builder.io/qwik": "1.9.1",
+    "@builder.io/qwik-city": "1.9.1",
     "@modular-forms/qwik": "^0.26.1",
     "@types/eslint": "^8.56.10",
     "@types/node": "^20.12.7",
@@ -43,7 +43,7 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
-    "eslint-plugin-qwik": "^1.8.0",
+    "eslint-plugin-qwik": "1.9.1",
     "postcss": "^8.4.39",
     "prettier": "^3.2.5",
     "prettier-plugin-sort-imports": "^1.8.3",
