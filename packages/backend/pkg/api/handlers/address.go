@@ -93,6 +93,16 @@ func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, CreateAddressResponse{AddressId: id})
 }
 
+type AddressResponse struct {
+	AddressID      string `json:"Addressid"`
+	Country        string `json:"Country"`
+	Region         string `json:"Region,omitempty"`
+	Province       string `json:"Province,omitempty"`
+	City           string `json:"City,omitempty"`
+	Barangay       string `json:"Barangay,omitempty"`
+	AddressDetails string `json:"Addressdetails,omitempty"`
+}
+
 func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) GetAddressesByUserId => invoked")
 
@@ -108,7 +118,7 @@ func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	res, errQ := h.dataService.Queries.GetAllAddressByUserId(context.Background(), sql.NullString{
+	addresses, errQ := h.dataService.Queries.GetAllAddressByUserId(context.Background(), sql.NullString{
 		String: userId,
 		Valid:  true, // Indicates the value is not NULL
 	})
@@ -121,5 +131,21 @@ func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Req
 
 	clog.Logger.Success("(POST) GetAddressesByUserId => create successful")
 
-	successResponse(w, res)
+	var addressResponses []AddressResponse
+
+	for _, addr := range addresses {
+		itemData := AddressResponse{
+			AddressID:      addr.Addressid,
+			Country:        addr.Country,
+			Region:         h.utilService.ConvertNullString(addr.Region),
+			Province:       h.utilService.ConvertNullString(addr.Province),
+			City:           h.utilService.ConvertNullString(addr.City),
+			Barangay:       h.utilService.ConvertNullString(addr.Barangay),
+			AddressDetails: h.utilService.ConvertNullString(addr.Addressdetails),
+		}
+
+		addressResponses = append(addressResponses, itemData)
+	}
+
+	successResponse(w, addressResponses)
 }

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"database/sql"
+
 	"github.com/google/uuid"
 )
 
@@ -14,4 +16,12 @@ func InitUtilService() *UtilService {
 func (a *UtilService) GenerateUUID() string {
 	id := uuid.New()
 	return id.String()
+}
+
+func (a *UtilService) ConvertNullString(ns sql.NullString) string {
+	if ns.Valid {
+		return ns.String
+	}
+
+	return ""
 }
