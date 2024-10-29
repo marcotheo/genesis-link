@@ -26,19 +26,48 @@ export interface RefreshResponse {
     ExpiresIn: number;
   };
 }
+// Initialize the verifier
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: userPoolId,
+  tokenUse: "access",
+  clientId: poolClientId,
+  region: awsRegion,
+});
 
-export const onRequest: RequestHandler = async ({ cookie, json }) => {
+const isAuth = async (token: string, sharedMap: Map<string, any>) => {
+  try {
+    await verifier.verify(token);
+    sharedMap.set("isLoggedIn", true);
+  } catch (err) {
+    console.error("Token verification failed:", err);
+    sharedMap.set("isLoggedIn", false);
+  }
+};
+
+export const onRequest: RequestHandler = async ({
+  cookie,
+  sharedMap,
+  json,
+}) => {
   const accessToken = cookie.get("accessToken");
   const refreshToken = cookie.get("refreshToken");
   const tokenExpiresInCookie = cookie.get("tokenExpiresIn");
 
-  if (!accessToken || !refreshToken || !tokenExpiresInCookie) return;
+  if (!accessToken || !refreshToken || !tokenExpiresInCookie) {
+    sharedMap.set("isLoggedIn", false);
+    return;
+  }
 
   const unixTimestamp = Math.floor(Date.now() / 1000);
   const expiresIn = parseInt(tokenExpiresInCookie.value, 10);
   const timeLeft = expiresIn - unixTimestamp;
 
-  if (timeLeft > 90) return;
+  if (timeLeft > 90) {
+    await isAuth(accessToken.value, sharedMap);
+    return;
+  }
+
+  let newAccessToken = accessToken.value;
 
   try {
     const cookies = `refreshToken=${refreshToken.value}; accessToken=${accessToken.value}`;
@@ -59,6 +88,8 @@ export const onRequest: RequestHandler = async ({ cookie, json }) => {
 
         if (!["accessToken", "tokenExpiresIn"].includes(name)) return;
 
+        if (name === "accessToken") newAccessToken = value;
+
         // Set the cookies using the Qwik `cookie` parameter
         cookie.set(name, value, {
           path: "/", // Set the path for the cookie
@@ -75,6 +106,8 @@ export const onRequest: RequestHandler = async ({ cookie, json }) => {
         });
       }
     });
+
+    await isAuth(newAccessToken, sharedMap);
   } catch (err: any) {
     console.log("Middleware Error: ", err);
   }
@@ -82,28 +115,10 @@ export const onRequest: RequestHandler = async ({ cookie, json }) => {
   json(200, { cookie });
 };
 
-// Initialize the verifier
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: userPoolId,
-  tokenUse: "access",
-  clientId: poolClientId,
-  region: awsRegion,
-});
-
-export const useAuthCheck = routeLoader$(async ({ cookie }) => {
-  const accessToken = cookie.get("accessToken");
-  const tokenExpiresIn = cookie.get("tokenExpiresIn");
-
-  if (!accessToken || !tokenExpiresIn) return false;
-
-  try {
-    await verifier.verify(accessToken.value);
-
-    return true;
-  } catch (err) {
-    console.error("Token verification failed:", err);
-    return false;
-  }
+export const useAuthCheck = routeLoader$(async ({ sharedMap }) => {
+  const isLoggedIn = sharedMap.get("isLoggedIn");
+  console.log("USE AUTH", isLoggedIn);
+  return isLoggedIn;
 });
 
 export default component$(() => {
