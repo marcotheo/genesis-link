@@ -1,9 +1,12 @@
 import { Link, routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
-import { component$ } from "@builder.io/qwik";
+import { $, component$, useSignal } from "@builder.io/qwik";
 
+import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useAuthHeadersLoader } from "~/routes/layout";
+import { TrashBin } from "~/components/icons/icons";
 import Button from "~/components/button/button";
-import { qwikFetch } from "~/common/utils";
+import { cn, qwikFetch } from "~/common/utils";
 
 type Address = {
   Addressid: string;
@@ -32,7 +35,7 @@ export const useAddressesLoader = routeLoader$(async ({ resolveValue }) => {
       headers: headers,
     });
 
-    return { addresses: res.data };
+    return res.data;
   } catch (err: any) {
     console.log("Error:", err);
 
@@ -40,9 +43,64 @@ export const useAddressesLoader = routeLoader$(async ({ resolveValue }) => {
   }
 });
 
-export default component$(() => {
+const AddressList = component$(() => {
   const result = useAddressesLoader();
+  const localData = useSignal(result.value);
 
+  const { mutate, state } = useMutate("/api/v1/address", { method: "DELETE" });
+
+  const onDelete = $(async (addressId: string) => {
+    try {
+      await mutate(addressId, {
+        credentials: "include",
+      });
+
+      if (localData.value)
+        localData.value = localData.value.filter(
+          (v) => v.Addressid !== addressId,
+        );
+    } catch (err) {
+      console.log("Error:", err);
+    }
+  });
+
+  return (
+    <div class="flex flex-col gap-5">
+      <LoadingOverlay open={state.loading}>Removing Address</LoadingOverlay>
+
+      {localData.value?.map((v) => (
+        <div
+          key={v.Addressid}
+          class={cn(
+            "p-5 shadow-sm bg-surface rounded-md",
+            "flex justify-between items-center",
+          )}
+        >
+          <div>
+            {" "}
+            <p>
+              {v.Addressdetails}, {v.Barangay},
+            </p>
+            <p>
+              {v.City}, {v.Province}, {v.Region},
+            </p>
+            <p>{v.Country},</p>
+          </div>
+
+          <Button
+            class="group cursor-pointer bg-transparent"
+            variant="ghost"
+            onClick$={() => onDelete(v.Addressid)}
+          >
+            <TrashBin class="text-destructive w-7 h-7" />
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+});
+
+export default component$(() => {
   return (
     <div class="overflow-hidden pb-6 w-full px-7">
       <br />
@@ -57,19 +115,7 @@ export default component$(() => {
 
       <br />
 
-      <div class="flex flex-col gap-5">
-        {result.value?.addresses.map((v) => (
-          <div key={v.Addressid} class="p-3 shadow-sm bg-surface rounded-md">
-            <p>
-              {v.Addressdetails}, {v.Barangay},
-            </p>
-            <p>
-              {v.City}, {v.Province}, {v.Region},
-            </p>
-            <p>{v.Country},</p>
-          </div>
-        ))}
-      </div>
+      <AddressList />
     </div>
   );
 });
