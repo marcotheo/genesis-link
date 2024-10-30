@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -53,6 +54,7 @@ func (m *MiddlewareService) CSRFMiddleware(next http.Handler) http.Handler {
 		if r.Method == "POST" || r.Method == "PUT" || r.Method == "DELETE" {
 			csrfTokenCookie, err := r.Cookie("csrfToken")
 			if err != nil {
+				fmt.Println("Error", err)
 				http.Error(w, "No CSRF Token Found", http.StatusBadRequest)
 				return
 			}

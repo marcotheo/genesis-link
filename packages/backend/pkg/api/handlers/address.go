@@ -129,7 +129,7 @@ func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	clog.Logger.Success("(GET) GetAddressesByUserId => create successful")
+	clog.Logger.Success("(GET) GetAddressesByUserId => fetch successful")
 
 	var addressResponses []AddressResponse
 
