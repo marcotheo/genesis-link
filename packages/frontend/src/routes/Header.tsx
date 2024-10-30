@@ -1,17 +1,19 @@
 import { component$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
+import {
+  Building,
+  HamburgerIcon,
+  Planner,
+  SignInIcon,
+  SignUpIcon,
+  UserIcon,
+} from "~/components/icons/icons";
 import Menu, {
   DropDownMenuItem,
   DropDownMenuItemLink,
   DropDownMenuLabel,
 } from "~/components/drop-down/drop-down";
-import {
-  HamburgerIcon,
-  SignInIcon,
-  SignUpIcon,
-  UserIcon,
-} from "~/components/icons/icons";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import LogoImage from "~/components/logo-image/logo-image";
 import DarkMode from "~/components/dark-mode/dark-mode";
@@ -21,6 +23,8 @@ import { useAuthCheck } from "./layout";
 import { cn } from "~/common/utils";
 
 const MobileMenu = component$(() => {
+  const isAuth = useAuthCheck();
+
   return (
     <Drawer>
       <HamburgerIcon q:slot="trigger" />
@@ -42,8 +46,8 @@ const MobileMenu = component$(() => {
         </div>
       </div>
 
-      <div>
-        <div>
+      <div class="flex flex-col gap-3">
+        <div class={isAuth.value ? "hidden" : ""}>
           <Heading size="xs" class="text-zinc-600 text-md pl-2">
             AUTHENTICATION
           </Heading>
@@ -54,6 +58,28 @@ const MobileMenu = component$(() => {
           <DrawerLink href="/sign-up">
             <SignUpIcon />
             Sign Up
+          </DrawerLink>
+        </div>
+
+        <div>
+          <Heading size="xs" class="text-zinc-600 text-md pl-2">
+            SETTINGS
+          </Heading>
+          <DrawerLink href="/sign-in">
+            <UserIcon />
+            My Details
+          </DrawerLink>
+          <DrawerLink href="/sign-up">
+            <SignInIcon />
+            Password
+          </DrawerLink>
+          <DrawerLink href="/sign-up">
+            <Building />
+            Addressess
+          </DrawerLink>
+          <DrawerLink href="/sign-up">
+            <Planner />
+            Plan
           </DrawerLink>
         </div>
       </div>

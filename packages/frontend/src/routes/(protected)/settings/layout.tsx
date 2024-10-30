@@ -38,13 +38,15 @@ const Item = component$<{ link: string; title: string }>(({ link, title }) => {
 
 export default component$(() => {
   return (
-    <div class="h-full flex gap-3">
+    <div class="h-full flex gap-3 relative">
       <div
         class={cn(
-          "h-[95%] w-80",
-          "p-5",
-          "flex justify-end",
+          "duration-500 transition-[height]",
+          "h-[95%] p-5",
+          "w-full md:w-52 lg:w-80",
+          "flex flex-row justify-end",
           "border-r border-soft",
+          "max-md:hidden",
         )}
       >
         <ul class="list-none space-y-5">
@@ -54,6 +56,7 @@ export default component$(() => {
           <Item title="Plan" link="/settings/details" />
         </ul>
       </div>
+
       <Slot />
     </div>
   );
