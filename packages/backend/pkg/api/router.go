@@ -27,7 +27,7 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 			AllowedOrigins:   strings.Split(allowedOrigins, ","),
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 			AllowCredentials: true,
-			AllowedHeaders:   []string{"Content-Type", "Authorization"},
+			AllowedHeaders:   []string{"Content-Type", "Authorization", "X-CSRF-Token"},
 			MaxAge:           3600 * time.Second, // 1 hour
 		},
 	})
