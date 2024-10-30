@@ -7,6 +7,9 @@ import {
   $,
   Signal,
   QRL,
+  createContextId,
+  useContextProvider,
+  useContext,
 } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
@@ -16,6 +19,10 @@ import { cn } from "~/common/utils";
 interface DropDownMenuProps extends HTMLAttributes<HTMLMenuElement> {
   triggerTitle?: string;
 }
+
+export const DropDownContext = createContextId<{
+  isOpen: Signal<boolean | null>;
+}>("dropdown.context");
 
 export default component$<DropDownMenuProps>(({ triggerTitle, ...props }) => {
   const isOpen = useSignal<boolean | null>(null);
@@ -40,6 +47,10 @@ export default component$<DropDownMenuProps>(({ triggerTitle, ...props }) => {
 
     if (overflowY)
       dropDownContentRef.value.style.marginTop = `-${wrapperRect.height + dropdownRect.height}px`;
+  });
+
+  useContextProvider(DropDownContext, {
+    isOpen,
   });
 
   useOnDocument(
@@ -198,9 +209,11 @@ export const DropDownMenuItem = component$(() => {
 });
 
 export const DropDownMenuItemLink = component$<{ link: string }>(({ link }) => {
+  const dropDownData = useContext(DropDownContext);
+
   return (
     <>
-      <Link href={link}>
+      <Link href={link} onClick$={$(() => (dropDownData.isOpen.value = false))}>
         <div class="w-full px-1">
           <div
             class={cn(
