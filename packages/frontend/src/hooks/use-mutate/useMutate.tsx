@@ -8,7 +8,7 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useMutate = <T,>(url: string) => {
+export const useMutate = <T,>(url: string, defaultOptions?: RequestInit) => {
   const state = useStore<FetchState<T>>({
     result: null,
     loading: null,
@@ -16,17 +16,32 @@ export const useMutate = <T,>(url: string) => {
     success: false,
   });
 
-  const mutate = $(async (json: any, options?: RequestInit) => {
+  // Helper function to extract CSRF token from cookies
+  const getCsrfToken = $((): string | undefined => {
+    const match = document.cookie.match(
+      new RegExp("(^|;)\\s*csrfToken\\s*=\\s*([^;]+)"),
+    );
+    return match ? decodeURIComponent(match[2]) : undefined;
+  });
+
+  const mutate = $(async (json: any | string, options?: RequestInit) => {
     state.loading = true;
     state.error = null;
 
     try {
-      const additionalOptions = options ? options : {};
+      const csrfToken = await getCsrfToken();
+      const additionalOptions = {
+        ...(defaultOptions ? defaultOptions : {}),
+        ...(options ? options : {}),
+      };
 
-      const result = await qwikFetch<T>(url, {
+      const newUrl = typeof json === "string" ? url + "/" + json : url;
+
+      const result = await qwikFetch<T>(newUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
         },
         ...additionalOptions,
         body: json ? JSON.stringify(json) : undefined,
