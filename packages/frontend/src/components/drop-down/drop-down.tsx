@@ -233,5 +233,5 @@ export const DropDownMenuItemLink = component$<{ link: string }>(({ link }) => {
 });
 
 export const DropDownSeparator = component$(() => (
-  <hr class="h-[0.5px] w-full border-popup z-50" />
+  <hr class="h-[0.5px] w-full border-popup z-50 my-1" />
 ));
