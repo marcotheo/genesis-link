@@ -25,3 +25,11 @@ func (a *UtilService) ConvertNullString(ns sql.NullString) string {
 
 	return ""
 }
+
+func (a *UtilService) ConvertNullInt64(nullInt sql.NullInt64) int64 {
+	if nullInt.Valid {
+		return nullInt.Int64
+	}
+
+	return 0
+}

@@ -202,8 +202,14 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 }
 
+type Post struct {
+	PostId   string `json:"Postid"`
+	Title    string `json:"Title"`
+	Company  string `json:"Company,omitempty"`
+	Deadline int64  `json:"Deadline,omitempty"`
+}
 type GetPostsResponse struct {
-	Posts []db.GetPostsByUserIdRow
+	Posts []Post
 	Total int64
 }
 
@@ -248,7 +254,20 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var postsData []Post
+
+	for _, post := range posts {
+		item := Post{
+			PostId:   post.Postid,
+			Title:    post.Title,
+			Company:  post.Company,
+			Deadline: h.utilService.ConvertNullInt64(post.Deadline),
+		}
+
+		postsData = append(postsData, item)
+	}
+
 	clog.Logger.Success("(POST) GetPosts => successful")
 
-	successResponse(w, GetPostsResponse{Posts: posts, Total: totalCount})
+	successResponse(w, GetPostsResponse{Posts: postsData, Total: totalCount})
 }
