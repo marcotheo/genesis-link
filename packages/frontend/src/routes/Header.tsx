@@ -1,6 +1,12 @@
 import { component$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
+import Menu, {
+  DropDownMenuItem,
+  DropDownMenuItemLink,
+  DropDownMenuLabel,
+  DropDownSeparator,
+} from "~/components/drop-down/drop-down";
 import {
   Building,
   HamburgerIcon,
@@ -9,11 +15,6 @@ import {
   SignUpIcon,
   UserIcon,
 } from "~/components/icons/icons";
-import Menu, {
-  DropDownMenuItem,
-  DropDownMenuItemLink,
-  DropDownMenuLabel,
-} from "~/components/drop-down/drop-down";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import LogoImage from "~/components/logo-image/logo-image";
 import DarkMode from "~/components/dark-mode/dark-mode";
@@ -93,11 +94,11 @@ const HeaderItems = component$(() => {
   if (isAuth.value)
     return (
       <>
-        <Link href="/posts">
+        {/* <Link href="/posts">
           <Button variant="transparent">POSTS</Button>
         </Link>
         <Button variant="transparent">APPLICANTS</Button>
-        <Button variant="transparent">APPLICATIONS</Button>
+        <Button variant="transparent">APPLICATIONS</Button> */}
 
         <Menu>
           <UserIcon q:slot="trigger-circle-icon" />
@@ -105,6 +106,16 @@ const HeaderItems = component$(() => {
           <div q:slot="label">
             <DropDownMenuLabel>My Account</DropDownMenuLabel>
           </div>
+
+          <DropDownMenuItemLink link="/settings">Posts</DropDownMenuItemLink>
+          <DropDownMenuItemLink link="/settings">
+            Applicants
+          </DropDownMenuItemLink>
+          <DropDownMenuItemLink link="/settings">
+            Applications
+          </DropDownMenuItemLink>
+
+          <DropDownSeparator />
           <DropDownMenuItemLink link="/settings">Settings</DropDownMenuItemLink>
           <DropDownMenuItem>Logout</DropDownMenuItem>
         </Menu>
@@ -128,7 +139,7 @@ const HeaderItems = component$(() => {
 
 export default component$(() => {
   return (
-    <div class={cn("flex justify-between items-center", "w-full py-5")}>
+    <div class={cn("flex justify-between items-center", "w-full py-8")}>
       <div class="flex items-center gap-3">
         <Link href="/">
           <div class="w-10 h-10 sm:w-14 sm:h-14">
@@ -140,9 +151,14 @@ export default component$(() => {
             />
           </div>
         </Link>
-        <div class="flex flex-col justify-center font-bold italic text-base sm:text-xl">
+        <div
+          class={cn(
+            "flex justify-center gap-2",
+            "font-bold italic text-base sm:text-xl",
+          )}
+        >
           <p>Genesis</p>
-          <p>Oppurtunities</p>
+          <p>Link</p>
         </div>
       </div>
 
