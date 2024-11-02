@@ -43,7 +43,7 @@ export default component$(() => {
         class={cn(
           "duration-500 transition-[height]",
           "h-[95%] p-5",
-          "w-full md:w-52 lg:w-80",
+          "w-full md:w-36",
           "flex flex-row justify-end",
           "border-r border-soft",
           "max-md:hidden",
