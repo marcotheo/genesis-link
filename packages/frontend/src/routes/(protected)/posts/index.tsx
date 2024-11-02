@@ -3,35 +3,17 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
+import { useAuthHeadersLoader } from "~/routes/layout";
 import { useQuery } from "~/hooks/use-query/useQuery";
-import { PHpeso, qwikFetch } from "~/common/utils";
 import { Table } from "~/components/table/table";
 import Button from "~/components/button/button";
-import { useAuthCheck } from "~/routes/layout";
+import { qwikFetch } from "~/common/utils";
 
 type Post = {
   Postid: string;
   Title: string;
-  Jobtype: {
-    String: string;
-    Valid: true;
-  };
-  Company: {
-    String: string;
-    Valid: true;
-  };
-  Location: {
-    String: string;
-    Valid: true;
-  };
-  Deadline: {
-    Int64: number;
-    Valid: true;
-  };
-  Salary: {
-    Int64: number;
-    Valid: true;
-  };
+  Company: string;
+  Deadline: number;
 };
 
 interface ListPostsResponse {
@@ -45,26 +27,19 @@ interface ListPostsResponse {
 
 // need access token here
 export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
-  const accessToken = cookie.get("accessToken");
-
-  if (!accessToken?.value) return null;
-
-  const isValid = await resolveValue(useAuthCheck);
-
-  if (!isValid) return null;
-
   try {
-    const headers = new Headers();
-    headers.append("cookie", `accessToken=${accessToken.value}`);
+    const headers = await resolveValue(useAuthHeadersLoader);
+
+    if (!headers) return null;
 
     const params = new URLSearchParams();
     params.append("page", "1");
 
     const res = await qwikFetch<ListPostsResponse>(
-      `/api/v1/posts/list?${params.toString()}`,
+      `/posts/list?${params.toString()}`,
       {
         method: "GET",
-        headers: headers,
+        headers,
       },
     );
 
@@ -81,7 +56,7 @@ export default component$(() => {
   const page = useSignal(1);
 
   const { state } = useQuery<ListPostsResponse>(
-    "/api/v1/posts/list",
+    "/posts/list",
     { page },
     {
       defaultValues: {
@@ -92,9 +67,8 @@ export default component$(() => {
     },
   );
 
-  const SalaryRow = $((item: Post) => PHpeso.format(item.Salary.Int64));
   const DeadlineRow = $((item: Post) =>
-    dayjs.unix(item.Deadline.Int64).format("MMM DD, YYYY"),
+    dayjs.unix(item.Deadline).format("MMM DD, YYYY"),
   );
 
   return (
@@ -113,23 +87,9 @@ export default component$(() => {
       <Table
         loading={state.loading}
         data={state.result!.data.Posts}
-        headers={[
-          "Job Title",
-          "Type",
-          "Company",
-          "Location",
-          "Salary",
-          "Deadline",
-        ]}
+        headers={["Job Title", "Company", "Deadline"]}
         rowKey={"Postid"}
-        rowDef={[
-          "Title",
-          "Jobtype.String",
-          "Company.String",
-          "Location.String",
-          SalaryRow,
-          DeadlineRow,
-        ]}
+        rowDef={["Title", "Company", DeadlineRow]}
       />
 
       <div class="flex w-full justify-end">
