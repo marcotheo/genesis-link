@@ -49,7 +49,7 @@ const FlexWrapper = component$(() => {
 });
 
 export default component$(() => {
-  const { mutate, state } = useMutate<any>("/api/v1/address/create");
+  const { mutate, state } = useMutate<any>("/address/create");
 
   const [createAddressForm, { Form, Field }] = useForm<CreateAddressForm>({
     loader: useFormLoader(),

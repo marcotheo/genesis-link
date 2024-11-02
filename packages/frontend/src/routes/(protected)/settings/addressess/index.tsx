@@ -47,7 +47,7 @@ const AddressList = component$(() => {
   const result = useAddressesLoader();
   const localData = useSignal(result.value);
 
-  const { mutate, state } = useMutate("/api/v1/address");
+  const { mutate, state } = useMutate("/address");
 
   const onDelete = $(async (addressId: string) => {
     try {
