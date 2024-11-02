@@ -185,3 +185,30 @@ func (c *CognitoService) RefreshAccessToken(userId string, refreshToken string) 
 	// user not expected any challenge since user sign up by themselves
 	return *result.AuthenticationResult, nil
 }
+
+func (c *CognitoService) RevokeToken(refreshToken string) error {
+	clog.Logger.Info("(COGNITO) revoking refresh token")
+
+	input := &cognitoidentityprovider.RevokeTokenInput{
+		ClientId:     &c.clientId,
+		ClientSecret: &c.clientSecret,
+		Token:        &refreshToken,
+	}
+
+	_, err := c.Client.RevokeToken(context.TODO(), input)
+	if err != nil {
+		clog.Logger.Error("(COGNITO) failed to revoke refresh token")
+		fmt.Printf("ERROR HERE %v", err.Error())
+
+		if strings.Contains(err.Error(), "NotAuthorizedException") {
+			return errors.New("invalid refresh token")
+		}
+
+		return fmt.Errorf("failed revoke refresh token: %w", err)
+	}
+
+	clog.Logger.Info("(COGNITO) refresh token revoked")
+
+	// user not expected any challenge since user sign up by themselves
+	return nil
+}

@@ -311,3 +311,78 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 
 	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
 }
+
+func (h *UserHandler) RevokeRefreshToken(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(USER) RevokeRefreshToken => invoked")
+
+	refreshToken, errorRefreshToken := r.Cookie("refreshToken")
+	if errorRefreshToken != nil {
+		if errorRefreshToken == http.ErrNoCookie {
+			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
+			return
+		}
+		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
+		return
+	}
+
+	err := h.cognitoService.RevokeToken(refreshToken.Value)
+	if err != nil {
+		errorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	clog.Logger.Info("(USER) RevokeRefreshToken => success")
+
+	secure := r.TLS != nil
+
+	domain := os.Getenv("COOKIE_DOMAIN")
+	if domain == "" {
+		domain = "localhost" // Default value if the environment variable is not set
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "accessToken",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refreshToken",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "csrfToken",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "tokenExpiresIn",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	})
+
+	successResponse(w, true)
+}
