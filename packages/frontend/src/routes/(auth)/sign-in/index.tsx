@@ -53,7 +53,7 @@ export default component$(() => {
 
   const navigate = useNavigate();
 
-  const { mutate, state } = useMutate<SignInResponse>("/api/v1/users/signin");
+  const { mutate, state } = useMutate<SignInResponse>("/users/signin");
 
   const [signInForm, { Form, Field }] = useForm<SignInForm>({
     loader: useFormLoader(),

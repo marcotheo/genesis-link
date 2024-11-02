@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
+import { Link, useNavigate } from "@builder.io/qwik-city";
+import { $, component$ } from "@builder.io/qwik";
 
 import Menu, {
   DropDownMenuItem,
@@ -17,6 +17,7 @@ import {
 } from "~/components/icons/icons";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import LogoImage from "~/components/logo-image/logo-image";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
 import DarkMode from "~/components/dark-mode/dark-mode";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
@@ -88,6 +89,25 @@ const MobileMenu = component$(() => {
   );
 });
 
+const Logout = component$(() => {
+  const nav = useNavigate();
+  const { mutate } = useMutate("/users/session/revoke");
+
+  return (
+    <DropDownMenuItem>
+      <button
+        class="w-full h-full flex text-text"
+        onClick$={$(async () => {
+          await mutate({}, { method: "DELETE", credentials: "include" });
+          nav("/sign-in");
+        })}
+      >
+        Logout
+      </button>
+    </DropDownMenuItem>
+  );
+});
+
 const HeaderItems = component$(() => {
   const isAuth = useAuthCheck();
 
@@ -117,7 +137,7 @@ const HeaderItems = component$(() => {
 
           <DropDownSeparator />
           <DropDownMenuItemLink link="/settings">Settings</DropDownMenuItemLink>
-          <DropDownMenuItem>Logout</DropDownMenuItem>
+          <Logout />
         </Menu>
       </>
     );
