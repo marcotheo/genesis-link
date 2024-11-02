@@ -8,7 +8,7 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useMutate = <T,>(url: string, defaultOptions?: RequestInit) => {
+export const useMutate = <T,>(url: string) => {
   const state = useStore<FetchState<T>>({
     result: null,
     loading: null,
@@ -30,10 +30,7 @@ export const useMutate = <T,>(url: string, defaultOptions?: RequestInit) => {
 
     try {
       const csrfToken = await getCsrfToken();
-      const additionalOptions = {
-        ...(defaultOptions ? defaultOptions : {}),
-        ...(options ? options : {}),
-      };
+      const additionalOptions = options ? options : {};
 
       const newUrl = typeof json === "string" ? url + "/" + json : url;
 
