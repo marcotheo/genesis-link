@@ -127,7 +127,7 @@ const HeaderItems = component$(() => {
             <DropDownMenuLabel>My Account</DropDownMenuLabel>
           </div>
 
-          <DropDownMenuItemLink link="/settings">Posts</DropDownMenuItemLink>
+          <DropDownMenuItemLink link="/posts">Posts</DropDownMenuItemLink>
           <DropDownMenuItemLink link="/settings">
             Applicants
           </DropDownMenuItemLink>
