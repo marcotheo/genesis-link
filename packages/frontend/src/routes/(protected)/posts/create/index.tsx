@@ -1,276 +1,52 @@
-import {
-  InitialValues,
-  reset,
-  SubmitHandler,
-  useForm,
-  valiForm$,
-} from "@modular-forms/qwik";
-import { $, component$, Slot } from "@builder.io/qwik";
-import * as v from "valibot";
+import { component$, Slot } from "@builder.io/qwik";
 
-import RadioButtonGroup from "~/components/radio-button-group/radio-button-group";
-import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import NumberInput from "~/components/number-input/number-input";
-import { Link, Form, routeLoader$ } from "@builder.io/qwik-city";
-import TextArea from "~/components/text-area/text-area";
+import { Briefcase, NumberList, Planner } from "~/components/icons/icons";
 import Heading from "~/components/heading/heading";
-import Button from "~/components/button/button";
-import Select from "~/components/select/select";
-import Alert from "~/components/alert/alert";
-import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
 
-const CreatePostSchema = v.object({
-  title: v.pipe(v.string("Required"), v.nonEmpty("Please enter title.")),
-  description: v.pipe(
-    v.string("Required"),
-    v.nonEmpty("Please enter description."),
-  ),
-  postType: v.pipe(
-    v.union([v.literal("job"), v.literal("volunteer")], "Required"),
-    v.nonEmpty("Please choose type."),
-  ),
-  jobType: v.pipe(
-    v.union(
-      [
-        v.literal("full-time"),
-        v.literal("part-time"),
-        v.literal("contract"),
-        v.literal("internship"),
-      ],
-      "Required",
-    ),
-    v.nonEmpty("Please choose job type."),
-  ),
-  company: v.pipe(v.string("Required"), v.nonEmpty("Please enter company.")),
-  location: v.pipe(v.string("Required"), v.nonEmpty("Please enter location.")),
-  salary: v.number("Must be a number"),
-  wfh: v.pipe(
-    v.union([v.literal("yes"), v.literal("no")], "Required"),
-    v.nonEmpty("Please choose wfh."),
-  ),
-  email: v.pipe(
-    v.string("Required"),
-    v.nonEmpty("Please enter your email."),
-    v.email("Invalid email"),
-  ),
-  phone: v.pipe(v.string(), v.nonEmpty("Please enter phone.")),
-  deadline: v.date(),
-});
-
-type CreatePostForm = v.InferInput<typeof CreatePostSchema>;
-
-export const useFormLoader = routeLoader$<InitialValues<CreatePostForm>>(
-  () => ({
-    title: undefined,
-    description: undefined,
-    postType: undefined,
-    jobType: undefined,
-    company: undefined,
-    location: undefined,
-    salary: undefined,
-    wfh: undefined,
-    email: undefined,
-    phone: undefined,
-    deadline: undefined,
-  }),
-);
-
-const FlexWrapper = component$(() => {
+const ItemStep = component$<{ title: string }>(({ title }) => {
   return (
-    <div class="flex gap-5">
+    <li class="flex items-center justify-between relative w-full">
+      <p>{title}</p>
       <Slot />
-    </div>
+      <div class="absolute right-[-43px] rounded-full w-3 h-3 bg-soft" />
+    </li>
   );
 });
 
 export default component$(() => {
-  const [createPostForm, { Form, Field }] = useForm<CreatePostForm>({
-    loader: useFormLoader(),
-    validate: valiForm$(CreatePostSchema),
-  });
-
-  const handleSubmit = $<SubmitHandler<CreatePostForm>>(async (values) => {
-    try {
-      console.log("VALUES", values);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
-  });
-
   return (
-    <div class="flex h-full w-full justify-center">
-      {/* <LoadingOverlay open={state.loading}>Signing In</LoadingOverlay> */}
+    <div class="h-full flex flex-col md:flex-row gap-3relative">
+      <div
+        class={cn(
+          "duration-500 transition-[height]",
+          "md:h-[95%] px-5 py-12",
+          "w-full md:w-96",
+          "flex flex-col gap-16",
+          "items-center",
+          "md:border-r md:border-soft",
+        )}
+      >
+        <div class="w-full">
+          <Heading>Step 1:</Heading>
+          <p>Enter the post information</p>
+        </div>
 
-      <div class={cn("w-[40em] md:mt-[70px]")}>
-        <Heading>Create A Post</Heading>
+        <ul class="list-none space-y-16 w-full max-md:hidden">
+          <ItemStep title="Post Information">
+            <Planner />
+          </ItemStep>
+          <ItemStep title="Job Details">
+            <Briefcase />
+          </ItemStep>
+          <ItemStep title="Job Requirements">
+            <NumberList />
+          </ItemStep>
+        </ul>
+      </div>
 
-        <br />
-
-        {/* <Alert
-          open={!!state.error}
-          variant="error"
-          title="Error"
-          message={state.error ?? ""}
-        /> */}
-
-        <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
-          <Field name="title">
-            {(field, props) => (
-              <Input
-                {...props}
-                label="Title"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-              />
-            )}
-          </Field>
-
-          <Field name="description">
-            {(field, props) => (
-              <TextArea
-                {...props}
-                label="Description"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-              />
-            )}
-          </Field>
-
-          <FlexWrapper>
-            <Field name="postType">
-              {(field, props) => (
-                <Select
-                  form={createPostForm}
-                  variant="filled"
-                  name={props.name}
-                  label="Post Type"
-                  errorMsg={field.error}
-                  options={[
-                    { value: "job", label: "job" },
-                    { value: "volunteer", label: "volunteer" },
-                  ]}
-                />
-              )}
-            </Field>
-
-            <Field name="jobType">
-              {(field, props) => (
-                <Select
-                  form={createPostForm}
-                  variant="filled"
-                  name={props.name}
-                  label="Job Type"
-                  errorMsg={field.error}
-                  options={[
-                    { value: "full-time", label: "full-time" },
-                    { value: "part-time", label: "part-time" },
-                    { value: "contract", label: "contract" },
-                    { value: "internship", label: "internship" },
-                  ]}
-                />
-              )}
-            </Field>
-          </FlexWrapper>
-
-          <FlexWrapper>
-            <Field name="company">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Company"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-            <Field name="location">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Location"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-          </FlexWrapper>
-
-          <FlexWrapper>
-            <Field name="email">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  type="email"
-                  label="Email"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-            <Field name="phone">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Phone"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-          </FlexWrapper>
-
-          <Field name="salary" type="number">
-            {(field, props) => (
-              <NumberInput
-                {...props}
-                label="Salary"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-                form={createPostForm}
-              />
-            )}
-          </Field>
-
-          <Field name="wfh">
-            {(field, props) => (
-              <>
-                <RadioButtonGroup
-                  {...props}
-                  label="Remote Work?"
-                  options={[
-                    { value: "yes", label: "Yes" },
-                    { value: "no", label: "No" },
-                  ]}
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              </>
-            )}
-          </Field>
-
-          <Field name="deadline" type="Date">
-            {(field, props) => (
-              <Input
-                {...props}
-                type="date"
-                label="Deadline"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value?.toString()}
-              />
-            )}
-          </Field>
-
-          <Button type="submit">Submit</Button>
-        </Form>
+      <div class={cn("h-[95%] p-5", "w-full")}>
+        <Slot />
       </div>
     </div>
   );
