@@ -101,7 +101,7 @@ export default component$(() => {
         <Stepper activeStep={activeStep.value} />
       </div>
 
-      <div class={cn("h-[95%]", "w-full")}>
+      <div class={cn("h-[95%] overflow-auto", "w-full")}>
         {activeStep.value === 1 && <Form1 />}
       </div>
     </div>
