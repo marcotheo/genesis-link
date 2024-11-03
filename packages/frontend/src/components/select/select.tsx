@@ -164,9 +164,8 @@ export default component$<SelectProps>(
             )}
           >
             {props.options.map((option) => (
-              <div class="w-full px-1">
+              <div key={option.value} class="w-full px-1">
                 <div
-                  key={option.value}
                   class={cn(
                     "w-full p-2 rounded-md cursor-pointer",
                     "hover:brightness-90 hover:dark:brightness-150",
