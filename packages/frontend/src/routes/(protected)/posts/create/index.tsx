@@ -1,24 +1,41 @@
-import { component$, Slot, useSignal } from "@builder.io/qwik";
+import {
+  component$,
+  createContextId,
+  Signal,
+  Slot,
+  useContext,
+  useContextProvider,
+  useSignal,
+  useStore,
+} from "@builder.io/qwik";
 
 import { Briefcase, NumberList, Planner } from "~/components/icons/icons";
+import { CreatePostForm, CreatePostFormData } from "./common";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { InitialValues } from "@modular-forms/qwik";
 import Heading from "~/components/heading/heading";
-import { CreatePostForm } from "./common";
 import { cn } from "~/common/utils";
 import Form1 from "./Form1";
 
-const StepHeader = component$<{ activeStep: number }>(({ activeStep }) => {
+export const FormStepCtx = createContextId<Signal<number>>("form.step.context");
+
+const StepHeader = component$(() => {
+  const activeStep = useContext(FormStepCtx);
+
   return (
     <div class="w-full">
       <Heading>
-        {activeStep === 1 ? "Step 1" : activeStep === 2 ? "Step 2" : "Step 3"}
+        {activeStep.value === 1
+          ? "Step 1"
+          : activeStep.value === 2
+            ? "Step 2"
+            : "Step 3"}
       </Heading>
       <p>
         {" "}
-        {activeStep === 1
+        {activeStep.value === 1
           ? "Enter the post information"
-          : activeStep === 2
+          : activeStep.value === 2
             ? "Enter the Job Details"
             : "Enter the Job Requirements"}
       </p>
@@ -50,16 +67,18 @@ const ItemStep = component$<{ title: string; isActive: boolean }>(
   },
 );
 
-const Stepper = component$<{ activeStep: number }>(({ activeStep }) => {
+const Stepper = component$(() => {
+  const activeStep = useContext(FormStepCtx);
+
   return (
     <ul class="list-none space-y-16 w-full max-md:hidden">
-      <ItemStep title="Post Information" isActive={activeStep === 1}>
+      <ItemStep title="Post Information" isActive={activeStep.value === 1}>
         <Planner />
       </ItemStep>
-      <ItemStep title="Job Details" isActive={activeStep === 2}>
+      <ItemStep title="Job Details" isActive={activeStep.value === 2}>
         <Briefcase />
       </ItemStep>
-      <ItemStep title="Job Requirements" isActive={activeStep === 3}>
+      <ItemStep title="Job Requirements" isActive={activeStep.value === 3}>
         <NumberList />
       </ItemStep>
     </ul>
@@ -82,8 +101,28 @@ export const useForm1Loader = routeLoader$<InitialValues<CreatePostForm>>(
   }),
 );
 
+export const FormDataCtx =
+  createContextId<CreatePostFormData>("form.data.context");
+
+const ActiveForm = component$(() => {
+  const activeStep = useContext(FormStepCtx);
+  const formDataState = useStore<CreatePostFormData>({ form1: undefined });
+
+  useContextProvider(FormDataCtx, formDataState);
+  useContextProvider(FormStepCtx, activeStep);
+
+  return (
+    <>
+      {activeStep.value === 1 && <Form1 />}
+      {activeStep.value === 2 && "N/A"}
+    </>
+  );
+});
+
 export default component$(() => {
   const activeStep = useSignal(1);
+
+  useContextProvider(FormStepCtx, activeStep);
 
   return (
     <div class="h-full flex flex-col md:flex-row gap-3 relative">
@@ -97,12 +136,12 @@ export default component$(() => {
           "md:border-r md:border-soft",
         )}
       >
-        <StepHeader activeStep={activeStep.value} />
-        <Stepper activeStep={activeStep.value} />
+        <StepHeader />
+        <Stepper />
       </div>
 
       <div class={cn("h-[95%] overflow-auto", "w-full")}>
-        {activeStep.value === 1 && <Form1 />}
+        <ActiveForm />
       </div>
     </div>
   );
