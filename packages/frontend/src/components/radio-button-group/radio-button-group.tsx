@@ -31,7 +31,7 @@ const Checker = component$<{
 
       <div
         class={cn(
-          "w-[60%] h-[60%]",
+          "w-3 h-3",
           "brightness-125 rounded-full",
           "animate-fade-out-scale",
           "peer-checked:bg-primary",
