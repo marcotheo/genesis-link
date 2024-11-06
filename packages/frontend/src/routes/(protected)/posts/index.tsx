@@ -3,27 +3,12 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
+import { ListPostsResponse, Post } from "~/common/types";
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { Table } from "~/components/table/table";
 import Button from "~/components/button/button";
 import { qwikFetch } from "~/common/utils";
-
-type Post = {
-  Postid: string;
-  Title: string;
-  Company: string;
-  Deadline: number;
-};
-
-interface ListPostsResponse {
-  status: string;
-  message: string;
-  data: {
-    Posts: Post[];
-    Total: number;
-  };
-}
 
 // need access token here
 export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
