@@ -4,25 +4,10 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useAuthHeadersLoader } from "~/routes/layout";
+import { ListAddressResponse } from "~/common/types";
 import { TrashBin } from "~/components/icons/icons";
 import Button from "~/components/button/button";
 import { cn, qwikFetch } from "~/common/utils";
-
-type Address = {
-  Addressid: string;
-  Country: string;
-  Region: string;
-  Province: string;
-  City: string;
-  Barangay: string;
-  Addressdetails: string;
-};
-
-interface GetAddressesResponse {
-  status: string;
-  message: string;
-  data: Address[];
-}
 
 export const useAddressesLoader = routeLoader$(async ({ resolveValue }) => {
   try {
@@ -30,7 +15,7 @@ export const useAddressesLoader = routeLoader$(async ({ resolveValue }) => {
 
     if (!headers) return null;
 
-    const res = await qwikFetch<GetAddressesResponse>(`/api/v1/address`, {
+    const res = await qwikFetch<ListAddressResponse>(`/address`, {
       method: "GET",
       headers: headers,
     });
