@@ -2,88 +2,21 @@ import {
   component$,
   createContextId,
   Signal,
-  Slot,
   useContext,
   useContextProvider,
   useSignal,
   useStore,
 } from "@builder.io/qwik";
 
-import { Briefcase, NumberList, Planner } from "~/components/icons/icons";
+import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { CreatePostForm, CreatePostFormData } from "./common";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { CreateAddressForm } from "~/common/formSchema";
 import { InitialValues } from "@modular-forms/qwik";
-import Heading from "~/components/heading/heading";
+import StepHeader from "./StepHeader";
 import { cn } from "~/common/utils";
+import Stepper from "./Stepper";
 import Form1 from "./Form1";
-
-export const FormStepCtx = createContextId<Signal<number>>("form.step.context");
-
-const StepHeader = component$(() => {
-  const activeStep = useContext(FormStepCtx);
-
-  return (
-    <div class="w-full">
-      <Heading>
-        {activeStep.value === 1
-          ? "Step 1"
-          : activeStep.value === 2
-            ? "Step 2"
-            : "Step 3"}
-      </Heading>
-      <p>
-        {" "}
-        {activeStep.value === 1
-          ? "Enter the post information"
-          : activeStep.value === 2
-            ? "Enter the Job Details"
-            : "Enter the Job Requirements"}
-      </p>
-    </div>
-  );
-});
-
-const ItemStep = component$<{ title: string; isActive: boolean }>(
-  ({ title, isActive }) => {
-    return (
-      <li
-        class={cn(
-          "flex items-center justify-between",
-          "relative w-full",
-          isActive ? "text-primary" : "",
-        )}
-      >
-        <p class={isActive ? "text-primary" : ""}>{title}</p>
-        <Slot />
-        <div
-          class={cn(
-            "absolute right-[-43px]",
-            "rounded-full w-3 h-3",
-            isActive ? "bg-primary" : "bg-soft",
-          )}
-        />
-      </li>
-    );
-  },
-);
-
-const Stepper = component$(() => {
-  const activeStep = useContext(FormStepCtx);
-
-  return (
-    <ul class="list-none space-y-16 w-full max-md:hidden">
-      <ItemStep title="Post Information" isActive={activeStep.value === 1}>
-        <Planner />
-      </ItemStep>
-      <ItemStep title="Job Details" isActive={activeStep.value === 2}>
-        <Briefcase />
-      </ItemStep>
-      <ItemStep title="Job Requirements" isActive={activeStep.value === 3}>
-        <NumberList />
-      </ItemStep>
-    </ul>
-  );
-});
+import Form2 from "./Form2";
 
 export const useForm1Loader = routeLoader$<InitialValues<CreatePostForm>>(
   () => ({
@@ -101,6 +34,18 @@ export const useForm1Loader = routeLoader$<InitialValues<CreatePostForm>>(
   }),
 );
 
+export const useCreateAddressFormLoader = routeLoader$<
+  InitialValues<CreateAddressForm>
+>(() => ({
+  region: undefined,
+  province: undefined,
+  city: undefined,
+  barangay: undefined,
+  addressDetails: undefined,
+}));
+
+export const FormStepCtx = createContextId<Signal<number>>("form.step.context");
+
 export const FormDataCtx =
   createContextId<CreatePostFormData>("form.data.context");
 
@@ -113,8 +58,13 @@ const ActiveForm = component$(() => {
 
   return (
     <>
-      {activeStep.value === 1 && <Form1 />}
-      {activeStep.value === 2 && "N/A"}
+      <div class={activeStep.value === 1 ? "" : "hidden"}>
+        <Form1 />
+      </div>
+      <div class={activeStep.value === 2 ? "" : "hidden"}>
+        <Form2 />
+      </div>
+      <div class={activeStep.value === 3 ? "" : "hidden"}>asdasd</div>
     </>
   );
 });
@@ -146,3 +96,13 @@ export default component$(() => {
     </div>
   );
 });
+
+export const head: DocumentHead = {
+  title: "Create Job Post",
+  meta: [
+    {
+      name: "description",
+      content: "create job post form",
+    },
+  ],
+};
