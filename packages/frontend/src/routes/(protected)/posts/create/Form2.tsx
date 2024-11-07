@@ -19,33 +19,40 @@ const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
 
     return (
       <div class="space-y-5 max-h-[28rem] overflow-y-auto pr-3">
-        {state.result?.data.map((v) => (
-          <button
-            key={v.Addressid}
-            class={cn(
-              "w-full p-5",
-              "shadow-sm bg-surface rounded-md",
-              "flex justify-between items-center",
-              "cursor-pointer",
-              "ease-in duration-200",
-              selectedAddress.value === v.Addressid
-                ? "dark:brightness-150 brightness-90"
-                : "dark:hover:brightness-125 hover:brightness-95",
-            )}
-            onClick$={() => (selectedAddress.value = v.Addressid)}
-          >
-            <div class="text-left">
-              {" "}
-              <p>
-                {v.Addressdetails}, {v.Barangay},
-              </p>
-              <p>
-                {v.City}, {v.Province}, {v.Region},
-              </p>
-              <p>{v.Country},</p>
-            </div>
-          </button>
-        ))}
+        {state.loading ? (
+          <>
+            <div class="w-full py-12 dark:bg-surface bg-gray-300 animate-pulse" />
+            <div class="w-full py-12 dark:bg-surface bg-gray-300 animate-pulse" />
+          </>
+        ) : (
+          state.result?.data.map((v) => (
+            <button
+              key={v.Addressid}
+              class={cn(
+                "w-full p-5",
+                "shadow-sm bg-surface rounded-md",
+                "flex justify-between items-center",
+                "cursor-pointer",
+                "ease-in duration-200",
+                selectedAddress.value === v.Addressid
+                  ? "dark:brightness-150 brightness-90"
+                  : "dark:hover:brightness-125 hover:brightness-95",
+              )}
+              onClick$={() => (selectedAddress.value = v.Addressid)}
+            >
+              <div class="text-left">
+                {" "}
+                <p>
+                  {v.Addressdetails}, {v.Barangay},
+                </p>
+                <p>
+                  {v.City}, {v.Province}, {v.Region},
+                </p>
+                <p>{v.Country},</p>
+              </div>
+            </button>
+          ))
+        )}
 
         <Dialog>
           <DialogTrigger
@@ -101,8 +108,17 @@ export default component$(() => {
 
         <AddressOptions selectedAddress={selectedAddress} />
 
-        <div class="flex justify-end mt-5">
-          <Button type="submit" class="mt-3" onClick$={() => handleSubmit()}>
+        <div class="flex justify-end gap-3 mt-5">
+          <Button
+            type="button"
+            class="px-10 border-input text-input"
+            variant="outline"
+            onClick$={() => (activeStep.value = 1)}
+          >
+            {"<-"} Prev
+          </Button>
+
+          <Button type="submit" class="px-10" onClick$={() => handleSubmit()}>
             Next {"->"}
           </Button>
         </div>
