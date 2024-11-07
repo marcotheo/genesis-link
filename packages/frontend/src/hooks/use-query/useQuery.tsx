@@ -24,6 +24,7 @@ export const useQuery = <T,>(
   options?: {
     defaultValues?: T | null;
     cacheTime?: number; // in milliseconds
+    runOnRender?: boolean;
   },
 ) => {
   const queryCtx = useContext(QueryContext);
@@ -32,7 +33,7 @@ export const useQuery = <T,>(
 
   const state = useStore<FetchState<T>>({
     result: options?.defaultValues ?? null,
-    loading: null,
+    loading: options?.runOnRender ? true : null,
     error: null,
     success: false,
   });
@@ -121,6 +122,8 @@ export const useQuery = <T,>(
       const url = `${baseUrl}?${queryString}`;
       setCacheData(url, options.defaultValues);
     }
+
+    if (options?.runOnRender) refetch();
   });
 
   return { state, refetch };
