@@ -6,8 +6,8 @@ import {
   valiForm$,
 } from "@modular-forms/qwik";
 import { $, component$, Slot } from "@builder.io/qwik";
-import * as v from "valibot";
 
+import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { routeLoader$, DocumentHead } from "@builder.io/qwik-city";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
@@ -16,19 +16,6 @@ import Button from "~/components/button/button";
 import Alert from "~/components/alert/alert";
 import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
-
-const CreateAddessSchema = v.object({
-  region: v.pipe(v.string("Required"), v.nonEmpty("Please enter region.")),
-  province: v.pipe(v.string("Required"), v.nonEmpty("Please enter province.")),
-  city: v.pipe(v.string("Required"), v.nonEmpty("Please enter city.")),
-  barangay: v.pipe(v.string("Required"), v.nonEmpty("Please enter barangay.")),
-  addressDetails: v.pipe(
-    v.string("Required"),
-    v.nonEmpty("Please enter addressDetails."),
-  ),
-});
-
-type CreateAddressForm = v.InferInput<typeof CreateAddessSchema>;
 
 export const useFormLoader = routeLoader$<InitialValues<CreateAddressForm>>(
   () => ({
