@@ -15,7 +15,7 @@ export const useAddressesLoader = routeLoader$(async ({ resolveValue }) => {
 
     if (!headers) return null;
 
-    const res = await qwikFetch<ListAddressResponse>(`/address`, {
+    const res = await qwikFetch<ListAddressResponse>("/address", {
       method: "GET",
       headers: headers,
     });
