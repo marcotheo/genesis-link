@@ -151,8 +151,8 @@ export default component$(() => {
             )}
           </Field>
 
-          <div class="flex justify-end">
-            <Button type="submit" class="mt-3">
+          <div class="flex justify-end gap-3 mt-5">
+            <Button type="submit" class="px-10">
               Next {"->"}
             </Button>
           </div>
