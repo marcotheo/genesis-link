@@ -36,6 +36,7 @@ export default component$<Props>((props) => {
             "flex items-center gap-3 p-3",
             "rounded-r-sm rounded-br-sm",
             "border-l-4 bg-surface shadow-md",
+            "brightness-105",
             variantBorder[props.variant],
           )}
         >
