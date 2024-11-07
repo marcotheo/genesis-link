@@ -66,7 +66,7 @@ export default component$<DialogProps>(
           ref={dialogRef}
           class={cn(
             "fixed top-0 bottom-0 left-0 right-0 m-auto",
-            "w-fit h-fit min-w-[90%] p-5",
+            "w-[95%] md:w-fit h-fit p-5",
             "bg-surface rounded-md shadow-lg",
             "text-text z-[100]",
             sizes[size],
