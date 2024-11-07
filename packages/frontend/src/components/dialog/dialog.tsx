@@ -47,7 +47,7 @@ export default component$<DialogProps>(({ size = "sm", ...props }) => {
   );
 
   return (
-    <>
+    <div>
       <Slot name="trigger" />
 
       <div
@@ -78,7 +78,7 @@ export default component$<DialogProps>(({ size = "sm", ...props }) => {
       >
         <Slot />
       </div>
-    </>
+    </div>
   );
 });
 
