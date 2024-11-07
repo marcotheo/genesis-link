@@ -1,11 +1,14 @@
 import { $, component$, Signal, useContext, useSignal } from "@builder.io/qwik";
 
+import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { ListAddressResponse } from "~/common/types";
 import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
+import Alert from "~/components/alert/alert";
 import CreateAddress from "./CreateAddress";
 import { cn } from "~/common/utils";
 
@@ -90,13 +93,36 @@ export default component$(() => {
   const activeStep = useContext(FormStepCtx);
   const selectedAddress = useSignal(formDataCtx.form2 ?? "");
 
-  const handleSubmit = $(() => {
-    formDataCtx.form2 = selectedAddress.value;
-    activeStep.value = 3;
+  const { mutate, state } = useMutate("/posts/create");
+
+  const handleSubmit = $(async () => {
+    try {
+      if (formDataCtx.form1) {
+        await mutate(
+          {
+            ...formDataCtx.form1,
+            posterLink: "https://example.com/frontend-poster.jpg",
+            logoLink: "https://example.com/frontend-logo.png",
+            additionalInfoLink: "https://example.com/frontend-job-details",
+            addressId: selectedAddress.value,
+          },
+          {
+            credentials: "include",
+          },
+        );
+      }
+
+      formDataCtx.form2 = selectedAddress.value;
+      activeStep.value = 3;
+    } catch (err) {
+      console.error("Error Initializing Post:", err);
+    }
   });
 
   return (
     <div class="flex h-full w-full justify-center">
+      <LoadingOverlay open={state.loading}>Initializing Post</LoadingOverlay>
+
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
         <Heading class="max-md:hidden">Address Information</Heading>
 
@@ -105,6 +131,13 @@ export default component$(() => {
         <p class="text-gray-500 max-md:hidden">Set address for the job post.</p>
 
         <br class="max-md:hidden" />
+
+        <Alert
+          open={!!state.error}
+          variant="error"
+          title="Error"
+          message={state.error ?? ""}
+        />
 
         <AddressOptions selectedAddress={selectedAddress} />
 
