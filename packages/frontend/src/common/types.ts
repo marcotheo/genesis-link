@@ -14,3 +14,20 @@ export interface ListAddressResponse {
   message: string;
   data: Address[];
 }
+
+export type Post = {
+  Postid: string;
+  Title: string;
+  Company: string;
+  Deadline: number;
+};
+
+// GET /api/v1/posts/list
+export interface ListPostsResponse {
+  status: string;
+  message: string;
+  data: {
+    Posts: Post[];
+    Total: number;
+  };
+}
