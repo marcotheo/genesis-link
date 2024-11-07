@@ -58,3 +58,5 @@ deployment.zip
 tursolocal
 
 packages/scripts/src/assets-output/**/*
+sst-env.d.ts
+**/sst-env.d.ts
