@@ -41,19 +41,23 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 	container.Provide(services.InitUtilService)
 	container.Provide(services.InitDataService)
 	container.Provide(services.InitCognitoService)
+	container.Provide(services.InitS3Service)
 	container.Provide(services.InitMiddlewareService)
 	container.Provide(handler.InitUserHandler)
 	container.Provide(handler.InitPostHandler)
+	container.Provide(handler.InitS3Handler)
 	container.Provide(handler.InitAddressHandler)
 	container.Provide(routes.InitUserRoutes)
 	container.Provide(routes.InitPostRoutes)
 	container.Provide(routes.InitAddressRoutes)
+	container.Provide(routes.InitS3Routes)
 
 	err := container.Invoke(func(
 		dataService *services.DataService,
 		userRoutes *routes.UserRoutes,
 		postRoutes *routes.PostRoutes,
 		addressRoutes *routes.AddressRoutes,
+		s3Routes *routes.S3Routes,
 	) {
 		dbConn = dataService.Conn
 
@@ -62,6 +66,7 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 		router.AddSubRoutes("/api/v1/address", addressRoutes.Routes())
 		router.AddSubRoutes("/api/v1/users", userRoutes.Routes())
 		router.AddSubRoutes("/api/v1/posts", postRoutes.Routes())
+		router.AddSubRoutes("/api/v1/s3", s3Routes.Routes())
 
 		router.POST("/api/v1/health", healthCheckHandler)
 
