@@ -16,11 +16,9 @@ export default component$(() => {
       </Heading>
       <p>
         {" "}
-        {activeStep.value === 1
-          ? "Enter the post information"
-          : activeStep.value === 2
-            ? "Enter the Job Details"
-            : "Enter the Job Requirements"}
+        {activeStep.value === 1 && "Enter the post information"}
+        {activeStep.value === 2 && "Upload Branding Assets"}
+        {activeStep.value === 3 && "Enter the address information"}
       </p>
     </div>
   );

@@ -124,13 +124,11 @@ export default component$(() => {
       <LoadingOverlay open={state.loading}>Initializing Post</LoadingOverlay>
 
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
-        <Heading class="max-md:hidden">Visuals & Branding</Heading>
+        <Heading class="max-md:hidden">Address Information</Heading>
 
         <br class="max-md:hidden" />
 
-        <p class="text-gray-500 max-md:hidden">
-          Upload a poster and logo for your job post. (optional)
-        </p>
+        <p class="text-gray-500 max-md:hidden">Set address for the job post.</p>
 
         <br class="max-md:hidden" />
 

@@ -17,6 +17,7 @@ import { cn } from "~/common/utils";
 import Stepper from "./Stepper";
 import Form1 from "./Form1";
 import Form2 from "./Form2";
+import Form3 from "./Form3";
 
 export const useForm1Loader = routeLoader$<InitialValues<CreatePostForm>>(
   () => ({
@@ -64,13 +65,15 @@ const ActiveForm = component$(() => {
       <div class={activeStep.value === 2 ? "" : "hidden"}>
         <Form2 />
       </div>
-      <div class={activeStep.value === 3 ? "" : "hidden"}>asdasd</div>
+      <div class={activeStep.value === 3 ? "" : "hidden"}>
+        <Form3 />
+      </div>
     </>
   );
 });
 
 export default component$(() => {
-  const activeStep = useSignal(1);
+  const activeStep = useSignal(2);
 
   useContextProvider(FormStepCtx, activeStep);
 

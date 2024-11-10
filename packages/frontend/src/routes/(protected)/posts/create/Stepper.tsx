@@ -41,10 +41,10 @@ export default component$(() => {
       <ItemStep title="Post Information" isActive={activeStep.value === 1}>
         <Planner />
       </ItemStep>
-      <ItemStep title="Address Information" isActive={activeStep.value === 2}>
+      <ItemStep title="Visuals & Branding" isActive={activeStep.value === 2}>
         <LocationIcon />
       </ItemStep>
-      <ItemStep title="Job Details" isActive={activeStep.value === 3}>
+      <ItemStep title="Address Information" isActive={activeStep.value === 3}>
         <Briefcase />
       </ItemStep>
       <ItemStep title="Job Requirements" isActive={activeStep.value === 4}>
