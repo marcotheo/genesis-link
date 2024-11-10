@@ -25,4 +25,5 @@ export type CreatePostForm = v.InferInput<typeof CreatePostSchema>;
 export type CreatePostFormData = {
   form1?: CreatePostForm;
   form2?: string;
+  form3?: string;
 };
