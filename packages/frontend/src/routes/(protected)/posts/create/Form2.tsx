@@ -36,14 +36,14 @@ export default component$(() => {
 
         <br class="max-md:hidden" />
 
-        <ImageUpload label="Logo Upload" maxSize={3} sizeUnit="KB" />
-
         {/* <Alert
           open={!!state.error}
           variant="error"
           title="Error"
           message={state.error ?? ""}
         /> */}
+
+        <ImageUpload label="Logo Upload" maxSize={500} sizeUnit="KB" />
 
         <div class="flex justify-end gap-3 mt-5">
           <Button
