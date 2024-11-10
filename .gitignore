@@ -60,3 +60,6 @@ tursolocal
 packages/scripts/src/assets-output/**/*
 sst-env.d.ts
 **/sst-env.d.ts
+
+# file for testing qwik component
+**/sample/*
