@@ -43,19 +43,33 @@ export default component$(() => {
           message={state.error ?? ""}
         /> */}
 
-        <ImageUpload label="Logo Upload" maxSize={500} sizeUnit="KB" />
+        <ImageUpload
+          label="Logo Upload"
+          maxSize={{
+            size: 500,
+            unit: "KB",
+          }}
+          maxDimensions={{
+            width: 300,
+            height: 300,
+          }}
+        />
 
         <div class="flex justify-end gap-3 mt-5">
           <Button
             type="button"
-            class="px-10 border-input text-input"
+            class="min-[360px]:px-10 border-input text-input"
             variant="outline"
             onClick$={() => (activeStep.value = 1)}
           >
             {"<-"} Prev
           </Button>
 
-          <Button type="submit" class="px-10" onClick$={() => handleSubmit()}>
+          <Button
+            type="submit"
+            class="min-[360px]:px-10"
+            onClick$={() => handleSubmit()}
+          >
             Next {"->"}
           </Button>
         </div>
