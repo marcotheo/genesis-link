@@ -8,8 +8,12 @@ import {
   useStore,
 } from "@builder.io/qwik";
 
+import {
+  BasicPostInfoStep,
+  BrandingVisualsStep,
+  CreateJobPostFormData,
+} from "./common";
 import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
-import { CreatePostForm, CreatePostFormData } from "./common";
 import { CreateAddressForm } from "~/common/formSchema";
 import { InitialValues } from "@modular-forms/qwik";
 import StepHeader from "./StepHeader";
@@ -19,7 +23,7 @@ import Form1 from "./Form1";
 import Form2 from "./Form2";
 import Form3 from "./Form3";
 
-export const useForm1Loader = routeLoader$<InitialValues<CreatePostForm>>(
+export const useForm1Loader = routeLoader$<InitialValues<BasicPostInfoStep>>(
   () => ({
     title: undefined,
     description: undefined,
@@ -32,6 +36,12 @@ export const useForm1Loader = routeLoader$<InitialValues<CreatePostForm>>(
     email: undefined,
     phone: undefined,
     deadline: undefined,
+  }),
+);
+
+export const useForm2Loader = routeLoader$<InitialValues<BrandingVisualsStep>>(
+  () => ({
+    logoFile: undefined,
   }),
 );
 
@@ -48,32 +58,29 @@ export const useCreateAddressFormLoader = routeLoader$<
 export const FormStepCtx = createContextId<Signal<number>>("form.step.context");
 
 export const FormDataCtx =
-  createContextId<CreatePostFormData>("form.data.context");
+  createContextId<CreateJobPostFormData>("form.data.context");
 
 const ActiveForm = component$(() => {
   const activeStep = useContext(FormStepCtx);
-  const formDataState = useStore<CreatePostFormData>({ form1: undefined });
+  const formDataState = useStore<CreateJobPostFormData>({
+    form1: undefined,
+    form2: undefined,
+  });
 
   useContextProvider(FormDataCtx, formDataState);
   useContextProvider(FormStepCtx, activeStep);
 
   return (
     <>
-      <div class={activeStep.value === 1 ? "" : "hidden"}>
-        <Form1 />
-      </div>
-      <div class={activeStep.value === 2 ? "" : "hidden"}>
-        <Form2 />
-      </div>
-      <div class={activeStep.value === 3 ? "" : "hidden"}>
-        <Form3 />
-      </div>
+      <Form1 />
+      <Form2 />
+      <Form3 />
     </>
   );
 });
 
 export default component$(() => {
-  const activeStep = useSignal(2);
+  const activeStep = useSignal(1);
 
   useContextProvider(FormStepCtx, activeStep);
 
