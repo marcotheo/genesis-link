@@ -10,6 +10,7 @@ import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
 import Alert from "~/components/alert/alert";
 import CreateAddress from "./CreateAddress";
+import FormWrapper from "./FormWrapper";
 import { cn } from "~/common/utils";
 
 const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
@@ -91,7 +92,7 @@ const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
 export default component$(() => {
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
-  const selectedAddress = useSignal(formDataCtx.form2 ?? "");
+  const selectedAddress = useSignal(formDataCtx.form3 ?? "");
 
   const { mutate, state } = useMutate("/posts/create");
 
@@ -112,7 +113,7 @@ export default component$(() => {
         );
       }
 
-      formDataCtx.form2 = selectedAddress.value;
+      formDataCtx.form3 = selectedAddress.value;
       activeStep.value = 3;
     } catch (err) {
       console.error("Error Initializing Post:", err);
@@ -120,7 +121,7 @@ export default component$(() => {
   });
 
   return (
-    <div class="flex h-full w-full justify-center">
+    <FormWrapper formStep={3} activeStep={activeStep.value}>
       <LoadingOverlay open={state.loading}>Initializing Post</LoadingOverlay>
 
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
@@ -146,7 +147,7 @@ export default component$(() => {
             type="button"
             class="px-10 border-input text-input"
             variant="outline"
-            onClick$={() => (activeStep.value = 1)}
+            onClick$={() => (activeStep.value = 2)}
           >
             {"<-"} Prev
           </Button>
@@ -156,6 +157,6 @@ export default component$(() => {
           </Button>
         </div>
       </div>
-    </div>
+    </FormWrapper>
   );
 });
