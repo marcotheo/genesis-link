@@ -12,3 +12,9 @@ export const CreateAddessSchema = v.object({
 });
 
 export type CreateAddressForm = v.InferInput<typeof CreateAddessSchema>;
+
+export const isBlob = (input: unknown) => {
+  if (!(input instanceof Blob)) return false;
+
+  return true;
+};
