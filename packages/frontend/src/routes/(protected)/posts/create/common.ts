@@ -1,6 +1,8 @@
+import { NoSerialize } from "@builder.io/qwik";
+import { isBlob } from "~/common/formSchema";
 import * as v from "valibot";
 
-export const CreatePostSchema = v.object({
+export const CreateBasicPostInfoSchema = v.object({
   company: v.pipe(v.string("Required"), v.nonEmpty("Please enter company.")),
   title: v.pipe(v.string("Required"), v.nonEmpty("Please enter title.")),
   description: v.pipe(
@@ -16,14 +18,20 @@ export const CreatePostSchema = v.object({
     v.nonEmpty("Please enter your email."),
     v.email("Invalid email"),
   ),
-  phone: v.pipe(v.string(), v.nonEmpty("Please enter phone.")),
-  deadline: v.date(),
+  phone: v.pipe(v.string("Required"), v.nonEmpty("Required")),
+  deadline: v.date("Required"),
 });
 
-export type CreatePostForm = v.InferInput<typeof CreatePostSchema>;
+export type BasicPostInfoStep = v.InferInput<typeof CreateBasicPostInfoSchema>;
 
-export type CreatePostFormData = {
-  form1?: CreatePostForm;
-  form2?: string;
+export const BrandingVisualsSchema = v.object({
+  logoFile: v.custom<NoSerialize<Blob>>(isBlob),
+});
+
+export type BrandingVisualsStep = v.InferInput<typeof BrandingVisualsSchema>;
+
+export type CreateJobPostFormData = {
+  form1?: BasicPostInfoStep;
+  form2?: BrandingVisualsStep;
   form3?: string;
 };
