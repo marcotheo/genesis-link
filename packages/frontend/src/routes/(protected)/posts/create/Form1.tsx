@@ -1,13 +1,14 @@
-import { SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
-import { $, component$, Slot, useContext } from "@builder.io/qwik";
+import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
+import { $, component$, Slot, useContext, useTask$ } from "@builder.io/qwik";
 
 import RadioButtonGroup from "~/components/radio-button-group/radio-button-group";
+import { CreateBasicPostInfoSchema, BasicPostInfoStep } from "./common";
 import { FormDataCtx, FormStepCtx, useForm1Loader } from "./index";
-import { CreatePostForm, CreatePostSchema } from "./common";
 import TextArea from "~/components/text-area/text-area";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
+import FormWrapper from "./FormWrapper";
 import { cn } from "~/common/utils";
 
 const FlexWrapper = component$(() => {
@@ -22,12 +23,12 @@ export default component$(() => {
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
 
-  const [createPostForm, { Form, Field }] = useForm<CreatePostForm>({
+  const [basicPostInfoForm, { Form, Field }] = useForm<BasicPostInfoStep>({
     loader: useForm1Loader(),
-    validate: valiForm$(CreatePostSchema),
+    validate: valiForm$(CreateBasicPostInfoSchema),
   });
 
-  const handleSubmit = $<SubmitHandler<CreatePostForm>>(async (values) => {
+  const handleSubmit = $<SubmitHandler<BasicPostInfoStep>>(async (values) => {
     try {
       formDataCtx.form1 = values;
       activeStep.value = 2;
@@ -36,8 +37,19 @@ export default component$(() => {
     }
   });
 
+  // reset form values if not submitted
+  useTask$(({ track }) => {
+    const stepTracker = track(() => activeStep.value);
+
+    if (stepTracker === 1) {
+      reset(basicPostInfoForm, {
+        initialValues: formDataCtx.form1,
+      });
+    }
+  });
+
   return (
-    <div class="flex h-full w-full justify-center">
+    <FormWrapper formStep={1} activeStep={activeStep.value}>
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
         <Heading class="max-md:hidden">Post Information</Heading>
 
@@ -48,13 +60,6 @@ export default component$(() => {
         </p>
 
         <br class="max-md:hidden" />
-
-        {/* <Alert
-            open={!!state.error}
-            variant="error"
-            title="Error"
-            message={state.error ?? ""}
-          /> */}
 
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
           <FlexWrapper>
@@ -158,6 +163,6 @@ export default component$(() => {
           </div>
         </Form>
       </div>
-    </div>
+    </FormWrapper>
   );
 });
