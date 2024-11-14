@@ -8,8 +8,8 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 
+import { TbPhoto } from "@qwikest/icons/tablericons";
 import InputError from "../input-error/input-error";
-import { ImageIcon } from "../icons/icons";
 import { cn } from "~/common/utils";
 
 interface ImageUploadProps {
@@ -167,7 +167,9 @@ export default component$<ImageUploadProps>(
               </div>
             ) : (
               <div class="bg-transparent flex flex-col justify-center items-center">
-                <ImageIcon class="w-24 h-24" />
+                <div class="text-[7vw]">
+                  <TbPhoto />
+                </div>
                 <p>Choose an image</p>
               </div>
             )}
