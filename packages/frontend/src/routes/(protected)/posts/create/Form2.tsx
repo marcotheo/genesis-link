@@ -43,11 +43,9 @@ export default component$(() => {
 
   const handleSubmit = $<SubmitHandler<BrandingVisualsStep>>(async (values) => {
     try {
-      if (!formDataCtx.form1) return;
-
       await Promise.all([
         (async () => {
-          if (values.logoFile) {
+          if (values.logoFile && !!formDataCtx.form1) {
             const file = values.logoFile as any as File;
 
             const s3 = await logoMutate(
@@ -74,7 +72,7 @@ export default component$(() => {
           }
         })(),
         (async () => {
-          if (values.posterFile) {
+          if (values.posterFile && !!formDataCtx.form1) {
             const file = values.posterFile as any as File;
 
             const s3 = await posterMutate(
