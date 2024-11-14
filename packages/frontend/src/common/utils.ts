@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
+import { Signal } from "@builder.io/qwik";
 import { twMerge } from "tailwind-merge";
 import { baseApiUrl } from "./constants";
 import { $ } from "@builder.io/qwik";
@@ -48,6 +49,12 @@ export const qwikFetch = async <T>(
     throw { status: response.status, message: errorMessage.message };
   }
 
+  // Check if there’s a body to parse
+  const contentLength = response.headers.get("Content-Length");
+  if (response.status === 204 || contentLength === "0") {
+    return null as T;
+  }
+
   const data: T = await response.json();
   return data;
 };
@@ -81,6 +88,53 @@ export const rawFetch = async <T>(
     result: data,
     response,
   };
+};
+
+export const qwikFetchWithProgress = async <T>(
+  url: string,
+  options: RequestInit,
+  progressSignal: Signal<number | null>,
+): Promise<T | null> => {
+  return new Promise<T | null>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.open(options.method || "GET", url);
+
+    // Set request headers
+    if (options.headers) {
+      Object.entries(options.headers).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value as string);
+      });
+    }
+
+    // Track upload progress
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        progressSignal.value = percentComplete;
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        if (xhr.responseText) {
+          resolve(JSON.parse(xhr.responseText) as T);
+        } else {
+          resolve(null);
+        }
+      } else {
+        reject({
+          status: xhr.status,
+          message: xhr.statusText || "Upload failed",
+        });
+      }
+    };
+
+    xhr.onerror = () =>
+      reject({ status: xhr.status, message: "Network error" });
+
+    xhr.send(options.body as any);
+  });
 };
 
 export const setCookie = $((name: string, value: string, expiresIn: number) => {
