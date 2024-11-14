@@ -31,3 +31,16 @@ export interface ListPostsResponse {
     Total: number;
   };
 }
+
+// POST API /api/v1/s3/generate/url/put
+export interface GenerateS3SignedUrlPut {
+  status: string;
+  message: string;
+  data: {
+    URL: string;
+    Method: "PUT" | "GET" | "POST";
+    SignedHeader: {
+      Host: string[];
+    };
+  };
+}
