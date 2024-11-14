@@ -42,6 +42,7 @@ export const useForm1Loader = routeLoader$<InitialValues<BasicPostInfoStep>>(
 export const useForm2Loader = routeLoader$<InitialValues<BrandingVisualsStep>>(
   () => ({
     logoFile: undefined,
+    posterFile: undefined,
   }),
 );
 
