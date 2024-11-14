@@ -1,17 +1,18 @@
 import {
   $,
   component$,
-  InputHTMLAttributes,
-  useSignal,
+  noSerialize,
+  NoSerialize,
+  QRL,
   useStore,
+  useTask$,
 } from "@builder.io/qwik";
 
-import Button from "../button/button";
+import InputError from "../input-error/input-error";
+import { ImageIcon } from "../icons/icons";
 import { cn } from "~/common/utils";
 
-interface ImageUploadProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  buttonLabel?: string;
+interface ImageUploadProps {
   maxSize?: {
     size: number;
     unit: "KB" | "MB";
@@ -20,31 +21,42 @@ interface ImageUploadProps extends InputHTMLAttributes<HTMLInputElement> {
     width: number;
     height: number;
   };
+  ref: QRL<(element: HTMLInputElement) => void>;
+  name: string;
+  value: NoSerialize<Blob> | NoSerialize<File> | null | undefined;
+  onInput$: (event: Event, element: HTMLInputElement) => void;
+  onChange$: (event: Event, element: HTMLInputElement) => void;
+  onBlur$: (event: Event, element: HTMLInputElement) => void;
+  accept?: string;
+  required?: boolean;
+  multiple?: boolean;
+  class?: string;
+  label?: string;
+  errorMsg?: string;
 }
 
 export default component$<ImageUploadProps>(
-  ({ label, buttonLabel, maxSize, maxDimensions, ...props }) => {
+  ({ name, value, label, errorMsg, maxSize, maxDimensions, ...props }) => {
     const fileState = useStore<{
+      file: NoSerialize<File> | null;
       imageUrl: string | null;
       error: string | null;
       imgWidth: number;
       imgHeight: number;
     }>({
-      imageUrl: null,
+      file: null,
+      imageUrl: value ? URL.createObjectURL(value as Blob) : null,
       error: null,
       imgWidth: 0,
       imgHeight: 0,
     });
 
-    const fileUploadRef = useSignal<HTMLInputElement>();
-
     const getMaxSizeInBytes = $((size: number, unit: "KB" | "MB"): number => {
       if (unit === "KB") {
         return size * 1024;
-      } else if (unit === "MB") {
+      } else {
         return size * 1024 * 1024;
       }
-      return size;
     });
 
     const validateImageDimensions = $(
@@ -66,9 +78,9 @@ export default component$<ImageUploadProps>(
     const handleFileChange = $(async (event: Event) => {
       const target = event.target as HTMLInputElement;
 
-      if (!target || !target.files) return;
+      if (!target.files) return;
 
-      const file = target.files[0];
+      const file = target.files[0] as File | undefined;
 
       // Reset error and image URL
       fileState.error = null;
@@ -82,7 +94,7 @@ export default component$<ImageUploadProps>(
         }
 
         // Validate file size
-        if (maxSize) {
+        if (!!maxSize) {
           const maxSizeInBytes = await getMaxSizeInBytes(
             maxSize.size,
             maxSize.unit,
@@ -108,31 +120,41 @@ export default component$<ImageUploadProps>(
           }
         }
 
+        fileState.file = noSerialize(file);
         fileState.imageUrl = URL.createObjectURL(file); // Create a preview URL for the image
       }
     });
 
+    useTask$(({ track }) => {
+      const newValue = track(() => value as any);
+      fileState.file = newValue;
+      fileState.imageUrl = newValue ? URL.createObjectURL(newValue) : null;
+    });
+
     return (
       <>
-        <input
-          {...props}
-          type="file"
-          class="hidden"
-          ref={fileUploadRef}
-          onChange$={handleFileChange}
-        />
-
         <div class="space-y-2">
           <label>{label}</label>
 
-          <div
+          <label
             class={cn(
-              "flex justify-center items-center",
-              "px-2 py-16",
-              "border border-dashed rounded-md",
+              "flex justify-center items-center relative",
+              "px-2 py-16 w-full",
+              "border border-input border-dashed rounded-md",
+              "hover:bg-soft duration-300",
               !!fileState.error ? "border-destructive" : "",
             )}
           >
+            <input
+              {...props}
+              type="file"
+              id={name}
+              onChange$={[handleFileChange, props.onChange$]}
+              aria-invalid={!!errorMsg}
+              aria-errormessage={`${name}-error`}
+              class="absolute h-full w-full cursor-pointer opacity-0"
+            />
+
             {fileState.imageUrl ? (
               <div>
                 <img
@@ -144,18 +166,14 @@ export default component$<ImageUploadProps>(
                 />
               </div>
             ) : (
-              <Button
-                onClick$={() => fileUploadRef.value?.click()}
-                class={cn(
-                  "bg-soft text-text",
-                  "hover:bg-soft dark:hover:brightness-150 hover:brightness-90",
-                )}
-              >
-                {buttonLabel ? buttonLabel : "upload"}
-              </Button>
+              <div class="bg-transparent flex flex-col justify-center items-center">
+                <ImageIcon class="w-24 h-24" />
+                <p>Choose an image</p>
+              </div>
             )}
-          </div>
-          <p class="text-destructive">{fileState.error}</p>
+          </label>
+          <InputError errorMsg={errorMsg} />
+          <InputError errorMsg={fileState.error ?? ""} />
         </div>
       </>
     );
