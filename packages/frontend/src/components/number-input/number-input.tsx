@@ -1,5 +1,4 @@
 import { component$, InputHTMLAttributes } from "@builder.io/qwik";
-import { FormStore } from "@modular-forms/qwik";
 
 import InputError from "../input-error/input-error";
 import { cn } from "~/common/utils";
@@ -8,7 +7,6 @@ interface NumberInputProps extends InputHTMLAttributes<HTMLInputElement> {
   variant?: "underline" | "filled" | "default";
   errorMsg?: string;
   label: string;
-  form?: FormStore<any>;
 }
 
 const inputVariants = {
@@ -51,7 +49,7 @@ const labelVariants = {
 };
 
 export default component$<NumberInputProps>(
-  ({ variant = "default", label, errorMsg, form, ...props }) => {
+  ({ variant = "default", label, errorMsg, ...props }) => {
     return (
       <div class="pt-3 w-full">
         <div class="relative w-full">

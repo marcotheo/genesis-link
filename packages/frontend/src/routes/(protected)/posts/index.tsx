@@ -11,7 +11,7 @@ import Button from "~/components/button/button";
 import { qwikFetch } from "~/common/utils";
 
 // need access token here
-export const usePostsLoader = routeLoader$(async ({ cookie, resolveValue }) => {
+export const usePostsLoader = routeLoader$(async ({ resolveValue }) => {
   try {
     const headers = await resolveValue(useAuthHeadersLoader);
 

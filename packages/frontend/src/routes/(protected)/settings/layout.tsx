@@ -4,7 +4,7 @@ import { cn } from "~/common/utils";
 
 const Item = component$<{ link: string; title: string }>(({ link, title }) => {
   const location = useLocation();
-  const toPathname = link ?? "";
+  const toPathname = link;
   const locationPathname = location.url.pathname;
 
   const startSlashPosition =

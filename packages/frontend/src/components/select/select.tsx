@@ -67,7 +67,7 @@ const labelVariants = {
 };
 
 export default component$<SelectProps>(
-  ({ variant = "default", label, errorMsg, form, ...props }) => {
+  ({ variant = "default", label, errorMsg, form, name, ...props }) => {
     const state = useStore({ selected: props.value || "", isOpen: false });
     const containerRef = useSignal<Element | undefined>();
 
@@ -79,7 +79,7 @@ export default component$<SelectProps>(
       state.selected = value;
       state.isOpen = false;
 
-      if (form) setValue(form, props.name, state.selected);
+      if (form) setValue(form, name, state.selected);
     });
 
     useOnDocument(
