@@ -24,6 +24,11 @@ export default $config({
       process.env.NODE_ENV &&
       ["production", "preview"].includes(process.env.NODE_ENV)
     ) {
+      if (!process.env.DOMAN_NAME) {
+        console.error("must define DOMAN_NAME env variable");
+        return;
+      }
+
       const cloudflareResults = cloudflare_pages();
 
       siteUrl = cloudflareResults.CloudFlareDomain;

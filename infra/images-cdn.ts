@@ -1,9 +1,22 @@
 import { execSync } from "child_process";
 
 export const images_cdn = () => {
+  const isProd =
+    process.env.NODE_ENV &&
+    ["production", "preview"].includes(process.env.NODE_ENV);
+
   const bucket = new aws.s3.Bucket("AssetsBucket", {
     acl: "private",
     forceDestroy: true,
+    corsRules: [
+      {
+        allowedHeaders: ["*"],
+        allowedMethods: ["PUT", "POST", "GET"],
+        allowedOrigins: [isProd ? process.env.DOMAN_NAME : "*"],
+        exposeHeaders: ["ETag"],
+        maxAgeSeconds: 3000,
+      },
+    ],
   });
 
   // Create a CloudFront Origin Access Identity
