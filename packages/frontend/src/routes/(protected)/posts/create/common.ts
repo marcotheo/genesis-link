@@ -1,5 +1,6 @@
 import { NoSerialize } from "@builder.io/qwik";
 import { isBlob } from "~/common/formSchema";
+import { Maybe } from "@modular-forms/qwik";
 import * as v from "valibot";
 
 export const CreateBasicPostInfoSchema = v.object({
@@ -25,7 +26,16 @@ export const CreateBasicPostInfoSchema = v.object({
 export type BasicPostInfoStep = v.InferInput<typeof CreateBasicPostInfoSchema>;
 
 export const BrandingVisualsSchema = v.object({
-  logoFile: v.custom<NoSerialize<Blob>>(isBlob),
+  logoFile: v.custom<NoSerialize<Maybe<Blob>>>((input: unknown) => {
+    if (input === undefined) return true;
+
+    return isBlob(input);
+  }),
+  posterFile: v.custom<NoSerialize<Maybe<Blob>>>((input: unknown) => {
+    if (input === undefined) return true;
+
+    return isBlob(input);
+  }),
 });
 
 export type BrandingVisualsStep = v.InferInput<typeof BrandingVisualsSchema>;
