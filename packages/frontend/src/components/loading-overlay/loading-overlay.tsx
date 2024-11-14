@@ -4,9 +4,10 @@ import { cn } from "~/common/utils";
 
 interface LoadingOverlayProps {
   open: null | boolean;
+  type?: "text" | "component";
 }
 
-export default component$<LoadingOverlayProps>(({ open }) => {
+export default component$<LoadingOverlayProps>(({ open, type = "text" }) => {
   return (
     <>
       <div
@@ -30,20 +31,26 @@ export default component$<LoadingOverlayProps>(({ open }) => {
         )}
       >
         <div class="flex gap-3 items-center justify-center">
-          <Heading size="md">
+          {type === "text" ? (
+            <>
+              <Heading size="md">
+                <Slot />
+              </Heading>
+              <div class="flex flex-row pl-1 text-4xl">
+                <div class="animate-[bounce_0.7s_ease-in-out_-0.3s_infinite] p-[2px] ">
+                  .
+                </div>
+                <div class="animate-[bounce_0.7s_ease-in-out_-0.2s_infinite] p-[2px] ">
+                  .
+                </div>
+                <div class="animate-[bounce_0.7s_ease-in-out_-0.1s_infinite] p-[2px] ">
+                  .
+                </div>
+              </div>
+            </>
+          ) : (
             <Slot />
-          </Heading>
-          <div class="flex flex-row pl-1 text-4xl">
-            <div class="animate-[bounce_0.7s_ease-in-out_-0.3s_infinite] p-[2px] ">
-              .
-            </div>
-            <div class="animate-[bounce_0.7s_ease-in-out_-0.2s_infinite] p-[2px] ">
-              .
-            </div>
-            <div class="animate-[bounce_0.7s_ease-in-out_-0.1s_infinite] p-[2px] ">
-              .
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </>
