@@ -1,29 +1,185 @@
-import { $, component$, Signal, useContext, useSignal } from "@builder.io/qwik";
+import {
+  getValue,
+  reset,
+  SubmitHandler,
+  useForm,
+  valiForm$,
+} from "@modular-forms/qwik";
+import { $, component$, useContext, useTask$ } from "@builder.io/qwik";
+import { TbLoader } from "@qwikest/icons/tablericons";
+import { useSignal } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import ImageUpload from "~/components/image-upload/image-upload";
+import { BrandingVisualsSchema, BrandingVisualsStep } from "./common";
+import { FormDataCtx, FormStepCtx, useForm2Loader } from "./index";
+import ImageInput from "~/components/image-input/image-input";
+import { cn, qwikFetchWithProgress } from "~/common/utils";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { GenerateS3SignedUrlPut } from "~/common/types";
 import Heading from "~/components/heading/heading";
-import { FormDataCtx, FormStepCtx } from "./index";
+import { isServer } from "@builder.io/qwik/build";
 import Button from "~/components/button/button";
-import Alert from "~/components/alert/alert";
-import { cn } from "~/common/utils";
+// import Alert from "~/components/alert/alert";
+import FormWrapper from "./FormWrapper";
 
 export default component$(() => {
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
 
-  const handleSubmit = $(async () => {
+  const logoUploadProgress = useSignal<number | null>(null);
+  const posterUploadProgress = useSignal<number | null>(null);
+
+  const { mutate: logoMutate } = useMutate<GenerateS3SignedUrlPut>(
+    "/s3/generate/url/put",
+  );
+  const { mutate: posterMutate } = useMutate<GenerateS3SignedUrlPut>(
+    "/s3/generate/url/put",
+  );
+
+  const [brandingVisualForm, { Form, Field }] = useForm<BrandingVisualsStep>({
+    loader: useForm2Loader(),
+    validate: valiForm$(BrandingVisualsSchema),
+  });
+
+  const handleSubmit = $<SubmitHandler<BrandingVisualsStep>>(async (values) => {
     try {
-      // formDataCtx.form2 = selectedAddress.value;
+      if (!formDataCtx.form1) return;
+
+      await Promise.all([
+        (async () => {
+          if (values.logoFile) {
+            const file = values.logoFile as any as File;
+
+            const s3 = await logoMutate(
+              {
+                Key: `post/logo_${formDataCtx.form1!.company}_${file.name}`,
+              },
+              {
+                credentials: "include",
+              },
+            );
+
+            if (s3.result)
+              await qwikFetchWithProgress<null>(
+                s3.result.data.URL,
+                {
+                  method: s3.result.data.Method,
+                  headers: {
+                    "Content-Type": values.logoFile.type,
+                  },
+                  body: values.logoFile,
+                },
+                logoUploadProgress,
+              );
+          }
+        })(),
+        (async () => {
+          if (values.posterFile) {
+            const file = values.posterFile as any as File;
+
+            const s3 = await posterMutate(
+              {
+                Key: `post/poster_${formDataCtx.form1!.company}_${file.name}`,
+              },
+              {
+                credentials: "include",
+              },
+            );
+
+            if (s3.result)
+              await qwikFetchWithProgress<null>(
+                s3.result.data.URL,
+                {
+                  method: s3.result.data.Method,
+                  headers: {
+                    "Content-Type": values.posterFile.type,
+                  },
+                  body: values.posterFile,
+                },
+                logoUploadProgress,
+              );
+          }
+        })(),
+      ]);
+
+      formDataCtx.form2 = values;
       activeStep.value = 3;
-    } catch (err) {
-      console.error("Error Initializing Post:", err);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
   });
 
+  useTask$(({ track }) => {
+    const stepTracker = track(() => activeStep.value);
+
+    if (isServer) return;
+
+    if (stepTracker === 2) {
+      // reset form values if not submitted
+      reset(brandingVisualForm, {
+        initialValues: formDataCtx.form2,
+      });
+    }
+  });
+
+  useTask$(({ track }) => {
+    const logoValueTracker = track(() =>
+      getValue(brandingVisualForm, "logoFile"),
+    );
+    const posterValueTracker = track(() =>
+      getValue(brandingVisualForm, "posterFile"),
+    );
+
+    if (isServer) return;
+
+    if (!!logoValueTracker) logoUploadProgress.value = 0;
+    if (!!posterValueTracker) posterUploadProgress.value = 0;
+  });
+
   return (
-    <div class="flex h-full w-full justify-center">
-      {/* <LoadingOverlay open={state.loading}>Initializing Post</LoadingOverlay> */}
+    <FormWrapper formStep={2} activeStep={activeStep.value}>
+      <LoadingOverlay
+        open={
+          brandingVisualForm.submitting &&
+          (logoUploadProgress.value !== null ||
+            logoUploadProgress.value !== null)
+        }
+        type="component"
+      >
+        <div class="space-y-3">
+          <div
+            class={cn(
+              "flex gap-3 items-center",
+              logoUploadProgress.value === null ? "hidden" : "",
+            )}
+          >
+            <div class="animate-spin text-2xl">
+              <TbLoader />
+            </div>
+            <p>Saving Logo Image {`${logoUploadProgress.value}`}%</p>
+          </div>
+
+          <hr
+            class={cn(
+              "h-[0.5px] w-full border-popup z-50 my-1",
+              logoUploadProgress.value !== null &&
+                posterUploadProgress.value !== null,
+            )}
+          />
+
+          <div
+            class={cn(
+              "flex gap-3 items-center",
+              posterUploadProgress.value === null ? "hidden" : "",
+            )}
+          >
+            <div class="animate-spin text-2xl">
+              <TbLoader />
+            </div>
+            <p>Saving Poster Image {`${posterUploadProgress.value}`}%</p>
+          </div>
+        </div>
+      </LoadingOverlay>
 
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
         <Heading class="max-md:hidden">Visuals & Branding</Heading>
@@ -43,37 +199,61 @@ export default component$(() => {
           message={state.error ?? ""}
         /> */}
 
-        <ImageUpload
-          label="Logo Upload"
-          maxSize={{
-            size: 500,
-            unit: "KB",
-          }}
-          maxDimensions={{
-            width: 300,
-            height: 300,
-          }}
-        />
+        <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
+          <Field name="logoFile" type="File">
+            {(field, props) => (
+              <ImageInput
+                {...props}
+                value={field.value}
+                errorMsg={field.error}
+                label="Logo Upload"
+                maxSize={{
+                  size: 100,
+                  unit: "KB",
+                }}
+                maxDimensions={{
+                  width: 300,
+                  height: 300,
+                }}
+              />
+            )}
+          </Field>
 
-        <div class="flex justify-end gap-3 mt-5">
-          <Button
-            type="button"
-            class="min-[360px]:px-10 border-input text-input"
-            variant="outline"
-            onClick$={() => (activeStep.value = 1)}
-          >
-            {"<-"} Prev
-          </Button>
+          <Field name="posterFile" type="File">
+            {(field, props) => (
+              <ImageInput
+                {...props}
+                value={field.value}
+                errorMsg={field.error}
+                label="Poster Upload"
+                maxSize={{
+                  size: 500,
+                  unit: "KB",
+                }}
+                maxDimensions={{
+                  width: 360,
+                  height: 360,
+                }}
+              />
+            )}
+          </Field>
 
-          <Button
-            type="submit"
-            class="min-[360px]:px-10"
-            onClick$={() => handleSubmit()}
-          >
-            Next {"->"}
-          </Button>
-        </div>
+          <div class="flex justify-end gap-3 mt-5">
+            <Button
+              type="button"
+              class="min-[360px]:px-10 border-input text-input"
+              variant="outline"
+              onClick$={() => (activeStep.value = 1)}
+            >
+              {"<-"} Prev
+            </Button>
+
+            <Button type="submit" class="min-[360px]:px-10">
+              Next {"->"}
+            </Button>
+          </div>
+        </Form>
       </div>
-    </div>
+    </FormWrapper>
   );
 });
