@@ -3,6 +3,7 @@ import { component$, noSerialize, Slot } from "@builder.io/qwik";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 import { awsRegion, poolClientId, userPoolId } from "~/common/constants";
+import ToasterProvider from "~/providers/toaster/toaster";
 import QueryProvider from "~/providers/query/query";
 import AuthProvider from "~/providers/auth/auth";
 import { rawFetch } from "~/common/utils";
@@ -146,19 +147,21 @@ export const useAuthHeadersLoader = routeLoader$(
 
 export default component$(() => {
   return (
-    <QueryProvider>
-      <AuthProvider>
-        <div class="h-screen flex flex-col">
-          <div class="px-5 sm:px-12 2xl:px-64">
-            <Header />
-          </div>
-          <div class="grow overflow-auto">
-            <div class="h-full px-5 sm:px-12 2xl:px-64">
-              <Slot />
+    <ToasterProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <div class="h-screen flex flex-col">
+            <div class="px-5 sm:px-12 2xl:px-64">
+              <Header />
+            </div>
+            <div class="grow overflow-auto">
+              <div class="h-full px-5 sm:px-12 2xl:px-64">
+                <Slot />
+              </div>
             </div>
           </div>
-        </div>
-      </AuthProvider>
-    </QueryProvider>
+        </AuthProvider>
+      </QueryProvider>
+    </ToasterProvider>
   );
 });
