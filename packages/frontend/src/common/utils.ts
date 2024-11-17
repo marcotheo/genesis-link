@@ -44,9 +44,8 @@ export const qwikFetch = async <T>(
   const response = await fetch(requestUrl, options);
 
   if (!response.ok) {
-    const err = await response.text();
-    const errorMessage = JSON.parse(err) as { message: string };
-    throw { status: response.status, message: errorMessage.message };
+    const errorMessage = await response.text();
+    throw { status: response.status, message: errorMessage };
   }
 
   // Check if there’s a body to parse
