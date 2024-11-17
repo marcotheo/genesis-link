@@ -16,10 +16,10 @@ import ImageInput from "~/components/image-input/image-input";
 import { cn, qwikFetchWithProgress } from "~/common/utils";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { GenerateS3SignedUrlPut } from "~/common/types";
+import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
 import { isServer } from "@builder.io/qwik/build";
 import Button from "~/components/button/button";
-// import Alert from "~/components/alert/alert";
 import FormWrapper from "./FormWrapper";
 
 export default component$(() => {
@@ -28,6 +28,8 @@ export default component$(() => {
 
   const logoUploadProgress = useSignal<number | null>(null);
   const posterUploadProgress = useSignal<number | null>(null);
+
+  const toast = useToast();
 
   const { mutate: logoMutate } = useMutate<GenerateS3SignedUrlPut>(
     "/s3/generate/url/put",
@@ -57,6 +59,8 @@ export default component$(() => {
               },
             );
 
+            if (s3.error) throw s3.error;
+
             if (s3.result)
               await qwikFetchWithProgress<null>(
                 s3.result.data.URL,
@@ -84,6 +88,8 @@ export default component$(() => {
               },
             );
 
+            if (s3.error) throw s3.error;
+
             if (s3.result)
               await qwikFetchWithProgress<null>(
                 s3.result.data.URL,
@@ -104,6 +110,11 @@ export default component$(() => {
       activeStep.value = 3;
     } catch (error) {
       console.error("Error submitting form:", error);
+      toast.add({
+        title: "Error Saving Assets",
+        message: typeof error === "string" ? error : "Something Went Wrong",
+        type: "destructive",
+      });
     }
   });
 
@@ -189,13 +200,6 @@ export default component$(() => {
         </p>
 
         <br class="max-md:hidden" />
-
-        {/* <Alert
-          open={!!state.error}
-          variant="error"
-          title="Error"
-          message={state.error ?? ""}
-        /> */}
 
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
           <Field name="logoFile" type="File">
