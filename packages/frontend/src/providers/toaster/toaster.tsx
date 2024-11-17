@@ -86,7 +86,7 @@ const ToastArea = component$<{
         <div
           key={toast.id}
           class={[
-            "min-w-64 max-w-xs w-full p-4",
+            "min-w-64 min-[400px]:min-w-80 max-w-xs w-full p-4",
             "rounded-sm shadow-lg transition-opacity",
             "animate-fade-in-slide duration-300",
             "bg-surface border-l-4",
