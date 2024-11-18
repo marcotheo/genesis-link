@@ -98,7 +98,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	errQ := h.dataService.Queries.CreatePost(context.Background(), postData)
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => errQ %s \n", errQ))
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
 
