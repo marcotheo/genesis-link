@@ -43,8 +43,8 @@ export type BrandingVisualsStep = v.InferInput<typeof BrandingVisualsSchema>;
 export type CreateJobPostFormData = {
   form1?: BasicPostInfoStep;
   form2?: BrandingVisualsStep & {
-    logoS3key?: string;
-    posterS3Key?: string;
+    logoS3key: string | null;
+    posterS3Key: string | null;
   };
   form3?: string;
 };

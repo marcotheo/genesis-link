@@ -45,10 +45,8 @@ export default component$(() => {
 
   const handleSubmit = $<SubmitHandler<BrandingVisualsStep>>(async (values) => {
     try {
-      console.log("ASD");
-
-      let logoS3key;
-      let posterS3Key;
+      let logoS3key = null;
+      let posterS3Key = null;
 
       await Promise.all([
         (async () => {
