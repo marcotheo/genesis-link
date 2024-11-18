@@ -45,14 +45,21 @@ export default component$(() => {
 
   const handleSubmit = $<SubmitHandler<BrandingVisualsStep>>(async (values) => {
     try {
+      console.log("ASD");
+
+      let logoS3key;
+      let posterS3Key;
+
       await Promise.all([
         (async () => {
           if (values.logoFile && !!formDataCtx.form1) {
             const file = values.logoFile as any as File;
 
+            logoS3key = `post/logo_${formDataCtx.form1!.company}_${file.name}`;
+
             const s3 = await logoMutate(
               {
-                Key: `post/logo_${formDataCtx.form1!.company}_${file.name}`,
+                Key: logoS3key,
               },
               {
                 credentials: "include",
@@ -79,9 +86,11 @@ export default component$(() => {
           if (values.posterFile && !!formDataCtx.form1) {
             const file = values.posterFile as any as File;
 
+            posterS3Key = `post/poster_${formDataCtx.form1!.company}_${file.name}`;
+
             const s3 = await posterMutate(
               {
-                Key: `post/poster_${formDataCtx.form1!.company}_${file.name}`,
+                Key: posterS3Key,
               },
               {
                 credentials: "include",
@@ -106,7 +115,12 @@ export default component$(() => {
         })(),
       ]);
 
-      formDataCtx.form2 = values;
+      formDataCtx.form2 = {
+        ...values,
+        posterS3Key,
+        logoS3key,
+      };
+
       activeStep.value = 3;
     } catch (error) {
       console.error("Error submitting form:", error);
