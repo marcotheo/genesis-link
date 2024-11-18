@@ -65,6 +65,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	errRead := ReadAndValidateBody(r, &createPostParams)
 	if errRead != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => ReadAndValidateBody %s", errRead))
 		http.Error(w, errRead.Error(), http.StatusBadRequest)
 		return
 	}
