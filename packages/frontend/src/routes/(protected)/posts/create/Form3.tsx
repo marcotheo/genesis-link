@@ -1,12 +1,22 @@
-import { $, component$, Signal, useContext, useSignal } from "@builder.io/qwik";
+import {
+  $,
+  component$,
+  Signal,
+  useContext,
+  useSignal,
+  useTask$,
+} from "@builder.io/qwik";
+import dayjs from "dayjs";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useQuery } from "~/hooks/use-query/useQuery";
+import { useToast } from "~/hooks/use-toast/useToast";
 import { ListAddressResponse } from "~/common/types";
 import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
+import { isServer } from "@builder.io/qwik/build";
 import Button from "~/components/button/button";
 import Alert from "~/components/alert/alert";
 import CreateAddress from "./CreateAddress";
@@ -94,29 +104,54 @@ export default component$(() => {
   const activeStep = useContext(FormStepCtx);
   const selectedAddress = useSignal(formDataCtx.form3 ?? "");
 
+  const toast = useToast();
+
   const { mutate, state } = useMutate("/posts/create");
 
   const handleSubmit = $(async () => {
     try {
-      if (formDataCtx.form1) {
-        await mutate(
-          {
-            ...formDataCtx.form1,
-            posterLink: "https://example.com/frontend-poster.jpg",
-            logoLink: "https://example.com/frontend-logo.png",
-            additionalInfoLink: "https://example.com/frontend-job-details",
-            addressId: selectedAddress.value,
-          },
-          {
-            credentials: "include",
-          },
-        );
-      }
+      if (!formDataCtx.form1 || !formDataCtx.form2) return;
+
+      const result = await mutate(
+        {
+          ...formDataCtx.form1,
+          wfh: formDataCtx.form1.wfh === "yes" ? 1 : 0,
+          logoLink: formDataCtx.form2.logoS3key,
+          posterLink: formDataCtx.form2.posterS3Key,
+          additionalInfoLink: null,
+          deadline: dayjs(formDataCtx.form1.deadline).format("YYYY-MM-DD"),
+          addressId: selectedAddress.value,
+        },
+        {
+          credentials: "include",
+        },
+      );
 
       formDataCtx.form3 = selectedAddress.value;
-      activeStep.value = 3;
+
+      if (result.error) throw result.error;
+
+      if (result.result)
+        toast.add({
+          title: "Post Initialized",
+          message: "Post Record Saved",
+          type: "success",
+        });
+
+      activeStep.value = 4;
     } catch (err) {
       console.error("Error Initializing Post:", err);
+    }
+  });
+
+  useTask$(({ track }) => {
+    const stepTracker = track(() => activeStep.value);
+
+    if (isServer) return;
+
+    if (stepTracker === 3) {
+      // reset form values if not submitted
+      selectedAddress.value = formDataCtx.form3 ?? "";
     }
   });
 
