@@ -1,9 +1,12 @@
 import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
 import { $, component$, Slot, useContext, useTask$ } from "@builder.io/qwik";
 
+import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { JobDetailsInfoStep, JobDetailsInfoSchema } from "./common";
-import { FormDataCtx, FormStepCtx, useForm1Loader } from "./index";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
+import { FormDataCtx, FormStepCtx } from "./index";
 import Select from "~/components/select/select";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
@@ -22,6 +25,10 @@ export default component$(() => {
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
 
+  const toast = useToast();
+
+  const { mutate } = useMutate("/posts/create/job_details");
+
   const [jobDetailsInfoForm, { Form, Field }] = useForm<JobDetailsInfoStep>({
     loader: {
       value: {
@@ -38,10 +45,33 @@ export default component$(() => {
   const handleSubmit = $<SubmitHandler<JobDetailsInfoStep>>(async (values) => {
     try {
       console.log(values);
-      // formDataCtx.form1 = values;
-      // activeStep.value = 2;
+
+      if (!formDataCtx.postId) throw "No post created yet";
+
+      const res = await mutate({
+        ...values,
+        postId: formDataCtx.postId,
+      });
+
+      formDataCtx.form4 = values;
+
+      if (res.error) throw res.error;
+
+      toast.add({
+        title: "Success",
+        message: "Job details saved",
+        type: "success",
+      });
+
+      activeStep.value = 5;
     } catch (error) {
       console.error("Error submitting form:", error);
+
+      toast.add({
+        title: "Saving failed",
+        message: typeof error === "string" ? error : "Something Went Wrong",
+        type: "destructive",
+      });
     }
   });
 
@@ -58,6 +88,10 @@ export default component$(() => {
 
   return (
     <FormWrapper formStep={4} activeStep={activeStep.value}>
+      <LoadingOverlay open={jobDetailsInfoForm.submitting}>
+        Saving Job Details
+      </LoadingOverlay>
+
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
         <Heading class="max-md:hidden">Job Details</Heading>
 
