@@ -184,7 +184,7 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(POST) CreateJobDetails => create successful")
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 type PostRequirementsParams struct {
