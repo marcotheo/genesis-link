@@ -40,6 +40,7 @@ export const useMutate = <T,>(url: string) => {
           "Content-Type": "application/json",
           ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
         },
+        credentials: "include",
         ...additionalOptions,
         body: json ? JSON.stringify(json) : undefined,
       });
