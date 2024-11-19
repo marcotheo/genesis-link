@@ -1,11 +1,12 @@
-import {
-  Planner,
-  LocationIcon,
-  Briefcase,
-  NumberList,
-} from "~/components/icons/icons";
 import { component$, Slot, useContext } from "@builder.io/qwik";
 
+import {
+  TbBriefcase,
+  TbInbox,
+  TbList,
+  TbMapPin,
+  TbUpload,
+} from "@qwikest/icons/tablericons";
 import { cn } from "~/common/utils";
 import { FormStepCtx } from ".";
 
@@ -20,7 +21,9 @@ const ItemStep = component$<{ title: string; isActive: boolean }>(
         )}
       >
         <p class={isActive ? "text-primary" : ""}>{title}</p>
-        <Slot />
+        <div class={cn("text-2xl", isActive ? "text-primary" : "")}>
+          <Slot />
+        </div>
         <div
           class={cn(
             "absolute right-[-43px]",
@@ -39,16 +42,19 @@ export default component$(() => {
   return (
     <ul class="list-none space-y-16 w-full max-md:hidden">
       <ItemStep title="Post Information" isActive={activeStep.value === 1}>
-        <Planner />
+        <TbInbox />
       </ItemStep>
       <ItemStep title="Visuals & Branding" isActive={activeStep.value === 2}>
-        <LocationIcon />
+        <TbUpload />
       </ItemStep>
       <ItemStep title="Address Information" isActive={activeStep.value === 3}>
-        <Briefcase />
+        <TbMapPin />
       </ItemStep>
-      <ItemStep title="Job Requirements" isActive={activeStep.value === 4}>
-        <NumberList />
+      <ItemStep title="Job Details" isActive={activeStep.value === 4}>
+        <TbBriefcase />
+      </ItemStep>
+      <ItemStep title="Job Requirements" isActive={activeStep.value === 5}>
+        <TbList />
       </ItemStep>
     </ul>
   );
