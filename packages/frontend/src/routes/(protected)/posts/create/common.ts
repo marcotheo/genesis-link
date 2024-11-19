@@ -54,6 +54,7 @@ export const JobDetailsInfoSchema = v.object({
 export type JobDetailsInfoStep = v.InferInput<typeof JobDetailsInfoSchema>;
 
 export type CreateJobPostFormData = {
+  postId?: string;
   form1?: BasicPostInfoStep;
   form2?: BrandingVisualsStep & {
     logoS3key: string | null;
