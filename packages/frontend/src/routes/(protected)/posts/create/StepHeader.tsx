@@ -8,14 +8,13 @@ export default component$(() => {
   return (
     <div class="w-full">
       <Heading>
-        {activeStep.value === 1
-          ? "Step 1"
-          : activeStep.value === 2
-            ? "Step 2"
-            : "Step 3"}
+        {activeStep.value === 1 && "Step 1"}
+        {activeStep.value === 2 && "Step 2"}
+        {activeStep.value === 3 && "Step 3"}
+        {activeStep.value === 4 && "Step 4"}
+        {activeStep.value === 5 && "Step 5"}
       </Heading>
       <p>
-        {" "}
         {activeStep.value === 1 && "Enter post information"}
         {activeStep.value === 2 && "Upload Branding Assets"}
         {activeStep.value === 3 && "Enter address information"}
