@@ -32,6 +32,15 @@ export interface ListPostsResponse {
   };
 }
 
+// POST /api/v1/posts/create
+export interface CreatePostResponse {
+  status: string;
+  message: string;
+  data: {
+    PostId: string;
+  };
+}
+
 // POST API /api/v1/s3/generate/url/put
 export interface GenerateS3SignedUrlPut {
   status: string;

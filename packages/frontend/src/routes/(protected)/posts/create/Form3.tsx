@@ -9,11 +9,11 @@ import {
 import dayjs from "dayjs";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { CreatePostResponse, ListAddressResponse } from "~/common/types";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { useToast } from "~/hooks/use-toast/useToast";
-import { ListAddressResponse } from "~/common/types";
 import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
 import { isServer } from "@builder.io/qwik/build";
@@ -106,13 +106,13 @@ export default component$(() => {
 
   const toast = useToast();
 
-  const { mutate, state } = useMutate("/posts/create");
+  const { mutate, state } = useMutate<CreatePostResponse>("/posts/create");
 
   const handleSubmit = $(async () => {
     try {
       if (!formDataCtx.form1 || !formDataCtx.form2) return;
 
-      const result = await mutate(
+      const res = await mutate(
         {
           ...formDataCtx.form1,
           wfh: formDataCtx.form1.wfh === "yes" ? 1 : 0,
@@ -129,14 +129,17 @@ export default component$(() => {
 
       formDataCtx.form3 = selectedAddress.value;
 
-      if (result.error) throw result.error;
+      if (res.error) throw res.error;
 
-      if (result.result)
+      if (res.result) {
         toast.add({
           title: "Post Initialized",
           message: "Post Record Saved",
           type: "success",
         });
+
+        formDataCtx.postId = res.result.data.PostId;
+      }
 
       activeStep.value = 4;
     } catch (err) {
