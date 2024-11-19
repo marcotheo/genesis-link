@@ -40,6 +40,19 @@ export const BrandingVisualsSchema = v.object({
 
 export type BrandingVisualsStep = v.InferInput<typeof BrandingVisualsSchema>;
 
+export const JobDetailsInfoSchema = v.object({
+  jobType: v.picklist(["full-time", "part-time", "contract", "internship"]),
+  salaryType: v.picklist(["fixed", "hourly", "monthly"]),
+  salaryAmountMin: v.number(),
+  salaryAmountMax: v.number(),
+  salaryCurrency: v.pipe(
+    v.string("Required"),
+    v.nonEmpty("Please enter salary currency."),
+  ),
+});
+
+export type JobDetailsInfoStep = v.InferInput<typeof JobDetailsInfoSchema>;
+
 export type CreateJobPostFormData = {
   form1?: BasicPostInfoStep;
   form2?: BrandingVisualsStep & {
@@ -47,4 +60,5 @@ export type CreateJobPostFormData = {
     posterS3Key: string | null;
   };
   form3?: string;
+  form4?: JobDetailsInfoStep;
 };
