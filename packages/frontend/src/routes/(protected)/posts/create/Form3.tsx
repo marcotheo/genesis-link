@@ -141,6 +141,12 @@ export default component$(() => {
       activeStep.value = 4;
     } catch (err) {
       console.error("Error Initializing Post:", err);
+
+      toast.add({
+        title: "Post not created",
+        message: typeof err === "string" ? err : "Something Went Wrong",
+        type: "destructive",
+      });
     }
   });
 
