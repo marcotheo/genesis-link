@@ -1,11 +1,12 @@
 import {
   $,
   component$,
+  QRL,
   useOnDocument,
   useSignal,
   useStore,
 } from "@builder.io/qwik";
-import { FormStore, setValue } from "@modular-forms/qwik";
+
 import InputError from "../input-error/input-error";
 import { cn } from "~/common/utils";
 
@@ -19,10 +20,14 @@ interface SelectProps {
   name: string;
   options: IOption[];
   label: string;
-  value?: string;
   errorMsg?: string;
-  form?: FormStore<any>;
   class?: string;
+  ref: QRL<(element: HTMLSelectElement) => void>;
+  value: string | string[] | null | undefined;
+  onInput$: (event: Event, element: HTMLSelectElement) => void;
+  onChange$: (event: Event, element: HTMLSelectElement) => void;
+  onBlur$: (event: Event, element: HTMLSelectElement) => void;
+  multiple?: boolean;
 }
 
 const inputVariants = {
@@ -67,9 +72,19 @@ const labelVariants = {
 };
 
 export default component$<SelectProps>(
-  ({ variant = "default", label, errorMsg, form, name, ...props }) => {
-    const state = useStore({ selected: props.value || "", isOpen: false });
+  ({
+    variant = "default",
+    label,
+    errorMsg,
+    name,
+    class: customClass,
+    options,
+    value,
+    ...props
+  }) => {
+    const state = useStore({ selected: value || "", isOpen: false });
     const containerRef = useSignal<Element | undefined>();
+    const selectInputRef = useSignal<HTMLSelectElement>();
 
     const toggleDropdown = $(() => {
       state.isOpen = !state.isOpen;
@@ -79,7 +94,16 @@ export default component$<SelectProps>(
       state.selected = value;
       state.isOpen = false;
 
-      if (form) setValue(form, name, state.selected);
+      // if (form) setValue(form, name, state.selected);
+      if (selectInputRef.value) {
+        selectInputRef.value.value = value;
+
+        const changeEvent = new Event("change", { bubbles: true });
+        selectInputRef.value.dispatchEvent(changeEvent);
+
+        const inputEvent = new Event("input", { bubbles: true });
+        selectInputRef.value.dispatchEvent(inputEvent);
+      }
     });
 
     useOnDocument(
@@ -98,6 +122,28 @@ export default component$<SelectProps>(
     return (
       <div class="pt-3 w-full" ref={containerRef}>
         <div class="relative w-full">
+          <select
+            {...props}
+            ref={selectInputRef}
+            id={name}
+            aria-invalid={!!errorMsg}
+            aria-errormessage={`${name}-error`}
+            class="hidden"
+          >
+            <option value="" disabled hidden selected={!value}>
+              {label}
+            </option>
+            {options.map(({ label, value }) => (
+              <option
+                key={value}
+                value={value}
+                selected={state.selected?.includes(value)}
+              >
+                {label}
+              </option>
+            ))}
+          </select>
+
           <button
             type="button"
             aria-label={label}
@@ -108,7 +154,7 @@ export default component$<SelectProps>(
               "font-primary text-text",
               "outline-none duration-100 ease-out",
               inputVariants[variant],
-              props.class,
+              customClass,
               !!errorMsg ? "border-destructive" : "border-input",
             )}
             onClick$={toggleDropdown}
@@ -163,7 +209,7 @@ export default component$<SelectProps>(
                 : "animate-fade-out-slide z-[-10]",
             )}
           >
-            {props.options.map((option) => (
+            {options.map((option) => (
               <div key={option.value} class="w-full px-1">
                 <div
                   class={cn(
