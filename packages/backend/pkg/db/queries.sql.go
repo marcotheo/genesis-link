@@ -334,3 +334,20 @@ func (q *Queries) GetUser(ctx context.Context, userid string) (User, error) {
 	)
 	return i, err
 }
+
+const getUserPost = `-- name: GetUserPost :one
+SELECT postId FROM posts
+WHERE postId = ? AND userId = ?
+`
+
+type GetUserPostParams struct {
+	Postid string
+	Userid string
+}
+
+func (q *Queries) GetUserPost(ctx context.Context, arg GetUserPostParams) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUserPost, arg.Postid, arg.Userid)
+	var postid string
+	err := row.Scan(&postid)
+	return postid, err
+}

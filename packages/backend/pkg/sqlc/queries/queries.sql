@@ -6,6 +6,10 @@ WHERE userId = ? LIMIT 1;
 SELECT * FROM addresses
 WHERE userId = ?;
 
+-- name: GetUserPost :one
+SELECT postId FROM posts
+WHERE postId = ? AND userId = ?;
+
 -- name: CreateUser :one
 INSERT INTO users (
   userId, email
