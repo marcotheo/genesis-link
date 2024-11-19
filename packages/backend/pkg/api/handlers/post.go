@@ -196,11 +196,40 @@ type PostRequirementsParams struct {
 func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreatePostRequirements => invoked")
 
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
 	var postRequirementsParams PostRequirementsParams
 
 	errRead := ReadAndValidateBody(r, &postRequirementsParams)
 	if errRead != nil {
 		http.Error(w, errRead.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, errGetPostQuery := h.dataService.Queries.GetUserPost(context.Background(), db.GetUserPostParams{
+		Userid: userId,
+		Postid: postRequirementsParams.Postid,
+	})
+
+	if errGetPostQuery != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePostRequirements => error searching for post %s \n", errGetPostQuery))
+
+		if strings.Contains(errGetPostQuery.Error(), "sql: no rows in result set") {
+			http.Error(w, "Related post not found", http.StatusBadRequest)
+		} else {
+			http.Error(w, "Error finding post", http.StatusInternalServerError)
+		}
+
 		return
 	}
 
