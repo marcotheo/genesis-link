@@ -155,7 +155,7 @@ export default component$(() => {
               <Header />
             </div>
             <div class="grow overflow-auto">
-              <div class="h-full px-5 sm:px-12 2xl:px-64">
+              <div class="h-full min-[350px]:px-5 sm:px-12 2xl:px-64">
                 <Slot />
               </div>
             </div>
