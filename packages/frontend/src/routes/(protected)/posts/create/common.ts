@@ -53,6 +53,13 @@ export const JobDetailsInfoSchema = v.object({
 
 export type JobDetailsInfoStep = v.InferInput<typeof JobDetailsInfoSchema>;
 
+export const JobRequirmentsSchema = v.object({
+  qualifications: v.array(v.string()),
+  responsibilities: v.array(v.string()),
+});
+
+export type JobRequirementsStep = v.InferInput<typeof JobRequirmentsSchema>;
+
 export type CreateJobPostFormData = {
   postId?: string;
   form1?: BasicPostInfoStep;
@@ -62,4 +69,5 @@ export type CreateJobPostFormData = {
   };
   form3?: string;
   form4?: JobDetailsInfoStep;
+  form5?: JobRequirementsStep;
 };
