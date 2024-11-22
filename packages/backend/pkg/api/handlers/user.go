@@ -173,6 +173,7 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 
 	res, err := h.cognitoService.SignInUser(inputValidation.Email, inputValidation.Password)
 	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("error signin %s \n", err))
 		errorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
