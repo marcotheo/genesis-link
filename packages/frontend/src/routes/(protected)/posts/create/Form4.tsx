@@ -44,8 +44,6 @@ export default component$(() => {
 
   const handleSubmit = $<SubmitHandler<JobDetailsInfoStep>>(async (values) => {
     try {
-      console.log(values);
-
       if (!formDataCtx.postId) throw "No post created yet";
 
       const res = await mutate({
