@@ -28,6 +28,11 @@ export const PHpeso = new Intl.NumberFormat("en-US", {
   currency: "PHP",
 });
 
+export const capitalizeFirstLetter = (input: string) => {
+  if (!input) return input; // Handle empty or null strings
+  return input.charAt(0).toUpperCase() + input.slice(1);
+};
+
 // Define a helper function for fetch requests
 export const qwikFetch = async <T>(
   url?: string,
