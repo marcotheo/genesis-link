@@ -44,7 +44,14 @@ export const qwikFetch = async <T>(
   const response = await fetch(requestUrl, options);
 
   if (!response.ok) {
-    const errorMessage = await response.text();
+    const errorBody = await response.json().catch(() => null);
+
+    let errorMessage = "An unknown error occurred";
+
+    if (errorBody && typeof errorBody === "object" && errorBody.message)
+      errorMessage = errorBody.message;
+    else errorMessage = await response.text();
+
     throw { status: response.status, message: errorMessage };
   }
 
