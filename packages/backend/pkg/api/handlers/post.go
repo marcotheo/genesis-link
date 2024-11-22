@@ -187,14 +187,24 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-type PostRequirementsParams struct {
-	Postid          string `json:"postId" validate:"required,nanoid"`
+type Requirement struct {
 	RequirementType string `json:"requirementType" validate:"required,oneof=responsibility qualification"`
 	Requirement     string `json:"requirement" validate:"required,min=5,max=500"`
+}
+type PostRequirementsParams struct {
+	Postid       string        `json:"postId" validate:"required,nanoid"`
+	Requirements []Requirement `json:"requirements" validate:"required,dive"`
 }
 
 func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreatePostRequirements => invoked")
+
+	var postRequirementsParams PostRequirementsParams
+
+	if err := ReadAndValidateBody(r, &postRequirementsParams); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	token, errorAccessToken := r.Cookie("accessToken")
 	if errorAccessToken != nil {
@@ -205,14 +215,6 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 	userId, errUserId := h.cognitoService.GetUserId(token.Value)
 	if errUserId != nil {
 		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
-
-	var postRequirementsParams PostRequirementsParams
-
-	errRead := ReadAndValidateBody(r, &postRequirementsParams)
-	if errRead != nil {
-		http.Error(w, errRead.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -233,27 +235,43 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// pass the validated data to actual db params
-	var postRequirement db.CreatePostRequirementParams
-	errCopier := copier.Copy(&postRequirement, &postRequirementsParams)
-	if errCopier != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) CreatePostRequirements => Error copying: %s", errCopier))
+	// creating transaction for multi row insert
+	tx, err := h.dataService.Conn.Begin()
+
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePostRequirements => error beginning transaction: %s", err))
 		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
 		return
 	}
 
-	id, err := gonanoid.New()
-	if err != nil {
-		fmt.Println("Error generating ID:", err)
-		return
+	defer tx.Rollback()
+
+	qtx := h.dataService.Queries.WithTx(tx)
+
+	for _, data := range postRequirementsParams.Requirements {
+		id, err := gonanoid.New()
+
+		if err != nil {
+			fmt.Println("(POST) CreatePostRequirements => Error generating ID:", err)
+			return
+		}
+
+		if err = qtx.CreatePostRequirement(context.Background(), db.CreatePostRequirementParams{
+			Postid:          postRequirementsParams.Postid,
+			Requirementid:   id,
+			Requirementtype: data.RequirementType,
+			Requirement:     data.Requirement,
+		}); err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreatePostRequirements => err %s \n", err))
+			http.Error(w, "error inserting post requirement data", http.StatusInternalServerError)
+			return
+		}
 	}
 
-	postRequirement.Requirementid = id
-
-	errQ := h.dataService.Queries.CreatePostRequirement(context.Background(), postRequirement)
-	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) CreatePostRequirements => errQ %s \n", errQ))
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePostRequirements => err %s \n", err))
+		http.Error(w, "error commiting transaction", http.StatusInternalServerError)
 		return
 	}
 
@@ -268,6 +286,7 @@ type Post struct {
 	Company  string `json:"Company,omitempty"`
 	Deadline int64  `json:"Deadline,omitempty"`
 }
+
 type GetPostsResponse struct {
 	Posts []Post
 	Total int64
