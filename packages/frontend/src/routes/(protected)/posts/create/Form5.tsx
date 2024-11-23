@@ -69,7 +69,7 @@ export default component$(() => {
         type: "success",
       });
 
-      activeStep.value = 5;
+      activeStep.value = 6;
     } catch (error) {
       console.error("Error submitting form:", error);
 
