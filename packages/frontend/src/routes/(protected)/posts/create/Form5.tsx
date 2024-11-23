@@ -26,7 +26,7 @@ export default component$(() => {
 
   const toast = useToast();
 
-  const { mutate } = useMutate("posts/create/requirements");
+  const { mutate } = useMutate("/posts/create/requirements");
 
   const [jobRequirementsForm, { Form, Field, FieldArray }] =
     useForm<JobRequirementsStep>({
@@ -44,9 +44,19 @@ export default component$(() => {
     try {
       if (!formDataCtx.postId) throw "No post created yet";
 
+      const qualifications = values.qualifications.map((value) => ({
+        requirementType: "qualification",
+        requirement: value,
+      }));
+
+      const responsibilities = values.responsibilities.map((value) => ({
+        requirementType: "responsibility",
+        requirement: value,
+      }));
+
       const res = await mutate({
-        ...values,
         postId: formDataCtx.postId,
+        requirements: [...qualifications, ...responsibilities],
       });
 
       formDataCtx.form5 = values;
