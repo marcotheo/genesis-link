@@ -17,6 +17,7 @@ import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { CreateAddressForm } from "~/common/formSchema";
 import { InitialValues } from "@modular-forms/qwik";
 import StepHeader from "./StepHeader";
+import SuccessBox from "./SuccessBox";
 import { cn } from "~/common/utils";
 import Stepper from "./Stepper";
 import Form1 from "./Form1";
@@ -80,6 +81,7 @@ const ActiveForm = component$(() => {
       <Form3 />
       <Form4 />
       <Form5 />
+      <SuccessBox />
     </>
   );
 });
