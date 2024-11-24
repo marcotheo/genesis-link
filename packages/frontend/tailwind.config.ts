@@ -22,6 +22,7 @@ const config = {
       fontFamily: {
         primary: "Manrope",
         secondary: "Quicksand",
+        work: "Work Sans",
       },
 
       colors: {
