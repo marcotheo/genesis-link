@@ -6,7 +6,7 @@ import { awsRegion, poolClientId, userPoolId } from "~/common/constants";
 import ToasterProvider from "~/providers/toaster/toaster";
 import QueryProvider from "~/providers/query/query";
 import AuthProvider from "~/providers/auth/auth";
-import { rawFetch } from "~/common/utils";
+import { cn, rawFetch } from "~/common/utils";
 import Header from "./Header";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
@@ -151,11 +151,12 @@ export default component$(() => {
       <QueryProvider>
         <AuthProvider>
           <div class="h-screen flex flex-col">
-            <div class="px-5 sm:px-12 2xl:px-64">
+            <div class={cn("min-[350px]:px-5 sm:px-12 2xl:px-52")}>
               <Header />
             </div>
+
             <div class="grow overflow-auto">
-              <div class="h-full min-[350px]:px-5 sm:px-12 2xl:px-64">
+              <div class="h-full min-[350px]:px-5 sm:px-12 2xl:px-52">
                 <Slot />
               </div>
             </div>
