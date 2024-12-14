@@ -16,6 +16,12 @@ build:
 	chmod +x bootstrap
 	zip -r deployment.zip server bootstrap
 
+root-build:
+	docker build -t golang-lambda-builder -f Dockerfile.lambda .
+	docker run --rm -v "$(PWD)/packages/backend":/out golang-lambda-builder
+	chmod +x bootstrap
+	zip -r deployment.zip server bootstrap
+
 db-status:
 	goose -dir ${MIG_DIR} turso $(DB_URL) status
 
