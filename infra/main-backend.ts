@@ -53,11 +53,9 @@ export const main_backend = async ({
     },
   });
 
-  const filePath = path.join(
-    __dirname,
-    "../../../packages/backend",
-    "deployment.zip"
-  );
+  const rootDir = process.cwd();
+
+  const filePath = path.resolve(rootDir, "packages/backend/deployment.zip");
 
   const lambdaFunction = new aws.lambda.Function(
     `${process.env.PROJ_NAME}Lambda`,
