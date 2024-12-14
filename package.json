@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prod": "pnpm build-functions && sst deploy --stage production",
+    "preview": "pnpm build-functions && sst deploy --stage preview",
     "dev": "pnpm build-functions && sst dev",
-    "dev-down": "sst remove dev",
+    "dev-down": "sst remove --stage dev",
+    "prod-down": "sst remove --stage production",
+    "preview-down": "sst remove --stage preview",
     "build-functions": "pnpm build-backend && pnpm build-event-signup",
     "build-backend": "make -C packages/backend root-build",
     "build-event-signup": "make -C packages/events/signup root-build"
