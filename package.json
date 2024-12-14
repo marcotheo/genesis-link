@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "sst dev",
-    "dev-down": "sst remove dev"
+    "dev": "pnpm build-backend && sst dev",
+    "dev-down": "sst remove dev",
+    "build-backend": "make -C packages/backend root-build"
   },
   "keywords": [],
   "author": "",
