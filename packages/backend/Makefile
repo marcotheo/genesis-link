@@ -17,10 +17,10 @@ build:
 	zip -r deployment.zip server bootstrap
 
 db-status:
-	goose -dir ${MIG_DIR} turso $(DB_MIGRATION_URL) status
+	goose -dir ${MIG_DIR} turso $(DB_URL) status
 
 db-up:
-	goose -dir ${MIG_DIR} turso $(DB_MIGRATION_URL) up
+	goose -dir ${MIG_DIR} turso $(DB_URL) up
 
 db-reset:
-	goose -dir ${MIG_DIR} turso $(DB_MIGRATION_URL) reset
+	goose -dir ${MIG_DIR} turso $(DB_URL) reset
