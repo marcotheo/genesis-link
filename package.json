@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "pnpm build-backend && sst dev",
+    "dev": "pnpm build-functions && sst dev",
     "dev-down": "sst remove dev",
-    "build-backend": "make -C packages/backend root-build"
+    "build-functions": "pnpm build-backend && pnpm build-event-signup",
+    "build-backend": "make -C packages/backend root-build",
+    "build-event-signup": "make -C packages/events/signup root-build"
   },
   "keywords": [],
   "author": "",
