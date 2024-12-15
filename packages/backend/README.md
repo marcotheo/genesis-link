@@ -48,3 +48,7 @@
    - Under `packages/backend` add the env variable `DB_URL=http://127.0.0.1:8080` which connect to the local turso db you started
 
 2. setup the .env file and refer to .env.examples
+
+### PRODUCTION DEPLOYMENT
+
+refer to root readme file
