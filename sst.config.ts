@@ -48,6 +48,7 @@ export default $config({
       });
 
       output = {
+        ...output,
         ...cloudflareResults,
       };
     }
