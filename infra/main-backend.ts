@@ -12,6 +12,8 @@ export const main_backend = async ({
   poolClientId: $util.Output<string>;
   poolClientSecret: $util.Output<string>;
 }) => {
+  if (!["production", "preview"].includes($app.stage)) return {};
+
   const callerIdentity = aws.getCallerIdentity();
   const accountId = await callerIdentity.then((identity) => identity.accountId);
 
