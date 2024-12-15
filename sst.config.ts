@@ -4,6 +4,15 @@ import { main_user_pool } from "./infra/main-userpool";
 import { images_cdn } from "./infra/images-cdn";
 import { cloudflare_pages } from "./infra/cloudflare-pages";
 
+const getSiteUrl = () => {
+  if ($app.stage && ["production", "preview"].includes($app.stage))
+    return process.env.DOMAIN_NAME
+      ? $util.interpolate`${`https://${process.env.DOMAIN_NAME}`}`
+      : $util.interpolate`${`https://${process.env.APP_NAME}.pages.dev`}`;
+
+  return $util.interpolate`${"http://localhost:5173"}`;
+};
+
 export default $config({
   app(input) {
     return {
@@ -17,27 +26,14 @@ export default $config({
     };
   },
   async run() {
-    let output = {};
-    let siteUrl = $util.interpolate`${"http://localhost:5173"}`;
-
-    if (
-      process.env.NODE_ENV &&
-      ["production", "preview"].includes(process.env.NODE_ENV)
-    ) {
-      if (!process.env.DOMAN_NAME) {
-        console.error("must define DOMAN_NAME env variable");
-        return;
-      }
-
-      const cloudflareResults = cloudflare_pages();
-
-      siteUrl = cloudflareResults.CloudFlareDomain;
-
-      output = {
-        ...output,
-        ...cloudflareResults,
-      };
+    if (!process.env.APP_NAME) {
+      console.error("must define APP_NAME env variable");
+      return;
     }
+
+    let output = {};
+
+    const siteUrl = getSiteUrl();
 
     const mainUserPool = main_user_pool({ siteUrl });
 
@@ -48,20 +44,30 @@ export default $config({
     });
 
     output = {
+      ...output,
       ...mainBackendResult,
       ...mainUserPool,
     };
 
-    if (!process.env.APP_NAME) {
-      console.error("must define APP_NAME env variable");
-      return;
+    if ($app.stage && ["production", "preview"].includes($app.stage)) {
+      console.log("Deploying cloudflare pages ...");
+
+      const cloudflareResults = cloudflare_pages({
+        apiUrl: mainBackendResult.apiUrl,
+        poolId: mainUserPool.poolId,
+        poolClientId: mainUserPool.poolClientId,
+      });
+
+      output = {
+        ...cloudflareResults,
+      };
     }
 
-    const cdnInfra = images_cdn();
+    // const cdnInfra = images_cdn();
 
     output = {
       ...output,
-      ...cdnInfra,
+      // ...cdnInfra,
     };
 
     return output;
