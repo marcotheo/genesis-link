@@ -1,11 +1,6 @@
 # ARK POINT BACKEND
 
-### SETUP LOCAL SQLITE
-
-1. create a folder where you save the db file for persistency (example for db file `local.db`)
-2. under that folder run `turso dev --db-file local.db`
-
-### SETUP REMOTE SQLITE
+### SETUP REMOTE SQLITE for production or preview environment
 
 1. create a turso account
 2. create a turso database `turso db create [database-name]`
@@ -39,3 +34,17 @@
 ### Docker command for local development
 
 - docker run --rm --env-file ./.env -p 3000:8080 goapp
+
+### LOCAL DEVELOPMENT
+
+- Prereq
+
+  - install turso cli (https://docs.turso.tech/cli/installation)
+
+1. Running tursodb locally
+
+   - create a `tursolocal` folder anywhere on the project and run the command below
+   - Run this command `turso dev --db-file local.db` to run an sqlite file as turso locally
+   - Under `packages/backend` add the env variable `DB_URL=http://127.0.0.1:8080` which connect to the local turso db you started
+
+2. setup the .env file and refer to .env.examples
