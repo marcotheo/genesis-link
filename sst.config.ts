@@ -1,7 +1,7 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 import { main_backend } from "./infra/main-backend";
 import { main_user_pool } from "./infra/main-userpool";
-import { images_cdn } from "./infra/images-cdn";
+import { cdn } from "./infra/cdn";
 import { cloudflare_pages } from "./infra/cloudflare-pages";
 
 export default $config({
@@ -24,16 +24,19 @@ export default $config({
 
     let output = {};
 
+    const cdnInfra = cdn();
+
     const mainUserPool = main_user_pool();
 
     const mainBackendResult = await main_backend({
+      bucket: cdnInfra.AssetsBucket,
       poolId: mainUserPool.poolId,
       poolClientId: mainUserPool.poolClientId,
       poolClientSecret: mainUserPool.poolClientSecret,
     });
 
     output = {
-      ...output,
+      ...cdnInfra,
       ...mainBackendResult,
       ...mainUserPool,
     };
@@ -42,6 +45,7 @@ export default $config({
       console.log("Deploying cloudflare pages ...");
 
       const cloudflareResults = cloudflare_pages({
+        cdnDomain: cdnInfra.AssetsDistribution,
         apiUrl: mainBackendResult.apiUrl,
         poolId: mainUserPool.poolId,
         poolClientId: mainUserPool.poolClientId,
@@ -52,13 +56,6 @@ export default $config({
         ...cloudflareResults,
       };
     }
-
-    // const cdnInfra = images_cdn();
-
-    output = {
-      ...output,
-      // ...cdnInfra,
-    };
 
     return output;
   },

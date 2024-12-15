@@ -1,8 +1,10 @@
 export const cloudflare_pages = ({
+  cdnDomain,
   apiUrl,
   poolId,
   poolClientId,
 }: {
+  cdnDomain: $util.Output<string>;
   apiUrl: $util.Output<string>;
   poolId: $util.Output<string>;
   poolClientId: $util.Output<string>;
@@ -48,7 +50,7 @@ export const cloudflare_pages = ({
       production: {
         environmentVariables: {
           NODE_VERSION: "v20.13.1",
-          QWIK_CDN_URL: "https://d1jorx0fo3ckaw.cloudfront.net",
+          QWIK_CDN_URL: $util.interpolate`https://${cdnDomain}`,
           QWIK_API_URL: apiUrl,
           QWIK_AWS_REGION: process.env.AWS_REGION,
           QWIK_POOL_ID: poolId,

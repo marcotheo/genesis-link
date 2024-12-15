@@ -2,10 +2,12 @@ import * as path from "path";
 import { getSiteUrl } from "./utils";
 
 export const main_backend = async ({
+  bucket,
   poolId,
   poolClientId,
   poolClientSecret,
 }: {
+  bucket: $util.Output<string>;
   poolId: $util.Output<string>;
   poolClientId: $util.Output<string>;
   poolClientSecret: $util.Output<string>;
@@ -59,9 +61,9 @@ export const main_backend = async ({
   const filePath = path.resolve(rootDir, "packages/backend/deployment.zip");
 
   const lambdaFunction = $util
-    .all([poolId, poolClientId, poolClientSecret, getSiteUrl()])
+    .all([poolId, poolClientId, poolClientSecret, getSiteUrl(), bucket])
     .apply(
-      ([var1, var2, var3, var4]) =>
+      ([var1, var2, var3, var4, var5]) =>
         new aws.lambda.Function(`${process.env.PROJ_NAME}Lambda`, {
           runtime: aws.lambda.Runtime.CustomAL2023,
           code: new $util.asset.FileArchive(filePath),
@@ -78,7 +80,7 @@ export const main_backend = async ({
               AUTH_SESSION_SECRET:
                 process.env.AUTH_SESSION_SECRET ?? "simple-secret",
               DOMAIN: process.env.DOMAIN ? process.env.DOMAIN : undefined,
-              ASSET_BUCKET: "assetsbucket-d1cb8e7", // improve later
+              ASSET_BUCKET: var5,
             },
           },
         })
