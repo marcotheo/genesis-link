@@ -1,5 +1,5 @@
 import type { RequestHandler } from "@builder.io/qwik-city";
-import { baseApiUrl, baseCDNUrl } from "~/common/constants";
+import { baseCDNUrl } from "~/common/constants";
 import { isDev } from "@builder.io/qwik/build";
 
 export const onRequest: RequestHandler = (event) => {
