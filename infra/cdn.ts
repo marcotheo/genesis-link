@@ -1,9 +1,5 @@
-import { execSync } from "child_process";
-
-export const images_cdn = () => {
-  const isProd =
-    process.env.NODE_ENV &&
-    ["production", "preview"].includes(process.env.NODE_ENV);
+export const cdn = () => {
+  const isProd = $app.stage && ["production", "preview"].includes($app.stage);
 
   const bucket = new aws.s3.Bucket("AssetsBucket", {
     acl: "private",
@@ -12,7 +8,9 @@ export const images_cdn = () => {
       {
         allowedHeaders: ["*"],
         allowedMethods: ["PUT", "POST", "GET"],
-        allowedOrigins: [isProd ? process.env.DOMAN_NAME : "*"],
+        allowedOrigins: [
+          isProd ? (process.env.DOMAIN ? process.env.DOMAIN : "*") : "*",
+        ],
         exposeHeaders: ["ETag"],
         maxAgeSeconds: 3000,
       },
@@ -88,32 +86,6 @@ export const images_cdn = () => {
       },
     }
   );
-
-  bucket.bucket.apply((v) => {
-    console.log("Running Images-Optimization Scripts ...");
-
-    process.env.ASSETS_BUCKET = v;
-
-    new sst.Resource("ScriptLogoOptimizer", {
-      execSync: execSync(
-        `node ${process.cwd()}/packages/scripts/src/logo-optimizer.js`,
-        {
-          stdio: "inherit",
-        }
-      ),
-    });
-
-    new sst.Resource("ScriptImagesOptimizer", {
-      execSync: execSync(
-        `node ${process.cwd()}/packages/scripts/src/image-optimizer.js`,
-        {
-          stdio: "inherit",
-        }
-      ),
-    });
-
-    console.log("Images-Optimization Scripts Done!");
-  });
 
   return {
     AssetsBucket: bucket.bucket,
