@@ -16,13 +16,15 @@ import {
   UserIcon,
 } from "~/components/icons/icons";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
-import LogoImage from "~/components/logo-image/logo-image";
+// import LogoImage from "~/components/logo-image/logo-image";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import DarkMode from "~/components/dark-mode/dark-mode";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import { useAuthCheck } from "./layout";
 import { cn } from "~/common/utils";
+
+import Image from "../assets/images/logo.png?jsx";
 
 const MobileMenu = component$(() => {
   const isAuth = useAuthCheck();
@@ -32,18 +34,9 @@ const MobileMenu = component$(() => {
       <HamburgerIcon q:slot="trigger" />
 
       <div q:slot="header">
-        <div class="flex gap-3">
-          <div class="w-14 h-14">
-            <LogoImage
-              alt="Genesis Oppurtinities Logo"
-              filename="logo"
-              height={100}
-              width={100}
-            />
-          </div>
-          <div class="flex flex-col justify-center font-bold italic text-xl">
-            <p>Genesis</p>
-            <p>Oppurtunities</p>
+        <div class="h-full w-full flex justify-center items-center">
+          <div class={cn("relative w-44", "flex items-center justify-center")}>
+            <Image class="w-full h-auto block" />
           </div>
         </div>
       </div>
@@ -159,27 +152,25 @@ const HeaderItems = component$(() => {
 
 export default component$(() => {
   return (
-    <div class={cn("flex justify-between items-center", "w-full py-8")}>
+    <div
+      class={cn(
+        "flex justify-between items-center",
+        "w-full py-6",
+        "bg-transparent",
+      )}
+    >
       <div class="flex items-center gap-3">
         <Link href="/">
-          <div class="w-10 h-10 sm:w-14 sm:h-14">
-            <LogoImage
-              alt="Genesis Oppurtinities Logo"
-              filename="logo"
-              height={100}
-              width={100}
-            />
+          <div
+            class={cn(
+              "relative",
+              "flex items-center justify-center",
+              "w-36 min-[400px]:w-44 sm:w-56",
+            )}
+          >
+            <Image class="w-full h-auto block" />
           </div>
         </Link>
-        <div
-          class={cn(
-            "flex justify-center gap-2",
-            "font-bold italic text-base sm:text-xl",
-          )}
-        >
-          <p>Genesis</p>
-          <p>Link</p>
-        </div>
       </div>
 
       <MobileMenu />
