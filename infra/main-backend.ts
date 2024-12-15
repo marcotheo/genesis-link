@@ -1,4 +1,5 @@
 import * as path from "path";
+import { getSiteUrl } from "./utils";
 
 export const main_backend = async ({
   poolId,
@@ -57,24 +58,31 @@ export const main_backend = async ({
 
   const filePath = path.resolve(rootDir, "packages/backend/deployment.zip");
 
-  const lambdaFunction = new aws.lambda.Function(
-    `${process.env.PROJ_NAME}Lambda`,
-    {
-      runtime: aws.lambda.Runtime.CustomAL2023,
-      code: new $util.asset.FileArchive(filePath),
-      timeout: 10,
-      role: role.arn,
-      handler: "bootstrap", // Custom runtimes can have handler set to an empty string ""
-      environment: {
-        variables: {
-          DB_URL: process.env.DB_URL,
-          POOL_ID: poolId,
-          POOL_CLIENT_ID: poolClientId,
-          POOL_CLIENT_SECRET: poolClientSecret,
-        },
-      },
-    }
-  );
+  const lambdaFunction = $util
+    .all([poolId, poolClientId, poolClientSecret, getSiteUrl()])
+    .apply(
+      ([var1, var2, var3, var4]) =>
+        new aws.lambda.Function(`${process.env.PROJ_NAME}Lambda`, {
+          runtime: aws.lambda.Runtime.CustomAL2023,
+          code: new $util.asset.FileArchive(filePath),
+          timeout: 10,
+          role: role.arn,
+          handler: "bootstrap", // Custom runtimes can have handler set to an empty string ""
+          environment: {
+            variables: {
+              POOL_ID: var1,
+              POOL_CLIENT_ID: var2,
+              POOL_CLIENT_SECRET: var3,
+              ALLOWED_ORIGINS: var4,
+              DB_URL: process.env.DB_URL,
+              AUTH_SESSION_SECRET:
+                process.env.AUTH_SESSION_SECRET ?? "simple-secret",
+              DOMAIN: process.env.DOMAIN ? process.env.DOMAIN : undefined,
+              ASSET_BUCKET: "assetsbucket-d1cb8e7", // improve later
+            },
+          },
+        })
+    );
 
   // Create an API Gateway
   const api = new aws.apigatewayv2.Api(`${process.env.PROJ_NAME}APIGateway`, {
