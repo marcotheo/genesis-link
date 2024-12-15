@@ -42,8 +42,8 @@ export default $config({
 
     return {
       ...cdnInfra,
-      ...mainBackendResult,
       ...mainUserPool,
+      ...mainBackendResult,
       ...cloudflareResults,
     };
   },
