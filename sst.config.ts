@@ -22,8 +22,6 @@ export default $config({
       return;
     }
 
-    let output = {};
-
     const cdnInfra = cdn();
 
     const mainUserPool = main_user_pool();
@@ -35,28 +33,18 @@ export default $config({
       poolClientSecret: mainUserPool.poolClientSecret,
     });
 
-    output = {
+    const cloudflareResults = cloudflare_pages({
+      cdnDomain: cdnInfra.AssetsDistribution,
+      apiUrl: mainBackendResult.apiUrl,
+      poolId: mainUserPool.poolId,
+      poolClientId: mainUserPool.poolClientId,
+    });
+
+    return {
       ...cdnInfra,
       ...mainBackendResult,
       ...mainUserPool,
+      ...cloudflareResults,
     };
-
-    if ($app.stage && ["production", "preview"].includes($app.stage)) {
-      console.log("Deploying cloudflare pages ...");
-
-      const cloudflareResults = cloudflare_pages({
-        cdnDomain: cdnInfra.AssetsDistribution,
-        apiUrl: mainBackendResult.apiUrl,
-        poolId: mainUserPool.poolId,
-        poolClientId: mainUserPool.poolClientId,
-      });
-
-      output = {
-        ...output,
-        ...cloudflareResults,
-      };
-    }
-
-    return output;
   },
 });
