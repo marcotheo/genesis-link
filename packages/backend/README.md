@@ -1,4 +1,4 @@
-# ARK POINT BACKEND
+# ARK-POINT BACKEND
 
 ### SETUP REMOTE SQLITE for production or preview environment
 
@@ -35,19 +35,22 @@
 
 - docker run --rm --env-file ./.env -p 3000:8080 goapp
 
-### LOCAL DEVELOPMENT
+### LOCAL DEVELOPMENT SETUP
 
 - Prereq
 
   - install turso cli (https://docs.turso.tech/cli/installation)
+  - install `air` used for running golang server locally to have live reloads
 
 1. Running tursodb locally
 
    - create a `tursolocal` folder anywhere on the project and run the command below
    - Run this command `turso dev --db-file local.db` to run an sqlite file as turso locally
-   - Under `packages/backend` add the env variable `DB_URL=http://127.0.0.1:8080` which connect to the local turso db you started
+   - add the env variable `DB_URL=http://127.0.0.1:8080` which connect to the local turso db you started
 
-2. setup the .env file and refer to .env.examples
+2. run command `make db-up` to run db migrations
+3. create the .env file and refer to .env.examples
+4. run `air` to start backend app
 
 ### PRODUCTION DEPLOYMENT
 
