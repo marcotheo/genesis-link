@@ -3,15 +3,7 @@ import { main_backend } from "./infra/main-backend";
 import { main_user_pool } from "./infra/main-userpool";
 import { images_cdn } from "./infra/images-cdn";
 import { cloudflare_pages } from "./infra/cloudflare-pages";
-
-const getSiteUrl = () => {
-  if ($app.stage && ["production", "preview"].includes($app.stage))
-    return process.env.DOMAIN_NAME
-      ? $util.interpolate`${`https://${process.env.DOMAIN_NAME}`}`
-      : $util.interpolate`${`https://${process.env.APP_NAME}.pages.dev`}`;
-
-  return $util.interpolate`${"http://localhost:5173"}`;
-};
+import { getSiteUrl } from "./infra/utils";
 
 export default $config({
   app(input) {
