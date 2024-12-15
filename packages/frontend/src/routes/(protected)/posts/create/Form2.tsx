@@ -161,9 +161,7 @@ export default component$(() => {
     <FormWrapper formStep={2} activeStep={activeStep.value}>
       <LoadingOverlay
         open={
-          brandingVisualForm.submitting &&
-          (logoUploadProgress.value !== null ||
-            logoUploadProgress.value !== null)
+          brandingVisualForm.submitting && logoUploadProgress.value !== null
         }
         type="component"
       >

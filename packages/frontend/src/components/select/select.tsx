@@ -137,7 +137,7 @@ export default component$<SelectProps>(
               <option
                 key={value}
                 value={value}
-                selected={state.selected?.includes(value)}
+                selected={state.selected.includes(value)}
               >
                 {label}
               </option>

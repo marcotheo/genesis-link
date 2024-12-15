@@ -6,7 +6,7 @@ import {
   useForm,
   valiForm$,
 } from "@modular-forms/qwik";
-import { $, component$, Slot, useContext, useTask$ } from "@builder.io/qwik";
+import { $, component$, useContext, useTask$ } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { JobRequirementsStep, JobRequirmentsSchema } from "./common";
