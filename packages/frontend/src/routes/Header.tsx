@@ -16,7 +16,6 @@ import {
   UserIcon,
 } from "~/components/icons/icons";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
-// import LogoImage from "~/components/logo-image/logo-image";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import DarkMode from "~/components/dark-mode/dark-mode";
 import Heading from "~/components/heading/heading";
