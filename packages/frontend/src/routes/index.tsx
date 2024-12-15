@@ -52,7 +52,7 @@ export default component$(() => {
         </div>
 
         {/* 3D section */}
-        <div class="w-[70%] h-full relative max-xl:hidden">
+        {/* <div class="w-[70%] h-full relative max-xl:hidden">
           <div
             class={cn(
               "w-full h-full absolute",
@@ -69,7 +69,7 @@ export default component$(() => {
               url="https://prod.spline.design/uiYl1sSX1ATk5azZ/scene.splinecode"
             ></spline-viewer>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

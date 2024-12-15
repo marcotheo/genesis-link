@@ -30,11 +30,6 @@ export default component$(() => {
             href={`${import.meta.env.BASE_URL}manifest.json`}
           />
         )}
-        <script
-          type="module"
-          src="https://unpkg.com/@splinetool/viewer@1.9.48/build/spline-viewer.js"
-          nonce={nonce}
-        ></script>
         <RouterHead />
       </head>
 
