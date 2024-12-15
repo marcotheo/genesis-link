@@ -55,7 +55,7 @@ export const cloudflare_pages = ({
         environmentVariables: {
           NODE_VERSION: "v20.13.1",
           QWIK_CDN_URL: $util.interpolate`https://${cdnDomain}`,
-          QWIK_API_URL: $util.interpolate`${apiUrl}/api/v1`,
+          QWIK_API_URL: apiUrl,
           QWIK_AWS_REGION: process.env.AWS_REGION,
           QWIK_POOL_ID: poolId,
           QWIK_POOL_CLIENT_ID: poolClientId,

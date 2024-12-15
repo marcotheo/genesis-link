@@ -41,9 +41,9 @@ export const qwikFetch = async <T>(
   let requestUrl: string = baseApiUrl;
 
   if (url && url.includes("http")) {
-    requestUrl = url;
+    requestUrl = url + "/api/v1";
   } else {
-    requestUrl = requestUrl + url;
+    requestUrl = requestUrl + url + "/api/v1";
   }
 
   const response = await fetch(requestUrl, options);
@@ -81,9 +81,9 @@ export const rawFetch = async <T>(
   let requestUrl: string = baseApiUrl;
 
   if (url && url.includes("http")) {
-    requestUrl = url;
+    requestUrl = url + "/api/v1";
   } else {
-    requestUrl = requestUrl + url;
+    requestUrl = requestUrl + url + "/api/v1";
   }
 
   const response = await fetch(requestUrl, options);
