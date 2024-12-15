@@ -1,4 +1,12 @@
-export const cloudflare_pages = () => {
+export const cloudflare_pages = ({
+  apiUrl,
+  poolId,
+  poolClientId,
+}: {
+  apiUrl: $util.Output<string>;
+  poolId: $util.Output<string>;
+  poolClientId: $util.Output<string>;
+}) => {
   if (!process.env.CLOUDFLARE_DEFAULT_ACCOUNT_ID) {
     console.error("CLOUDFLARE_DEFAULT_ACCOUNT_ID does not exist");
     return;
@@ -29,7 +37,7 @@ export const cloudflare_pages = () => {
   const app = new cloudflare.PagesProject(`${process.env.APP_NAME}FE`, {
     accountId,
     name: process.env.APP_NAME,
-    productionBranch: "cloudflare-test",
+    productionBranch: process.env.GITHUB_BRANCH,
     buildConfig: {
       buildCaching: true,
       buildCommand: "npm run build",
@@ -40,6 +48,11 @@ export const cloudflare_pages = () => {
       production: {
         environmentVariables: {
           NODE_VERSION: "v20.13.1",
+          QWIK_CDN_URL: "https://d1jorx0fo3ckaw.cloudfront.net",
+          QWIK_API_URL: apiUrl,
+          QWIK_AWS_REGION: process.env.AWS_REGION,
+          QWIK_POOL_ID: poolId,
+          QWIK_POOL_CLIENT_ID: poolClientId,
         },
       },
     },
