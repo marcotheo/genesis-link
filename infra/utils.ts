@@ -4,4 +4,6 @@ export const getSiteUrl = () => {
     return process.env.DOMAIN
       ? $util.interpolate`${`https://${process.env.DOMAIN}`}`
       : $util.interpolate`${`https://${process.env.APP_NAME}.pages.dev`}`; // cloudflare pages provided domain
+
+  return $util.interpolate`${`http://${process.env.DOMAIN ?? "localhost:5173"}`}`;
 };
