@@ -3,7 +3,6 @@ import { main_backend } from "./infra/main-backend";
 import { main_user_pool } from "./infra/main-userpool";
 import { images_cdn } from "./infra/images-cdn";
 import { cloudflare_pages } from "./infra/cloudflare-pages";
-import { getSiteUrl } from "./infra/utils";
 
 export default $config({
   app(input) {
@@ -25,9 +24,7 @@ export default $config({
 
     let output = {};
 
-    const siteUrl = getSiteUrl();
-
-    const mainUserPool = main_user_pool({ siteUrl });
+    const mainUserPool = main_user_pool();
 
     const mainBackendResult = await main_backend({
       poolId: mainUserPool.poolId,

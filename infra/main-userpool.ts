@@ -1,10 +1,7 @@
 import path = require("path");
+import { getSiteUrl } from "./utils";
 
-export const main_user_pool = ({
-  siteUrl,
-}: {
-  siteUrl: $util.Output<string>;
-}) => {
+export const main_user_pool = () => {
   // Create an IAM Role for the Lambda function
   const lambdaRole = new aws.iam.Role("SignUpCognitoLambdaRole", {
     assumeRolePolicy: {
@@ -52,7 +49,7 @@ export const main_user_pool = ({
       code: new $util.asset.FileArchive(filePath),
       environment: {
         variables: {
-          SITE_URL: siteUrl,
+          SITE_URL: getSiteUrl(),
         },
       },
     }
