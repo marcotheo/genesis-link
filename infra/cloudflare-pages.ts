@@ -39,12 +39,15 @@ export const cloudflare_pages = ({
   console.log("Deploying cloudflare pages ...");
 
   const accountId = process.env.CLOUDFLARE_DEFAULT_ACCOUNT_ID;
-  const domainName = process.env.DOMAIN;
+  const domainName =
+    ($app.stage === "production" ? "" : `${$app.stage}.`) + process.env.DOMAIN;
   const zoneId = process.env.ZONE_ID;
 
   const app = new cloudflare.PagesProject(`${process.env.APP_NAME}FE`, {
     accountId,
-    name: process.env.APP_NAME,
+    name:
+      process.env.APP_NAME +
+      ($app.stage === "production" ? "" : `-${$app.stage}.`),
     productionBranch: process.env.GITHUB_BRANCH,
     buildConfig: {
       buildCaching: true,
