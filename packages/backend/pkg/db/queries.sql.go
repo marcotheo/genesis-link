@@ -266,6 +266,71 @@ func (q *Queries) GetPostCountByUserId(ctx context.Context, userid string) (int6
 	return total_count, err
 }
 
+const getPostDetailsByPostId = `-- name: GetPostDetailsByPostId :one
+SELECT  
+   p.postid, p.company, p.title, p.description, p.posterlink, p.logolink, p.additionalinfolink, p.wfh, p.email, p.phone, p.deadline, p.addressid, p.userid, p.posted_at, p.updated_at,
+   jb.jobdetailid, jb.postid, jb.jobtype, jb.salarytype, jb.salaryamountmin, jb.salaryamountmax, jb.salarycurrency
+FROM posts p
+LEFT JOIN job_details jb
+ON p.postId = jb.postId
+WHERE p.postId = ?
+`
+
+type GetPostDetailsByPostIdRow struct {
+	Postid             string
+	Company            string
+	Title              string
+	Description        sql.NullString
+	Posterlink         sql.NullString
+	Logolink           sql.NullString
+	Additionalinfolink sql.NullString
+	Wfh                sql.NullInt64
+	Email              sql.NullString
+	Phone              sql.NullString
+	Deadline           sql.NullInt64
+	Addressid          string
+	Userid             string
+	PostedAt           sql.NullTime
+	UpdatedAt          sql.NullTime
+	Jobdetailid        sql.NullString
+	Postid_2           sql.NullString
+	Jobtype            sql.NullString
+	Salarytype         sql.NullString
+	Salaryamountmin    sql.NullInt64
+	Salaryamountmax    sql.NullInt64
+	Salarycurrency     sql.NullString
+}
+
+func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (GetPostDetailsByPostIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getPostDetailsByPostId, postid)
+	var i GetPostDetailsByPostIdRow
+	err := row.Scan(
+		&i.Postid,
+		&i.Company,
+		&i.Title,
+		&i.Description,
+		&i.Posterlink,
+		&i.Logolink,
+		&i.Additionalinfolink,
+		&i.Wfh,
+		&i.Email,
+		&i.Phone,
+		&i.Deadline,
+		&i.Addressid,
+		&i.Userid,
+		&i.PostedAt,
+		&i.UpdatedAt,
+		&i.Jobdetailid,
+		&i.Postid_2,
+		&i.Jobtype,
+		&i.Salarytype,
+		&i.Salaryamountmin,
+		&i.Salaryamountmax,
+		&i.Salarycurrency,
+	)
+	return i, err
+}
+
 const getPostsByUserId = `-- name: GetPostsByUserId :many
 SELECT  
     postId,

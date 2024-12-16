@@ -293,7 +293,7 @@ type GetPostsResponse struct {
 }
 
 func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(POST) GetPosts => invoked")
+	clog.Logger.Info("(GET) GetPosts => invoked")
 
 	pageStr := r.URL.Query().Get("page")
 	if pageStr == "" {
@@ -321,14 +321,14 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 
 	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64((page - 1) * 10), Userid: userId})
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) GetPosts => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)
 		return
 	}
 
 	totalCount, errQ := h.dataService.Queries.GetPostCountByUserId(context.Background(), userId)
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) GetPosts => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)
 		return
 	}
@@ -346,7 +346,30 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		postsData = append(postsData, item)
 	}
 
-	clog.Logger.Success("(POST) GetPosts => successful")
+	clog.Logger.Success("(GET) GetPosts => successful")
 
 	successResponse(w, GetPostsResponse{Posts: postsData, Total: totalCount})
+}
+
+func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetPostDetails => invoked")
+
+	postId := r.PathValue("postId")
+
+	post, errQ := h.dataService.Queries.GetPostDetailsByPostId(context.Background(), postId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetPostDetails => errQ %s \n", errQ))
+		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+		return
+	}
+
+	if post.Postid == "" {
+		clog.Logger.Error("(GET) GetPostDetails => post does not exist")
+		errorResponse(w, http.StatusBadRequest, "post does not exist!")
+		return
+	}
+
+	clog.Logger.Success("(GET) GetPosts => successful")
+
+	successResponse(w, post)
 }

@@ -99,3 +99,12 @@ SELECT
 FROM posts
 WHERE userId = ?;
 
+-- name: GetPostDetailsByPostId :one
+SELECT  
+   p.*,
+   jb.*
+FROM posts p
+LEFT JOIN job_details jb
+ON p.postId = jb.postId
+WHERE p.postId = ?;
+
