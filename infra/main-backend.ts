@@ -129,9 +129,7 @@ export const main_backend = async ({
   });
 
   // Custom Domain
-  const domainName =
-    `api.${process.env.APP_NAME}${$app.stage === "production" ? "." : `-${$app.stage}.`}` +
-    process.env.DOMAIN;
+  const domainName = `api${$app.stage === "production" ? "." : `-${$app.stage}.`}${process.env.DOMAIN}`;
 
   const customDomain = new aws.apigatewayv2.DomainName("CustomDomain", {
     domainName,
