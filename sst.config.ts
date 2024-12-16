@@ -3,6 +3,7 @@ import { main_backend } from "./infra/main-backend";
 import { main_user_pool } from "./infra/main-userpool";
 import { cdn } from "./infra/cdn";
 import { cloudflare_pages } from "./infra/cloudflare-pages";
+import { checkRequiredEnvs } from "./infra/utils";
 
 export default $config({
   app(input) {
@@ -17,10 +18,7 @@ export default $config({
     };
   },
   async run() {
-    if (!process.env.APP_NAME) {
-      console.error("must define APP_NAME env variable");
-      return;
-    }
+    if (!checkRequiredEnvs()) return;
 
     const cdnInfra = cdn();
     const mainUserPool = main_user_pool();
