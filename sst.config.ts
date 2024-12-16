@@ -23,23 +23,19 @@ export default $config({
     }
 
     const cdnInfra = cdn();
-
     const mainUserPool = main_user_pool();
-
     const mainBackendResult = await main_backend({
       bucket: cdnInfra.AssetsBucket,
       poolId: mainUserPool.poolId,
       poolClientId: mainUserPool.poolClientId,
       poolClientSecret: mainUserPool.poolClientSecret,
     });
-
     const cloudflareResults = cloudflare_pages({
       cdnDomain: cdnInfra.AssetsDistribution,
       apiUrl: mainBackendResult.apiUrl,
       poolId: mainUserPool.poolId,
       poolClientId: mainUserPool.poolClientId,
     });
-
     return {
       ...cdnInfra,
       ...mainUserPool,
