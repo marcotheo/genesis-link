@@ -33,7 +33,7 @@ export default $config({
 
     const cloudflareResults = cloudflare_pages({
       cdnDomain: cdnInfra.AssetsDistribution,
-      apiUrl: $util.interpolate`${mainBackendResult.apiUrl}`,
+      apiUrl: $util.interpolate`https://${mainBackendResult.apiUrl}`,
       poolId: mainUserPool.poolId,
       poolClientId: mainUserPool.poolClientId,
     });
