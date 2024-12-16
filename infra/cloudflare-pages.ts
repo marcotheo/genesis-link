@@ -39,6 +39,8 @@ export const cloudflare_pages = ({
   console.log("Deploying cloudflare pages ...");
 
   const accountId = process.env.CLOUDFLARE_DEFAULT_ACCOUNT_ID;
+  const domainName = process.env.DOMAIN;
+  const zoneId = process.env.ZONE_ID;
 
   const app = new cloudflare.PagesProject(`${process.env.APP_NAME}FE`, {
     accountId,
@@ -71,6 +73,22 @@ export const cloudflare_pages = ({
         productionBranch: process.env.GITHUB_BRANCH,
       },
     },
+  });
+
+  // Associate the custom domain with the Pages project
+  new cloudflare.PagesDomain("CustomPagesDomain", {
+    accountId,
+    projectName: app.name,
+    domain: domainName,
+  });
+
+  // Add the Route 53 DNS record
+  new aws.route53.Record("PagesDNSRecord", {
+    name: domainName,
+    type: "CNAME",
+    zoneId,
+    records: [app.subdomain],
+    ttl: 300,
   });
 
   // Function to trigger initial deployment
