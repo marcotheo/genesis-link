@@ -185,57 +185,66 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	secure := r.TLS != nil
+	domain := "." + os.Getenv("DOMAIN")
+	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
 
-	domain := os.Getenv("COOKIE_DOMAIN")
-	if domain == "" {
-		domain = "localhost" // Default value if the environment variable is not set
+	if domain == "." {
+		domain = "localhost"
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	// check from api gateway headers
+	if r.Header.Get("X-Forwarded-Proto") == "https" {
+		secure = true
+	}
+
+	csrfTokenCookie := &http.Cookie{
 		Name:     "csrfToken",
 		Value:    csrfToken,
 		Expires:  time.Now().Add(3 * time.Hour),
 		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode,
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
-	})
+	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refreshToken",
-		Value:    *res.RefreshToken,
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
-
-	http.SetCookie(w, &http.Cookie{
+	accessTokenCookie := &http.Cookie{
 		Name:     "accessToken",
 		Value:    *res.AccessToken,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode,
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
-	})
+	}
 
-	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
+	refreshTokenCookie := &http.Cookie{
+		Name:     "refreshToken",
+		Value:    *res.RefreshToken,
+		Expires:  time.Now().Add(3 * time.Hour),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	}
 
-	http.SetCookie(w, &http.Cookie{
+	expiresInCookie := &http.Cookie{
 		Name:     "tokenExpiresIn",
 		Value:    strconv.FormatInt(expiresIn, 10),
 		Expires:  time.Now().Add(3 * time.Hour),
 		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode,
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
-	})
+	}
+
+	http.SetCookie(w, csrfTokenCookie)
+	http.SetCookie(w, refreshTokenCookie)
+	http.SetCookie(w, accessTokenCookie)
+	http.SetCookie(w, expiresInCookie)
 
 	clog.Logger.Success("(USER) SignInUser => success")
 
@@ -280,35 +289,43 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 	clog.Logger.Info("(USER) RefreshAccessToken => success")
 
 	secure := r.TLS != nil
+	domain := "." + os.Getenv("DOMAIN")
 
-	domain := os.Getenv("COOKIE_DOMAIN")
-	if domain == "" {
-		domain = "localhost" // Default value if the environment variable is not set
+	if domain == "." {
+		domain = "localhost"
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	// check from api gateway headers
+	if r.Header.Get("X-Forwarded-Proto") == "https" {
+		secure = true
+	}
+
+	accessTokenCookie := &http.Cookie{
 		Name:     "accessToken",
 		Value:    *res.AccessToken,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode,
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
-	})
+	}
 
 	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
 
-	http.SetCookie(w, &http.Cookie{
+	expiresInCookie := &http.Cookie{
 		Name:     "tokenExpiresIn",
 		Value:    strconv.FormatInt(expiresIn, 10),
 		Expires:  time.Now().Add(3 * time.Hour),
 		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode,
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
-	})
+	}
+
+	http.SetCookie(w, accessTokenCookie)
+	http.SetCookie(w, expiresInCookie)
 
 	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
 }
@@ -335,55 +352,65 @@ func (h *UserHandler) RevokeRefreshToken(w http.ResponseWriter, r *http.Request)
 	clog.Logger.Info("(USER) RevokeRefreshToken => success")
 
 	secure := r.TLS != nil
+	domain := "." + os.Getenv("DOMAIN")
 
-	domain := os.Getenv("COOKIE_DOMAIN")
-	if domain == "" {
-		domain = "localhost" // Default value if the environment variable is not set
+	if domain == "." {
+		domain = "localhost"
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "accessToken",
-		Value:    "",
-		Expires:  time.Now(),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
+	// check from api gateway headers
+	if r.Header.Get("X-Forwarded-Proto") == "https" {
+		secure = true
+	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refreshToken",
-		Value:    "",
-		Expires:  time.Now(),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
-
-	http.SetCookie(w, &http.Cookie{
+	csrfTokenCookie := &http.Cookie{
 		Name:     "csrfToken",
 		Value:    "",
 		Expires:  time.Now(),
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode,
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
-	})
+	}
 
-	http.SetCookie(w, &http.Cookie{
+	accessTokenCookie := &http.Cookie{
+		Name:     "accessToken",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	}
+
+	refreshTokenCookie := &http.Cookie{
+		Name:     "refreshToken",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	}
+
+	expiresInCookie := &http.Cookie{
 		Name:     "tokenExpiresIn",
 		Value:    "",
 		Expires:  time.Now(),
 		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
+		SameSite: http.SameSiteLaxMode,
 		Secure:   secure,
 		Domain:   domain,
 		Path:     "/",
-	})
+	}
+
+	http.SetCookie(w, csrfTokenCookie)
+	http.SetCookie(w, refreshTokenCookie)
+	http.SetCookie(w, accessTokenCookie)
+	http.SetCookie(w, expiresInCookie)
 
 	successResponse(w, true)
 }
