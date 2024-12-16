@@ -6,11 +6,9 @@
   "scripts": {
     "prod": "pnpm build-functions && sst deploy --stage production",
     "preview": "pnpm build-functions && sst deploy --stage preview",
-    "test": "sst deploy --stage test",
     "dev": "pnpm build-functions && sst dev",
     "prod-down": "sst remove --stage production",
     "preview-down": "sst remove --stage preview",
-    "test-down": "sst remove --stage test",
     "dev-down": "sst remove --stage dev",
     "build-functions": "pnpm build-backend && pnpm build-event-signup",
     "build-backend": "make -C packages/backend root-build",
