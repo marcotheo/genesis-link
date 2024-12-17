@@ -130,3 +130,26 @@ div {
 button {
   color: var(--button-text-color);
 }
+
+/* quill css */
+
+.ql-editor {
+  min-height: 20rem; /* Adjust height as needed */
+}
+
+/* Remove default list padding in Quill */
+.ql-editor ul,
+.ql-editor ol {
+  padding-left: 0; /* Remove extra padding */
+  margin-left: 0; /* Ensure no additional margin */
+}
+
+.ql-editor li {
+  list-style-position: inside; /* Align bullet/number with text */
+}
+
+.ql-editor.ql-blank::before {
+  color: #888888; /* Custom color for placeholder */
+  font-size: 16px; /* Custom font size for placeholder */
+  font-style: italic; /* Optional: Make placeholder italic */
+}
