@@ -416,3 +416,20 @@ func (q *Queries) GetUserPost(ctx context.Context, arg GetUserPostParams) (strin
 	err := row.Scan(&postid)
 	return postid, err
 }
+
+const updatePostAdditionalInfoLink = `-- name: UpdatePostAdditionalInfoLink :exec
+UPDATE posts
+SET additionalInfoLink = ?
+WHERE postId = ? AND userId = ?
+`
+
+type UpdatePostAdditionalInfoLinkParams struct {
+	Additionalinfolink sql.NullString
+	Postid             string
+	Userid             string
+}
+
+func (q *Queries) UpdatePostAdditionalInfoLink(ctx context.Context, arg UpdatePostAdditionalInfoLinkParams) error {
+	_, err := q.db.ExecContext(ctx, updatePostAdditionalInfoLink, arg.Additionalinfolink, arg.Postid, arg.Userid)
+	return err
+}

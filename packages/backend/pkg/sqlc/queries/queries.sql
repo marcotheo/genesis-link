@@ -57,6 +57,12 @@ INSERT INTO posts (
 )
 RETURNING *;
 
+-- name: UpdatePostAdditionalInfoLink :exec
+UPDATE posts
+SET additionalInfoLink = ?
+WHERE postId = ? AND userId = ?;
+
+
 -- name: CreateJobDetails :exec
 INSERT INTO job_details (
     jobDetailId,
