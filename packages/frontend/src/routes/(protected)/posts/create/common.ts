@@ -60,6 +60,12 @@ export const JobRequirmentsSchema = v.object({
 
 export type JobRequirementsStep = v.InferInput<typeof JobRequirmentsSchema>;
 
+export const RichTextEditorSchema = v.object({
+  richTextContent: v.optional(v.string()),
+});
+
+export type RichTextEditorStep = v.InferInput<typeof RichTextEditorSchema>;
+
 export type CreateJobPostFormData = {
   postId?: string;
   form1?: BasicPostInfoStep;
@@ -70,4 +76,5 @@ export type CreateJobPostFormData = {
   form3?: string;
   form4?: JobDetailsInfoStep;
   form5?: JobRequirementsStep;
+  form6?: RichTextEditorStep;
 };
