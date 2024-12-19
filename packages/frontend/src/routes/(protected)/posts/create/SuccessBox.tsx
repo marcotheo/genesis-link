@@ -12,7 +12,7 @@ export default component$(() => {
   const activeStep = useContext(FormStepCtx);
 
   return (
-    <FormWrapper formStep={6} activeStep={activeStep.value}>
+    <FormWrapper formStep={7} activeStep={activeStep.value}>
       <div
         class={cn(
           "p-5 w-[90%] max-w-[60rem]",
