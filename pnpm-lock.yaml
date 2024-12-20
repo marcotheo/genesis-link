@@ -15,17 +15,17 @@ importers:
   packages/frontend:
     devDependencies:
       '@builder.io/qwik':
-        specifier: 1.10.0
-        version: 1.10.0(vite@5.3.5(@types/node@20.14.13))
+        specifier: 1.11.0
+        version: 1.11.0(vite@5.3.5(@types/node@20.14.13))
       '@builder.io/qwik-city':
-        specifier: 1.10.0
-        version: 1.10.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13))
+        specifier: 1.11.0
+        version: 1.11.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13))
       '@modular-forms/qwik':
         specifier: 0.28.2
-        version: 0.28.2(@builder.io/qwik-city@1.10.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13)))(@builder.io/qwik@1.10.0(vite@5.3.5(@types/node@20.14.13)))(typescript@5.4.5)
+        version: 0.28.2(@builder.io/qwik-city@1.11.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13)))(@builder.io/qwik@1.11.0(vite@5.3.5(@types/node@20.14.13)))(typescript@5.4.5)
       '@qwikest/icons':
         specifier: ^0.0.13
-        version: 0.0.13(@builder.io/qwik@1.10.0(vite@5.3.5(@types/node@20.14.13)))
+        version: 0.0.13(@builder.io/qwik@1.11.0(vite@5.3.5(@types/node@20.14.13)))
       '@types/eslint':
         specifier: ^8.56.10
         version: 8.56.11
@@ -722,14 +722,14 @@ packages:
     resolution: {integrity: sha512-LcnxQSsd9aXOIgmmSpvZ/1yo46ra2ESYyqLcryaBZOghxy5qqOBjvCWP5JfkI8yl9rlxRgdLTTMCQQRcN2hdCg==}
     engines: {node: '>=6.9.0'}
 
-  '@builder.io/qwik-city@1.10.0':
-    resolution: {integrity: sha512-ebIh46deZA5vypU785Y34q8RwiiGCjGySo7Ng5Ryg4RfNtK1gp9KGqmboMRvsVbj46zEw7LBajkkwJqirhw6Sg==}
+  '@builder.io/qwik-city@1.11.0':
+    resolution: {integrity: sha512-YyugV6JNm/jV/Ae8LU6k/IWa+1y409NqOCNug5yJmooBJq4qcER4WpgRf+xqE8gts0XQ4VKqe0NP3ANPggBWnw==}
     engines: {node: '>=16.8.0 <18.0.0 || >=18.11'}
     peerDependencies:
       vite: ^5
 
-  '@builder.io/qwik@1.10.0':
-    resolution: {integrity: sha512-O0BbIH1VPLJPSzsCyl0hykTzdr/jx6zkG1MyObzusacdpbS+9flRr5669Mm1gWWiG3UGpaXwTsWJSjUaSgt8Dw==}
+  '@builder.io/qwik@1.11.0':
+    resolution: {integrity: sha512-kVSB6EL0+WjXEAXHZs7vHgt64wON5meNdXIDsKqEvskmCBnOUQNgw7yeQmJa9Lafx3RAR+IUZ4d+3H6zqGuRXw==}
     engines: {node: '>=16.8.0 <18.0.0 || >=18.11'}
     hasBin: true
     peerDependencies:
@@ -6108,7 +6108,7 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
 
-  '@builder.io/qwik-city@1.10.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13))':
+  '@builder.io/qwik-city@1.11.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13))':
     dependencies:
       '@mdx-js/mdx': 3.0.1
       '@types/mdx': 2.0.13
@@ -6125,7 +6125,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@builder.io/qwik@1.10.0(vite@5.3.5(@types/node@20.14.13))':
+  '@builder.io/qwik@1.11.0(vite@5.3.5(@types/node@20.14.13))':
     dependencies:
       csstype: 3.1.3
       vite: 5.3.5(@types/node@20.14.13)
@@ -6575,10 +6575,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@modular-forms/qwik@0.28.2(@builder.io/qwik-city@1.10.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13)))(@builder.io/qwik@1.10.0(vite@5.3.5(@types/node@20.14.13)))(typescript@5.4.5)':
+  '@modular-forms/qwik@0.28.2(@builder.io/qwik-city@1.11.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13)))(@builder.io/qwik@1.11.0(vite@5.3.5(@types/node@20.14.13)))(typescript@5.4.5)':
     dependencies:
-      '@builder.io/qwik': 1.10.0(vite@5.3.5(@types/node@20.14.13))
-      '@builder.io/qwik-city': 1.10.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13))
+      '@builder.io/qwik': 1.11.0(vite@5.3.5(@types/node@20.14.13))
+      '@builder.io/qwik-city': 1.11.0(rollup@4.26.0)(typescript@5.4.5)(vite@5.3.5(@types/node@20.14.13))
       decode-formdata: 0.8.0
       valibot: 1.0.0-beta.0(typescript@5.4.5)
     transitivePeerDependencies:
@@ -6613,9 +6613,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@qwikest/icons@0.0.13(@builder.io/qwik@1.10.0(vite@5.3.5(@types/node@20.14.13)))':
+  '@qwikest/icons@0.0.13(@builder.io/qwik@1.11.0(vite@5.3.5(@types/node@20.14.13)))':
     dependencies:
-      '@builder.io/qwik': 1.10.0(vite@5.3.5(@types/node@20.14.13))
+      '@builder.io/qwik': 1.11.0(vite@5.3.5(@types/node@20.14.13))
 
   '@remix-run/router@1.6.2': {}
 
