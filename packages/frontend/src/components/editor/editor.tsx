@@ -15,6 +15,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
   errorMsg?: string;
   label?: string;
   placeholder?: string;
+  value?: string;
 }
 
 export default component$(
