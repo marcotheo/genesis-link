@@ -56,6 +56,12 @@ export default component$(() => {
       <ItemStep title="Job Requirements" isActive={activeStep.value === 5}>
         <TbList />
       </ItemStep>
+      <ItemStep
+        title="Additional Information"
+        isActive={activeStep.value === 6}
+      >
+        <TbList />
+      </ItemStep>
     </ul>
   );
 });

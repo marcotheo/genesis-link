@@ -78,7 +78,7 @@ export default component$(() => {
         });
       }
 
-      // activeStep.value = 7;
+      activeStep.value = 7;
     } catch (error) {
       console.error("Error submitting form:", error);
 

@@ -13,6 +13,7 @@ export default component$(() => {
         {activeStep.value === 3 && "Step 3"}
         {activeStep.value === 4 && "Step 4"}
         {activeStep.value === 5 && "Step 5"}
+        {activeStep.value === 6 && "Step 6"}
       </Heading>
       <p>
         {activeStep.value === 1 && "Enter post information"}
@@ -20,6 +21,7 @@ export default component$(() => {
         {activeStep.value === 3 && "Enter address information"}
         {activeStep.value === 4 && "Enter job details"}
         {activeStep.value === 5 && "Enter job requirements"}
+        {activeStep.value === 6 && "Enter Additional Information"}
       </p>
     </div>
   );
