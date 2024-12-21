@@ -12,7 +12,7 @@
 1. set DB_URL env
    - for local http://127.0.0.1:8080
    - for tursoDB libsql://db-name.turso.io?authToken=tokenValue
-2. run `goose create {file-name} sql`
+2. run `make migration name={nameOfMigrationFile}`
 3. apply the migration details on the file
 4. move the file to pkg/sqlc/migrations
 5. run `make db-up` to run the db migrations
