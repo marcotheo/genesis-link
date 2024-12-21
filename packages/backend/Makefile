@@ -34,3 +34,6 @@ db-up:
 
 db-reset:
 	goose -dir ${MIG_DIR} turso $(DB_URL) reset
+
+db-down-latest:
+	goose -dir ${MIG_DIR} turso $(DB_URL) down
