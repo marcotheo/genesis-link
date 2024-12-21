@@ -6,6 +6,7 @@ include .env
 .PHONY: run
 
 MIG_DIR=pkg/sqlc/migrations
+GOOSE=goose
 
 run:
 	go run cmd/service/main.go
@@ -21,6 +22,9 @@ root-build:
 	docker run --rm -v "$(PWD)/packages/backend":/out golang-lambda-builder
 	chmod +x bootstrap
 	zip -r deployment.zip server bootstrap
+
+migration:
+	goose -dir ${MIG_DIR} create $(name) sql
 
 db-status:
 	goose -dir ${MIG_DIR} turso $(DB_URL) status
