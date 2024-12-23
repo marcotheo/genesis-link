@@ -53,3 +53,17 @@ export interface GenerateS3SignedUrlPut {
     };
   };
 }
+
+// GET API /api/v1/users/{userId}
+export interface GetUserAPI {
+  status: string;
+  message: string;
+  data: {
+    userId: string;
+    email: string;
+    mobileNumber: string;
+    resumelink: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
