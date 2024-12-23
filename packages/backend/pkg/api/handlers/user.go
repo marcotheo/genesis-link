@@ -17,14 +17,14 @@ import (
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/services"
 )
 
-type UserHandler struct {
+type AuthHandler struct {
 	dataService    *services.DataService
 	cognitoService *services.CognitoService
 	utilService    *services.UtilService
 }
 
-func InitUserHandler(dataService *services.DataService, cognitoService *services.CognitoService, utilService *services.UtilService) *UserHandler {
-	return &UserHandler{
+func InitAuthHandler(dataService *services.DataService, cognitoService *services.CognitoService, utilService *services.UtilService) *AuthHandler {
+	return &AuthHandler{
 		dataService:    dataService,
 		cognitoService: cognitoService,
 		utilService:    utilService,
@@ -36,8 +36,8 @@ type CreateUserParamsValidation struct {
 	Password string `json:"password" validate:"required"`
 }
 
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) CreateUser => invoked")
+func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(AUTH) CreateUser => invoked")
 
 	var userValidation CreateUserParamsValidation
 
@@ -50,7 +50,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	// create user in cognito user pool
 	userId, err := h.cognitoService.SignUpUser(userValidation.Email, userValidation.Password)
 	if err != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error signing up user in cognito: %s", err))
+		clog.Logger.Error(fmt.Sprintf("(AUTH) CreateUser => Error signing up user in cognito: %s", err))
 		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
 		return
 	}
@@ -59,7 +59,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userData db.CreateUserParams
 	errCopier := copier.Copy(&userData, &userValidation)
 	if errCopier != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error copying: %s", errCopier))
+		clog.Logger.Error(fmt.Sprintf("(AUTH) CreateUser => Error copying: %s", errCopier))
 		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
 		return
 	}
@@ -68,12 +68,12 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	user, errQ := h.dataService.Queries.CreateUser(context.Background(), userData)
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(AUTH) CreateUser => errQ %s \n", errQ))
 		http.Error(w, "Error creating response", http.StatusInternalServerError)
 		return
 	}
 
-	clog.Logger.Success("(USER) CreateUser => create successful")
+	clog.Logger.Success("(AUTH) CreateUser => create successful")
 
 	successResponse(w, user)
 }
@@ -87,7 +87,7 @@ type ConfirmSignUpResponse struct {
 	Confirmed bool
 }
 
-func (h *UserHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
 	var inputValidation ConfirmSignUpParamsValidation
 
 	errRead := ReadAndValidateBody(r, &inputValidation)
@@ -116,8 +116,8 @@ func (h *UserHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, ConfirmSignUpResponse{Confirmed: isConfirmed})
 }
 
-func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) GetUser => invoked")
+func (h *AuthHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(AUTH) GetUser => invoked")
 
 	userId := r.PathValue("userId")
 
@@ -125,18 +125,18 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Printf("err %s \n", err)
-		clog.Logger.Error(fmt.Sprintf("(USER) GetUser => error in query get user = (%s) \n", err))
+		clog.Logger.Error(fmt.Sprintf("(AUTH) GetUser => error in query get user = (%s) \n", err))
 		errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if user.Userid == "" {
-		clog.Logger.Error("(USER) GetUser => user does not exist")
+		clog.Logger.Error("(AUTH) GetUser => user does not exist")
 		errorResponse(w, http.StatusBadRequest, "User does not exist!")
 		return
 	}
 
-	clog.Logger.Success("(USER) GetUser => details successfuly retrieved")
+	clog.Logger.Success("(AUTH) GetUser => details successfuly retrieved")
 
 	successResponse(w, user)
 }
@@ -160,8 +160,8 @@ func generateCSRFToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(token), nil
 }
 
-func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) SignInUser => invoked")
+func (h *AuthHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(AUTH) SignInUser => invoked")
 
 	var inputValidation SignInUserParamsValidation
 
@@ -246,13 +246,13 @@ func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, accessTokenCookie)
 	http.SetCookie(w, expiresInCookie)
 
-	clog.Logger.Success("(USER) SignInUser => success")
+	clog.Logger.Success("(AUTH) SignInUser => success")
 
 	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
 }
 
-func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) RefreshAccessToken => invoked")
+func (h *AuthHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(AUTH) RefreshAccessToken => invoked")
 
 	refreshToken, errorRefreshToken := r.Cookie("refreshToken")
 	if errorRefreshToken != nil {
@@ -286,7 +286,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	clog.Logger.Info("(USER) RefreshAccessToken => success")
+	clog.Logger.Info("(AUTH) RefreshAccessToken => success")
 
 	secure := r.TLS != nil
 	domain := "." + os.Getenv("DOMAIN")
@@ -330,8 +330,8 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
 }
 
-func (h *UserHandler) RevokeRefreshToken(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) RevokeRefreshToken => invoked")
+func (h *AuthHandler) RevokeRefreshToken(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(AUTH) RevokeRefreshToken => invoked")
 
 	refreshToken, errorRefreshToken := r.Cookie("refreshToken")
 	if errorRefreshToken != nil {
@@ -349,7 +349,7 @@ func (h *UserHandler) RevokeRefreshToken(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	clog.Logger.Info("(USER) RevokeRefreshToken => success")
+	clog.Logger.Info("(AUTH) RevokeRefreshToken => success")
 
 	secure := r.TLS != nil
 	domain := "." + os.Getenv("DOMAIN")

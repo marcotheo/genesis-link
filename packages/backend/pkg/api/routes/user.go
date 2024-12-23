@@ -5,19 +5,19 @@ import (
 	"github.com/marcotheo/justarouter"
 )
 
-type UserRoutes struct {
-	handlers *handler.UserHandler
+type AuthRoutes struct {
+	handlers *handler.AuthHandler
 }
 
-func InitUserRoutes(handlers *handler.UserHandler) *UserRoutes {
-	return &UserRoutes{
+func InitAuthRoutes(handlers *handler.AuthHandler) *AuthRoutes {
+	return &AuthRoutes{
 		handlers,
 	}
 }
 
-func (o *UserRoutes) Routes() func(subRouter justarouter.SubRouter) {
+func (o *AuthRoutes) Routes() func(subRouter justarouter.SubRouter) {
 	return func(subRouter justarouter.SubRouter) {
-		subRouter.POST("/create", o.handlers.CreateUser)
+		subRouter.POST("/register", o.handlers.CreateUser)
 		subRouter.POST("/confirm", o.handlers.ConfirmSignUp)
 		subRouter.GET("/{userId}", o.handlers.GetUser)
 		subRouter.POST("/signin", o.handlers.SignInUser)
