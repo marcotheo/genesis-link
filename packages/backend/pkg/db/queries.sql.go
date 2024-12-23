@@ -51,6 +51,50 @@ func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) er
 	return err
 }
 
+const createApplication = `-- name: CreateApplication :one
+INSERT INTO applications (
+    applicationId, 
+    resumeLink, 
+    status, 
+    postId, 
+    userId, 
+    created_at, 
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+)
+RETURNING applicationid, resumelink, status, postid, userid, created_at, updated_at
+`
+
+type CreateApplicationParams struct {
+	Applicationid string
+	Resumelink    sql.NullString
+	Status        string
+	Postid        string
+	Userid        string
+}
+
+func (q *Queries) CreateApplication(ctx context.Context, arg CreateApplicationParams) (Application, error) {
+	row := q.db.QueryRowContext(ctx, createApplication,
+		arg.Applicationid,
+		arg.Resumelink,
+		arg.Status,
+		arg.Postid,
+		arg.Userid,
+	)
+	var i Application
+	err := row.Scan(
+		&i.Applicationid,
+		&i.Resumelink,
+		&i.Status,
+		&i.Postid,
+		&i.Userid,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createJobDetails = `-- name: CreateJobDetails :exec
 INSERT INTO job_details (
     jobDetailId,
@@ -180,7 +224,7 @@ INSERT INTO users (
 ) VALUES (
   ?, ?
 )
-RETURNING userid, email, created_at, updated_at
+RETURNING userid, email, mobilenumber, resumelink, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -194,6 +238,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	err := row.Scan(
 		&i.Userid,
 		&i.Email,
+		&i.Mobilenumber,
+		&i.Resumelink,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -384,7 +430,7 @@ func (q *Queries) GetPostsByUserId(ctx context.Context, arg GetPostsByUserIdPara
 }
 
 const getUser = `-- name: GetUser :one
-SELECT userid, email, created_at, updated_at FROM users
+SELECT userid, email, mobilenumber, resumelink, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
 `
 
@@ -394,6 +440,8 @@ func (q *Queries) GetUser(ctx context.Context, userid string) (User, error) {
 	err := row.Scan(
 		&i.Userid,
 		&i.Email,
+		&i.Mobilenumber,
+		&i.Resumelink,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

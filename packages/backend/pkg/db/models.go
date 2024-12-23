@@ -19,6 +19,16 @@ type Address struct {
 	Userid         sql.NullString
 }
 
+type Application struct {
+	Applicationid string
+	Resumelink    sql.NullString
+	Status        string
+	Postid        string
+	Userid        string
+	CreatedAt     interface{}
+	UpdatedAt     interface{}
+}
+
 type JobDetail struct {
 	Jobdetailid     string
 	Postid          string
@@ -55,8 +65,10 @@ type PostRequirement struct {
 }
 
 type User struct {
-	Userid    string
-	Email     string
-	CreatedAt interface{}
-	UpdatedAt interface{}
+	Userid       string
+	Email        string
+	Mobilenumber sql.NullString
+	Resumelink   sql.NullString
+	CreatedAt    interface{}
+	UpdatedAt    interface{}
 }
