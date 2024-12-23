@@ -83,7 +83,7 @@ const MobileMenu = component$(() => {
 
 const Logout = component$(() => {
   const nav = useNavigate();
-  const { mutate } = useMutate("/users/session/revoke");
+  const { mutate } = useMutate("/auth/session/revoke");
 
   return (
     <DropDownMenuItem>

@@ -27,7 +27,7 @@ export const useVerifyUser = routeLoader$(async (requestEvent) => {
     };
 
   try {
-    await qwikFetch<Response>("/users/confirm", {
+    await qwikFetch<Response>("/auth/confirm", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

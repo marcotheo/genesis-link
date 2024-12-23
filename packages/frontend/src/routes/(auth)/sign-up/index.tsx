@@ -85,7 +85,7 @@ export const useFormLoader = routeLoader$<InitialValues<SignUpForm>>(() => ({
 }));
 
 export default component$(() => {
-  const { mutate, state } = useMutate<SignUpResponse>("/users/create");
+  const { mutate, state } = useMutate<SignUpResponse>("/auth/create");
 
   const [signUpForm, { Form, Field }] = useForm<SignUpForm>({
     loader: useFormLoader(),

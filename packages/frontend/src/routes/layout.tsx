@@ -73,7 +73,7 @@ export const onRequest: RequestHandler = async ({
   try {
     const cookies = `refreshToken=${refreshToken.value}; accessToken=${accessToken.value}`;
 
-    const res = await rawFetch<RefreshResponse>("/users/token/refresh", {
+    const res = await rawFetch<RefreshResponse>("/auth/token/refresh", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
