@@ -481,3 +481,19 @@ func (q *Queries) UpdatePostAdditionalInfoLink(ctx context.Context, arg UpdatePo
 	_, err := q.db.ExecContext(ctx, updatePostAdditionalInfoLink, arg.Additionalinfolink, arg.Postid, arg.Userid)
 	return err
 }
+
+const updateResumeLink = `-- name: UpdateResumeLink :exec
+UPDATE users
+SET resumeLink = ?
+WHERE userId = ?
+`
+
+type UpdateResumeLinkParams struct {
+	Resumelink sql.NullString
+	Userid     string
+}
+
+func (q *Queries) UpdateResumeLink(ctx context.Context, arg UpdateResumeLinkParams) error {
+	_, err := q.db.ExecContext(ctx, updateResumeLink, arg.Resumelink, arg.Userid)
+	return err
+}

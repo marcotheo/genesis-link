@@ -18,6 +18,11 @@ INSERT INTO users (
 )
 RETURNING *;
 
+-- name: UpdateResumeLink :exec
+UPDATE users
+SET resumeLink = ?
+WHERE userId = ?;
+
 -- name: CreateAddress :exec
 INSERT INTO addresses (
     addressId,
@@ -88,20 +93,6 @@ INSERT INTO post_requirements (
 )
 RETURNING *;
 
--- name: CreateApplication :one
-INSERT INTO applications (
-    applicationId, 
-    resumeLink, 
-    status, 
-    postId, 
-    userId, 
-    created_at, 
-    updated_at
-) VALUES (
-    ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-)
-RETURNING *;
-
 -- name: GetPostsByUserId :many
 SELECT  
     postId,
@@ -128,3 +119,16 @@ LEFT JOIN job_details jb
 ON p.postId = jb.postId
 WHERE p.postId = ?;
 
+-- name: CreateApplication :one
+INSERT INTO applications (
+    applicationId, 
+    resumeLink, 
+    status, 
+    postId, 
+    userId, 
+    created_at, 
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+)
+RETURNING *;
