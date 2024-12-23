@@ -33,3 +33,10 @@ func (a *UtilService) ConvertNullInt64(nullInt sql.NullInt64) int64 {
 
 	return 0
 }
+
+func (a *UtilService) StringToNullString(input string) sql.NullString {
+	if input == "" {
+		return sql.NullString{Valid: false} // Represents NULL
+	}
+	return sql.NullString{String: input, Valid: true} // Represents a valid string
+}
