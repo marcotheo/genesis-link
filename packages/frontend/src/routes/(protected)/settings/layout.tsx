@@ -50,7 +50,7 @@ export default component$(() => {
         )}
       >
         <ul class="list-none space-y-5">
-          <Item title="My Details" link="/settings/profile" />
+          <Item title="Profile" link="/settings/profile" />
           <Item title="Password" link="/settings/details" />
           <Item title="Addressess" link="/settings/addressess" />
           <Item title="Plan" link="/settings/details" />
