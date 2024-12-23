@@ -36,6 +36,17 @@ const Item = component$<{ link: string; title: string }>(({ link, title }) => {
   );
 });
 
+const Header = component$(() => {
+  const location = useLocation();
+  const locationPathname = location.url.pathname;
+  let headerTitle = "";
+
+  if (locationPathname === "/settings/profile") headerTitle = "Profile";
+  if (locationPathname === "/settings/addressess") headerTitle = "Addressess";
+
+  return <h1 class="text-3xl font-semibold">{headerTitle}</h1>;
+});
+
 export default component$(() => {
   return (
     <div class="h-full flex gap-3 relative">
@@ -58,6 +69,7 @@ export default component$(() => {
       </div>
 
       <div class="overflow-hidden pb-6 w-full px-7">
+        <Header />
         <Slot />
       </div>
     </div>
