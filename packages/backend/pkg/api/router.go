@@ -45,10 +45,12 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 	container.Provide(services.InitMiddlewareService)
 	container.Provide(handler.InitUserHandler)
 	container.Provide(handler.InitPostHandler)
+	container.Provide(handler.InitApplicationHandler)
 	container.Provide(handler.InitS3Handler)
 	container.Provide(handler.InitAddressHandler)
 	container.Provide(routes.InitUserRoutes)
 	container.Provide(routes.InitPostRoutes)
+	container.Provide(routes.InitApplicationRoutes)
 	container.Provide(routes.InitAddressRoutes)
 	container.Provide(routes.InitS3Routes)
 
@@ -66,6 +68,7 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 		router.AddSubRoutes("/api/v1/address", addressRoutes.Routes())
 		router.AddSubRoutes("/api/v1/users", userRoutes.Routes())
 		router.AddSubRoutes("/api/v1/posts", postRoutes.Routes())
+		router.AddSubRoutes("/api/v1/applications", s3Routes.Routes())
 		router.AddSubRoutes("/api/v1/s3", s3Routes.Routes())
 
 		router.POST("/api/v1/health", healthCheckHandler)
