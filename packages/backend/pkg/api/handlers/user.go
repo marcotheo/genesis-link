@@ -25,7 +25,7 @@ func InitUserHandler(dataService *services.DataService, cognitoService *services
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(AUTH) GetUser => invoked")
+	clog.Logger.Info("(USER) GetUser => invoked")
 
 	userId := r.PathValue("userId")
 
@@ -33,18 +33,18 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Printf("err %s \n", err)
-		clog.Logger.Error(fmt.Sprintf("(AUTH) GetUser => error in query get user = (%s) \n", err))
+		clog.Logger.Error(fmt.Sprintf("(USER) GetUser => error in query get user = (%s) \n", err))
 		errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if user.Userid == "" {
-		clog.Logger.Error("(AUTH) GetUser => user does not exist")
+		clog.Logger.Error("(USER) GetUser => user does not exist")
 		errorResponse(w, http.StatusBadRequest, "User does not exist!")
 		return
 	}
 
-	clog.Logger.Success("(AUTH) GetUser => details successfuly retrieved")
+	clog.Logger.Success("(USER) GetUser => details successfuly retrieved")
 
 	successResponse(w, user)
 }
