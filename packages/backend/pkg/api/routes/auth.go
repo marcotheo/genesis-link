@@ -19,7 +19,6 @@ func (o *AuthRoutes) Routes() func(subRouter justarouter.SubRouter) {
 	return func(subRouter justarouter.SubRouter) {
 		subRouter.POST("/register", o.handlers.CreateUser)
 		subRouter.POST("/confirm", o.handlers.ConfirmSignUp)
-		subRouter.GET("/{userId}", o.handlers.GetUser)
 		subRouter.POST("/signin", o.handlers.SignInUser)
 		subRouter.POST("/token/refresh", o.handlers.RefreshAccessToken)
 		subRouter.DELETE("/session/revoke", o.handlers.RevokeRefreshToken)

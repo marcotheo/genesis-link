@@ -24,6 +24,31 @@ func InitUserHandler(dataService *services.DataService, cognitoService *services
 	}
 }
 
+func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(AUTH) GetUser => invoked")
+
+	userId := r.PathValue("userId")
+
+	user, err := h.dataService.Queries.GetUser(context.Background(), userId)
+
+	if err != nil {
+		fmt.Printf("err %s \n", err)
+		clog.Logger.Error(fmt.Sprintf("(AUTH) GetUser => error in query get user = (%s) \n", err))
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if user.Userid == "" {
+		clog.Logger.Error("(AUTH) GetUser => user does not exist")
+		errorResponse(w, http.StatusBadRequest, "User does not exist!")
+		return
+	}
+
+	clog.Logger.Success("(AUTH) GetUser => details successfuly retrieved")
+
+	successResponse(w, user)
+}
+
 type UpdateResumeLinkParams struct {
 	ResumeLink string `json:"resumeLink" validate:"required"`
 }

@@ -24,5 +24,6 @@ func (o *UserRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
 		subRouter.POST("/create", o.handlers.UpdateResumeLink)
+		subRouter.GET("/{userId}", o.handlers.GetUser)
 	}
 }

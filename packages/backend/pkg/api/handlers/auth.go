@@ -116,31 +116,6 @@ func (h *AuthHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, ConfirmSignUpResponse{Confirmed: isConfirmed})
 }
 
-func (h *AuthHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(AUTH) GetUser => invoked")
-
-	userId := r.PathValue("userId")
-
-	user, err := h.dataService.Queries.GetUser(context.Background(), userId)
-
-	if err != nil {
-		fmt.Printf("err %s \n", err)
-		clog.Logger.Error(fmt.Sprintf("(AUTH) GetUser => error in query get user = (%s) \n", err))
-		errorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	if user.Userid == "" {
-		clog.Logger.Error("(AUTH) GetUser => user does not exist")
-		errorResponse(w, http.StatusBadRequest, "User does not exist!")
-		return
-	}
-
-	clog.Logger.Success("(AUTH) GetUser => details successfuly retrieved")
-
-	successResponse(w, user)
-}
-
 type SignInUserParamsValidation struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
