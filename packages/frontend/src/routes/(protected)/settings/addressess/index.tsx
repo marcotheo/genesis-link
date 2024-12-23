@@ -88,7 +88,7 @@ const AddressList = component$(() => {
 
 export default component$(() => {
   return (
-    <div class="overflow-hidden pb-6 w-full px-7">
+    <div>
       <br />
 
       <div class="flex justify-end">

@@ -57,7 +57,9 @@ export default component$(() => {
         </ul>
       </div>
 
-      <Slot />
+      <div class="overflow-hidden pb-6 w-full px-7">
+        <Slot />
+      </div>
     </div>
   );
 });
