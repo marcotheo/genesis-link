@@ -121,14 +121,13 @@ const HeaderItems = component$(() => {
 
           <DropDownMenuItemLink link="/posts">Posts</DropDownMenuItemLink>
           <DropDownMenuItemLink link="/settings">
-            Applicants
-          </DropDownMenuItemLink>
-          <DropDownMenuItemLink link="/settings">
             Applications
           </DropDownMenuItemLink>
 
           <DropDownSeparator />
-          <DropDownMenuItemLink link="/settings">Settings</DropDownMenuItemLink>
+          <DropDownMenuItemLink link="/settings/profile">
+            Settings
+          </DropDownMenuItemLink>
           <Logout />
         </Menu>
       </>
