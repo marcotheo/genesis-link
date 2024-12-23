@@ -36,7 +36,17 @@ type UserDetailsAPI struct {
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) GetUser => invoked")
 
-	userId := r.PathValue("userId")
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
 
 	user, err := h.dataService.Queries.GetUser(context.Background(), userId)
 
