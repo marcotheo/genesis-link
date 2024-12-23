@@ -24,6 +24,15 @@ func InitUserHandler(dataService *services.DataService, cognitoService *services
 	}
 }
 
+type UserDetailsAPI struct {
+	Userid       string `json:"userId"`
+	Email        string `json:"email"`
+	Mobilenumber string `json:"mobileNumber"`
+	Resumelink   string `json:"resumeLink"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
+}
+
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) GetUser => invoked")
 
@@ -46,7 +55,14 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(USER) GetUser => details successfuly retrieved")
 
-	successResponse(w, user)
+	successResponse(w, UserDetailsAPI{
+		Userid:       user.Userid,
+		Email:        user.Email,
+		Mobilenumber: h.utilService.ConvertNullString(user.Mobilenumber),
+		Resumelink:   h.utilService.ConvertNullString(user.Resumelink),
+		CreatedAt:    h.utilService.HandleInterfaceToString(user.CreatedAt),
+		UpdatedAt:    h.utilService.HandleInterfaceToString(user.UpdatedAt),
+	})
 }
 
 type UpdateResumeLinkParams struct {

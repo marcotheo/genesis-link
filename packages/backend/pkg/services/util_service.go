@@ -2,6 +2,8 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -39,4 +41,18 @@ func (a *UtilService) StringToNullString(input string) sql.NullString {
 		return sql.NullString{Valid: false} // Represents NULL
 	}
 	return sql.NullString{String: input, Valid: true} // Represents a valid string
+}
+
+func (a *UtilService) HandleInterfaceToString(value interface{}) string {
+	if value == nil {
+		return ""
+	}
+	switch v := value.(type) {
+	case string:
+		return v
+	case time.Time:
+		return v.Format("2006-01-02 15:04:05") // Format as a string
+	default:
+		return fmt.Sprintf("%v", v) // Convert other types to string
+	}
 }
