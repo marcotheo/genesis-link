@@ -1,11 +1,11 @@
 import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
+import dayjs from "dayjs";
 
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { TbEdit } from "@qwikest/icons/tablericons";
 import { cn, qwikFetch } from "~/common/utils";
 import { GetUserAPI } from "~/common/types";
-import dayjs from "dayjs";
 
 export const useAccountDetailsLoader = routeLoader$(
   async ({ resolveValue }) => {
@@ -59,7 +59,10 @@ export default component$(() => {
         label="Mobile Number"
         value={!result.value?.mobileNumber ? "N/A" : result.value?.mobileNumber}
       />
-      <Item label="Resume" value={result.value?.resumelink ?? ""} />
+      <Item
+        label="Resume"
+        value={!result.value?.resumelink ? "N/A" : result.value.resumelink}
+      />
       <Item
         label="Registered At"
         value={dayjs(result.value?.createdAt).format("MMM DD, YYYY")}
