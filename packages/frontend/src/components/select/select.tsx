@@ -120,7 +120,7 @@ export default component$<SelectProps>(
     );
 
     return (
-      <div class="pt-3 w-full" ref={containerRef}>
+      <div class="w-full" ref={containerRef}>
         <div class="relative w-full">
           <select
             {...props}

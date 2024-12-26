@@ -51,7 +51,7 @@ const labelVariants = {
 export default component$<NumberInputProps>(
   ({ variant = "default", label, errorMsg, ...props }) => {
     return (
-      <div class="pt-3 w-full">
+      <div class="w-full">
         <div class="relative w-full">
           <input
             {...props}

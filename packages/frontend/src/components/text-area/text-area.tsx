@@ -50,7 +50,7 @@ const labelVariants = {
 export default component$<TextAreaProps>(
   ({ variant = "default", label, errorMsg, ...props }) => {
     return (
-      <div class="pt-3 w-full">
+      <div class="w-full">
         <div class="relative w-full">
           <textarea
             {...props}
