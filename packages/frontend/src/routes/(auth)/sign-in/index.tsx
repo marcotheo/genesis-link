@@ -108,7 +108,7 @@ export default component$(() => {
           message={state.error ?? ""}
         />
 
-        <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
+        <Form class="flex flex-col gap-7" onSubmit$={handleSubmit}>
           <Field name="email">
             {(field, props) => (
               <Input
