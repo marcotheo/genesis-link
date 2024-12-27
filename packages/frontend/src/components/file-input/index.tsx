@@ -29,7 +29,7 @@ interface ImageUploadProps {
   onInput$?: (event: Event, element: HTMLInputElement) => void;
   onChange$?: (event: Event, element: HTMLInputElement) => void;
   onBlur$?: (event: Event, element: HTMLInputElement) => void;
-  onFileSelect$?: (files: NoSerialize<Blob[]> | NoSerialize<File[]>) => void;
+  onFileSelect$?: (files: NoSerialize<File[]>) => void;
   accept?: string;
   required?: boolean;
   multiple?: boolean;

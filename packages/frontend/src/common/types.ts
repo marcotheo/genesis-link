@@ -62,7 +62,7 @@ export interface GetUserAPI {
     userId: string;
     email: string;
     mobileNumber: string;
-    resumelink: string;
+    resumeLink: string;
     createdAt: string;
     updatedAt: string;
   };
