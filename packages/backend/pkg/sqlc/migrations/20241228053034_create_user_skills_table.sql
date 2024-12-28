@@ -1,7 +1,7 @@
 -- +goose Up
 -- Create the `user_skills` table
 CREATE TABLE user_skills (
-    skillId INTEGER PRIMARY KEY AUTOINCREMENT, 
+    skillId TEXT NOT NULL PRIMARY KEY,
     userId TEXT NOT NULL,                     
     skillName TEXT NOT NULL,                   
     skillLevel TEXT CHECK(skillLevel IN ('Beginner', 'Intermediate', 'Advanced')), 
