@@ -105,7 +105,7 @@ func (q *Queries) GetUserPost(ctx context.Context, arg GetUserPostParams) (strin
 	return postid, err
 }
 
-const getUserSkills = `-- name: GetUserSkills :many
+const getUserSkillsByUserId = `-- name: GetUserSkillsByUserId :many
 SELECT 
     skillId,
     skillName,
@@ -115,22 +115,22 @@ FROM user_skills
 WHERE userId = ?
 `
 
-type GetUserSkillsRow struct {
+type GetUserSkillsByUserIdRow struct {
 	Skillid       string
 	Skillname     string
 	Skilllevel    sql.NullString
 	Skillcategory sql.NullString
 }
 
-func (q *Queries) GetUserSkills(ctx context.Context, userid string) ([]GetUserSkillsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUserSkills, userid)
+func (q *Queries) GetUserSkillsByUserId(ctx context.Context, userid string) ([]GetUserSkillsByUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserSkillsByUserId, userid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetUserSkillsRow
+	var items []GetUserSkillsByUserIdRow
 	for rows.Next() {
-		var i GetUserSkillsRow
+		var i GetUserSkillsByUserIdRow
 		if err := rows.Scan(
 			&i.Skillid,
 			&i.Skillname,

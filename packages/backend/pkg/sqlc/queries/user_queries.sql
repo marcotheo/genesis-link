@@ -40,7 +40,7 @@ WHERE userId = ? LIMIT 1;
 SELECT postId FROM posts
 WHERE postId = ? AND userId = ?;
 
--- name: GetUserSkills :many
+-- name: GetUserSkillsByUserId :many
 SELECT 
     skillId,
     skillName,
