@@ -19,7 +19,7 @@ export interface FetchState<T> {
 }
 
 export const useQuery = <T,>(
-  baseUrl: string,
+  url: string,
   signalObject: Record<string, Signal<any>>,
   options?: {
     defaultValues?: T | null;
@@ -67,7 +67,7 @@ export const useQuery = <T,>(
 
     const queryString = await buildQueryString(signalObject);
 
-    const url = `${baseUrl}?${queryString}`;
+    const urlFetch = `${url}?${queryString}`;
 
     // Check the cache first
     const cachedResult = await getCachedData(url);
@@ -79,7 +79,7 @@ export const useQuery = <T,>(
     }
 
     try {
-      const result = await qwikFetch<T>(url, {
+      const result = await qwikFetch<T>(urlFetch, {
         method: "GET", // Adjust method if needed
         credentials: "include",
       });
@@ -119,8 +119,8 @@ export const useQuery = <T,>(
     // Cache the default values as well, if provided
     if (!!options?.defaultValues) {
       const queryString = await buildQueryString(signalObject);
-      const url = `${baseUrl}?${queryString}`;
-      setCacheData(url, options.defaultValues);
+      const cacheUrl = `${url}?${queryString}`;
+      setCacheData(cacheUrl, options.defaultValues);
     }
 
     if (options?.runOnRender) refetch();

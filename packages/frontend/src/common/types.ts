@@ -67,3 +67,17 @@ export interface GetUserAPI {
     updatedAt: string;
   };
 }
+
+// GET API /api/v1/users/skills
+export interface GetUserSkills {
+  status: string;
+  message: string;
+  data: {
+    skills: {
+      skillId: string;
+      skillName: string;
+      skillLevel: string;
+      skillCategory: string;
+    }[];
+  };
+}
