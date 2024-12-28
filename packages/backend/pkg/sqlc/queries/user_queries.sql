@@ -11,6 +11,16 @@ UPDATE users
 SET resumeLink = ?
 WHERE userId = ?;
 
+-- name: UpdateMobileNumber :exec
+UPDATE users
+SET mobileNumber = ?
+WHERE userId = ?;
+
+-- name: UpdateEmail :exec
+UPDATE users
+SET email = ?
+WHERE userId = ?;
+
 -- name: GetUser :one
 SELECT * FROM users
 WHERE userId = ? LIMIT 1;

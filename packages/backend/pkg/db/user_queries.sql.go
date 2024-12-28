@@ -74,6 +74,38 @@ func (q *Queries) GetUserPost(ctx context.Context, arg GetUserPostParams) (strin
 	return postid, err
 }
 
+const updateEmail = `-- name: UpdateEmail :exec
+UPDATE users
+SET email = ?
+WHERE userId = ?
+`
+
+type UpdateEmailParams struct {
+	Email  string
+	Userid string
+}
+
+func (q *Queries) UpdateEmail(ctx context.Context, arg UpdateEmailParams) error {
+	_, err := q.db.ExecContext(ctx, updateEmail, arg.Email, arg.Userid)
+	return err
+}
+
+const updateMobileNumber = `-- name: UpdateMobileNumber :exec
+UPDATE users
+SET mobileNumber = ?
+WHERE userId = ?
+`
+
+type UpdateMobileNumberParams struct {
+	Mobilenumber sql.NullString
+	Userid       string
+}
+
+func (q *Queries) UpdateMobileNumber(ctx context.Context, arg UpdateMobileNumberParams) error {
+	_, err := q.db.ExecContext(ctx, updateMobileNumber, arg.Mobilenumber, arg.Userid)
+	return err
+}
+
 const updateResumeLink = `-- name: UpdateResumeLink :exec
 UPDATE users
 SET resumeLink = ?
