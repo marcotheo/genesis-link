@@ -45,7 +45,9 @@ const Item = component$<{ label: string; value: string; noEdit?: boolean }>(
     const isEdit = useSignal(false);
 
     return (
-      <div class="p-5 w-96 bg-soft relative rounded-md">
+      <div
+        class={cn("bg-soft relative rounded-md", "min-[1650px]:w-96", "p-5")}
+      >
         <div
           class={cn(
             "absolute top-2 right-2",
@@ -62,7 +64,7 @@ const Item = component$<{ label: string; value: string; noEdit?: boolean }>(
             <Slot />
           </div>
         ) : (
-          <p>
+          <p class="text-sm lg:text-base">
             <span class="font-semibold">{label}:</span> {value}
           </p>
         )}
@@ -322,15 +324,55 @@ export default component$(() => {
   const result = useAccountDetailsLoader();
 
   return (
-    <div class="mt-5 space-y-5">
-      <Email />
-      <MobileNumber />
-      <Resume />
-      <Item
-        label="Registered At"
-        value={dayjs(result.value?.createdAt).format("MMM DD, YYYY")}
-        noEdit
-      />
+    <div class="space-y-5">
+      <div class="w-full bg-soft h-[0.1rem]" />
+
+      <div
+        class={cn(
+          "flex flex-col min-[1100px]:flex-row",
+          "min-[1100px]:items-center justify-between",
+          "max-[1100px]:gap-3",
+          "py-3",
+        )}
+      >
+        <div>
+          <h1 class="text-xl font-semibold">Basic information</h1>
+          <p class="text-gray-500 text-sm max-md:hidden">
+            review or set basic details
+          </p>
+        </div>
+
+        <div
+          class={cn(
+            "flex flex-col md:flex-row md:items-center",
+            "gap-3 min-w-[1650px]:gap-5",
+          )}
+        >
+          <div class="space-y-3 min-w-[1650px]:space-y-5">
+            <Email />
+            <MobileNumber />
+          </div>
+          <div class="space-y-3 min-w-[1650px]:space-y-5">
+            <Resume />
+            <Item
+              label="Registered At"
+              value={dayjs(result.value?.createdAt).format("MMM DD, YYYY")}
+              noEdit
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full bg-soft h-[0.1rem]" />
+
+      <div class={cn("flex items-center", "py-3")}>
+        <div class=" min-w-72">
+          <h1 class="text-xl font-semibold">Skills</h1>
+          <p class="text-gray-500 text-sm max-md:hidden">
+            review or add skills
+          </p>
+        </div>
+      </div>
     </div>
   );
 });
