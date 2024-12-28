@@ -29,7 +29,7 @@ interface ImageUploadProps {
   onInput$?: (event: Event, element: HTMLInputElement) => void;
   onChange$?: (event: Event, element: HTMLInputElement) => void;
   onBlur$?: (event: Event, element: HTMLInputElement) => void;
-  onFileSelect$?: (files: NoSerialize<File[]>) => void;
+  onFileSelect?: QRL<(v: NoSerialize<File[]>) => NoSerialize<File[]>>;
   accept?: string;
   required?: boolean;
   multiple?: boolean;
@@ -48,9 +48,10 @@ export default component$<ImageUploadProps>(
     fileTypes,
     maxSize,
     maxDimensions,
-    onFileSelect$,
+    onFileSelect,
     ...props
   }) => {
+    const { multiple } = props;
     const fileState = useStore<{
       files: NoSerialize<File[]> | null;
       error: string | null;
@@ -95,8 +96,7 @@ export default component$<ImageUploadProps>(
       // Reset error
       fileState.error = null;
 
-      const files: File[] =
-        props.multiple && fileState.files ? [...fileState.files] : [];
+      const files = multiple && fileState.files ? [...fileState.files] : [];
 
       for (const file of target.files) {
         if (files.find((v) => v.name === file.name)) continue;
@@ -143,7 +143,7 @@ export default component$<ImageUploadProps>(
       }
 
       fileState.files = noSerialize(files);
-      if (!!onFileSelect$) onFileSelect$(noSerialize(files));
+      if (!!onFileSelect) onFileSelect(noSerialize(files));
     });
 
     useTask$(({ track }) => {
@@ -184,6 +184,7 @@ export default component$<ImageUploadProps>(
               >
                 {fileState.files.map((v) => (
                   <div
+                    key={v.name}
                     class={cn(
                       "px-2 pt-1 h-7",
                       "bg-primary rounded-full",
