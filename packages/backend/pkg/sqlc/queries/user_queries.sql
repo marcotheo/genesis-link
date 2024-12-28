@@ -45,7 +45,6 @@ SELECT
     skillId,
     skillName,
     skillLevel,
-    skillCategory,
-    created_at
+    skillCategory
 FROM user_skills
 WHERE userId = ?;

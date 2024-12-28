@@ -110,8 +110,7 @@ SELECT
     skillId,
     skillName,
     skillLevel,
-    skillCategory,
-    created_at
+    skillCategory
 FROM user_skills
 WHERE userId = ?
 `
@@ -121,7 +120,6 @@ type GetUserSkillsRow struct {
 	Skillname     string
 	Skilllevel    sql.NullString
 	Skillcategory sql.NullString
-	CreatedAt     sql.NullTime
 }
 
 func (q *Queries) GetUserSkills(ctx context.Context, userid string) ([]GetUserSkillsRow, error) {
@@ -138,7 +136,6 @@ func (q *Queries) GetUserSkills(ctx context.Context, userid string) ([]GetUserSk
 			&i.Skillname,
 			&i.Skilllevel,
 			&i.Skillcategory,
-			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
