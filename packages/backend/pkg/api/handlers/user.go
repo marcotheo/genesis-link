@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -75,12 +76,22 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-type UpdateResumeLinkParams struct {
-	ResumeLink string `json:"resumeLink" validate:"required"`
+type UpdateUserInfoParams struct {
+	ResumeLink   string `json:"resumeLink"`
+	MobileNumber string `json:"mobileNumber"`
+	Email        string `json:"email"`
 }
 
-func (h *UserHandler) UpdateResumeLink(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(POST) UpdateResumeLink => invoked")
+// Validate checks if at least one field is not empty.
+func (u *UpdateUserInfoParams) Validate() error {
+	if u.ResumeLink == "" && u.MobileNumber == "" && u.Email == "" {
+		return errors.New("no update field provided")
+	}
+	return nil
+}
+
+func (h *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) UpdateUserInfo => invoked")
 
 	token, errorAccessToken := r.Cookie("accessToken")
 	if errorAccessToken != nil {
@@ -94,27 +105,61 @@ func (h *UserHandler) UpdateResumeLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var params UpdateResumeLinkParams
+	var params UpdateUserInfoParams
 
 	errRead := ReadAndValidateBody(r, &params)
 	if errRead != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) UpdateResumeLink => ReadAndValidateBody %s", errRead))
+		clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => ReadAndValidateBody %s", errRead))
 		http.Error(w, errRead.Error(), http.StatusBadRequest)
 		return
 	}
 
-	errQ := h.dataService.Queries.UpdateResumeLink(context.Background(), db.UpdateResumeLinkParams{
-		Userid:     userId,
-		Resumelink: h.utilService.StringToNullString(params.ResumeLink),
-	})
-
-	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) UpdateResumeLink => errQ %s \n", errQ))
-		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
-		return
+	if err := params.Validate(); err != nil {
+		fmt.Println("Validation error:", err)
+	} else {
+		fmt.Println("Validation successful")
 	}
 
-	clog.Logger.Success("(POST) UpdateResumeLink => update successful")
+	if params.ResumeLink != "" {
+		err := h.dataService.Queries.UpdateResumeLink(context.Background(), db.UpdateResumeLinkParams{
+			Userid:     userId,
+			Resumelink: h.utilService.StringToNullString(params.ResumeLink),
+		})
+
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => ResumeLink err %s \n", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if params.MobileNumber != "" {
+		err := h.dataService.Queries.UpdateMobileNumber(context.Background(), db.UpdateMobileNumberParams{
+			Userid:       userId,
+			Mobilenumber: h.utilService.StringToNullString(params.MobileNumber),
+		})
+
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => MobileNumber err %s \n", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if params.Email != "" {
+		err := h.dataService.Queries.UpdateEmail(context.Background(), db.UpdateEmailParams{
+			Userid: userId,
+			Email:  params.Email,
+		})
+
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => Email err %s \n", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	clog.Logger.Success("(POST) UpdateUserInfo => update successful")
 
 	w.WriteHeader(http.StatusNoContent)
 }

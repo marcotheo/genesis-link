@@ -23,7 +23,7 @@ func (o *UserRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
-		subRouter.POST("/update/resume", o.handlers.UpdateResumeLink)
+		subRouter.POST("/update/info", o.handlers.UpdateUserInfo)
 		subRouter.GET("/account/details", o.handlers.GetUser)
 	}
 }
