@@ -72,3 +72,13 @@ type User struct {
 	CreatedAt    interface{}
 	UpdatedAt    interface{}
 }
+
+type UserSkill struct {
+	Skillid       string
+	Userid        string
+	Skillname     string
+	Skilllevel    sql.NullString
+	Skillcategory sql.NullString
+	CreatedAt     sql.NullTime
+	UpdatedAt     sql.NullTime
+}

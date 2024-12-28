@@ -6,6 +6,17 @@ INSERT INTO users (
 )
 RETURNING *;
 
+-- name: CreateUserSkill :exec
+INSERT INTO user_skills (
+    skillId,
+    userId,
+    skillName,
+    skillLevel,
+    skillCategory
+) VALUES (
+    ?, ?, ?, ?, ?
+);
+
 -- name: UpdateResumeLink :exec
 UPDATE users
 SET resumeLink = ?
@@ -28,3 +39,13 @@ WHERE userId = ? LIMIT 1;
 -- name: GetUserPost :one
 SELECT postId FROM posts
 WHERE postId = ? AND userId = ?;
+
+-- name: GetUserSkills :many
+SELECT 
+    skillId,
+    skillName,
+    skillLevel,
+    skillCategory,
+    created_at
+FROM user_skills
+WHERE userId = ?;

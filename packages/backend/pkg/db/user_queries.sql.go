@@ -38,6 +38,37 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const createUserSkill = `-- name: CreateUserSkill :exec
+INSERT INTO user_skills (
+    skillId,
+    userId,
+    skillName,
+    skillLevel,
+    skillCategory
+) VALUES (
+    ?, ?, ?, ?, ?
+)
+`
+
+type CreateUserSkillParams struct {
+	Skillid       string
+	Userid        string
+	Skillname     string
+	Skilllevel    sql.NullString
+	Skillcategory sql.NullString
+}
+
+func (q *Queries) CreateUserSkill(ctx context.Context, arg CreateUserSkillParams) error {
+	_, err := q.db.ExecContext(ctx, createUserSkill,
+		arg.Skillid,
+		arg.Userid,
+		arg.Skillname,
+		arg.Skilllevel,
+		arg.Skillcategory,
+	)
+	return err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT userid, email, mobilenumber, resumelink, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
@@ -72,6 +103,54 @@ func (q *Queries) GetUserPost(ctx context.Context, arg GetUserPostParams) (strin
 	var postid string
 	err := row.Scan(&postid)
 	return postid, err
+}
+
+const getUserSkills = `-- name: GetUserSkills :many
+SELECT 
+    skillId,
+    skillName,
+    skillLevel,
+    skillCategory,
+    created_at
+FROM user_skills
+WHERE userId = ?
+`
+
+type GetUserSkillsRow struct {
+	Skillid       string
+	Skillname     string
+	Skilllevel    sql.NullString
+	Skillcategory sql.NullString
+	CreatedAt     sql.NullTime
+}
+
+func (q *Queries) GetUserSkills(ctx context.Context, userid string) ([]GetUserSkillsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserSkills, userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserSkillsRow
+	for rows.Next() {
+		var i GetUserSkillsRow
+		if err := rows.Scan(
+			&i.Skillid,
+			&i.Skillname,
+			&i.Skilllevel,
+			&i.Skillcategory,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateEmail = `-- name: UpdateEmail :exec
