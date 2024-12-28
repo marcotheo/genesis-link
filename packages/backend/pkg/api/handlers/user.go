@@ -9,6 +9,7 @@ import (
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/services"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 type UserHandler struct {
@@ -162,4 +163,136 @@ func (h *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(POST) UpdateUserInfo => update successful")
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+type SkillParams struct {
+	SkillName     string `json:"skillName" validate:"required"`
+	SkillLevel    string `json:"skillLevel" validate:"omitempty,oneof=Beginner Intermediate Advanced"` // Optional, must be one of the valid levels if present
+	SkillCategory string `json:"skillCategory" validate:"omitempty"`
+}
+
+type CreateUserSkillsParams struct {
+	Skills []SkillParams `json:"skills" validate:"required,dive"`
+}
+
+func (h *UserHandler) CreateUserSkills(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) CreateUserSkills => invoked")
+
+	// Parse and validate the request body
+	var params CreateUserSkillsParams
+	if err := ReadAndValidateBody(r, &params); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve the access token and validate it
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	// Begin a database transaction for multi-row insert
+	tx, err := h.dataService.Conn.Begin()
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => error beginning transaction: %s", err))
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
+		return
+	}
+
+	defer tx.Rollback()
+
+	qtx := h.dataService.Queries.WithTx(tx)
+
+	// Insert each skill for the user
+	for _, skill := range params.Skills {
+		skillId, err := gonanoid.New()
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => Error generating skillId: %s", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+
+		// Insert the skill into the database
+		if err := qtx.CreateUserSkill(context.Background(), db.CreateUserSkillParams{
+			Skillid:       skillId,
+			Userid:        userId,
+			Skillname:     skill.SkillName,
+			Skilllevel:    h.utilService.StringToNullString(skill.SkillLevel),
+			Skillcategory: h.utilService.StringToNullString(skill.SkillCategory),
+		}); err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+			http.Error(w, "Error inserting skill data", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(POST) CreateUserSkills => create successful")
+
+	w.WriteHeader(http.StatusOK)
+}
+
+type Skill struct {
+	SkillID       string `json:"skillId"`
+	SkillName     string `json:"skillName"`
+	SkillLevel    string `json:"skillLevel,omitempty"`
+	SkillCategory string `json:"skillCategory,omitempty"`
+}
+
+type GetUserSkillsResponse struct {
+	Skills []Skill `json:"skills"`
+}
+
+func (h *UserHandler) GetUserSkills(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetUserSkills => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	userSkills, errQ := h.dataService.Queries.GetUserSkillsByUserId(context.Background(), userId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetUserSkills => errQ %s \n", errQ))
+		http.Error(w, "Error fetching user skills", http.StatusInternalServerError)
+		return
+	}
+
+	// Map skills to response format
+	var skillsData []Skill
+	for _, skill := range userSkills {
+		item := Skill{
+			SkillID:       skill.Skillid,
+			SkillName:     skill.Skillname,
+			SkillLevel:    h.utilService.ConvertNullString(skill.Skilllevel),
+			SkillCategory: h.utilService.ConvertNullString(skill.Skillcategory),
+		}
+		skillsData = append(skillsData, item)
+	}
+
+	clog.Logger.Success("(GET) GetUserSkills => successful")
+
+	// Return skills response
+	successResponse(w, GetUserSkillsResponse{Skills: skillsData})
 }
