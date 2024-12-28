@@ -40,11 +40,23 @@ const Header = component$(() => {
   const location = useLocation();
   const locationPathname = location.url.pathname;
   let headerTitle = "";
+  let subTitle = "";
 
-  if (locationPathname === "/settings/profile") headerTitle = "Profile";
-  if (locationPathname === "/settings/addressess") headerTitle = "Addressess";
+  if (locationPathname === "/settings/profile") {
+    headerTitle = "Profile";
+    subTitle = "Manage profile settings and details";
+  }
+  if (locationPathname === "/settings/addressess") {
+    headerTitle = "Addressess";
+    subTitle = "Manage address settings";
+  }
 
-  return <h1 class="text-3xl font-semibold">{headerTitle}</h1>;
+  return (
+    <div>
+      <h1 class="text-3xl font-semibold">{headerTitle}</h1>
+      <p class="text-gray-500 max-md:hidden">{subTitle}</p>
+    </div>
+  );
 });
 
 export default component$(() => {
@@ -70,6 +82,7 @@ export default component$(() => {
 
       <div class="overflow-hidden pb-6 w-full px-7">
         <Header />
+        <br />
         <Slot />
       </div>
     </div>
