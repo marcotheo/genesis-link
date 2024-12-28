@@ -1,47 +1,3 @@
--- name: GetUser :one
-SELECT * FROM users
-WHERE userId = ? LIMIT 1;
-
--- name: GetAllAddressByUserId :many
-SELECT * FROM addresses
-WHERE userId = ?;
-
--- name: GetUserPost :one
-SELECT postId FROM posts
-WHERE postId = ? AND userId = ?;
-
--- name: CreateUser :one
-INSERT INTO users (
-  userId, email
-) VALUES (
-  ?, ?
-)
-RETURNING *;
-
--- name: UpdateResumeLink :exec
-UPDATE users
-SET resumeLink = ?
-WHERE userId = ?;
-
--- name: CreateAddress :exec
-INSERT INTO addresses (
-    addressId,
-    country,
-    region,
-    province,
-    city,
-    barangay,
-    addressDetails,
-    userId
-) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?
-)
-RETURNING *;
-
--- name: DeleteAddress :exec
-DELETE FROM addresses
-WHERE addressId = ? AND userId = ?;
-
 -- name: CreatePost :exec
 INSERT INTO posts (
     postId,
@@ -66,7 +22,6 @@ RETURNING *;
 UPDATE posts
 SET additionalInfoLink = ?
 WHERE postId = ? AND userId = ?;
-
 
 -- name: CreateJobDetails :exec
 INSERT INTO job_details (
@@ -118,17 +73,3 @@ FROM posts p
 LEFT JOIN job_details jb
 ON p.postId = jb.postId
 WHERE p.postId = ?;
-
--- name: CreateApplication :one
-INSERT INTO applications (
-    applicationId, 
-    resumeLink, 
-    status, 
-    postId, 
-    userId, 
-    created_at, 
-    updated_at
-) VALUES (
-    ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-)
-RETURNING *;
