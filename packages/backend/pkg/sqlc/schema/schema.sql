@@ -7,6 +7,19 @@ CREATE TABLE users (
     updated_at DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE user_skills (
+    skillId INTEGER PRIMARY KEY AUTOINCREMENT, 
+    userId TEXT NOT NULL,                     
+    skillName TEXT NOT NULL,          
+    skillLevel TEXT CHECK(skillLevel IN ('Beginner', 'Intermediate', 'Advanced')),
+    skillCategory TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    FOREIGN KEY (userId) REFERENCES users(userId)
+);
+
+CREATE INDEX idx_user_skills_userId ON user_skills(userId);
+
 CREATE TABLE addresses (
     addressId TEXT NOT NULL PRIMARY KEY,
     country TEXT NOT NULL DEFAULT 'Philippines',
