@@ -225,11 +225,20 @@ const SkillList = component$(() => {
   );
 
   return (
-    <div class="h-40 w-full">
+    <div
+      class={cn(
+        "w-full rounded-md",
+        "h-40 overflow-y-auto",
+        "mt-3 p-5",
+        "brightness-95 dark:brightness-110",
+      )}
+    >
       {state.result?.data.skills ? (
-        <div>
+        <div class="flex flex-wrap gap-2">
           {state.result.data.skills.map((v) => (
-            <div class="bg-soft px-5 py-3 rounded-full">{v.skillName}</div>
+            <div class="bg-soft px-3 sm:px-5 py-3 rounded-lg">
+              <p class=" text-sm sm:text-base">{v.skillName}</p>
+            </div>
           ))}
         </div>
       ) : (
@@ -254,9 +263,11 @@ export default component$(() => {
       )}
     >
       <div class="flex justify-between w-full">
-        <div class="w-fit whitespace-nowrap">
+        <div class="w-fit">
           <h1 class="text-xl font-semibold">Skills</h1>
-          <p class="text-gray-500 text-sm">review or add skills</p>
+          <p class="text-gray-500 text-xs sm:text-sm">
+            Add and review your skills to showcase your expertise
+          </p>
         </div>
 
         <SkillForm />

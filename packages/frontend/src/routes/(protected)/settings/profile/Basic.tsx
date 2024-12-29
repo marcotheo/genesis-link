@@ -312,8 +312,8 @@ export default component$(() => {
     >
       <div>
         <h1 class="text-xl font-semibold">Basic information</h1>
-        <p class="text-gray-500 text-sm max-md:hidden">
-          review or set basic details
+        <p class="text-gray-500 text-sm">
+          Review and update your profile up-to-date
         </p>
       </div>
 
