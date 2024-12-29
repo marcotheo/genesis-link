@@ -242,7 +242,7 @@ func (h *UserHandler) CreateUserSkills(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(POST) CreateUserSkills => create successful")
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 type Skill struct {
