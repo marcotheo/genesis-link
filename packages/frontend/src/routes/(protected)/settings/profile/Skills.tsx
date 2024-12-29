@@ -236,7 +236,7 @@ const SkillList = component$(() => {
       {state.result?.data.skills ? (
         <div class="flex flex-wrap gap-2">
           {state.result.data.skills.map((v) => (
-            <div class="bg-soft px-3 sm:px-5 py-3 rounded-lg">
+            <div key={v.skillId} class="bg-soft px-3 sm:px-5 py-3 rounded-lg">
               <p class=" text-sm sm:text-base">{v.skillName}</p>
             </div>
           ))}
