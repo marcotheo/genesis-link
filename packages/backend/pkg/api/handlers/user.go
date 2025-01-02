@@ -210,6 +210,8 @@ func (h *UserHandler) CreateUserSkills(w http.ResponseWriter, r *http.Request) {
 
 	qtx := h.dataService.Queries.WithTx(tx)
 
+	var skillsResponse []Skill
+
 	// Insert each skill for the user
 	for _, skill := range params.Skills {
 		skillId, err := gonanoid.New()
@@ -231,6 +233,14 @@ func (h *UserHandler) CreateUserSkills(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error inserting skill data", http.StatusInternalServerError)
 			return
 		}
+
+		skillsResponse = append(skillsResponse, Skill{
+			SkillID:       skillId,
+			SkillName:     skill.SkillName,
+			SkillLevel:    skill.SkillLevel,
+			SkillCategory: skill.SkillCategory,
+		})
+
 	}
 
 	// Commit the transaction
@@ -242,7 +252,7 @@ func (h *UserHandler) CreateUserSkills(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(POST) CreateUserSkills => create successful")
 
-	w.WriteHeader(http.StatusNoContent)
+	successResponse(w, GetUserSkillsResponse{Skills: skillsResponse})
 }
 
 type Skill struct {
