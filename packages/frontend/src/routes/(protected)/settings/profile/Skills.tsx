@@ -1,22 +1,23 @@
 import {
   insert,
   remove,
+  reset,
   SubmitHandler,
   useForm,
   valiForm$,
 } from "@modular-forms/qwik";
-import { $, component$ } from "@builder.io/qwik";
+import { $, component$, useContext } from "@builder.io/qwik";
 import * as v from "valibot";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
 import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { QueryContext } from "~/providers/query/query";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
-import { GetUserSkills } from "~/common/types";
 import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
 
@@ -33,6 +34,7 @@ const schema = v.object({
 type SchemaType = v.InferInput<typeof schema>;
 
 const SkillForm = component$(() => {
+  const { setCacheData } = useContext(QueryContext);
   const toast = useToast();
 
   const { mutate } = useMutate("/users/create/skills");
@@ -55,14 +57,40 @@ const SkillForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
     try {
-      await mutate({
+      const response = await mutate({
         skills: [...values.skills],
       });
 
+      if (response.error) throw response.error;
+
+      if (response.result) {
+        setCacheData("/users/skills", (currentData) => {
+          const newResult = currentData ? currentData : response.result;
+
+          if (currentData)
+            newResult.data.skills = [
+              ...currentData.data.skills,
+              ...response.result.data.skills,
+            ];
+
+          return newResult;
+        });
+
+        toast.add({
+          title: "Success",
+          message: "Skills Added",
+          type: "success",
+        });
+
+        reset(form);
+
+        return;
+      }
+
       toast.add({
-        title: "Success",
-        message: "Skills Added",
-        type: "success",
+        title: "Saving failed",
+        message: "Something Went Wrong",
+        type: "destructive",
       });
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -218,10 +246,12 @@ const SkillForm = component$(() => {
 });
 
 const SkillList = component$(() => {
-  const { state } = useQuery<GetUserSkills>(
+  const { state } = useQuery(
     "/users/skills",
     {},
-    { runOnRender: true },
+    {
+      runOnRender: true,
+    },
   );
 
   return (
