@@ -1,9 +1,8 @@
 import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
-import dayjs from "dayjs";
 
 import { useAuthHeadersLoader } from "~/routes/layout";
-import { cn, qwikFetch } from "~/common/utils";
+import { qwikFetch } from "~/common/utils";
 import { GetUserAPI } from "~/common/types";
 import Skills from "./Skills";
 import Basic from "./Basic";
