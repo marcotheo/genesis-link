@@ -1,3 +1,4 @@
+import { PostAPIMapping } from "~/common/types";
 import { useStore, $ } from "@builder.io/qwik";
 import { qwikFetch } from "~/common/utils";
 
@@ -8,8 +9,8 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useMutate = <T,>(url: string) => {
-  const state = useStore<FetchState<T>>({
+export const useMutate = <Path extends keyof PostAPIMapping>(url: Path) => {
+  const state = useStore<FetchState<PostAPIMapping[Path]>>({
     result: null,
     loading: null,
     error: null,
@@ -34,7 +35,7 @@ export const useMutate = <T,>(url: string) => {
 
       const newUrl = typeof json === "string" ? url + "/" + json : url;
 
-      const result = await qwikFetch<T>(newUrl, {
+      const result = await qwikFetch<PostAPIMapping[Path]>(newUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
