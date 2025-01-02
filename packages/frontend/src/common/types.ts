@@ -1,3 +1,16 @@
+export type GetAPIMapping = {
+  "/address": ListAddressResponse;
+  "/posts/list": ListPostsResponse;
+  "/users/{userId}": GetUserAPI;
+  "/users/skills": GetUserSkills;
+};
+
+export type PostAPIMapping = {
+  "/posts/create": CreatePostResponse;
+  "/s3/generate/url/put": GenerateS3SignedUrlPut;
+  "/users/create/skills": GetUserSkills;
+};
+
 export type Address = {
   Addressid: string;
   Country: string;
