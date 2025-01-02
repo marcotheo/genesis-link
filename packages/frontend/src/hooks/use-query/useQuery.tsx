@@ -9,6 +9,7 @@ import { Signal } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
 import { isServer } from "@builder.io/qwik/build";
+import { GetAPIMapping } from "~/common/types";
 import { qwikFetch } from "~/common/utils";
 
 export interface FetchState<T> {
@@ -18,20 +19,20 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useQuery = <T,>(
-  url: string,
+export const useQuery = <Path extends keyof GetAPIMapping>(
+  url: Path,
   signalObject: Record<string, Signal<any>>,
   options?: {
-    defaultValues?: T | null;
+    defaultValues?: GetAPIMapping[Path] | null;
     cacheTime?: number; // in milliseconds
     runOnRender?: boolean;
   },
 ) => {
   const queryCtx = useContext(QueryContext);
 
-  const cachedTime = options?.cacheTime || 60000 * 3; // ms 1min default
+  const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
 
-  const state = useStore<FetchState<T>>({
+  const state = useStore<FetchState<GetAPIMapping[Path]>>({
     result: options?.defaultValues ?? null,
     loading: options?.runOnRender ? true : null,
     error: null,
@@ -54,7 +55,7 @@ export const useQuery = <T,>(
     return null;
   });
 
-  const setCacheData = $((key: string, data: T) => {
+  const setCacheData = $((key: string, data: GetAPIMapping[Path]) => {
     queryCtx.cache[key] = {
       data,
       timestamp: Date.now(),
@@ -79,7 +80,7 @@ export const useQuery = <T,>(
     }
 
     try {
-      const result = await qwikFetch<T>(urlFetch, {
+      const result = await qwikFetch<GetAPIMapping[Path]>(urlFetch, {
         method: "GET", // Adjust method if needed
         credentials: "include",
       });
@@ -107,6 +108,9 @@ export const useQuery = <T,>(
     for (const key in signalObject) {
       track(() => signalObject[key].value);
     }
+
+    // Track cached result
+    track(() => queryCtx.cache[url]);
 
     // Execute the query when any of the signals change
     if (isServer) return;
