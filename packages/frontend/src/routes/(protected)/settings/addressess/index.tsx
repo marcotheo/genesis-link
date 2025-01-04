@@ -1,11 +1,11 @@
 import { Link, routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
-import { $, component$, useSignal } from "@builder.io/qwik";
+import { $, component$, useStore } from "@builder.io/qwik";
+import { TbTrash } from "@qwikest/icons/tablericons";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useAuthHeadersLoader } from "~/routes/layout";
+import { useFetch } from "~/hooks/use-fetch/useFetch";
 import { ListAddressResponse } from "~/common/types";
-import { TrashBin } from "~/components/icons/icons";
 import Button from "~/components/button/button";
 import { cn, qwikFetch } from "~/common/utils";
 
@@ -30,19 +30,21 @@ export const useAddressesLoader = routeLoader$(async ({ resolveValue }) => {
 
 const AddressList = component$(() => {
   const result = useAddressesLoader();
-  const localData = useSignal(result.value);
+  const state = useStore({
+    addresses: result.value,
+  });
 
-  const { mutate, state } = useMutate("/address");
+  const { fetch, state: fetchState } = useFetch("/address");
 
   const onDelete = $(async (addressId: string) => {
     try {
-      await mutate(addressId, {
+      await fetch(addressId, {
         method: "DELETE",
         credentials: "include",
       });
 
-      if (localData.value)
-        localData.value = localData.value.filter(
+      if (state.addresses)
+        state.addresses = state.addresses.filter(
           (v) => v.Addressid !== addressId,
         );
     } catch (err) {
@@ -52,9 +54,11 @@ const AddressList = component$(() => {
 
   return (
     <div class="flex flex-col gap-5">
-      <LoadingOverlay open={state.loading}>Removing Address</LoadingOverlay>
+      <LoadingOverlay open={fetchState.loading}>
+        Removing Address
+      </LoadingOverlay>
 
-      {localData.value?.map((v) => (
+      {state.addresses?.map((v) => (
         <div
           key={v.Addressid}
           class={cn(
@@ -78,7 +82,9 @@ const AddressList = component$(() => {
             variant="ghost"
             onClick$={() => onDelete(v.Addressid)}
           >
-            <TrashBin class="text-destructive w-7 h-7" />
+            <div class="text-destructive text-2xl w-fit">
+              <TbTrash />
+            </div>
           </Button>
         </div>
       ))}
