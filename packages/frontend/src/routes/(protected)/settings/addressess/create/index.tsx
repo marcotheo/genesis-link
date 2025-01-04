@@ -5,11 +5,11 @@ import {
   useForm,
   valiForm$,
 } from "@modular-forms/qwik";
+import { routeLoader$, DocumentHead } from "@builder.io/qwik-city";
 import { $, component$, Slot } from "@builder.io/qwik";
 
 import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { routeLoader$, DocumentHead } from "@builder.io/qwik-city";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
@@ -36,7 +36,7 @@ const FlexWrapper = component$(() => {
 });
 
 export default component$(() => {
-  const { mutate, state } = useMutate<any>("/address/create");
+  const { mutate, state } = useMutate("/address/create");
 
   const [createAddressForm, { Form, Field }] = useForm<CreateAddressForm>({
     loader: useFormLoader(),
@@ -45,7 +45,7 @@ export default component$(() => {
 
   const handleSubmit = $<SubmitHandler<CreateAddressForm>>(async (values) => {
     try {
-      await mutate(
+      const result = await mutate(
         {
           ...values,
           country: "Philippines",
@@ -54,6 +54,7 @@ export default component$(() => {
           credentials: "include",
         },
       );
+
       reset(createAddressForm);
     } catch (error) {
       console.error("Error submitting form:", error);

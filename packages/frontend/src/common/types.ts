@@ -15,6 +15,7 @@ export type PostAPIMapping = {
   "/s3/generate/url/put": GenerateS3SignedUrlPut;
   "/users/create/skills": GetUserSkills;
   "/users/update/info": null;
+  "/address/create": { addressId: string };
 };
 
 export type Address = {

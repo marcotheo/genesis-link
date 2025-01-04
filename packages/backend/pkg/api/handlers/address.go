@@ -37,7 +37,7 @@ type CreateAddressParams struct {
 }
 
 type CreateAddressResponse struct {
-	AddressId string
+	AddressId string `json:"addressId"`
 }
 
 func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
