@@ -100,8 +100,8 @@ export default component$(() => {
 
       <div class="flex justify-end">
         <Link href="/settings/addressess/create">
-          <Button class="text-3xl" size="sm" variant="outline">
-            +
+          <Button class="px-5 py-3" variant="ghost">
+            + Add Address
           </Button>
         </Link>
       </div>
