@@ -21,9 +21,7 @@ export default component$(() => {
 
   const { mutate } = useMutate("/posts/update/additionalInfoLink");
 
-  const { mutate: getUploadLink } = useMutate<GenerateS3SignedUrlPut>(
-    "/s3/generate/url/put",
-  );
+  const { mutate: getUploadLink } = useMutate("/s3/generate/url/put");
 
   const [richTextEditorForm, { Form, Field }] = useForm<RichTextEditorStep>({
     loader: {

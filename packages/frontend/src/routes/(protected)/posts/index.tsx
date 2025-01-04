@@ -40,7 +40,7 @@ export default component$(() => {
   const result = usePostsLoader();
   const page = useSignal(1);
 
-  const { state } = useQuery<ListPostsResponse>(
+  const { state } = useQuery(
     "/posts/list",
     { page },
     {

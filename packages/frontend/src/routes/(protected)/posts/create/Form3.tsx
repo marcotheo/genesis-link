@@ -9,7 +9,6 @@ import {
 import dayjs from "dayjs";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { CreatePostResponse, ListAddressResponse } from "~/common/types";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useQuery } from "~/hooks/use-query/useQuery";
@@ -25,11 +24,7 @@ import { cn } from "~/common/utils";
 
 const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
   ({ selectedAddress }) => {
-    const { state } = useQuery<ListAddressResponse>(
-      "/address",
-      {},
-      { runOnRender: true },
-    );
+    const { state } = useQuery("/address", {}, { runOnRender: true });
 
     return (
       <div class="space-y-5 max-h-[28rem] overflow-y-auto pr-3">
@@ -106,7 +101,7 @@ export default component$(() => {
 
   const toast = useToast();
 
-  const { mutate, state } = useMutate<CreatePostResponse>("/posts/create");
+  const { mutate, state } = useMutate("/posts/create");
 
   const handleSubmit = $(async () => {
     try {

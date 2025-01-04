@@ -7,6 +7,7 @@ import {
 } from "@modular-forms/qwik";
 import { $, component$, useContext, useTask$ } from "@builder.io/qwik";
 import { TbLoader } from "@qwikest/icons/tablericons";
+import { isServer } from "@builder.io/qwik/build";
 import { useSignal } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
@@ -15,10 +16,8 @@ import { FormDataCtx, FormStepCtx, useForm2Loader } from "./index";
 import ImageInput from "~/components/image-input/image-input";
 import { cn, qwikFetchWithProgress } from "~/common/utils";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { GenerateS3SignedUrlPut } from "~/common/types";
 import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
-import { isServer } from "@builder.io/qwik/build";
 import Button from "~/components/button/button";
 import FormWrapper from "./FormWrapper";
 
@@ -31,12 +30,8 @@ export default component$(() => {
 
   const toast = useToast();
 
-  const { mutate: logoMutate } = useMutate<GenerateS3SignedUrlPut>(
-    "/s3/generate/url/put",
-  );
-  const { mutate: posterMutate } = useMutate<GenerateS3SignedUrlPut>(
-    "/s3/generate/url/put",
-  );
+  const { mutate: logoMutate } = useMutate("/s3/generate/url/put");
+  const { mutate: posterMutate } = useMutate("/s3/generate/url/put");
 
   const [brandingVisualForm, { Form, Field }] = useForm<BrandingVisualsStep>({
     loader: useForm2Loader(),

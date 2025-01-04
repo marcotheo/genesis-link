@@ -9,6 +9,9 @@ export type PostAPIMapping = {
   "/auth/signin": SignInResponse;
   "/auth/create": SignUpResponse;
   "/posts/create": CreatePostResponse;
+  "/posts/create/job_details": null;
+  "/posts/create/requirements": null;
+  "/posts/update/additionalInfoLink": null;
   "/s3/generate/url/put": GenerateS3SignedUrlPut;
   "/users/create/skills": GetUserSkills;
   "/users/update/info": null;
