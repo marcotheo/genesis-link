@@ -64,6 +64,7 @@ const AddressList = component$(() => {
           class={cn(
             "p-5 shadow-sm bg-surface rounded-md",
             "flex justify-between items-center",
+            "animate-fade-in-slide duration-500",
           )}
         >
           <div>
