@@ -10,7 +10,6 @@ import dayjs from "dayjs";
 
 import { TbEdit, TbLoader, TbXboxX } from "@qwikest/icons/tablericons";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { GenerateS3SignedUrlPut } from "~/common/types";
 import { useToast } from "~/hooks/use-toast/useToast";
 import Button from "~/components/button/button";
 import FileInput from "~/components/file-input";
