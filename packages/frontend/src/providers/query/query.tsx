@@ -4,37 +4,79 @@ import {
   Slot,
   useContextProvider,
   $,
-  QRL,
+  useStore,
 } from "@builder.io/qwik";
 
+import { GetAPIMapping } from "~/common/types";
+
+type SetCache = <Path extends keyof GetAPIMapping>(
+  key: Path,
+  callback: (
+    currentData: GetAPIMapping[Path] | null,
+  ) => GetAPIMapping[Path] | null,
+) => void;
+
+type GetCache = <Path extends keyof GetAPIMapping>(
+  key: Path,
+  cacheTime?: number,
+) => GetAPIMapping[Path] | null;
+
 interface QueryState {
-  cache: Record<string, any>;
-  setCacheData: QRL<(key: string, data: any) => void>;
-  getCachedData: QRL<(key: string, cacheTime: number) => any>;
+  cache: Record<
+    string,
+    {
+      data: any;
+      timestamp: number;
+    }
+  >;
+  cachedTime: number;
+  setCacheData: SetCache;
+  getCachedData: GetCache;
 }
 
 export const QueryContext = createContextId<QueryState>("query.context");
 
-export default component$(() => {
-  const cache = {} as Record<string, any>;
+interface Props {
+  cacheTime?: number; // in milliseconds
+}
 
-  const setCacheData = $((key: string, data: any) => {
-    cache[key] = {
-      data,
-      timestamp: Date.now(),
-    };
-  });
+export default component$<Props>(({ cacheTime }) => {
+  const cache = useStore<Record<string, { data: any; timestamp: number }>>({});
 
-  const getCachedData = $((key: string, cacheTime: number) => {
+  const finalGlobalCachedTime = cacheTime ?? 60000 * 3; // ms 1min default
+
+  const setCacheData = $(
+    <Path extends keyof GetAPIMapping>(
+      key: Path,
+      callback: (
+        currentData: GetAPIMapping[Path] | null,
+      ) => GetAPIMapping[Path] | null,
+    ) => {
+      // Retrieve existing data or default to null
+      const newData = callback(cache[key]?.data ?? null);
+
+      // Update the cache with the new data and timestamp
+      cache[key] = {
+        data: newData,
+        timestamp: Date.now(),
+      };
+    },
+  ) as SetCache;
+
+  const getCachedData = $((key: string, expTime?: number) => {
     const cached = cache[key];
-    if (cached && Date.now() - cached.timestamp < cacheTime) {
+
+    const finalExpTime = expTime ?? finalGlobalCachedTime;
+
+    if (cached && Date.now() - cached.timestamp < finalExpTime) {
       return cached.data;
     }
     return null;
-  });
+  }) as GetCache;
 
   useContextProvider(QueryContext, {
     cache,
+    cachedTime: finalGlobalCachedTime,
     setCacheData,
     getCachedData,
   });
