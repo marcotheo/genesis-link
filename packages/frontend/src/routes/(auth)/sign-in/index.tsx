@@ -24,14 +24,6 @@ import Input from "~/components/input/input";
 import Alert from "~/components/alert/alert";
 import { cn } from "~/common/utils";
 
-interface SignInResponse {
-  status: string;
-  message: string;
-  data: {
-    ExpiresIn: number;
-  };
-}
-
 const SignInSchema = v.object({
   email: v.pipe(
     v.string(),
@@ -53,7 +45,7 @@ export default component$(() => {
 
   const navigate = useNavigate();
 
-  const { mutate, state } = useMutate<SignInResponse>("/auth/signin");
+  const { mutate, state } = useMutate("/auth/signin");
 
   const [signInForm, { Form, Field }] = useForm<SignInForm>({
     loader: useFormLoader(),

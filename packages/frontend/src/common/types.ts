@@ -6,6 +6,7 @@ export type GetAPIMapping = {
 };
 
 export type PostAPIMapping = {
+  "/auth/signin": SignInResponse;
   "/posts/create": CreatePostResponse;
   "/s3/generate/url/put": GenerateS3SignedUrlPut;
   "/users/create/skills": GetUserSkills;
@@ -21,6 +22,15 @@ export type Address = {
   Barangay: string;
   Addressdetails: string;
 };
+
+// POST API /api/v1/auth/signin
+export interface SignInResponse {
+  status: string;
+  message: string;
+  data: {
+    ExpiresIn: number;
+  };
+}
 
 // GET API /api/v1/address
 export interface ListAddressResponse {
