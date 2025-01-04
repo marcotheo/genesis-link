@@ -5,6 +5,7 @@ import {
   useContextProvider,
   $,
   useStore,
+  QRL,
 } from "@builder.io/qwik";
 
 import { GetAPIMapping } from "~/common/types";
@@ -30,8 +31,8 @@ interface QueryState {
     }
   >;
   cachedTime: number;
-  setCacheData: SetCache;
-  getCachedData: GetCache;
+  setCacheData: QRL<SetCache>;
+  getCachedData: QRL<GetCache>;
 }
 
 export const QueryContext = createContextId<QueryState>("query.context");
@@ -45,7 +46,7 @@ export default component$<Props>(({ cacheTime }) => {
 
   const finalGlobalCachedTime = cacheTime ?? 60000 * 3; // ms 1min default
 
-  const setCacheData = $(
+  const setCacheData = $<SetCache>(
     <Path extends keyof GetAPIMapping>(
       key: Path,
       callback: (
@@ -61,7 +62,7 @@ export default component$<Props>(({ cacheTime }) => {
         timestamp: Date.now(),
       };
     },
-  ) as SetCache;
+  );
 
   const getCachedData = $((key: string, expTime?: number) => {
     const cached = cache[key];
@@ -72,7 +73,7 @@ export default component$<Props>(({ cacheTime }) => {
       return cached.data;
     }
     return null;
-  }) as GetCache;
+  });
 
   useContextProvider(QueryContext, {
     cache,
