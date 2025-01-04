@@ -1,7 +1,7 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import Heading from "../heading/heading";
 import { cn } from "~/common/utils";
-
 interface LoadingOverlayProps {
   open: null | boolean;
   type?: "text" | "component";
@@ -22,12 +22,8 @@ export default component$<LoadingOverlayProps>(({ open, type = "text" }) => {
           "fixed top-0 bottom-0 left-0 right-0 m-auto",
           "w-[90%] md:w-fit h-fit p-5",
           "bg-surface rounded-md shadow-lg",
-          "text-text z-[100]",
-          open === null
-            ? "hidden"
-            : open
-              ? "animate-fade-in-scale"
-              : "animate-fade-out-scale",
+          "text-text z-[100] duration-500",
+          open ? "animate-fade-in-scale" : "hidden",
         )}
       >
         <div class="flex gap-3 items-center justify-center">
