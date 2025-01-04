@@ -24,7 +24,12 @@ const Item = component$<{ label: string; value: string; noEdit?: boolean }>(
 
     return (
       <div
-        class={cn("bg-soft relative rounded-md", "min-[1650px]:w-96", "p-5")}
+        class={cn(
+          "bg-soft relative rounded-md",
+          "min-[1650px]:w-96",
+          "p-5",
+          "animate-fade-in-scale",
+        )}
       >
         <div
           class={cn(
@@ -61,9 +66,7 @@ const Resume = component$(() => {
     loading: false,
   });
   const toast = useToast();
-  const { mutate: getSignedUrl } = useMutate<GenerateS3SignedUrlPut>(
-    "/s3/generate/url/put",
-  );
+  const { mutate: getSignedUrl } = useMutate("/s3/generate/url/put");
 
   const { mutate: updateResumeLink } = useMutate("/users/update/info");
 
