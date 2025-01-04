@@ -102,12 +102,9 @@ const config = {
             opacity: "1",
             transform: "scale(1)",
           },
-          "90%": {
-            opacity: "0",
-            transform: "scale(0.95)",
-          },
           "100%": {
-            zIndex: "-10",
+            opacity: "0",
+            transform: "scale(0.90)",
           },
         },
       },
