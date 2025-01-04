@@ -10,14 +10,15 @@ import { $, component$, useContext } from "@builder.io/qwik";
 import * as v from "valibot";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { TbLoader, TbPlus, TbTrash } from "@qwikest/icons/tablericons";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
-import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { QueryContext } from "~/providers/query/query";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
+import { GetAPIMapping } from "~/common/types";
 import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
 
@@ -64,12 +65,16 @@ const SkillForm = component$(() => {
       if (response.error) throw response.error;
 
       if (response.result) {
-        setCacheData("/users/skills", (currentData) => {
-          const newResult = currentData ? currentData : response.result;
+        await setCacheData("/users/skills", (currentData) => {
+          const temp = currentData as unknown as
+            | GetAPIMapping["/users/skills"]
+            | null;
 
-          if (currentData)
+          const newResult = temp ? temp : response.result;
+
+          if (temp)
             newResult.data.skills = [
-              ...currentData.data.skills,
+              ...temp.data.skills,
               ...response.result.data.skills,
             ];
 
@@ -263,10 +268,27 @@ const SkillList = component$(() => {
         "brightness-95 dark:brightness-110",
       )}
     >
-      {state.result?.data.skills ? (
+      {state.loading ? (
+        <div class="h-full w-full flex justify-center items-center">
+          <div class="flex gap-3 items-center">
+            <Heading>Loading Skills</Heading>
+
+            <div class="animate-spin text-3xl w-fit h-fit">
+              <TbLoader />
+            </div>
+          </div>
+        </div>
+      ) : state.result?.data.skills ? (
         <div class="flex flex-wrap gap-2">
           {state.result.data.skills.map((v) => (
-            <div key={v.skillId} class="bg-soft px-3 sm:px-5 py-3 rounded-lg">
+            <div
+              key={v.skillId}
+              class={cn(
+                "bg-soft rounded-lg",
+                "px-3 sm:px-5 py-3",
+                "animate-fade-in-slide",
+              )}
+            >
               <p class=" text-sm sm:text-base">{v.skillName}</p>
             </div>
           ))}
