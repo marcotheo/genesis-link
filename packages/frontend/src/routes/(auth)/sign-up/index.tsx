@@ -18,15 +18,6 @@ import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import Alert from "~/components/alert/alert";
 
-interface SignUpResponse {
-  status: string;
-  message: string;
-  data: {
-    email: string;
-    password: string;
-  };
-}
-
 const SignUpSchema = v.pipe(
   v.object({
     email: v.pipe(
@@ -85,7 +76,7 @@ export const useFormLoader = routeLoader$<InitialValues<SignUpForm>>(() => ({
 }));
 
 export default component$(() => {
-  const { mutate, state } = useMutate<SignUpResponse>("/auth/create");
+  const { mutate, state } = useMutate("/auth/create");
 
   const [signUpForm, { Form, Field }] = useForm<SignUpForm>({
     loader: useFormLoader(),
