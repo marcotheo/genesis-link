@@ -1,14 +1,17 @@
 import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
-import { $, component$, Slot } from "@builder.io/qwik";
+import { $, component$, Slot, useContext } from "@builder.io/qwik";
 
-import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { DialogTrigger } from "~/components/dialog/dialog";
-import { useMutate } from "~/hooks/use-mutate/useMutate";
+import * as TModal from "~/components/themed-modal/themed-modal";
 import Button from "~/components/button/button";
-import { useCreateAddressFormLoader } from ".";
 import Alert from "~/components/alert/alert";
 import Input from "~/components/input/input";
+
+import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { Address, GetAPIMapping } from "~/common/types";
+import { QueryContext } from "~/providers/query/query";
+import { useCreateAddressFormLoader } from ".";
 import { cn } from "~/common/utils";
 
 const FlexWrapper = component$(() => {
@@ -20,7 +23,10 @@ const FlexWrapper = component$(() => {
 });
 
 export default component$(() => {
-  const { mutate, state } = useMutate<any>("/address/create");
+  const countryValue = "Philippines";
+  const { setCacheData } = useContext(QueryContext);
+
+  const { mutate, state } = useMutate("/address/create");
 
   const [createAddressForm, { Form, Field }] = useForm<CreateAddressForm>({
     loader: useCreateAddressFormLoader(),
@@ -29,15 +35,41 @@ export default component$(() => {
 
   const handleSubmit = $<SubmitHandler<CreateAddressForm>>(async (values) => {
     try {
-      await mutate(
+      const res = await mutate(
         {
           ...values,
-          country: "Philippines",
+          country: countryValue,
         },
         {
           credentials: "include",
         },
       );
+
+      if (res.result)
+        await setCacheData("/address", (currentData) => {
+          const temp = currentData as unknown as
+            | GetAPIMapping["/address"]
+            | null;
+
+          const newAddress = {
+            Addressid: res.result.addressId,
+            Country: countryValue,
+            Region: values.region,
+            Province: values.province,
+            City: values.city,
+            Barangay: values.barangay,
+            Addressdetails: values.addressDetails,
+          } as Address;
+
+          if (temp)
+            return {
+              ...temp,
+              data: [...temp.data, newAddress],
+            };
+
+          return temp;
+        });
+
       reset(createAddressForm);
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -50,7 +82,7 @@ export default component$(() => {
         Saving Address
       </LoadingOverlay>
 
-      <div class={cn("w-[40em]")}>
+      <div class={cn("w-full")}>
         <Alert
           open={!!state.error}
           variant="error"
@@ -132,13 +164,7 @@ export default component$(() => {
           </FlexWrapper>
 
           <div class="mt-5 flex justify-end gap-3">
-            <DialogTrigger
-              class="px-10 border-input text-input"
-              variant="outline"
-              type="button"
-            >
-              Cancel
-            </DialogTrigger>
+            <TModal.Close>Cancel</TModal.Close>
 
             <Button class="px-10" type="submit" disabled={!!state.loading}>
               Submit

@@ -6,18 +6,21 @@ import {
   useSignal,
   useTask$,
 } from "@builder.io/qwik";
+import { isServer } from "@builder.io/qwik/build";
+import { Modal } from "@qwik-ui/headless";
 import dayjs from "dayjs";
 
-import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { useToast } from "~/hooks/use-toast/useToast";
+
+import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import * as TModal from "~/components/themed-modal/themed-modal";
 import Heading from "~/components/heading/heading";
-import { FormDataCtx, FormStepCtx } from "./index";
-import { isServer } from "@builder.io/qwik/build";
 import Button from "~/components/button/button";
 import Alert from "~/components/alert/alert";
+
+import { FormDataCtx, FormStepCtx } from "./index";
 import CreateAddress from "./CreateAddress";
 import FormWrapper from "./FormWrapper";
 import { cn } from "~/common/utils";
@@ -63,13 +66,12 @@ const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
           ))
         )}
 
-        <Dialog>
-          <DialogTrigger
-            q:slot="trigger"
+        <Modal.Root>
+          <TModal.Trigger
             class={cn(
               "w-full px-5 py-10",
               "border-2 border-surface",
-              "shadow-sm rounded-md",
+              "shadow-sm text-text",
               "flex justify-center items-center",
               "cursor-pointer",
               "dark:hover:brightness-125 brightness-95",
@@ -77,18 +79,16 @@ const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
               "ease-in duration-200",
             )}
           >
-            <div class="flex items-center gap-2 bg-transparent">
-              <p class="text-3xl text-input mb-1">+</p>
-              <p class="text-input">Add New Address</p>
-            </div>
-          </DialogTrigger>
-
-          <div>
-            <Heading size="md">New Address</Heading>
-
+            + Add New Address
+          </TModal.Trigger>
+          <TModal.Content
+            size="lg"
+            modalTitle="Create New Address"
+            modalDescription="enter information for new address option"
+          >
             <CreateAddress />
-          </div>
-        </Dialog>
+          </TModal.Content>
+        </Modal.Root>
       </div>
     );
   },
