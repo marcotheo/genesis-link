@@ -2,14 +2,15 @@ import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
 import { $, component$, Slot, useContext, useTask$ } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import ThemedSelect from "~/components/themed-select/themed-select";
+import Heading from "~/components/heading/heading";
+import Button from "~/components/button/button";
+import Input from "~/components/input/input";
+
 import { JobDetailsInfoStep, JobDetailsInfoSchema } from "./common";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useToast } from "~/hooks/use-toast/useToast";
-import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
-import Select from "~/components/select/select";
-import Button from "~/components/button/button";
-import Input from "~/components/input/input";
 import FormWrapper from "./FormWrapper";
 import { cn } from "~/common/utils";
 
@@ -107,7 +108,7 @@ export default component$(() => {
           <FlexWrapper>
             <Field name="jobType">
               {(field, props) => (
-                <Select
+                <ThemedSelect
                   {...props}
                   name={field.name}
                   label="Job Type"
@@ -126,7 +127,7 @@ export default component$(() => {
 
             <Field name="salaryType">
               {(field, props) => (
-                <Select
+                <ThemedSelect
                   {...props}
                   name={field.name}
                   label="Salary Type"
