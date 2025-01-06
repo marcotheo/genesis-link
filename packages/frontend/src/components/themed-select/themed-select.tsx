@@ -188,7 +188,7 @@ export default component$<SelectProps>(
                 "mt-1 p-1",
                 "shadow-md rounded-md",
                 "border-[0.5px] border-popup",
-                "data-[open]:animate-fade-in-scale",
+                "data-[open]:animate-fade-in-slide",
               )}
               style={{ width: popoverWidth.value }}
             >
