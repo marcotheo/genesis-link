@@ -15,10 +15,18 @@ const modalSizes = {
   sm: "md:min-w-[25rem]",
 };
 
-export const Trigger = component$(() => {
+export default component$(() => {
+  return <></>;
+});
+
+export const Trigger = component$<{ class?: string }>((props) => {
   return (
     <Modal.Trigger
-      class={cn("px-5 py-3 rounded-md", "bg-primary-soft hover:brightness-150")}
+      class={cn(
+        "px-5 py-3 rounded-md",
+        "bg-primary-soft hover:brightness-150",
+        props.class,
+      )}
       type="button"
     >
       <Slot />
@@ -53,14 +61,28 @@ export const Content = component$<Props>(
   },
 );
 
-export const Close = component$(() => {
+const sizes = {
+  lg: "py-4 px-7",
+  md: "py-3 px-6",
+  sm: "py-1 px-4 text-md",
+  default: "py-2 px-5",
+};
+
+interface CloseProps {
+  size?: "lg" | "md" | "sm" | "default";
+  class?: string;
+}
+
+export const Close = component$<CloseProps>((props) => {
   return (
     <Modal.Close
       class={cn(
-        "px-10 rounded-md",
+        "rounded-md",
         "border border-input",
         "bg-transparent hover:bg-primary-soft",
         "text-input",
+        sizes[props.size ?? "default"],
+        props.class,
       )}
       type="button"
     >

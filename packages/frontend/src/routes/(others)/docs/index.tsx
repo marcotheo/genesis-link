@@ -1,5 +1,6 @@
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
+import { Modal } from "@qwik-ui/headless";
 
 import Menu, {
   DropDownMenuItem,
@@ -12,7 +13,7 @@ import Card, {
   CardHeader,
 } from "~/components/card/card";
 import ThemedSelect from "~/components/themed-select/themed-select";
-import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
+import * as TModal from "~/components/themed-modal/themed-modal";
 import CdnImage from "~/components/cdn-image/cdn-image";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
@@ -168,25 +169,65 @@ export default component$(() => {
               </div>
 
               <div class="flex gap-5">
-                <Dialog size="lg">
-                  <DialogTrigger q:slot="trigger">LG</DialogTrigger>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                </Dialog>
+                <Modal.Root>
+                  <TModal.Trigger>Large</TModal.Trigger>
+                  <TModal.Content
+                    size="lg"
+                    modalTitle="Create New Address"
+                    modalDescription="enter information for new address option"
+                  >
+                    <div class="flex gap-3">
+                      <Input label="Outlined" />
+                      <Input label="Outlined" />
+                    </div>
 
-                <Dialog size="md">
-                  <DialogTrigger q:slot="trigger">MD</DialogTrigger>
-                  <div>asdasdasd</div>
-                </Dialog>
+                    <br />
 
-                <Dialog size="sm">
-                  <DialogTrigger q:slot="trigger">SM</DialogTrigger>
-                  <div>asdasdasd</div>
-                </Dialog>
+                    <div class="w-full flex justify-end">
+                      <TModal.Close>Submit</TModal.Close>
+                    </div>
+                  </TModal.Content>
+                </Modal.Root>
+
+                <Modal.Root>
+                  <TModal.Trigger>Medium</TModal.Trigger>
+                  <TModal.Content
+                    size="md"
+                    modalTitle="Create New Address"
+                    modalDescription="enter information for new address option"
+                  >
+                    <div class="flex gap-3">
+                      <Input label="Outlined" />
+                      <Input label="Outlined" />
+                    </div>
+
+                    <br />
+
+                    <div class="w-full flex justify-end">
+                      <TModal.Close>Submit</TModal.Close>
+                    </div>
+                  </TModal.Content>
+                </Modal.Root>
+
+                <Modal.Root>
+                  <TModal.Trigger>Small</TModal.Trigger>
+                  <TModal.Content
+                    size="sm"
+                    modalTitle="Create New Address"
+                    modalDescription="enter information for new address option"
+                  >
+                    <div class="flex gap-3">
+                      <Input label="Outlined" />
+                      <Input label="Outlined" />
+                    </div>
+
+                    <br />
+
+                    <div class="w-full flex justify-end">
+                      <TModal.Close>Submit</TModal.Close>
+                    </div>
+                  </TModal.Content>
+                </Modal.Root>
               </div>
             </div>
 
