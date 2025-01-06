@@ -86,18 +86,18 @@ const labelVariants = {
 export default component$<SelectProps>(
   ({
     variant = "default",
+    name,
     label,
     errorMsg,
-    name,
-    class: customClass,
     options,
     value,
+    class: customClass,
     ...props
   }) => {
     const triggerRef = useSignal<Element>();
     const popoverWidth = useSignal<string>("auto");
 
-    // Task to compute trigger width and set it for the popover
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(() => {
       if (triggerRef.value) {
         const width = (triggerRef.value as HTMLElement).offsetWidth;
@@ -108,6 +108,7 @@ export default component$<SelectProps>(
     return (
       <div class="w-full">
         <Select.Root class="relative w-full">
+          <Select.HiddenNativeSelect {...props} />
           <div class="relative w-full" ref={triggerRef}>
             <Select.Trigger
               type="button"
