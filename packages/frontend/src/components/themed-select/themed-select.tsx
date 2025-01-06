@@ -1,17 +1,9 @@
-import {
-  component$,
-  QRL,
-  useComputed$,
-  useSignal,
-  useTask$,
-  useVisibleTask$,
-} from "@builder.io/qwik";
+import { component$, QRL, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import { TbChevronDown } from "@qwikest/icons/tablericons";
 import { LuCheck } from "@qwikest/icons/lucide";
 import { Select } from "@qwik-ui/headless";
 
 import InputError from "../input-error/input-error";
-import { isBrowser } from "@builder.io/qwik/build";
 import { cn } from "~/common/utils";
 
 type IOption = {
@@ -103,14 +95,15 @@ export default component$<SelectProps>(
     ...props
   }) => {
     const triggerRef = useSignal<Element>();
-    // const popoverWidth = useSignal<number>(0);
+    const popoverWidth = useSignal<string>("auto");
 
-    // useVisibleTask$(() => {
-    //   if (triggerRef.value) {
-    //     popoverWidth.value = `${triggerRef.value.clientWidth}px`;
-    //     console.log(triggerRef.value.clientWidth);
-    //   }
-    // });
+    // Task to compute trigger width and set it for the popover
+    useVisibleTask$(() => {
+      if (triggerRef.value) {
+        const width = (triggerRef.value as HTMLElement).offsetWidth;
+        popoverWidth.value = `${width}px`;
+      }
+    });
 
     return (
       <div class="w-full">
@@ -192,13 +185,12 @@ export default component$<SelectProps>(
             <Select.Popover
               class={cn(
                 "bg-surface",
-                // popoverWidthComputed.value,
                 "mt-1 p-1",
-
                 "shadow-md rounded-md",
                 "border-[0.5px] border-popup",
                 "data-[open]:animate-fade-in-scale",
               )}
+              style={{ width: popoverWidth.value }}
             >
               {options.map((row) => (
                 <Select.Item
