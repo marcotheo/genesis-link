@@ -16,9 +16,9 @@ import { QueryContext } from "~/providers/query/query";
 import { useToast } from "~/hooks/use-toast/useToast";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import ThemedSelect from "~/components/themed-select/themed-select";
 import * as TModal from "~/components/themed-modal/themed-modal";
 import Button from "~/components/button/button";
-import Select from "~/components/select/select";
 import Input from "~/components/input/input";
 
 import { GetAPIMapping } from "~/common/types";
@@ -89,7 +89,17 @@ export default component$(() => {
           type: "success",
         });
 
-        reset(form);
+        reset(form, {
+          initialValues: {
+            skills: [
+              {
+                skillName: "",
+                skillLevel: "",
+                skillCategory: "",
+              },
+            ],
+          },
+        });
 
         return;
       }
@@ -123,81 +133,77 @@ export default component$(() => {
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
           <FieldArray name="skills">
             {(fieldArray) => (
-              <div id={fieldArray.name} class={cn("rounded-lg", "bg-surface")}>
-                <div class="py-5 space-y-3 max-h-[30rem] sm:max-h-80 overflow-y-auto">
-                  {fieldArray.items.map((item, idx) => (
-                    <div
-                      key={item}
-                      class={cn(
-                        "flex flex-col min-[550px]:flex-row",
-                        "gap-3 items-start",
-                        "animate-fade-in-slide",
+              <div
+                id={fieldArray.name}
+                class={cn("rounded-lg", "bg-surface", "space-y-5")}
+              >
+                {fieldArray.items.map((item, idx) => (
+                  <div
+                    key={item}
+                    class={cn(
+                      "flex flex-col min-[550px]:flex-row",
+                      "gap-3 items-start",
+                      "animate-fade-in-slide ",
+                    )}
+                  >
+                    <Field name={`${fieldArray.name}.${idx}.skillName`}>
+                      {(field, props) => (
+                        <Input
+                          {...props}
+                          label="skill name *"
+                          errorMsg={field.error}
+                          value={field.value}
+                          required
+                        />
                       )}
-                    >
-                      <Field name={`${fieldArray.name}.${idx}.skillName`}>
-                        {(field, props) => (
-                          <Input
-                            {...props}
-                            label="skill name *"
-                            variant="filled"
-                            errorMsg={field.error}
-                            value={field.value}
-                            class="h-[50px]"
-                            required
-                          />
-                        )}
-                      </Field>
+                    </Field>
 
-                      <Field name={`${fieldArray.name}.${idx}.skillLevel`}>
-                        {(field, props) => (
-                          <Select
-                            {...props}
-                            name={field.name}
-                            label="skill level"
-                            value={field.value}
-                            errorMsg={field.error}
-                            variant="filled"
-                            options={[
-                              { label: "Beginner", value: "Beginner" },
-                              { label: "Intermediate", value: "Intermediate" },
-                              { label: "Advanced", value: "Advanced" },
-                            ]}
-                          />
-                        )}
-                      </Field>
+                    <Field name={`${fieldArray.name}.${idx}.skillLevel`}>
+                      {(field, props) => (
+                        <ThemedSelect
+                          {...props}
+                          name={field.name}
+                          label="skill level"
+                          value={field.value}
+                          errorMsg={field.error}
+                          options={[
+                            { label: "Beginner", value: "Beginner" },
+                            { label: "Intermediate", value: "Intermediate" },
+                            { label: "Advanced", value: "Advanced" },
+                          ]}
+                        />
+                      )}
+                    </Field>
 
-                      <Field name={`${fieldArray.name}.${idx}.skillCategory`}>
-                        {(field, props) => (
-                          <Input
-                            {...props}
-                            label="skill category"
-                            variant="filled"
-                            errorMsg={field.error}
-                            value={field.value}
-                            class="h-[50px]"
-                          />
-                        )}
-                      </Field>
+                    <Field name={`${fieldArray.name}.${idx}.skillCategory`}>
+                      {(field, props) => (
+                        <Input
+                          {...props}
+                          label="skill category"
+                          errorMsg={field.error}
+                          value={field.value}
+                        />
+                      )}
+                    </Field>
 
-                      <div class="h-[50px]">
-                        <Button
-                          type="button"
-                          class={cn(
-                            "h-full",
-                            "bg-destructive hover:bg-destructive hover:brightness-125",
-                          )}
-                          onClick$={() =>
-                            remove(form, "skills", {
-                              at: idx,
-                            })
-                          }
-                        >
-                          <TbTrash />
-                        </Button>
-                      </div>
+                    <div class="h-[50px]">
+                      <Button
+                        type="button"
+                        class={cn(
+                          "h-full",
+                          "bg-destructive hover:bg-destructive hover:brightness-125",
+                        )}
+                        onClick$={() =>
+                          remove(form, "skills", {
+                            at: idx,
+                          })
+                        }
+                      >
+                        <TbTrash />
+                      </Button>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
 
                 <Button
                   type="button"
