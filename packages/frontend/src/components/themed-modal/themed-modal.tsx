@@ -10,7 +10,7 @@ interface Props {
 }
 
 const modalSizes = {
-  lg: "md:min-w-[40rem]",
+  lg: "md:min-w-[50rem]",
   md: "md:min-w-[30rem]",
   sm: "md:min-w-[25rem]",
 };
