@@ -106,7 +106,7 @@ export default component$<SelectProps>(
     });
 
     return (
-      <div class="w-full">
+      <div class="w-full space-y-1">
         <Select.Root class="relative w-full">
           <Select.HiddenNativeSelect {...props} />
           <div class="relative w-full" ref={triggerRef}>
