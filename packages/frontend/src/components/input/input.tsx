@@ -51,7 +51,7 @@ export default component$<InputProps>(
   ({ variant = "default", label, errorMsg, ...props }) => {
     return (
       <div class="w-full space-y-1">
-        <div class="relative w-full h-full">
+        <div class="relative w-full">
           <input
             {...props}
             value={

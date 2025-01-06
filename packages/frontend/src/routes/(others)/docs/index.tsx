@@ -63,10 +63,25 @@ export default component$(() => {
                 <Heading>Inputs</Heading>
                 <div class="w-full h-[1px] bg-gray-500" />
               </div>
-              <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
-                <Input label="Outlined" />
-                <Input label="Underline" variant="underline" />
-                <Input label="Filled" variant="filled" />
+              <div class="space-y-5">
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <Input label="Outlined" />
+                  <Input label="Underline" variant="underline" />
+                  <Input label="Filled" variant="filled" />
+                </div>
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <Input label="Outlined" errorMsg="error message" />
+                  <Input
+                    label="Underline"
+                    variant="underline"
+                    errorMsg="error message"
+                  />
+                  <Input
+                    label="Filled"
+                    variant="filled"
+                    errorMsg="error message"
+                  />
+                </div>
               </div>
             </div>
 
@@ -75,18 +90,39 @@ export default component$(() => {
                 <Heading>Select</Heading>
                 <div class="w-full h-[1px] bg-gray-500" />
               </div>
-              <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
-                <ThemedSelect label="Outlined" options={sampleOptions} />
-                <ThemedSelect
-                  label="Underline"
-                  variant="underline"
-                  options={sampleOptions}
-                />
-                <ThemedSelect
-                  label="Filled"
-                  variant="filled"
-                  options={sampleOptions}
-                />
+              <div class="space-y-5">
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <ThemedSelect label="Outlined" options={sampleOptions} />
+                  <ThemedSelect
+                    label="Underline"
+                    variant="underline"
+                    options={sampleOptions}
+                  />
+                  <ThemedSelect
+                    label="Filled"
+                    variant="filled"
+                    options={sampleOptions}
+                  />
+                </div>
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <ThemedSelect
+                    label="Outlined"
+                    options={sampleOptions}
+                    errorMsg="error message"
+                  />
+                  <ThemedSelect
+                    label="Underline"
+                    variant="underline"
+                    options={sampleOptions}
+                    errorMsg="error message"
+                  />
+                  <ThemedSelect
+                    label="Filled"
+                    variant="filled"
+                    options={sampleOptions}
+                    errorMsg="error message"
+                  />
+                </div>
               </div>
             </div>
 
