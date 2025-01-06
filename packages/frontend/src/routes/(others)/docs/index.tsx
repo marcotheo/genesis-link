@@ -11,11 +11,18 @@ import Card, {
   CardFooter,
   CardHeader,
 } from "~/components/card/card";
+import ThemedSelect from "~/components/themed-select/themed-select";
 import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
 import CdnImage from "~/components/cdn-image/cdn-image";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
+
+const sampleOptions = [
+  { label: "Beginner", value: "Beginner" },
+  { label: "Intermediate", value: "Intermediate" },
+  { label: "Advanced", value: "Advanced" },
+];
 
 export default component$(() => {
   return (
@@ -60,6 +67,26 @@ export default component$(() => {
                 <Input label="Outlined" />
                 <Input label="Underline" variant="underline" />
                 <Input label="Filled" variant="filled" />
+              </div>
+            </div>
+
+            <div class="w-full">
+              <div class="flex gap-2 items-center pb-3">
+                <Heading>Select</Heading>
+                <div class="w-full h-[1px] bg-gray-500" />
+              </div>
+              <div class="flex flex-col items-end w-full md:w-[50rem] md:flex-row md:gap-5">
+                <ThemedSelect label="Outlined" options={sampleOptions} />
+                <ThemedSelect
+                  label="Underline"
+                  variant="underline"
+                  options={sampleOptions}
+                />
+                <ThemedSelect
+                  label="Filled"
+                  variant="filled"
+                  options={sampleOptions}
+                />
               </div>
             </div>
 
