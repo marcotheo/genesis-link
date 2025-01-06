@@ -18,7 +18,7 @@ const inputVariants = {
     "rounded-t-sm",
   ),
   underline: cn(
-    "h-12 px-[10px]",
+    "h-12 px-[12px]",
     "bg-transparent",
     "border-b-[2px] border-input",
   ),
