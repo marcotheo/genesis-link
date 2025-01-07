@@ -7,7 +7,7 @@ import ToasterProvider from "~/providers/toaster/toaster";
 import QueryProvider from "~/providers/query/query";
 import AuthProvider from "~/providers/auth/auth";
 import { cn, rawFetch } from "~/common/utils";
-import Header from "./Header";
+import Header from "./Header/Header";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
