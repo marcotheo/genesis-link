@@ -1,3 +1,4 @@
+import { TbChevronDown, TbUser } from "@qwikest/icons/tablericons";
 import { Link, useNavigate } from "@builder.io/qwik-city";
 import { $, component$ } from "@builder.io/qwik";
 
@@ -16,14 +17,14 @@ import {
   UserIcon,
 } from "~/components/icons/icons";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
-import { useMutate } from "~/hooks/use-mutate/useMutate";
 import DarkMode from "~/components/dark-mode/dark-mode";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
+
+import { useMutate } from "~/hooks/use-mutate/useMutate";
+import Image from "../assets/images/logo.png?jsx";
 import { useAuthCheck } from "./layout";
 import { cn } from "~/common/utils";
-
-import Image from "../assets/images/logo.png?jsx";
 
 const MobileMenu = component$(() => {
   const isAuth = useAuthCheck();
@@ -112,19 +113,43 @@ const HeaderItems = component$(() => {
         <Button variant="transparent">APPLICANTS</Button>
         <Button variant="transparent">APPLICATIONS</Button> */}
 
-        <Menu>
-          <UserIcon q:slot="trigger-circle-icon" />
+        <Menu panelWidth="w-56">
+          <div
+            q:slot="trigger"
+            class={cn(
+              "bg-surface shadow-lg",
+              "rounded-full h-14 w-14",
+              "flex items-center justify-center",
+              "text-text relative",
+              "hover:brightness-90 dark:hover:brightness-125",
+              "transition-all duration-200 ease-in",
+            )}
+          >
+            <div class="text-2xl">
+              <TbUser />
+            </div>
 
-          <div q:slot="label">
-            <DropDownMenuLabel>My Account</DropDownMenuLabel>
+            <div
+              class={cn(
+                "h-5 w-5",
+                "flex items-center justify-center",
+                "bg-surface shadow-lg rounded-full",
+                "absolute bottom-0 right-0",
+                "group-focus:rotate-180 duration-150",
+              )}
+            >
+              <TbChevronDown />
+            </div>
           </div>
 
+          <DropDownMenuLabel q:slot="label">My Account</DropDownMenuLabel>
           <DropDownMenuItemLink link="/posts">Posts</DropDownMenuItemLink>
           <DropDownMenuItemLink link="/settings">
             Applications
           </DropDownMenuItemLink>
 
           <DropDownSeparator />
+
           <DropDownMenuItemLink link="/settings/profile">
             Settings
           </DropDownMenuItemLink>
