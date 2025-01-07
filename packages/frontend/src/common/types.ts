@@ -8,6 +8,7 @@ export type GetAPIMapping = {
 export type PostAPIMapping = {
   "/auth/signin": SignInResponse;
   "/auth/create": SignUpResponse;
+  "/auth/session/revoke": null;
   "/posts/create": CreatePostResponse;
   "/posts/create/job_details": null;
   "/posts/create/requirements": null;
