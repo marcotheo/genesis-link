@@ -18,6 +18,7 @@ import CdnImage from "~/components/cdn-image/cdn-image";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
+import { cn } from "~/common/utils";
 
 const sampleOptions = [
   { label: "Beginner", value: "Beginner" },
@@ -129,35 +130,53 @@ export default component$(() => {
 
             <div>
               <div class="flex gap-2 items-center pb-3">
-                <Heading>Menus</Heading>
+                <Heading>DropDown</Heading>
                 <div class="w-full h-[1px] bg-gray-500" />
               </div>
 
-              <div class="flex justify-between gap-5">
-                <Menu triggerTitle="Menu">
+              <div class="flex gap-5">
+                <Menu>
+                  <div
+                    q:slot="trigger"
+                    class={cn(
+                      "px-5 py-3 rounded-md",
+                      "bg-transparent border border-primary",
+                      "text-primary",
+                    )}
+                  >
+                    Menu
+                  </div>
+
                   <div q:slot="label">
                     <DropDownMenuLabel>Sample Menu</DropDownMenuLabel>
                   </div>
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                   <DropDownSeparator />
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                 </Menu>
 
-                <Menu triggerTitle="Menu">
-                  <DropDownMenuLabel q:slot="label">
-                    Sample Menu
-                  </DropDownMenuLabel>
+                <Menu panelWidth="w-56">
+                  <div
+                    q:slot="trigger"
+                    class={cn(
+                      "px-5 py-3 rounded-md",
+                      "bg-transparent border border-primary",
+                      "text-primary",
+                    )}
+                  >
+                    Custom Width Panel
+                  </div>
+
+                  <div q:slot="label">
+                    <DropDownMenuLabel>Sample Menu</DropDownMenuLabel>
+                  </div>
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                   <DropDownSeparator />
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                 </Menu>
               </div>
             </div>
