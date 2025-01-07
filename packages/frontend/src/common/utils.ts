@@ -158,3 +158,15 @@ export const setCookie = $((name: string, value: string, expiresIn: number) => {
   // Set the cookie with the calculated expiration time
   document.cookie = `${name}=${value}; expires=${expiryDate}; path=/;`;
 });
+
+export const generateRandomId = (length = 10) => {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let randomId = "";
+  for (let i = 0; i < length; i++) {
+    randomId += characters.charAt(
+      Math.floor(Math.random() * characters.length),
+    );
+  }
+  return randomId;
+};
