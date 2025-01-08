@@ -1,12 +1,13 @@
+import {
+  TbBriefcase,
+  TbBuilding,
+  TbLocation,
+  TbLock,
+  TbUser,
+  TbUserPlus,
+} from "@qwikest/icons/tablericons";
 import { component$ } from "@builder.io/qwik";
 
-import {
-  Building,
-  Planner,
-  SignInIcon,
-  SignUpIcon,
-  UserIcon,
-} from "~/components/icons/icons";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import Heading from "~/components/heading/heading";
 
@@ -38,12 +39,25 @@ export default component$(() => {
             AUTHENTICATION
           </Heading>
           <DrawerLink href="/sign-in">
-            <SignInIcon />
+            <TbLock />
             Sign In
           </DrawerLink>
           <DrawerLink href="/sign-up">
-            <SignUpIcon />
+            <TbUserPlus />
             Sign Up
+          </DrawerLink>
+        </div>
+        <div class={isAuth.value ? "hidden" : ""}>
+          <Heading size="xs" class="text-zinc-600 text-md pl-2">
+            EXPLORE
+          </Heading>
+          <DrawerLink href="/sign-in">
+            <TbBriefcase />
+            Jobs
+          </DrawerLink>
+          <DrawerLink href="/sign-up">
+            <TbBuilding />
+            Companies
           </DrawerLink>
         </div>
 
@@ -52,20 +66,16 @@ export default component$(() => {
             SETTINGS
           </Heading>
           <DrawerLink href="/sign-in">
-            <UserIcon />
-            My Details
+            <TbUser />
+            Profile
           </DrawerLink>
           <DrawerLink href="/sign-up">
-            <SignInIcon />
+            <TbLock />
             Password
           </DrawerLink>
           <DrawerLink href="/sign-up">
-            <Building />
+            <TbLocation />
             Addressess
-          </DrawerLink>
-          <DrawerLink href="/sign-up">
-            <Planner />
-            Plan
           </DrawerLink>
         </div>
       </div>
