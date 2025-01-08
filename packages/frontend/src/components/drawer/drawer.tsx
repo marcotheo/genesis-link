@@ -32,7 +32,12 @@ export default component$<DrawerProps>(({ defaultValue = false, ...props }) => {
   return (
     <Modal.Root>
       <Modal.Trigger
-        class={cn("bg-ghost rounded-md", "p-2", "text-lg min-[440px]:text-2xl")}
+        class={cn(
+          "bg-ghost rounded-md",
+          "p-2",
+          "text-lg min-[440px]:text-2xl",
+          "hover:brightness-125",
+        )}
       >
         <TbMenu2 />
       </Modal.Trigger>
