@@ -85,16 +85,34 @@ export default component$(() => {
     );
 
   return (
-    <>
-      <Link href="/sign-in">
-        {" "}
-        <Button variant="outline" size="md">
-          Sign In
-        </Button>
+    <div class="flex gap-3">
+      <Link
+        href="/sign-in"
+        class={cn(
+          "p-3 w-24",
+          "bg-ghost",
+          "text-center",
+          "rounded-lg",
+          "duration-150 ease-in-out",
+          "dark:hover:brightness-150 hover:brightness-90",
+        )}
+      >
+        Login
       </Link>
-      <Link href="/sign-up">
-        <Button size="md">Sign Up</Button>
+
+      <Link
+        href="/sign-up"
+        class={cn(
+          "p-3 w-24",
+          "bg-primary",
+          "rounded-lg",
+          "text-center text-white",
+          "duration-150 ease-in-out",
+          "hover:brightness-125",
+        )}
+      >
+        Register
       </Link>
-    </>
+    </div>
   );
 });

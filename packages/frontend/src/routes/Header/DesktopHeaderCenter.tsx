@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
 
+import { useAuthCheck } from "../layout";
 import { cn } from "~/common/utils";
 
 const CenterHeaderItem = component$<{ title: string; to: string }>(
@@ -23,7 +24,7 @@ const CenterHeaderItem = component$<{ title: string; to: string }>(
       >
         <p
           class={cn(
-            "text-xl text-text",
+            "text-lg dark:text-gray-500 text-gray-400",
             "font-medium",
             "duration-150",
             locationPathname === to ? "text-primary" : "",
@@ -37,11 +38,13 @@ const CenterHeaderItem = component$<{ title: string; to: string }>(
 );
 
 export default component$(() => {
+  const isAuth = useAuthCheck();
+
   return (
     <div class={cn("flex items-center gap-12 max-lg:hidden")}>
-      <CenterHeaderItem title="Profile" to="/settings/profile" />
-      <CenterHeaderItem title="Jobs" to="/jobs" />
-      <CenterHeaderItem title="Companies" to="/settings" />
+      <CenterHeaderItem title="profile" to="/settings/profile" />
+      <CenterHeaderItem title="jobs" to="/jobs" />
+      <CenterHeaderItem title="companies" to="/settings" />
     </div>
   );
 });

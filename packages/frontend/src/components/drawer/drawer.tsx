@@ -9,8 +9,10 @@ import {
   useContextProvider,
   useSignal,
 } from "@builder.io/qwik";
+import { TbChevronLeft, TbMenu2 } from "@qwikest/icons/tablericons";
 import { Link } from "@builder.io/qwik-city";
-import Button from "../button/button";
+import { Modal } from "@qwik-ui/headless";
+
 import { cn } from "~/common/utils";
 
 interface DrawerProps extends HTMLAttributes<HTMLDivElement> {
@@ -27,43 +29,24 @@ export default component$<DrawerProps>(({ defaultValue = false, ...props }) => {
 
   useContextProvider(DrawerContext, open);
 
-  const onToggle = $(() => {
-    open.value = !open.value;
-  });
-
   return (
-    <>
-      <Button
-        class="md:hidden px-2"
-        variant="ghost"
-        onClick$={onToggle}
-        aria-label="drawer-open"
+    <Modal.Root>
+      <Modal.Trigger
+        class={cn("bg-ghost rounded-md", "p-2", "text-lg min-[440px]:text-2xl")}
       >
-        <Slot name="trigger" />
-      </Button>
+        <TbMenu2 />
+      </Modal.Trigger>
 
-      <div
-        {...props}
-        ref={menuRef}
+      <Modal.Panel
         class={cn(
-          "absolute z-[1111] bg-surface",
-          "top-0 bottom-0 left-0",
-          "md:hidden overflow-hidden",
-          "duration-300 ease-out",
-          open.value ? "w-72" : "w-0",
+          "h-full w-72",
+          "top-0 left-0 ml-0",
+          "bg-surface",
+          "data-[open]:animate-sheet-open",
+          "data-[closed]:animate-sheet-close",
+          "overflow-visible",
         )}
       >
-        <Button
-          onClick$={onToggle}
-          variant="ghost"
-          class={cn(
-            "bg-transparent text-white hover:text-primary",
-            "absolute top-0 right-0",
-          )}
-        >
-          X
-        </Button>
-
         <div class="p-5 bg-background">
           <Slot name="header" />
         </div>
@@ -71,16 +54,20 @@ export default component$<DrawerProps>(({ defaultValue = false, ...props }) => {
         <div class="p-5">
           <Slot />
         </div>
-      </div>
 
-      <div
-        onClick$={onToggle}
-        class={cn(
-          "fixed inset-0 w-full top-0 left-0",
-          open.value ? "bg-[rgba(0,0,0,0.5)] z-50" : "bg-transparent z-[-10]",
-        )}
-      ></div>
-    </>
+        <Modal.Close
+          class={cn(
+            "absolute -right-4",
+            "top-1/2 -translate-y-1/2",
+            "bg-primary rounded-full p-2",
+            "text-white",
+            "hover:brightness-110",
+          )}
+        >
+          <TbChevronLeft />
+        </Modal.Close>
+      </Modal.Panel>
+    </Modal.Root>
   );
 });
 

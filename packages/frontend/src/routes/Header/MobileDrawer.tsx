@@ -2,7 +2,6 @@ import { component$ } from "@builder.io/qwik";
 
 import {
   Building,
-  HamburgerIcon,
   Planner,
   SignInIcon,
   SignUpIcon,
@@ -20,11 +19,14 @@ export default component$(() => {
 
   return (
     <Drawer>
-      <HamburgerIcon q:slot="trigger" />
-
       <div q:slot="header">
         <div class="h-full w-full flex justify-center items-center">
-          <div class={cn("relative w-44", "flex items-center justify-center")}>
+          <div
+            class={cn(
+              "relative w-44 min-w-44",
+              "flex items-center justify-center",
+            )}
+          >
             <Image class="w-full h-auto block" />
           </div>
         </div>

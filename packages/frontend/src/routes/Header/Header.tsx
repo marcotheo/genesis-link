@@ -17,25 +17,31 @@ export default component$(() => {
         "bg-transparent",
       )}
     >
-      <div class="flex items-center gap-3">
-        <Link href="/">
-          <div
-            class={cn(
-              "relative",
-              "flex items-center justify-center",
-              "w-36 min-[400px]:w-44 md:w-48 lg:w-56",
-            )}
-          >
-            <Image class="w-full h-auto block" />
-          </div>
-        </Link>
+      <div class="flex gap-16">
+        <div class="flex items-center gap-3">
+          <Link href="/">
+            <div
+              class={cn(
+                "relative",
+                "flex items-center justify-center",
+                "w-36 min-[400px]:w-44 md:w-48 lg:w-56",
+              )}
+            >
+              <Image class="w-full h-auto block" />
+            </div>
+          </Link>
+        </div>
+
+        <DesktopHeaderCenter />
       </div>
 
-      <DesktopHeaderCenter />
-
-      <MobileDrawer />
-      <div class="flex gap-5 items-center max-md:hidden">
-        <DesktopHeaderRight />
+      <div class="flex gap-3 items-center ">
+        <div class="lg:hidden">
+          <MobileDrawer />
+        </div>
+        <div class="hidden lg:flex">
+          <DesktopHeaderRight />
+        </div>
         <DarkMode />
       </div>
     </div>
