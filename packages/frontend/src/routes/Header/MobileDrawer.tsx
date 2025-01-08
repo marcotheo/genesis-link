@@ -47,7 +47,7 @@ export default component$(() => {
             Sign Up
           </DrawerLink>
         </div>
-        <div class={isAuth.value ? "hidden" : ""}>
+        <div>
           <Heading size="xs" class="text-zinc-600 text-md pl-2">
             EXPLORE
           </Heading>
