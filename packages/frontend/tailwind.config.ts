@@ -107,6 +107,26 @@ const config = {
             transform: "scale(0.90)",
           },
         },
+        "sheet-open": {
+          from: {
+            opacity: "0",
+            transform: "translateX(-100%)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateX(0%)",
+          },
+        },
+        "sheet-close": {
+          from: {
+            opacity: "1",
+            transform: "translateX(0%)",
+          },
+          to: {
+            opacity: "0",
+            transform: "translateX(-100%)",
+          },
+        },
       },
 
       animation: {
@@ -119,6 +139,8 @@ const config = {
         "fade-out-slide": "fade-out-slide 0.1s ease-out forwards",
         "fade-in-scale": "fade-in-scale 0.2s ease-out forwards",
         "fade-out-scale": "fade-out-scale 0.2s ease-out forwards",
+        "sheet-open": "sheet-open 0.75s var(--modal-animation)",
+        "sheet-close": "sheet-close 0.75s var(--modal-animation)",
       },
     },
   },

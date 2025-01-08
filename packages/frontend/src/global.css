@@ -68,6 +68,9 @@ ol {
     --input: #9ca3af;
     --popup: #d4d4d8;
     --ghost: #d4d4d8;
+
+    /* Animations */
+    --modal-animation: forwards cubic-bezier(0.6, 0.6, 0, 1);
   }
 
   .dark {
@@ -98,6 +101,9 @@ ol {
     --input: #4b5563;
     --popup: #52525b;
     --ghost: #27272a;
+
+    /* Animations */
+    --modal-animation: forwards cubic-bezier(0.6, 0.6, 0, 1);
   }
 }
 
