@@ -56,8 +56,12 @@ const config = {
           to: { height: "0" },
         },
         fadeIn: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        fadeOut: {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
         },
         expand: {
           "0%": { transform: "scale(0)" },
@@ -132,7 +136,8 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        fadeIn: "fadeIn 0.5s ease-in-out",
+        fadeIn: "fadeIn 0.75s var(--modal-animation)",
+        fadeOut: "fadeOut 0.75s var(--modal-animation)",
         expand: "expand 0.3s ease-out",
         slideDown: "slideDown 0.5s ease-out",
         "fade-in-slide": "fade-in-slide 0.1s ease-out forwards",

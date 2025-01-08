@@ -2,7 +2,6 @@ import {
   $,
   component$,
   createContextId,
-  HTMLAttributes,
   Signal,
   Slot,
   useContext,
@@ -15,7 +14,7 @@ import { Modal } from "@qwik-ui/headless";
 
 import { cn } from "~/common/utils";
 
-interface DrawerProps extends HTMLAttributes<HTMLDivElement> {
+interface DrawerProps {
   defaultValue?: boolean;
 }
 
@@ -23,14 +22,13 @@ export const DrawerContext = createContextId<Signal<boolean | null>>(
   "drawer.open-context",
 );
 
-export default component$<DrawerProps>(({ defaultValue = false, ...props }) => {
+export default component$<DrawerProps>(({ defaultValue = false }) => {
   const open = useSignal(defaultValue);
-  const menuRef = useSignal<HTMLDivElement>();
 
   useContextProvider(DrawerContext, open);
 
   return (
-    <Modal.Root>
+    <Modal.Root bind:show={open}>
       <Modal.Trigger
         class={cn(
           "bg-ghost rounded-md",
@@ -47,9 +45,12 @@ export default component$<DrawerProps>(({ defaultValue = false, ...props }) => {
           "h-full w-72",
           "top-0 left-0 ml-0",
           "bg-surface",
-          "data-[open]:animate-sheet-open",
+          "data-[open]:animate-sheet-open ",
           "data-[closed]:animate-sheet-close",
           "overflow-visible",
+
+          "data-[open]:backdrop:bg-[rgba(0,0,0,0.5)]",
+          "data-[open]:backdrop:backdrop-blur-sm",
         )}
       >
         <div class="p-5 bg-background">
