@@ -38,7 +38,7 @@ const CenterHeaderItem = component$<{ title: string; to: string }>(
 
 export default component$(() => {
   return (
-    <div class={cn("flex items-center gap-12")}>
+    <div class={cn("flex items-center gap-12 max-lg:hidden")}>
       <CenterHeaderItem title="Profile" to="/settings/profile" />
       <CenterHeaderItem title="Jobs" to="/jobs" />
       <CenterHeaderItem title="Companies" to="/settings" />

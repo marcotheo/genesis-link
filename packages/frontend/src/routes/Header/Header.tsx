@@ -23,7 +23,7 @@ export default component$(() => {
             class={cn(
               "relative",
               "flex items-center justify-center",
-              "w-36 min-[400px]:w-44 sm:w-56",
+              "w-36 min-[400px]:w-44 md:w-48 lg:w-56",
             )}
           >
             <Image class="w-full h-auto block" />
