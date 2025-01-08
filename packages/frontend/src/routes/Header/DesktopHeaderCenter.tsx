@@ -1,7 +1,6 @@
 import { Link, useLocation } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
 
-import { useAuthCheck } from "../layout";
 import { cn } from "~/common/utils";
 
 const CenterHeaderItem = component$<{ title: string; to: string }>(
@@ -38,8 +37,6 @@ const CenterHeaderItem = component$<{ title: string; to: string }>(
 );
 
 export default component$(() => {
-  const isAuth = useAuthCheck();
-
   return (
     <div class={cn("flex items-center gap-12 max-lg:hidden")}>
       <CenterHeaderItem title="profile" to="/settings/profile" />
