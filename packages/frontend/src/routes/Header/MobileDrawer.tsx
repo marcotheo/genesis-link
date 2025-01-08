@@ -51,11 +51,11 @@ export default component$(() => {
           <Heading size="xs" class="text-zinc-600 text-md pl-2">
             EXPLORE
           </Heading>
-          <DrawerLink href="/sign-in">
+          <DrawerLink href="/jobs">
             <TbBriefcase />
             Jobs
           </DrawerLink>
-          <DrawerLink href="/sign-up">
+          <DrawerLink href="/settings">
             <TbBuilding />
             Companies
           </DrawerLink>
@@ -65,7 +65,7 @@ export default component$(() => {
           <Heading size="xs" class="text-zinc-600 text-md pl-2">
             SETTINGS
           </Heading>
-          <DrawerLink href="/sign-in">
+          <DrawerLink href="/settings/profile">
             <TbUser />
             Profile
           </DrawerLink>
