@@ -62,9 +62,10 @@ INSERT INTO posts (
     phone,
     deadline,
     addressId,
-    userId
+    userId,
+    embedding
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, vector32(?)
 )
 RETURNING postid, company, title, description, posterlink, logolink, additionalinfolink, wfh, email, phone, deadline, addressid, userid, embedding, posted_at, updated_at
 `
@@ -83,6 +84,7 @@ type CreatePostParams struct {
 	Deadline           sql.NullInt64
 	Addressid          string
 	Userid             string
+	Vector32           interface{}
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
@@ -100,6 +102,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 		arg.Deadline,
 		arg.Addressid,
 		arg.Userid,
+		arg.Vector32,
 	)
 	return err
 }

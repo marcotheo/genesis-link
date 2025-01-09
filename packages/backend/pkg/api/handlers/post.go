@@ -19,13 +19,15 @@ type PostHandler struct {
 	dataService    *services.DataService
 	utilService    *services.UtilService
 	cognitoService *services.CognitoService
+	openAIService  *services.OpenAIService
 }
 
-func InitPostHandler(dataService *services.DataService, utilService *services.UtilService, cognitoService *services.CognitoService) *PostHandler {
+func InitPostHandler(dataService *services.DataService, utilService *services.UtilService, cognitoService *services.CognitoService, openAIService *services.OpenAIService) *PostHandler {
 	return &PostHandler{
 		dataService:    dataService,
 		utilService:    utilService,
 		cognitoService: cognitoService,
+		openAIService:  openAIService,
 	}
 }
 
@@ -89,13 +91,23 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	id, err := gonanoid.New()
 	if err != nil {
-		fmt.Println("Error generating ID:", err)
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating post id %s \n", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
 
 	postData.Postid = id
 	postData.Userid = userId
 	postData.Deadline = sql.NullInt64{Int64: deadlineTimestamp, Valid: true}
+	postData.Vector32, err = h.openAIService.GenerateEmbedding(createPostParams.Title)
+
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating embedding %s \n", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Printf("vector 32 generated %v", postData.Vector32)
 
 	errQ := h.dataService.Queries.CreatePost(context.Background(), postData)
 	if errQ != nil {

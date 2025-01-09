@@ -14,7 +14,6 @@ type OpenAIService struct {
 
 func InitOpenAIService() *OpenAIService {
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-
 	return &OpenAIService{Client: client}
 }
 
