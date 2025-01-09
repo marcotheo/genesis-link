@@ -1,6 +1,6 @@
 -- +goose Up
 ALTER TABLE posts
-ADD COLUMN embedding F32_BLOB(1536);
+ADD COLUMN embedding F32_BLOB(1536) NOT NULL;
 
 CREATE INDEX posts_embedding_idx ON posts (libsql_vector_idx(embedding));
 

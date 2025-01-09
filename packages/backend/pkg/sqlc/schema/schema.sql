@@ -49,7 +49,7 @@ CREATE TABLE posts (
     deadline INTEGER,
     addressId TEXT NOT NULL,
     userId TEXT NOT NULL,
-    embedding embedding F32_BLOB(1536),
+    embedding F32_BLOB(1536) NOT NULL,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userId) REFERENCES users(userId),
