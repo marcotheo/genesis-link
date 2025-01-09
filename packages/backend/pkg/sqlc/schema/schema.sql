@@ -49,10 +49,11 @@ CREATE TABLE posts (
     deadline INTEGER,
     addressId TEXT NOT NULL,
     userId TEXT NOT NULL,
+    embedding embedding F32_BLOB(1536),
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userId) REFERENCES users(userId),
-    FOREIGN KEY (addressId) REFERENCES addresses(addressId)
+    FOREIGN KEY (addressId) REFERENCES addresses(addressId),
 );
 
 CREATE INDEX idx_title ON posts(title);
@@ -60,6 +61,7 @@ CREATE INDEX idx_wfh ON posts(wfh);
 CREATE INDEX idx_posted_at ON posts(posted_at);
 CREATE INDEX idx_posts_userId ON posts(userId);
 CREATE INDEX idx_posts_addressId ON posts(addressId);
+CREATE INDEX posts_embedding_idx ON posts (libsql_vector_idx(embedding));
 
 CREATE TABLE job_details (
     jobDetailId TEXT NOT NULL PRIMARY KEY,
