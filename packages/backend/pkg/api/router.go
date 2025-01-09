@@ -43,6 +43,7 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 	container.Provide(services.InitCognitoService)
 	container.Provide(services.InitS3Service)
 	container.Provide(services.InitMiddlewareService)
+	container.Provide(services.InitOpenAIService)
 
 	container.Provide(handler.InitAuthHandler)
 	container.Provide(handler.InitUserHandler)
