@@ -66,7 +66,7 @@ INSERT INTO posts (
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
-RETURNING postid, company, title, description, posterlink, logolink, additionalinfolink, wfh, email, phone, deadline, addressid, userid, posted_at, updated_at
+RETURNING postid, company, title, description, posterlink, logolink, additionalinfolink, wfh, email, phone, deadline, addressid, userid, embedding, posted_at, updated_at
 `
 
 type CreatePostParams struct {
@@ -149,7 +149,7 @@ func (q *Queries) GetPostCountByUserId(ctx context.Context, userid string) (int6
 
 const getPostDetailsByPostId = `-- name: GetPostDetailsByPostId :one
 SELECT  
-   p.postid, p.company, p.title, p.description, p.posterlink, p.logolink, p.additionalinfolink, p.wfh, p.email, p.phone, p.deadline, p.addressid, p.userid, p.posted_at, p.updated_at,
+   p.postid, p.company, p.title, p.description, p.posterlink, p.logolink, p.additionalinfolink, p.wfh, p.email, p.phone, p.deadline, p.addressid, p.userid, p.embedding, p.posted_at, p.updated_at,
    jb.jobdetailid, jb.postid, jb.jobtype, jb.salarytype, jb.salaryamountmin, jb.salaryamountmax, jb.salarycurrency
 FROM posts p
 LEFT JOIN job_details jb
@@ -171,6 +171,7 @@ type GetPostDetailsByPostIdRow struct {
 	Deadline           sql.NullInt64
 	Addressid          string
 	Userid             string
+	Embedding          interface{}
 	PostedAt           sql.NullTime
 	UpdatedAt          sql.NullTime
 	Jobdetailid        sql.NullString
@@ -199,6 +200,7 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 		&i.Deadline,
 		&i.Addressid,
 		&i.Userid,
+		&i.Embedding,
 		&i.PostedAt,
 		&i.UpdatedAt,
 		&i.Jobdetailid,

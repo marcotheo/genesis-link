@@ -53,6 +53,7 @@ type Post struct {
 	Deadline           sql.NullInt64
 	Addressid          string
 	Userid             string
+	Embedding          interface{}
 	PostedAt           sql.NullTime
 	UpdatedAt          sql.NullTime
 }

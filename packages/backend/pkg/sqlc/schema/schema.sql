@@ -53,7 +53,7 @@ CREATE TABLE posts (
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userId) REFERENCES users(userId),
-    FOREIGN KEY (addressId) REFERENCES addresses(addressId),
+    FOREIGN KEY (addressId) REFERENCES addresses(addressId)
 );
 
 CREATE INDEX idx_title ON posts(title);
