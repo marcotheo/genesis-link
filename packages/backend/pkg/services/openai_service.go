@@ -30,7 +30,5 @@ func (c *OpenAIService) GenerateEmbedding(input string) ([]float32, error) {
 		return nil, err
 	}
 
-	clog.Logger.Info("(S3) user added successfuly")
-
 	return resp.Data[0].Embedding, nil
 }
