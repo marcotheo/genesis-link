@@ -350,7 +350,7 @@ type GetPostsResponse struct {
 	Total int64
 }
 
-func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
+func (h *PostHandler) GetUserJobPosts(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(GET) GetPosts => invoked")
 
 	pageStr := r.URL.Query().Get("page")
