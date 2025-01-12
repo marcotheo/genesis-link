@@ -84,7 +84,7 @@ type CreatePostParams struct {
 	Deadline           sql.NullInt64
 	Addressid          string
 	Userid             string
-	Vector32           interface{}
+	Embedding          interface{}
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
@@ -102,7 +102,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 		arg.Deadline,
 		arg.Addressid,
 		arg.Userid,
-		arg.Vector32,
+		arg.Embedding,
 	)
 	return err
 }
