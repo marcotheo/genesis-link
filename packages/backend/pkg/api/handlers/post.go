@@ -431,3 +431,61 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 
 	successResponse(w, post)
 }
+
+type JobPost struct {
+	PostId  string `json:"postId"`
+	Title   string `json:"title"`
+	Company string `json:"company,omitempty"`
+}
+
+type SearchJobParams struct {
+	Keyword  string `json:"keyword" validate:"required"`
+	Province string `json:"province"`
+	City     string `json:"city"`
+	Page     int64  `json:"page" validate:"required"`
+}
+
+type SearchJobResponse struct {
+	Posts []JobPost
+}
+
+func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) JobSearchQuery => invoked")
+
+	var params SearchJobParams
+
+	if err := ReadAndValidateBody(r, &params); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	matchEmbedding, err := h.openAIService.GenerateEmbedding(params.Keyword)
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) JobSearchQuery => error generating embedding %s \n", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	posts, errQ := h.dataService.Queries.JobSearchQuery(context.Background(), db.JobSearchQueryParams{Offset: int64((params.Page - 1) * 10), Embedding: matchEmbedding})
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) JobSearchQuery => errQ %s \n", errQ))
+		http.Error(w, "Error fetching data", http.StatusInternalServerError)
+		return
+	}
+
+	var postsData []JobPost
+
+	for _, post := range posts {
+		item := JobPost{
+			PostId:  post.Postid,
+			Title:   post.Title,
+			Company: post.Company,
+		}
+
+		postsData = append(postsData, item)
+	}
+
+	clog.Logger.Success("(GET) GetPosts => successful")
+
+	successResponse(w, SearchJobResponse{Posts: postsData})
+}

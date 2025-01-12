@@ -27,6 +27,7 @@ func (o *PostRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.POST("/update/additionalInfoLink", o.handlers.UpdatePostAdditionalInfoLink)
 		subRouter.POST("/create/job_details", o.handlers.CreateJobDetails)
 		subRouter.POST("/create/requirements", o.handlers.CreatePostRequirements)
+		subRouter.POST("/search/jobs", o.handlers.SearchJob)
 		subRouter.GET("/list", o.handlers.GetUserJobPosts)
 		subRouter.GET("/{postId}", o.handlers.GetPostDetails)
 	}
