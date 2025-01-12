@@ -269,6 +269,54 @@ func (q *Queries) GetPostsByUserId(ctx context.Context, arg GetPostsByUserIdPara
 	return items, nil
 }
 
+const jobSearchQuery = `-- name: JobSearchQuery :many
+WITH embedding_vector AS (
+    SELECT vector32(?) AS vec
+)
+SELECT  
+    postId,
+    title,
+    company
+FROM posts, embedding_vector
+WHERE vector_distance_cos(embedding, embedding_vector.vec) < 0.2
+ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
+LIMIT 10 OFFSET ?
+`
+
+type JobSearchQueryParams struct {
+	Embedding interface{}
+	Offset    int64
+}
+
+type JobSearchQueryRow struct {
+	Postid  string
+	Title   string
+	Company string
+}
+
+func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) ([]JobSearchQueryRow, error) {
+	rows, err := q.db.QueryContext(ctx, jobSearchQuery, arg.Embedding, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []JobSearchQueryRow
+	for rows.Next() {
+		var i JobSearchQueryRow
+		if err := rows.Scan(&i.Postid, &i.Title, &i.Company); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updatePostAdditionalInfoLink = `-- name: UpdatePostAdditionalInfoLink :exec
 UPDATE posts
 SET additionalInfoLink = ?

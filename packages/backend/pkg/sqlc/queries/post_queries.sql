@@ -74,3 +74,16 @@ FROM posts p
 LEFT JOIN job_details jb
 ON p.postId = jb.postId
 WHERE p.postId = ?;
+
+-- name: JobSearchQuery :many
+WITH embedding_vector AS (
+    SELECT vector32(:embedding) AS vec
+)
+SELECT  
+    postId,
+    title,
+    company
+FROM posts, embedding_vector
+WHERE vector_distance_cos(embedding, embedding_vector.vec) < 0.2
+ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
+LIMIT 10 OFFSET ?;
