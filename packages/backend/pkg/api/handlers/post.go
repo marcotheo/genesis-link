@@ -31,18 +31,24 @@ func InitPostHandler(dataService *services.DataService, utilService *services.Ut
 	}
 }
 
+type PostTag struct {
+	TagName     string `json:"tagName" validate:"required"`
+	TagCategory string `json:"tagCategory" validate:"required"`
+}
+
 type CreatePostParams struct {
-	Company            string `json:"company" validate:"required"`
-	Title              string `json:"title" validate:"required"`
-	Description        string `json:"description"`
-	PosterLink         string `json:"posterLink"`
-	LogoLink           string `json:"logoLink"`
-	AdditionalInfoLink string `json:"additionalInfoLink"`
-	Wfh                int    `json:"wfh" validate:"oneof=0 1"`
-	Email              string `json:"email" validate:"required"`
-	Phone              string `json:"phone" validate:"required"`
-	Deadline           string `json:"deadline" validate:"required,date"`
-	AddressId          string `json:"addressId" validate:"required,nanoid"`
+	Company            string    `json:"company" validate:"required"`
+	Title              string    `json:"title" validate:"required"`
+	Description        string    `json:"description"`
+	PosterLink         string    `json:"posterLink"`
+	LogoLink           string    `json:"logoLink"`
+	AdditionalInfoLink string    `json:"additionalInfoLink"`
+	Wfh                int       `json:"wfh" validate:"oneof=0 1"`
+	Email              string    `json:"email" validate:"required"`
+	Phone              string    `json:"phone" validate:"required"`
+	Deadline           string    `json:"deadline" validate:"required,date"`
+	AddressId          string    `json:"addressId" validate:"required,nanoid"`
+	Tags               []PostTag `json:"tags" validate:"required,dive"`
 }
 
 type CreatePostResponse struct {
@@ -89,17 +95,23 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := gonanoid.New()
+	postId, err := gonanoid.New()
 	if err != nil {
 		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating post id %s \n", err))
 		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
 
-	postData.Postid = id
+	postData.Postid = postId
 	postData.Userid = userId
 	postData.Deadline = sql.NullInt64{Int64: deadlineTimestamp, Valid: true}
-	postData.Embedding, err = h.openAIService.GenerateEmbedding(createPostParams.Title + ". " + createPostParams.Description)
+
+	var tagNames []string
+	for _, tag := range createPostParams.Tags {
+		tagNames = append(tagNames, tag.TagName)
+	}
+
+	postData.Embedding, err = h.openAIService.GenerateEmbedding(createPostParams.Title + " " + strings.Join(tagNames, " "))
 
 	if err != nil {
 		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating embedding %s \n", err))
@@ -114,9 +126,57 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clog.Logger.Success("(POST) CreatePost => create successful")
+	clog.Logger.Success("(POST) CreatePost => post created")
 
-	successResponse(w, CreatePostResponse{PostId: id})
+	// ---------- INSERT THE TAGS -------------
+
+	// Begin a database transaction for multi-row insert
+	tx, err := h.dataService.Conn.Begin()
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => error beginning transaction: %s", err))
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
+		return
+	}
+
+	defer tx.Rollback()
+
+	qtx := h.dataService.Queries.WithTx(tx)
+
+	// Insert each tag for the post
+	for _, tag := range createPostParams.Tags {
+		tagId, err := gonanoid.New()
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => Error generating tagId: %s", err))
+			http.Error(w, "Error Generating TagId", http.StatusInternalServerError)
+			return
+		}
+
+		// Insert the skill into the database
+		if err := qtx.CreatePostTag(context.Background(), db.CreatePostTagParams{
+			Tagid:       tagId,
+			Postid:      postId,
+			Tagname:     tag.TagName,
+			Tagcategory: h.utilService.StringToNullString(tag.TagCategory),
+		}); err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+			http.Error(w, "Error inserting skill data", http.StatusInternalServerError)
+			return
+		}
+
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(POST) CreatePost => tags created")
+
+	// ---------- INSERT THE TAGS -------------
+
+	successResponse(w, CreatePostResponse{PostId: postId})
 }
 
 type UpdatePostAdditionalInfoLinkParams struct {
