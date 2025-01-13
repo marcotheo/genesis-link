@@ -80,10 +80,15 @@ WITH embedding_vector AS (
     SELECT vector32(:embedding) AS vec
 )
 SELECT  
-    postId,
-    title,
-    company
+    posts.postId,
+    posts.title,
+    posts.company
 FROM posts, embedding_vector
-WHERE vector_distance_cos(embedding, embedding_vector.vec) < 0.2
+JOIN addresses ON posts.addressId = addresses.addressId
+WHERE 
+    vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.2
+    AND addresses.country = ?
+    AND addresses.province = ?
+    AND (:citynull IS NULL OR addresses.city = ?)
 ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
 LIMIT 10 OFFSET ?;

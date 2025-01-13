@@ -274,17 +274,26 @@ WITH embedding_vector AS (
     SELECT vector32(?) AS vec
 )
 SELECT  
-    postId,
-    title,
-    company
+    posts.postId,
+    posts.title,
+    posts.company
 FROM posts, embedding_vector
-WHERE vector_distance_cos(embedding, embedding_vector.vec) < 0.2
+JOIN addresses ON posts.addressId = addresses.addressId
+WHERE 
+    vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.2
+    AND addresses.country = ?
+    AND addresses.province = ?
+    AND (? IS NULL OR addresses.city = ?)
 ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
 LIMIT 10 OFFSET ?
 `
 
 type JobSearchQueryParams struct {
 	Embedding interface{}
+	Country   string
+	Province  sql.NullString
+	Citynull  interface{}
+	City      sql.NullString
 	Offset    int64
 }
 
@@ -295,7 +304,14 @@ type JobSearchQueryRow struct {
 }
 
 func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) ([]JobSearchQueryRow, error) {
-	rows, err := q.db.QueryContext(ctx, jobSearchQuery, arg.Embedding, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, jobSearchQuery,
+		arg.Embedding,
+		arg.Country,
+		arg.Province,
+		arg.Citynull,
+		arg.City,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
