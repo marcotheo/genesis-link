@@ -4,7 +4,7 @@ CREATE TABLE user_skills (
     skillId TEXT NOT NULL PRIMARY KEY,
     userId TEXT NOT NULL,                     
     skillName TEXT NOT NULL,                   
-    skillLevel TEXT CHECK(skillLevel IN ('Beginner', 'Intermediate', 'Advanced')), 
+    skillLevel TEXT CHECK(skillLevel IN ('beginner', 'intermediate', 'advanced')),
     skillCategory TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
