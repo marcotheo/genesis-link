@@ -92,3 +92,16 @@ WHERE
     AND (:citynull IS NULL OR addresses.city = ?)
 ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
 LIMIT 10 OFFSET ?;
+
+-- name: CreatePostTag :exec
+INSERT INTO post_tags (
+    tagId, 
+    postId, 
+    tagName, 
+    tagCategory
+) VALUES (
+    ?,
+    ?,
+    ?,
+    ?
+) RETURNING *;

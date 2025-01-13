@@ -136,6 +136,37 @@ func (q *Queries) CreatePostRequirement(ctx context.Context, arg CreatePostRequi
 	return err
 }
 
+const createPostTag = `-- name: CreatePostTag :exec
+INSERT INTO post_tags (
+    tagId, 
+    postId, 
+    tagName, 
+    tagCategory
+) VALUES (
+    ?,
+    ?,
+    ?,
+    ?
+) RETURNING tagid, postid, tagname, tagcategory, created_at, updated_at
+`
+
+type CreatePostTagParams struct {
+	Tagid       string
+	Postid      string
+	Tagname     string
+	Tagcategory sql.NullString
+}
+
+func (q *Queries) CreatePostTag(ctx context.Context, arg CreatePostTagParams) error {
+	_, err := q.db.ExecContext(ctx, createPostTag,
+		arg.Tagid,
+		arg.Postid,
+		arg.Tagname,
+		arg.Tagcategory,
+	)
+	return err
+}
+
 const getPostCountByUserId = `-- name: GetPostCountByUserId :one
 SELECT  
     COUNT(*) AS total_count

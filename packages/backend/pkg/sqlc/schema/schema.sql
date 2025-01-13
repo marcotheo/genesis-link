@@ -63,6 +63,18 @@ CREATE INDEX idx_posts_userId ON posts(userId);
 CREATE INDEX idx_posts_addressId ON posts(addressId);
 CREATE INDEX posts_embedding_idx ON posts (libsql_vector_idx(embedding));
 
+CREATE TABLE post_tags (
+    tagId TEXT NOT NULL PRIMARY KEY,
+    postId TEXT NOT NULL,                     
+    tagName TEXT NOT NULL,
+    tagCategory TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    FOREIGN KEY (postId) REFERENCES posts(postId)
+);
+
+CREATE INDEX idx_posts_tags_postId ON post_tags(postId);
+
 CREATE TABLE job_details (
     jobDetailId TEXT NOT NULL PRIMARY KEY,
     postId TEXT NOT NULL,

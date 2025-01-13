@@ -65,6 +65,15 @@ type PostRequirement struct {
 	Requirement     string
 }
 
+type PostTag struct {
+	Tagid       string
+	Postid      string
+	Tagname     string
+	Tagcategory sql.NullString
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
+}
+
 type User struct {
 	Userid       string
 	Email        string
