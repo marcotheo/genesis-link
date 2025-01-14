@@ -17,9 +17,10 @@ INSERT INTO organizations (
     email, 
     mobileNumber, 
     posterLink, 
-    logoLink
+    logoLink,
+    userId
 ) VALUES (
-    ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?
 )
 `
 
@@ -30,6 +31,7 @@ type CreateOrganizationParams struct {
 	Mobilenumber sql.NullString
 	Posterlink   sql.NullString
 	Logolink     sql.NullString
+	Userid       string
 }
 
 func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganizationParams) error {
@@ -40,6 +42,7 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 		arg.Mobilenumber,
 		arg.Posterlink,
 		arg.Logolink,
+		arg.Userid,
 	)
 	return err
 }

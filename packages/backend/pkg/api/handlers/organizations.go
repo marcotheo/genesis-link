@@ -41,6 +41,18 @@ type CreateOrgResponse struct {
 func (h *OrgHandler) CreateOrg(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateOrg => invoked")
 
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
 	var params CreateOrgParams
 
 	errRead := ReadAndValidateBody(r, &params)
@@ -65,6 +77,7 @@ func (h *OrgHandler) CreateOrg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dbData.Orgid = orgId
+	dbData.Userid = userId
 
 	errQ := h.dataService.Queries.CreateOrganization(context.Background(), dbData)
 	if errQ != nil {

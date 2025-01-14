@@ -46,6 +46,7 @@ type Organization struct {
 	Mobilenumber sql.NullString
 	Posterlink   sql.NullString
 	Logolink     sql.NullString
+	Userid       string
 	CreatedAt    interface{}
 	UpdatedAt    interface{}
 }

@@ -5,7 +5,8 @@ INSERT INTO organizations (
     email, 
     mobileNumber, 
     posterLink, 
-    logoLink
+    logoLink,
+    userId
 ) VALUES (
-    ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?
 );
