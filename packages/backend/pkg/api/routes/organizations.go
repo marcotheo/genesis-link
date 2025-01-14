@@ -7,13 +7,15 @@ import (
 )
 
 type OrgRoutes struct {
-	handlers          *handler.OrgHandler
+	orgHandler        *handler.OrgHandler
+	addressHandler    *handler.AddressHandler
 	middlewareService *services.MiddlewareService
 }
 
-func InitOrgRoutes(handlers *handler.OrgHandler, middlewareService *services.MiddlewareService) *OrgRoutes {
+func InitOrgRoutes(orgHandler *handler.OrgHandler, addressHandler *handler.AddressHandler, middlewareService *services.MiddlewareService) *OrgRoutes {
 	return &OrgRoutes{
-		handlers,
+		orgHandler,
+		addressHandler,
 		middlewareService,
 	}
 }
@@ -23,6 +25,11 @@ func (o *OrgRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
-		subRouter.POST("/create", o.handlers.CreateOrg)
+		subRouter.POST("/create", o.orgHandler.CreateOrg)
+
+		// org/address routes
+		subRouter.POST("/{orgId}/addresses", o.addressHandler.CreateAddress)
+		subRouter.GET("/{orgId}/address", o.addressHandler.GetAddressesByOrgId)
+		subRouter.DELETE("/{orgId}/address/{addressId}", o.addressHandler.DeleteAddressById)
 	}
 }

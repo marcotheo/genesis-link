@@ -56,7 +56,6 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 	container.Provide(routes.InitAuthRoutes)
 	container.Provide(routes.InitUserRoutes)
 	container.Provide(routes.InitOrgRoutes)
-	container.Provide(routes.InitAddressRoutes)
 	container.Provide(routes.InitPostRoutes)
 	container.Provide(routes.InitApplicationRoutes)
 	container.Provide(routes.InitS3Routes)
@@ -66,7 +65,6 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 		authRoutes *routes.AuthRoutes,
 		userRoutes *routes.UserRoutes,
 		orgRoutes *routes.OrgRoutes,
-		addressRoutes *routes.AddressRoutes,
 		postRoutes *routes.PostRoutes,
 		applicationRoutes *routes.ApplicationRoutes,
 		s3Routes *routes.S3Routes,
@@ -77,9 +75,10 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 
 		router.AddSubRoutes("/api/v1/auth", authRoutes.Routes())
 		router.AddSubRoutes("/api/v1/users", userRoutes.Routes())
-		router.AddSubRoutes("/api/v1/org", orgRoutes.Routes())
-		router.AddSubRoutes("/api/v1/address", addressRoutes.Routes())
+		router.AddSubRoutes("/api/v1/organizations", orgRoutes.Routes())
+
 		router.AddSubRoutes("/api/v1/posts", postRoutes.Routes())
+
 		router.AddSubRoutes("/api/v1/applications", applicationRoutes.Routes())
 		router.AddSubRoutes("/api/v1/s3", s3Routes.Routes())
 

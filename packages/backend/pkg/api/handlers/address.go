@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -43,17 +42,7 @@ type CreateAddressResponse struct {
 func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateAddress => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
+	orgId := r.PathValue("orgId")
 
 	var createAddressParams CreateAddressParams
 
@@ -79,7 +68,7 @@ func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 	}
 
 	addressData.Addressid = id
-	addressData.Userid = sql.NullString{String: userId, Valid: true}
+	addressData.Orgid = orgId
 
 	errQ := h.dataService.Queries.CreateAddress(context.Background(), addressData)
 	if errQ != nil {
@@ -103,33 +92,20 @@ type AddressResponse struct {
 	AddressDetails string `json:"Addressdetails,omitempty"`
 }
 
-func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(GET) GetAddressesByUserId => invoked")
+func (h *AddressHandler) GetAddressesByOrgId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetAddressesByOrgId => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	orgId := r.PathValue("orgId")
 
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
-
-	addresses, errQ := h.dataService.Queries.GetAllAddressByUserId(context.Background(), sql.NullString{
-		String: userId,
-		Valid:  true, // Indicates the value is not NULL
-	})
+	addresses, errQ := h.dataService.Queries.GetAllAddressByOrgId(context.Background(), orgId)
 
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(GET) GetAddressesByUserId => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) GetAddressesByOrgId => errQ %s \n", errQ))
 		http.Error(w, "Error creating response", http.StatusInternalServerError)
 		return
 	}
 
-	clog.Logger.Success("(GET) GetAddressesByUserId => fetch successful")
+	clog.Logger.Success("(GET) GetAddressesByOrgId => fetch successful")
 
 	var addressResponses []AddressResponse
 
@@ -153,25 +129,12 @@ func (h *AddressHandler) GetAddressesByUserId(w http.ResponseWriter, r *http.Req
 func (h *AddressHandler) DeleteAddressById(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(DELETE) DeleteAddressById => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
+	orgId := r.PathValue("orgId")
 
 	addressId := r.PathValue("addressId")
 
 	errQ := h.dataService.Queries.DeleteAddress(context.Background(), db.DeleteAddressParams{
-		Userid: sql.NullString{
-			String: userId,
-			Valid:  true,
-		},
+		Orgid:     orgId,
 		Addressid: addressId,
 	})
 
