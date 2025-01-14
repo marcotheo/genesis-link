@@ -37,15 +37,10 @@ type PostTag struct {
 }
 
 type CreatePostParams struct {
-	Company            string    `json:"company" validate:"required"`
 	Title              string    `json:"title" validate:"required"`
 	Description        string    `json:"description"`
-	PosterLink         string    `json:"posterLink"`
-	LogoLink           string    `json:"logoLink"`
 	AdditionalInfoLink string    `json:"additionalInfoLink"`
 	Wfh                int       `json:"wfh" validate:"oneof=0 1"`
-	Email              string    `json:"email" validate:"required"`
-	Phone              string    `json:"phone" validate:"required"`
 	Deadline           string    `json:"deadline" validate:"required,date"`
 	AddressId          string    `json:"addressId" validate:"required,nanoid"`
 	Tags               []PostTag `json:"tags" validate:"required,dive"`
