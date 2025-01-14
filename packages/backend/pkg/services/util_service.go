@@ -36,6 +36,14 @@ func (a *UtilService) ConvertNullInt64(nullInt sql.NullInt64) int64 {
 	return 0
 }
 
+func (a *UtilService) ConvertNullTime(nullTime sql.NullTime) int64 {
+	if nullTime.Valid {
+		return nullTime.Time.Unix()
+	}
+
+	return 0
+}
+
 func (a *UtilService) StringToNullString(input string) sql.NullString {
 	if input == "" {
 		return sql.NullString{Valid: false} // Represents NULL
