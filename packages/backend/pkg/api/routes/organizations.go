@@ -28,6 +28,7 @@ func (o *OrgRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
 		subRouter.POST("", o.orgHandler.CreateOrg)
+		subRouter.GET("", o.orgHandler.GetOrgsByUserId)
 
 		// org/address routes
 		subRouter.POST("/{orgId}/addresses", o.addressHandler.CreateAddress)

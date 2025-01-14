@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -89,4 +90,79 @@ func (h *OrgHandler) CreateOrg(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(POST) CreateOrg => create successful")
 
 	successResponse(w, CreateOrgResponse{OrgId: orgId})
+}
+
+type OrganizationPartial struct {
+	OrgId     string `json:"orgId"`
+	Company   string `json:"company,omitempty"`
+	Email     string `json:"email,omitempty"`
+	CreatedAt int64  `json:"createdAt,omitempty"`
+}
+
+type GetOrgsByUserIdResponse struct {
+	Organizations []OrganizationPartial
+	Total         int64
+}
+
+func (h *OrgHandler) GetOrgsByUserId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetOrgsByUserId => invoked")
+
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	pageStr := r.URL.Query().Get("page")
+	if pageStr == "" {
+		http.Error(w, "Page parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		http.Error(w, "Page must be a number", http.StatusBadRequest)
+		return
+	}
+
+	organizations, errQ := h.dataService.Queries.GetOrganizationsByUserId(context.Background(), db.GetOrganizationsByUserIdParams{
+		Offset: int64((page - 1) * 10),
+		Userid: userId,
+		Limit:  10,
+	})
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetOrgsByUserId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+		return
+	}
+
+	totalCount, errQ := h.dataService.Queries.GetOrganizationsCountByuserId(context.Background(), userId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetOrgsByUserId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+		return
+	}
+
+	var orgsResponse []OrganizationPartial
+
+	for _, org := range organizations {
+		item := OrganizationPartial{
+			OrgId:     org.Orgid,
+			Company:   org.Company,
+			Email:     org.Email,
+			CreatedAt: h.utilService.ConvertNullTime(org.CreatedAt),
+		}
+
+		orgsResponse = append(orgsResponse, item)
+	}
+
+	clog.Logger.Success("(GET) GetOrgsByUserId => successful")
+
+	successResponse(w, GetOrgsByUserIdResponse{Organizations: orgsResponse, Total: totalCount})
 }
