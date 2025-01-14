@@ -241,12 +241,15 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 
 const getPostsByOrgId = `-- name: GetPostsByOrgId :many
 SELECT  
-    postId,
-    title,
-    deadline
-FROM posts
-WHERE orgId = ?
-ORDER BY posted_at DESC
+    p.postId,
+    p.title,
+    p.deadline,
+    o.company
+FROM posts p
+LEFT JOIN organizations o
+ON p.orgId = o.orgId
+WHERE p.orgId = ?
+ORDER BY p.posted_at DESC
 LIMIT 10 OFFSET ?
 `
 
@@ -259,6 +262,7 @@ type GetPostsByOrgIdRow struct {
 	Postid   string
 	Title    string
 	Deadline sql.NullInt64
+	Company  sql.NullString
 }
 
 func (q *Queries) GetPostsByOrgId(ctx context.Context, arg GetPostsByOrgIdParams) ([]GetPostsByOrgIdRow, error) {
@@ -270,7 +274,12 @@ func (q *Queries) GetPostsByOrgId(ctx context.Context, arg GetPostsByOrgIdParams
 	var items []GetPostsByOrgIdRow
 	for rows.Next() {
 		var i GetPostsByOrgIdRow
-		if err := rows.Scan(&i.Postid, &i.Title, &i.Deadline); err != nil {
+		if err := rows.Scan(
+			&i.Postid,
+			&i.Title,
+			&i.Deadline,
+			&i.Company,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

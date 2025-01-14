@@ -165,13 +165,13 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 type UpdatePostAdditionalInfoLinkParams struct {
-	Postid             string `json:"postId" validate:"required,nanoid"`
 	AdditionalInfoLink string `json:"additionalInfoLink" validate:"required"`
 }
 
 func (h *PostHandler) UpdatePostAdditionalInfoLink(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) UpdatePostAdditionalInfoLink => invoked")
 
+	postId := r.PathValue("postId")
 	orgId := r.PathValue("orgId")
 
 	var params UpdatePostAdditionalInfoLinkParams
@@ -185,7 +185,7 @@ func (h *PostHandler) UpdatePostAdditionalInfoLink(w http.ResponseWriter, r *htt
 
 	errQ := h.dataService.Queries.UpdatePostAdditionalInfoLink(context.Background(), db.UpdatePostAdditionalInfoLinkParams{
 		Orgid:  orgId,
-		Postid: params.Postid,
+		Postid: postId,
 		Additionalinfolink: sql.NullString{
 			Valid:  true,
 			String: params.AdditionalInfoLink,
@@ -203,7 +203,6 @@ func (h *PostHandler) UpdatePostAdditionalInfoLink(w http.ResponseWriter, r *htt
 }
 
 type CreateJobDetailsParams struct {
-	Postid          string `json:"postId" validate:"required,nanoid"`
 	JobType         string `json:"jobType" validate:"oneof=full-time part-time contract internship"`
 	SalaryType      string `json:"salaryType" validate:"omitempty,oneof=fixed hourly monthly"`
 	SalaryAmountMin int    `json:"salaryAmountMin"`
@@ -214,6 +213,7 @@ type CreateJobDetailsParams struct {
 func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateJobDetails => invoked")
 
+	postId := r.PathValue("postId")
 	orgId := r.PathValue("orgId")
 
 	var jobDetailsParams CreateJobDetailsParams
@@ -226,7 +226,7 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 
 	_, errGetPostQuery := h.dataService.Queries.CheckIfPostExistByOrg(context.Background(), db.CheckIfPostExistByOrgParams{
 		Orgid:  orgId,
-		Postid: jobDetailsParams.Postid,
+		Postid: postId,
 	})
 
 	if errGetPostQuery != nil {
@@ -250,13 +250,14 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := gonanoid.New()
+	jobDetailsId, err := gonanoid.New()
 	if err != nil {
 		fmt.Println("Error generating ID:", err)
 		return
 	}
 
-	jobDetailsData.Jobdetailid = id
+	jobDetailsData.Jobdetailid = jobDetailsId
+	jobDetailsData.Postid = postId
 
 	errQ := h.dataService.Queries.CreateJobDetails(context.Background(), jobDetailsData)
 	if errQ != nil {
@@ -275,7 +276,6 @@ type Requirement struct {
 	Requirement     string `json:"requirement" validate:"required,min=5,max=500"`
 }
 type PostRequirementsParams struct {
-	Postid       string        `json:"postId" validate:"required,nanoid"`
 	Requirements []Requirement `json:"requirements" validate:"required,dive"`
 }
 
@@ -289,11 +289,12 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	postId := r.PathValue("postId")
 	orgId := r.PathValue("orgId")
 
 	_, errGetPostQuery := h.dataService.Queries.CheckIfPostExistByOrg(context.Background(), db.CheckIfPostExistByOrgParams{
 		Orgid:  orgId,
-		Postid: postRequirementsParams.Postid,
+		Postid: postId,
 	})
 
 	if errGetPostQuery != nil {
@@ -322,7 +323,7 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 	qtx := h.dataService.Queries.WithTx(tx)
 
 	for _, data := range postRequirementsParams.Requirements {
-		id, err := gonanoid.New()
+		requirementId, err := gonanoid.New()
 
 		if err != nil {
 			fmt.Println("(POST) CreatePostRequirements => Error generating ID:", err)
@@ -330,8 +331,8 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 		}
 
 		if err = qtx.CreatePostRequirement(context.Background(), db.CreatePostRequirementParams{
-			Postid:          postRequirementsParams.Postid,
-			Requirementid:   id,
+			Postid:          postId,
+			Requirementid:   requirementId,
 			Requirementtype: data.RequirementType,
 			Requirement:     data.Requirement,
 		}); err != nil {
@@ -402,6 +403,7 @@ func (h *PostHandler) GetPostsByOrg(w http.ResponseWriter, r *http.Request) {
 		item := Post{
 			PostId:   post.Postid,
 			Title:    post.Title,
+			Company:  h.utilService.ConvertNullString(post.Company),
 			Deadline: h.utilService.ConvertNullInt64(post.Deadline),
 		}
 

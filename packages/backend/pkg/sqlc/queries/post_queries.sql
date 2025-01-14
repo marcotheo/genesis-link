@@ -45,12 +45,15 @@ RETURNING *;
 
 -- name: GetPostsByOrgId :many
 SELECT  
-    postId,
-    title,
-    deadline
-FROM posts
-WHERE orgId = ?
-ORDER BY posted_at DESC
+    p.postId,
+    p.title,
+    p.deadline,
+    o.company
+FROM posts p
+LEFT JOIN organizations o
+ON p.orgId = o.orgId
+WHERE p.orgId = ?
+ORDER BY p.posted_at DESC
 LIMIT 10 OFFSET ?;
 
 -- name: GetPostCountByOrgId :one

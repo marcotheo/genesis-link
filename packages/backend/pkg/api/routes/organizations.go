@@ -37,8 +37,8 @@ func (o *OrgRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		// org/post routes
 		subRouter.POST("/{orgId}/posts", o.postHandler.CreatePost)
 		subRouter.POST("/{orgId}/posts/{postId}/update/additionalInfoLink", o.postHandler.UpdatePostAdditionalInfoLink)
-		subRouter.POST("/{orgId}/posts/create/job_details", o.postHandler.CreateJobDetails)
-		subRouter.POST("/{orgId}/posts/create/requirements", o.postHandler.CreatePostRequirements)
+		subRouter.POST("/{orgId}/posts/{postId}/job_details", o.postHandler.CreateJobDetails)
+		subRouter.POST("/{orgId}/posts/{postId}/requirements", o.postHandler.CreatePostRequirements)
 		subRouter.GET("/{orgId}/posts", o.postHandler.GetPostsByOrg)
 	}
 }
