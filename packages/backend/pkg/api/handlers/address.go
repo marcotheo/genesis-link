@@ -145,5 +145,5 @@ func (h *AddressHandler) DeleteAddressById(w http.ResponseWriter, r *http.Reques
 
 	clog.Logger.Success("(DELETE) DeleteAddressById => delete successful")
 
-	successResponse(w, true)
+	w.WriteHeader(http.StatusNoContent)
 }

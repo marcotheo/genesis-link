@@ -47,7 +47,7 @@ type CreatePostParams struct {
 }
 
 type CreatePostResponse struct {
-	PostId string
+	PostId string `json:"postId"`
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
@@ -351,7 +351,7 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 
 	clog.Logger.Success("(POST) CreatePostRequirements => create successful")
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 type Post struct {
@@ -362,8 +362,8 @@ type Post struct {
 }
 
 type GetPostsResponse struct {
-	Posts []Post
-	Total int64
+	Posts []Post `json:"posts"`
+	Total int64  `json:"total"`
 }
 
 func (h *PostHandler) GetPostsByOrg(w http.ResponseWriter, r *http.Request) {
