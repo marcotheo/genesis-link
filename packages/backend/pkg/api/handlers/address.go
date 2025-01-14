@@ -130,7 +130,6 @@ func (h *AddressHandler) DeleteAddressById(w http.ResponseWriter, r *http.Reques
 	clog.Logger.Info("(DELETE) DeleteAddressById => invoked")
 
 	orgId := r.PathValue("orgId")
-
 	addressId := r.PathValue("addressId")
 
 	errQ := h.dataService.Queries.DeleteAddress(context.Background(), db.DeleteAddressParams{
