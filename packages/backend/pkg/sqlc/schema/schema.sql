@@ -28,9 +28,13 @@ CREATE TABLE organizations (
     mobileNumber TEXT,
     posterLink TEXT,
     logoLink TEXT,
+    userId TEXT NOT NULL,
     created_at DEFAULT CURRENT_TIMESTAMP,
     updated_at DEFAULT CURRENT_TIMESTAMP
+    FOREIGN KEY (userId) REFERENCES users(userId)
 );
+
+CREATE INDEX idx_organizations_userId ON organizations(userId);
 
 CREATE TABLE addresses (
     addressId TEXT NOT NULL PRIMARY KEY,
