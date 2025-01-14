@@ -8,8 +8,8 @@ CREATE TABLE organizations (
     posterLink TEXT,
     logoLink TEXT,
     userId TEXT NOT NULL,
-    created_at DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_organizations_userId ON organizations(userId);

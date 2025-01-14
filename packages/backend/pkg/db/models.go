@@ -47,7 +47,7 @@ type Organization struct {
 	Posterlink   sql.NullString
 	Logolink     sql.NullString
 	Userid       string
-	CreatedAt    interface{}
+	CreatedAt    sql.NullTime
 	UpdatedAt    interface{}
 }
 

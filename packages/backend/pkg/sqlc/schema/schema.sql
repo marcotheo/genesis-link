@@ -4,8 +4,8 @@ CREATE TABLE users (
     mobileNumber TEXT,
     resumeLink TEXT,
     google_id TEXT UNIQUE,
-    created_at DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE user_skills (
@@ -29,8 +29,8 @@ CREATE TABLE organizations (
     posterLink TEXT,
     logoLink TEXT,
     userId TEXT NOT NULL,
-    created_at DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     FOREIGN KEY (userId) REFERENCES users(userId)
 );
 

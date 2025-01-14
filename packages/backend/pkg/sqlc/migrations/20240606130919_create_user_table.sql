@@ -6,8 +6,8 @@ CREATE TABLE users (
     mobileNumber TEXT,
     resumeLink TEXT,
     google_id TEXT UNIQUE,
-    created_at DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd
 
