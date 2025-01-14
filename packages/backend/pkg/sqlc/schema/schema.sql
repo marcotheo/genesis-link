@@ -3,6 +3,7 @@ CREATE TABLE users (
     email TEXT NOT NULL,
     mobileNumber TEXT,
     resumeLink TEXT,
+    google_id TEXT UNIQUE,
     created_at DEFAULT CURRENT_TIMESTAMP,
     updated_at DEFAULT CURRENT_TIMESTAMP
 );
@@ -20,6 +21,17 @@ CREATE TABLE user_skills (
 
 CREATE INDEX idx_user_skills_userId ON user_skills(userId);
 
+CREATE TABLE organizations (
+    orgId TEXT NOT NULL PRIMARY KEY,
+    company TEXT NOT NULL,
+    email TEXT NOT NULL,
+    mobileNumber TEXT,
+    posterLink TEXT,
+    logoLink TEXT,
+    created_at DEFAULT CURRENT_TIMESTAMP,
+    updated_at DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE addresses (
     addressId TEXT NOT NULL PRIMARY KEY,
     country TEXT NOT NULL DEFAULT 'Philippines',
@@ -28,40 +40,34 @@ CREATE TABLE addresses (
     city TEXT,
     barangay TEXT,
     addressDetails TEXT,  -- House number, unit, building, street, etc.
-    userId TEXT,  -- Define userId column
-    FOREIGN KEY (userId) REFERENCES users(userId)
+    orgId TEXT NOT NULL,  -- Define orgId column
+    FOREIGN KEY (orgId) REFERENCES organizations(orgId)
 );
 
 CREATE INDEX idx_address ON addresses(country, province, city);
-CREATE INDEX idx_address_userId ON addresses(userId);
+CREATE INDEX idx_address_orgId ON addresses(orgId);
 
 CREATE TABLE posts (
     postId TEXT NOT NULL PRIMARY KEY,
-    company TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
-    posterLink TEXT,
-    logoLink TEXT,
     additionalInfoLink TEXT,
     wfh INTEGER DEFAULT 0,
-    email TEXT,
-    phone TEXT,
     deadline INTEGER,
-    addressId TEXT NOT NULL,
-    userId TEXT NOT NULL,
     embedding F32_BLOB(1536) NOT NULL,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES users(userId),
+    addressId TEXT NOT NULL,
+    orgId TEXT NOT NULL,
+    FOREIGN KEY (orgId) REFERENCES organizations(orgId),
     FOREIGN KEY (addressId) REFERENCES addresses(addressId)
 );
 
-CREATE INDEX idx_title ON posts(title);
-CREATE INDEX idx_wfh ON posts(wfh);
+CREATE INDEX posts_embedding_idx ON posts(libsql_vector_idx(embedding));
 CREATE INDEX idx_posted_at ON posts(posted_at);
-CREATE INDEX idx_posts_userId ON posts(userId);
+CREATE INDEX idx_wfh ON posts(wfh);
+CREATE INDEX idx_posts_orgId ON posts(orgId);
 CREATE INDEX idx_posts_addressId ON posts(addressId);
-CREATE INDEX posts_embedding_idx ON posts (libsql_vector_idx(embedding));
 
 CREATE TABLE post_tags (
     tagId TEXT NOT NULL PRIMARY KEY,

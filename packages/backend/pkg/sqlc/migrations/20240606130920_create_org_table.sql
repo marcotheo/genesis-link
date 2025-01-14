@@ -1,11 +1,12 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE users (
-    userId TEXT NOT NULL PRIMARY KEY,
-    email TEXT NOT NULL UNIQUE,
+CREATE TABLE organizations (
+    orgId TEXT NOT NULL PRIMARY KEY,
+    company TEXT NOT NULL,
+    email TEXT NOT NULL,
     mobileNumber TEXT,
-    resumeLink TEXT,
-    google_id TEXT UNIQUE,
+    posterLink TEXT,
+    logoLink TEXT,
     created_at DEFAULT CURRENT_TIMESTAMP,
     updated_at DEFAULT CURRENT_TIMESTAMP
 );
@@ -13,5 +14,5 @@ CREATE TABLE users (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE users;
+DROP TABLE organizations;
 -- +goose StatementEnd

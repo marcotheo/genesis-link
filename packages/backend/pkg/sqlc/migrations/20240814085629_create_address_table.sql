@@ -8,18 +8,18 @@ CREATE TABLE addresses (
     city TEXT,
     barangay TEXT,
     addressDetails TEXT,  -- House number, unit, building, street, etc.
-    userId TEXT,  -- Define userId column
-    FOREIGN KEY (userId) REFERENCES users(userId)
+    orgId TEXT NOT NULL,  -- Define orgId column
+    FOREIGN KEY (orgId) REFERENCES organizations(orgId)
 );
 
 CREATE INDEX idx_address ON addresses(country, province, city);
-CREATE INDEX idx_address_userId ON addresses(userId);
+CREATE INDEX idx_address_orgId ON addresses(orgId);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 DROP INDEX IF EXISTS idx_address;
-DROP INDEX IF EXISTS idx_address_userId;
+DROP INDEX IF EXISTS idx_address_orgId;
 
 DROP TABLE IF EXISTS addresses;
 -- +goose StatementEnd
