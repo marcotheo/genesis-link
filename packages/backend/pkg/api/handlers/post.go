@@ -58,17 +58,7 @@ type CreatePostResponse struct {
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreatePost => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
+	orgId := r.PathValue("orgId")
 
 	var createPostParams CreatePostParams
 
@@ -103,7 +93,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	postData.Postid = postId
-	postData.Userid = userId
+	postData.Orgid = orgId
 	postData.Deadline = sql.NullInt64{Int64: deadlineTimestamp, Valid: true}
 
 	var tagNames []string
@@ -187,17 +177,7 @@ type UpdatePostAdditionalInfoLinkParams struct {
 func (h *PostHandler) UpdatePostAdditionalInfoLink(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) UpdatePostAdditionalInfoLink => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
+	orgId := r.PathValue("orgId")
 
 	var params UpdatePostAdditionalInfoLinkParams
 
@@ -209,7 +189,7 @@ func (h *PostHandler) UpdatePostAdditionalInfoLink(w http.ResponseWriter, r *htt
 	}
 
 	errQ := h.dataService.Queries.UpdatePostAdditionalInfoLink(context.Background(), db.UpdatePostAdditionalInfoLinkParams{
-		Userid: userId,
+		Orgid:  orgId,
 		Postid: params.Postid,
 		Additionalinfolink: sql.NullString{
 			Valid:  true,
@@ -239,17 +219,7 @@ type CreateJobDetailsParams struct {
 func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateJobDetails => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
+	orgId := r.PathValue("orgId")
 
 	var jobDetailsParams CreateJobDetailsParams
 
@@ -259,8 +229,8 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errGetPostQuery := h.dataService.Queries.GetUserPost(context.Background(), db.GetUserPostParams{
-		Userid: userId,
+	_, errGetPostQuery := h.dataService.Queries.CheckIfPostExistByOrg(context.Background(), db.CheckIfPostExistByOrgParams{
+		Orgid:  orgId,
 		Postid: jobDetailsParams.Postid,
 	})
 
@@ -324,20 +294,10 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	orgId := r.PathValue("orgId")
 
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
-
-	_, errGetPostQuery := h.dataService.Queries.GetUserPost(context.Background(), db.GetUserPostParams{
-		Userid: userId,
+	_, errGetPostQuery := h.dataService.Queries.CheckIfPostExistByOrg(context.Background(), db.CheckIfPostExistByOrgParams{
+		Orgid:  orgId,
 		Postid: postRequirementsParams.Postid,
 	})
 
@@ -410,8 +370,8 @@ type GetPostsResponse struct {
 	Total int64
 }
 
-func (h *PostHandler) GetUserJobPosts(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(GET) GetPosts => invoked")
+func (h *PostHandler) GetPostsByOrg(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetPostsByOrg => invoked")
 
 	pageStr := r.URL.Query().Get("page")
 	if pageStr == "" {
@@ -425,28 +385,18 @@ func (h *PostHandler) GetUserJobPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	orgId := r.PathValue("orgId")
 
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
-
-	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64((page - 1) * 10), Userid: userId})
+	posts, errQ := h.dataService.Queries.GetPostsByOrgId(context.Background(), db.GetPostsByOrgIdParams{Offset: int64((page - 1) * 10), Orgid: orgId})
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(GET) GetPosts => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) GetPostsByOrg => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)
 		return
 	}
 
-	totalCount, errQ := h.dataService.Queries.GetPostCountByUserId(context.Background(), userId)
+	totalCount, errQ := h.dataService.Queries.GetPostCountByOrgId(context.Background(), orgId)
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(GET) GetPosts => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) GetPostsByOrg => errQ %s \n", errQ))
 		http.Error(w, "Error fetching response", http.StatusInternalServerError)
 		return
 	}
@@ -457,14 +407,13 @@ func (h *PostHandler) GetUserJobPosts(w http.ResponseWriter, r *http.Request) {
 		item := Post{
 			PostId:   post.Postid,
 			Title:    post.Title,
-			Company:  post.Company,
 			Deadline: h.utilService.ConvertNullInt64(post.Deadline),
 		}
 
 		postsData = append(postsData, item)
 	}
 
-	clog.Logger.Success("(GET) GetPosts => successful")
+	clog.Logger.Success("(GET) GetPostsByOrg => successful")
 
 	successResponse(w, GetPostsResponse{Posts: postsData, Total: totalCount})
 }
@@ -510,7 +459,7 @@ type SearchJobResponse struct {
 }
 
 func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(GET) JobSearchQuery => invoked")
+	clog.Logger.Info("(GET) SearchJob => invoked")
 
 	var params SearchJobParams
 
@@ -521,7 +470,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 
 	matchEmbedding, err := h.openAIService.GenerateEmbedding(params.Keyword)
 	if err != nil {
-		clog.Logger.Error(fmt.Sprintf("(GET) JobSearchQuery => error generating embedding %s \n", err))
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => error generating embedding %s \n", err))
 		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
@@ -535,7 +484,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		City:      h.utilService.StringToNullString(params.City),
 	})
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(GET) JobSearchQuery => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => errQ %s \n", errQ))
 		http.Error(w, "Error fetching data", http.StatusInternalServerError)
 		return
 	}
@@ -544,15 +493,14 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 
 	for _, post := range posts {
 		item := JobPost{
-			PostId:  post.Postid,
-			Title:   post.Title,
-			Company: post.Company,
+			PostId: post.Postid,
+			Title:  post.Title,
 		}
 
 		postsData = append(postsData, item)
 	}
 
-	clog.Logger.Success("(GET) GetPosts => successful")
+	clog.Logger.Success("(GET) SearchJob => successful")
 
 	successResponse(w, SearchJobResponse{Posts: postsData})
 }

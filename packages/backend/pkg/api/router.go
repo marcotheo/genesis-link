@@ -76,9 +76,7 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 		router.AddSubRoutes("/api/v1/auth", authRoutes.Routes())
 		router.AddSubRoutes("/api/v1/users", userRoutes.Routes())
 		router.AddSubRoutes("/api/v1/organizations", orgRoutes.Routes())
-
 		router.AddSubRoutes("/api/v1/posts", postRoutes.Routes())
-
 		router.AddSubRoutes("/api/v1/applications", applicationRoutes.Routes())
 		router.AddSubRoutes("/api/v1/s3", s3Routes.Routes())
 
