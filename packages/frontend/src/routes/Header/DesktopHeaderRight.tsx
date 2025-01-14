@@ -69,6 +69,9 @@ export default component$(() => {
           </div>
 
           <DropDownMenuLabel q:slot="label">My Account</DropDownMenuLabel>
+          <DropDownMenuItemLink link="/organizations">
+            Organizations
+          </DropDownMenuItemLink>
           <DropDownMenuItemLink link="/posts">Posts</DropDownMenuItemLink>
           <DropDownMenuItemLink link="/settings">
             Applications
