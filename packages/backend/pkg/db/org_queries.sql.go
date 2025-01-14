@@ -46,3 +46,70 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 	)
 	return err
 }
+
+const getOrganizationsByUserId = `-- name: GetOrganizationsByUserId :many
+SELECT 
+    orgId,
+    company, 
+    email, 
+    created_at
+FROM organizations
+WHERE userId = ?
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?
+`
+
+type GetOrganizationsByUserIdParams struct {
+	Userid string
+	Limit  int64
+	Offset int64
+}
+
+type GetOrganizationsByUserIdRow struct {
+	Orgid     string
+	Company   string
+	Email     string
+	CreatedAt sql.NullTime
+}
+
+func (q *Queries) GetOrganizationsByUserId(ctx context.Context, arg GetOrganizationsByUserIdParams) ([]GetOrganizationsByUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrganizationsByUserId, arg.Userid, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrganizationsByUserIdRow
+	for rows.Next() {
+		var i GetOrganizationsByUserIdRow
+		if err := rows.Scan(
+			&i.Orgid,
+			&i.Company,
+			&i.Email,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOrganizationsCountByuserId = `-- name: GetOrganizationsCountByuserId :one
+SELECT  
+    COUNT(*) AS total_count
+FROM organizations
+WHERE userId = ?
+`
+
+func (q *Queries) GetOrganizationsCountByuserId(ctx context.Context, userid string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getOrganizationsCountByuserId, userid)
+	var total_count int64
+	err := row.Scan(&total_count)
+	return total_count, err
+}
