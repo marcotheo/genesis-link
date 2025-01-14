@@ -16,7 +16,7 @@ type Address struct {
 	City           sql.NullString
 	Barangay       sql.NullString
 	Addressdetails sql.NullString
-	Userid         sql.NullString
+	Orgid          string
 }
 
 type Application struct {
@@ -39,23 +39,29 @@ type JobDetail struct {
 	Salarycurrency  sql.NullString
 }
 
+type Organization struct {
+	Orgid        string
+	Company      string
+	Email        string
+	Mobilenumber sql.NullString
+	Posterlink   sql.NullString
+	Logolink     sql.NullString
+	CreatedAt    interface{}
+	UpdatedAt    interface{}
+}
+
 type Post struct {
 	Postid             string
-	Company            string
 	Title              string
 	Description        sql.NullString
-	Posterlink         sql.NullString
-	Logolink           sql.NullString
 	Additionalinfolink sql.NullString
 	Wfh                sql.NullInt64
-	Email              sql.NullString
-	Phone              sql.NullString
 	Deadline           sql.NullInt64
-	Addressid          string
-	Userid             string
 	Embedding          interface{}
 	PostedAt           sql.NullTime
 	UpdatedAt          sql.NullTime
+	Addressid          string
+	Orgid              string
 }
 
 type PostRequirement struct {
@@ -79,6 +85,7 @@ type User struct {
 	Email        string
 	Mobilenumber sql.NullString
 	Resumelink   sql.NullString
+	GoogleID     sql.NullString
 	CreatedAt    interface{}
 	UpdatedAt    interface{}
 }

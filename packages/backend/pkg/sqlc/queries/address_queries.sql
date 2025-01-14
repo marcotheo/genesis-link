@@ -7,7 +7,7 @@ INSERT INTO addresses (
     city,
     barangay,
     addressDetails,
-    userId
+    orgId
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?, ?
 )
@@ -15,8 +15,8 @@ RETURNING *;
 
 -- name: DeleteAddress :exec
 DELETE FROM addresses
-WHERE addressId = ? AND userId = ?;
+WHERE addressId = ? AND orgId = ?;
 
--- name: GetAllAddressByUserId :many
+-- name: GetAllAddressByOrgId :many
 SELECT * FROM addresses
-WHERE userId = ?;
+WHERE orgId = ?;

@@ -10,6 +10,23 @@ import (
 	"database/sql"
 )
 
+const checkIfPostExistByOrg = `-- name: CheckIfPostExistByOrg :one
+SELECT postId FROM posts
+WHERE postId = ? AND orgId = ?
+`
+
+type CheckIfPostExistByOrgParams struct {
+	Postid string
+	Orgid  string
+}
+
+func (q *Queries) CheckIfPostExistByOrg(ctx context.Context, arg CheckIfPostExistByOrgParams) (string, error) {
+	row := q.db.QueryRowContext(ctx, checkIfPostExistByOrg, arg.Postid, arg.Orgid)
+	var postid string
+	err := row.Scan(&postid)
+	return postid, err
+}
+
 const createJobDetails = `-- name: CreateJobDetails :exec
 INSERT INTO job_details (
     jobDetailId,
@@ -50,58 +67,42 @@ func (q *Queries) CreateJobDetails(ctx context.Context, arg CreateJobDetailsPara
 
 const createPost = `-- name: CreatePost :exec
 INSERT INTO posts (
-    postId,
-    company,
-    title,
-    description,
-    posterLink,
-    logoLink,
-    additionalInfoLink,
-    wfh,
-    email,
-    phone,
-    deadline,
-    addressId,
-    userId,
+    postId, 
+    title, 
+    description, 
+    additionalInfoLink, 
+    wfh, 
+    deadline, 
+    addressId, 
+    orgId,
     embedding
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, vector32(?)
+    ?, ?, ?, ?, ?, ?, ?, ?, vector32(?)
 )
-RETURNING postid, company, title, description, posterlink, logolink, additionalinfolink, wfh, email, phone, deadline, addressid, userid, embedding, posted_at, updated_at
 `
 
 type CreatePostParams struct {
 	Postid             string
-	Company            string
 	Title              string
 	Description        sql.NullString
-	Posterlink         sql.NullString
-	Logolink           sql.NullString
 	Additionalinfolink sql.NullString
 	Wfh                sql.NullInt64
-	Email              sql.NullString
-	Phone              sql.NullString
 	Deadline           sql.NullInt64
 	Addressid          string
-	Userid             string
+	Orgid              string
 	Embedding          interface{}
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 	_, err := q.db.ExecContext(ctx, createPost,
 		arg.Postid,
-		arg.Company,
 		arg.Title,
 		arg.Description,
-		arg.Posterlink,
-		arg.Logolink,
 		arg.Additionalinfolink,
 		arg.Wfh,
-		arg.Email,
-		arg.Phone,
 		arg.Deadline,
 		arg.Addressid,
-		arg.Userid,
+		arg.Orgid,
 		arg.Embedding,
 	)
 	return err
@@ -167,15 +168,15 @@ func (q *Queries) CreatePostTag(ctx context.Context, arg CreatePostTagParams) er
 	return err
 }
 
-const getPostCountByUserId = `-- name: GetPostCountByUserId :one
+const getPostCountByOrgId = `-- name: GetPostCountByOrgId :one
 SELECT  
     COUNT(*) AS total_count
 FROM posts
-WHERE userId = ?
+WHERE orgId = ?
 `
 
-func (q *Queries) GetPostCountByUserId(ctx context.Context, userid string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getPostCountByUserId, userid)
+func (q *Queries) GetPostCountByOrgId(ctx context.Context, orgid string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getPostCountByOrgId, orgid)
 	var total_count int64
 	err := row.Scan(&total_count)
 	return total_count, err
@@ -183,7 +184,7 @@ func (q *Queries) GetPostCountByUserId(ctx context.Context, userid string) (int6
 
 const getPostDetailsByPostId = `-- name: GetPostDetailsByPostId :one
 SELECT  
-   p.postid, p.company, p.title, p.description, p.posterlink, p.logolink, p.additionalinfolink, p.wfh, p.email, p.phone, p.deadline, p.addressid, p.userid, p.embedding, p.posted_at, p.updated_at,
+   p.postid, p.title, p.description, p.additionalinfolink, p.wfh, p.deadline, p.embedding, p.posted_at, p.updated_at, p.addressid, p.orgid,
    jb.jobdetailid, jb.postid, jb.jobtype, jb.salarytype, jb.salaryamountmin, jb.salaryamountmax, jb.salarycurrency
 FROM posts p
 LEFT JOIN job_details jb
@@ -193,21 +194,16 @@ WHERE p.postId = ?
 
 type GetPostDetailsByPostIdRow struct {
 	Postid             string
-	Company            string
 	Title              string
 	Description        sql.NullString
-	Posterlink         sql.NullString
-	Logolink           sql.NullString
 	Additionalinfolink sql.NullString
 	Wfh                sql.NullInt64
-	Email              sql.NullString
-	Phone              sql.NullString
 	Deadline           sql.NullInt64
-	Addressid          string
-	Userid             string
 	Embedding          interface{}
 	PostedAt           sql.NullTime
 	UpdatedAt          sql.NullTime
+	Addressid          string
+	Orgid              string
 	Jobdetailid        sql.NullString
 	Postid_2           sql.NullString
 	Jobtype            sql.NullString
@@ -222,21 +218,16 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 	var i GetPostDetailsByPostIdRow
 	err := row.Scan(
 		&i.Postid,
-		&i.Company,
 		&i.Title,
 		&i.Description,
-		&i.Posterlink,
-		&i.Logolink,
 		&i.Additionalinfolink,
 		&i.Wfh,
-		&i.Email,
-		&i.Phone,
 		&i.Deadline,
-		&i.Addressid,
-		&i.Userid,
 		&i.Embedding,
 		&i.PostedAt,
 		&i.UpdatedAt,
+		&i.Addressid,
+		&i.Orgid,
 		&i.Jobdetailid,
 		&i.Postid_2,
 		&i.Jobtype,
@@ -248,45 +239,38 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 	return i, err
 }
 
-const getPostsByUserId = `-- name: GetPostsByUserId :many
+const getPostsByOrgId = `-- name: GetPostsByOrgId :many
 SELECT  
     postId,
     title,
-    company,
     deadline
 FROM posts
-WHERE userId = ?
+WHERE orgId = ?
 ORDER BY posted_at DESC
 LIMIT 10 OFFSET ?
 `
 
-type GetPostsByUserIdParams struct {
-	Userid string
+type GetPostsByOrgIdParams struct {
+	Orgid  string
 	Offset int64
 }
 
-type GetPostsByUserIdRow struct {
+type GetPostsByOrgIdRow struct {
 	Postid   string
 	Title    string
-	Company  string
 	Deadline sql.NullInt64
 }
 
-func (q *Queries) GetPostsByUserId(ctx context.Context, arg GetPostsByUserIdParams) ([]GetPostsByUserIdRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsByUserId, arg.Userid, arg.Offset)
+func (q *Queries) GetPostsByOrgId(ctx context.Context, arg GetPostsByOrgIdParams) ([]GetPostsByOrgIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPostsByOrgId, arg.Orgid, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetPostsByUserIdRow
+	var items []GetPostsByOrgIdRow
 	for rows.Next() {
-		var i GetPostsByUserIdRow
-		if err := rows.Scan(
-			&i.Postid,
-			&i.Title,
-			&i.Company,
-			&i.Deadline,
-		); err != nil {
+		var i GetPostsByOrgIdRow
+		if err := rows.Scan(&i.Postid, &i.Title, &i.Deadline); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -306,8 +290,7 @@ WITH embedding_vector AS (
 )
 SELECT  
     posts.postId,
-    posts.title,
-    posts.company
+    posts.title
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
 WHERE 
@@ -329,9 +312,8 @@ type JobSearchQueryParams struct {
 }
 
 type JobSearchQueryRow struct {
-	Postid  string
-	Title   string
-	Company string
+	Postid string
+	Title  string
 }
 
 func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) ([]JobSearchQueryRow, error) {
@@ -350,7 +332,7 @@ func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) 
 	var items []JobSearchQueryRow
 	for rows.Next() {
 		var i JobSearchQueryRow
-		if err := rows.Scan(&i.Postid, &i.Title, &i.Company); err != nil {
+		if err := rows.Scan(&i.Postid, &i.Title); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -367,16 +349,16 @@ func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) 
 const updatePostAdditionalInfoLink = `-- name: UpdatePostAdditionalInfoLink :exec
 UPDATE posts
 SET additionalInfoLink = ?
-WHERE postId = ? AND userId = ?
+WHERE postId = ? AND orgId = ?
 `
 
 type UpdatePostAdditionalInfoLinkParams struct {
 	Additionalinfolink sql.NullString
 	Postid             string
-	Userid             string
+	Orgid              string
 }
 
 func (q *Queries) UpdatePostAdditionalInfoLink(ctx context.Context, arg UpdatePostAdditionalInfoLinkParams) error {
-	_, err := q.db.ExecContext(ctx, updatePostAdditionalInfoLink, arg.Additionalinfolink, arg.Postid, arg.Userid)
+	_, err := q.db.ExecContext(ctx, updatePostAdditionalInfoLink, arg.Additionalinfolink, arg.Postid, arg.Orgid)
 	return err
 }

@@ -1,28 +1,22 @@
 -- name: CreatePost :exec
 INSERT INTO posts (
-    postId,
-    company,
-    title,
-    description,
-    posterLink,
-    logoLink,
-    additionalInfoLink,
-    wfh,
-    email,
-    phone,
-    deadline,
-    addressId,
-    userId,
+    postId, 
+    title, 
+    description, 
+    additionalInfoLink, 
+    wfh, 
+    deadline, 
+    addressId, 
+    orgId,
     embedding
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, vector32(:embedding)
-)
-RETURNING *;
+    ?, ?, ?, ?, ?, ?, ?, ?, vector32(:embedding)
+);
 
 -- name: UpdatePostAdditionalInfoLink :exec
 UPDATE posts
 SET additionalInfoLink = ?
-WHERE postId = ? AND userId = ?;
+WHERE postId = ? AND orgId = ?;
 
 -- name: CreateJobDetails :exec
 INSERT INTO job_details (
@@ -49,22 +43,25 @@ INSERT INTO post_requirements (
 )
 RETURNING *;
 
--- name: GetPostsByUserId :many
+-- name: GetPostsByOrgId :many
 SELECT  
     postId,
     title,
-    company,
     deadline
 FROM posts
-WHERE userId = ?
+WHERE orgId = ?
 ORDER BY posted_at DESC
 LIMIT 10 OFFSET ?;
 
--- name: GetPostCountByUserId :one
+-- name: GetPostCountByOrgId :one
 SELECT  
     COUNT(*) AS total_count
 FROM posts
-WHERE userId = ?;
+WHERE orgId = ?;
+
+-- name: CheckIfPostExistByOrg :one
+SELECT postId FROM posts
+WHERE postId = ? AND orgId = ?;
 
 -- name: GetPostDetailsByPostId :one
 SELECT  
@@ -81,8 +78,7 @@ WITH embedding_vector AS (
 )
 SELECT  
     posts.postId,
-    posts.title,
-    posts.company
+    posts.title
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
 WHERE 

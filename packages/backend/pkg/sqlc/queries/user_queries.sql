@@ -36,10 +36,6 @@ WHERE userId = ?;
 SELECT * FROM users
 WHERE userId = ? LIMIT 1;
 
--- name: GetUserPost :one
-SELECT postId FROM posts
-WHERE postId = ? AND userId = ?;
-
 -- name: GetUserSkillsByUserId :many
 SELECT 
     skillId,

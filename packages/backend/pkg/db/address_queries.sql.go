@@ -19,11 +19,11 @@ INSERT INTO addresses (
     city,
     barangay,
     addressDetails,
-    userId
+    orgId
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?, ?
 )
-RETURNING addressid, country, region, province, city, barangay, addressdetails, userid
+RETURNING addressid, country, region, province, city, barangay, addressdetails, orgid
 `
 
 type CreateAddressParams struct {
@@ -34,7 +34,7 @@ type CreateAddressParams struct {
 	City           sql.NullString
 	Barangay       sql.NullString
 	Addressdetails sql.NullString
-	Userid         sql.NullString
+	Orgid          string
 }
 
 func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) error {
@@ -46,33 +46,33 @@ func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) er
 		arg.City,
 		arg.Barangay,
 		arg.Addressdetails,
-		arg.Userid,
+		arg.Orgid,
 	)
 	return err
 }
 
 const deleteAddress = `-- name: DeleteAddress :exec
 DELETE FROM addresses
-WHERE addressId = ? AND userId = ?
+WHERE addressId = ? AND orgId = ?
 `
 
 type DeleteAddressParams struct {
 	Addressid string
-	Userid    sql.NullString
+	Orgid     string
 }
 
 func (q *Queries) DeleteAddress(ctx context.Context, arg DeleteAddressParams) error {
-	_, err := q.db.ExecContext(ctx, deleteAddress, arg.Addressid, arg.Userid)
+	_, err := q.db.ExecContext(ctx, deleteAddress, arg.Addressid, arg.Orgid)
 	return err
 }
 
-const getAllAddressByUserId = `-- name: GetAllAddressByUserId :many
-SELECT addressid, country, region, province, city, barangay, addressdetails, userid FROM addresses
-WHERE userId = ?
+const getAllAddressByOrgId = `-- name: GetAllAddressByOrgId :many
+SELECT addressid, country, region, province, city, barangay, addressdetails, orgid FROM addresses
+WHERE orgId = ?
 `
 
-func (q *Queries) GetAllAddressByUserId(ctx context.Context, userid sql.NullString) ([]Address, error) {
-	rows, err := q.db.QueryContext(ctx, getAllAddressByUserId, userid)
+func (q *Queries) GetAllAddressByOrgId(ctx context.Context, orgid string) ([]Address, error) {
+	rows, err := q.db.QueryContext(ctx, getAllAddressByOrgId, orgid)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (q *Queries) GetAllAddressByUserId(ctx context.Context, userid sql.NullStri
 			&i.City,
 			&i.Barangay,
 			&i.Addressdetails,
-			&i.Userid,
+			&i.Orgid,
 		); err != nil {
 			return nil, err
 		}

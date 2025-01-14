@@ -16,7 +16,7 @@ INSERT INTO users (
 ) VALUES (
   ?, ?
 )
-RETURNING userid, email, mobilenumber, resumelink, created_at, updated_at
+RETURNING userid, email, mobilenumber, resumelink, google_id, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -32,6 +32,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.Mobilenumber,
 		&i.Resumelink,
+		&i.GoogleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -70,7 +71,7 @@ func (q *Queries) CreateUserSkill(ctx context.Context, arg CreateUserSkillParams
 }
 
 const getUser = `-- name: GetUser :one
-SELECT userid, email, mobilenumber, resumelink, created_at, updated_at FROM users
+SELECT userid, email, mobilenumber, resumelink, google_id, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
 `
 
@@ -82,27 +83,11 @@ func (q *Queries) GetUser(ctx context.Context, userid string) (User, error) {
 		&i.Email,
 		&i.Mobilenumber,
 		&i.Resumelink,
+		&i.GoogleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const getUserPost = `-- name: GetUserPost :one
-SELECT postId FROM posts
-WHERE postId = ? AND userId = ?
-`
-
-type GetUserPostParams struct {
-	Postid string
-	Userid string
-}
-
-func (q *Queries) GetUserPost(ctx context.Context, arg GetUserPostParams) (string, error) {
-	row := q.db.QueryRowContext(ctx, getUserPost, arg.Postid, arg.Userid)
-	var postid string
-	err := row.Scan(&postid)
-	return postid, err
 }
 
 const getUserSkillsByUserId = `-- name: GetUserSkillsByUserId :many
