@@ -106,8 +106,6 @@ export const useQuery = <Path extends keyof QueryType>(
         credentials: "include",
       });
 
-      console.log("DATA", result);
-
       // Cache the result
       await setCacheData(apiUrl, result);
 
