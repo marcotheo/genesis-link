@@ -51,9 +51,8 @@ export const useQuery = <Path extends keyof QueryType>(
     // build Query String
     const searchParams = new URLSearchParams();
     if (!!params.queryStrings)
-      for (const key in params.queryStrings) {
-        searchParams.append(key, (params.queryStrings as any)[key].value);
-      }
+      for (const key in params.queryStrings)
+        searchParams.append(key, (params.queryStrings as any)[key]);
 
     // build api path
     let [_, apiPath] = apiKey.split(" ") ?? ["GET", ""];
@@ -150,12 +149,6 @@ export const useQuery = <Path extends keyof QueryType>(
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
-    // Cache the default values as well, if provided
-    if (!!options?.defaultValues) {
-      const apiUrl = await getApiUrl();
-      setCacheData(apiUrl, options.defaultValues);
-    }
-
     if (options?.runOnRender) refetch();
   });
 
