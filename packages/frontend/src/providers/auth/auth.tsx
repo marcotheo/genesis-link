@@ -43,7 +43,7 @@ export default component$(() => {
     const refreshTokenJob = async () => {
       console.log("REFRESHING ACCESS TOKEN ...");
 
-      const response = await mutate(undefined, {
+      const response = await mutate(null, {
         credentials: "include",
       });
 
