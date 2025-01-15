@@ -45,7 +45,7 @@ export default component$(() => {
 
   const navigate = useNavigate();
 
-  const { mutate, state } = useMutate("/auth/signin");
+  const { mutate, state } = useMutate("POST /auth/signin");
 
   const [signInForm, { Form, Field }] = useForm<SignInForm>({
     loader: useFormLoader(),
