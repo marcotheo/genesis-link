@@ -131,78 +131,78 @@ export default component$(() => {
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
           <FieldArray name="skills">
             {(fieldArray) => (
-              <div
-                id={fieldArray.name}
-                class={cn("rounded-lg", "bg-surface", "space-y-5")}
-              >
-                {fieldArray.items.map((item, idx) => (
-                  <div
-                    key={item}
-                    class={cn(
-                      "flex flex-col min-[550px]:flex-row",
-                      "gap-3 items-start",
-                      "animate-fade-in-slide ",
-                    )}
-                  >
-                    <Field name={`${fieldArray.name}.${idx}.skillName`}>
-                      {(field, props) => (
-                        <Input
-                          {...props}
-                          label="skill name *"
-                          errorMsg={field.error}
-                          value={field.value}
-                          required
-                        />
+              <div id={fieldArray.name}>
+                <div
+                  class={cn("space-y-5 py-3 px-1", "max-h-56 overflow-y-auto")}
+                >
+                  {fieldArray.items.map((item, idx) => (
+                    <div
+                      key={item}
+                      class={cn(
+                        "flex flex-col min-[550px]:flex-row",
+                        "gap-3 items-start",
+                        "animate-fade-in-slide ",
                       )}
-                    </Field>
-
-                    <Field name={`${fieldArray.name}.${idx}.skillLevel`}>
-                      {(field, props) => (
-                        <ThemedSelect
-                          {...props}
-                          name={field.name}
-                          label="skill level"
-                          value={field.value}
-                          errorMsg={field.error}
-                          options={[
-                            { label: "Beginner", value: "beginner" },
-                            { label: "Intermediate", value: "intermediate" },
-                            { label: "Advanced", value: "advanced" },
-                          ]}
-                        />
-                      )}
-                    </Field>
-
-                    <Field name={`${fieldArray.name}.${idx}.skillCategory`}>
-                      {(field, props) => (
-                        <Input
-                          {...props}
-                          label="skill category"
-                          errorMsg={field.error}
-                          value={field.value}
-                        />
-                      )}
-                    </Field>
-
-                    <div class="h-[50px]">
-                      <Button
-                        type="button"
-                        class={cn(
-                          "h-full",
-                          "bg-destructive hover:bg-destructive hover:brightness-125",
+                    >
+                      <Field name={`${fieldArray.name}.${idx}.skillName`}>
+                        {(field, props) => (
+                          <Input
+                            {...props}
+                            label="skill name *"
+                            errorMsg={field.error}
+                            value={field.value}
+                            required
+                          />
                         )}
-                        onClick$={() =>
-                          remove(form, "skills", {
-                            at: idx,
-                          })
-                        }
-                      >
-                        <TbTrash />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                      </Field>
 
+                      <Field name={`${fieldArray.name}.${idx}.skillLevel`}>
+                        {(field, props) => (
+                          <ThemedSelect
+                            {...props}
+                            name={field.name}
+                            label="skill level"
+                            value={field.value}
+                            errorMsg={field.error}
+                            options={[
+                              { label: "Beginner", value: "beginner" },
+                              { label: "Intermediate", value: "intermediate" },
+                              { label: "Advanced", value: "advanced" },
+                            ]}
+                          />
+                        )}
+                      </Field>
+
+                      <Field name={`${fieldArray.name}.${idx}.skillCategory`}>
+                        {(field, props) => (
+                          <Input
+                            {...props}
+                            label="skill category"
+                            errorMsg={field.error}
+                            value={field.value}
+                          />
+                        )}
+                      </Field>
+
+                      <div class="h-[50px]">
+                        <Button
+                          type="button"
+                          class={cn(
+                            "h-full",
+                            "bg-destructive hover:bg-destructive hover:brightness-125",
+                          )}
+                          onClick$={() =>
+                            remove(form, "skills", {
+                              at: idx,
+                            })
+                          }
+                        >
+                          <TbTrash />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
                 <Button
                   type="button"
                   onClick$={() => {
