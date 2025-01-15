@@ -1,5 +1,6 @@
-// GET API /api/v1/users/{userId}
+// GET API /users/{userId}
 export interface GetUserAPI {
+  queryString: null;
   parameters: null;
   response: {
     status: string;
@@ -22,8 +23,9 @@ type UserSkill = {
   skillCategory: string;
 };
 
-// GET API /api/v1/users/skills
+// GET API /users/skills
 export interface GetUserSkillsApi {
+  queryString: null;
   parameters: null;
   response: {
     status: string;
@@ -34,7 +36,7 @@ export interface GetUserSkillsApi {
   };
 }
 
-// POST API /api/v1/users/skills
+// POST API /users/skills
 export interface CreateUserSkillsApi {
   parameters: {
     skills: {
