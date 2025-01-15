@@ -1,6 +1,6 @@
 // GET API /users/{userId}
 export interface GetUserAPI {
-  queryString: null;
+  queryStrings: null;
   parameters: null;
   response: {
     status: string;
@@ -25,7 +25,7 @@ type UserSkill = {
 
 // GET API /users/skills
 export interface GetUserSkillsApi {
-  queryString: null;
+  queryStrings: null;
   parameters: null;
   response: {
     status: string;

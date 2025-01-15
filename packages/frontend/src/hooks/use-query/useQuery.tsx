@@ -6,7 +6,6 @@ import {
   useVisibleTask$,
 } from "@builder.io/qwik";
 import { isServer } from "@builder.io/qwik/build";
-import { Signal } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
 import { qwikFetch } from "~/common/utils";
@@ -19,15 +18,13 @@ export interface FetchState<T> {
   success: boolean;
 }
 
+type ExtractUrlParams<T> = T extends null ? null : NonNullable<T>;
+
 export const useQuery = <Path extends keyof QueryType>(
   apiKey: Path,
   params: {
-    urlParams: QueryType[Path]["parameters"] extends null
-      ? null
-      : Record<string, Signal<NonNullable<QueryType[Path]["parameters"]>>>;
-    queryStrings: QueryType[Path]["queryString"] extends null
-      ? null
-      : Record<string, Signal<NonNullable<QueryType[Path]["queryString"]>>>;
+    urlParams: ExtractUrlParams<QueryType[Path]["parameters"]>;
+    queryStrings: ExtractUrlParams<QueryType[Path]["queryStrings"]>;
   },
   options?: {
     defaultValues?: QueryType[Path]["response"] | null;
@@ -132,13 +129,13 @@ export const useQuery = <Path extends keyof QueryType>(
 
   useTask$(async ({ track }) => {
     if (params.urlParams !== null)
-      for (const key in params.urlParams) {
-        track(() => params.urlParams![key].value);
+      for (const key in params.urlParams as any) {
+        track(() => (params.urlParams as any)[key]);
       }
 
     if (params.queryStrings !== null)
-      for (const key in params.queryStrings) {
-        track(() => params.queryStrings![key].value);
+      for (const key in params.queryStrings as any) {
+        track(() => (params.queryStrings as any)[key]);
       }
 
     // Track cached result

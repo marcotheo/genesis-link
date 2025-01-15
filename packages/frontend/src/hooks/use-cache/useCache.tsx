@@ -10,15 +10,13 @@ export interface FetchState<T> {
   success: boolean;
 }
 
+type ExtractUrlParams<T> = T extends null ? null : NonNullable<T>;
+
 export const useCache = <Path extends keyof QueryType>(
   apiKey: Path,
   params: {
-    urlParams: QueryType[Path]["parameters"] extends null
-      ? null
-      : Record<string, Signal<NonNullable<QueryType[Path]["parameters"]>>>;
-    queryStrings: QueryType[Path]["queryString"] extends null
-      ? null
-      : Record<string, Signal<NonNullable<QueryType[Path]["queryString"]>>>;
+    urlParams: ExtractUrlParams<QueryType[Path]["parameters"]>;
+    queryStrings: ExtractUrlParams<QueryType[Path]["queryStrings"]>;
   },
   options?: {
     cacheTime?: number; // in milliseconds

@@ -100,8 +100,8 @@ type OrganizationPartial struct {
 }
 
 type GetOrgsByUserIdResponse struct {
-	Organizations []OrganizationPartial
-	Total         int64
+	Organizations []OrganizationPartial `json:"organizations"`
+	Total         int64                 `json:"total"`
 }
 
 func (h *OrgHandler) GetOrgsByUserId(w http.ResponseWriter, r *http.Request) {

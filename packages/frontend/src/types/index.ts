@@ -1,5 +1,6 @@
 import { CreateUserSkillsApi, GetUserSkillsApi } from "./users";
 import { RefreshTokenApi, SignInApi, SignUpApi } from "./auth";
+import { GetOrganizationsByUserIdApi } from "./organizations";
 
 export interface MutationsType {
   "POST /auth/signin": SignInApi;
@@ -11,4 +12,5 @@ export interface MutationsType {
 
 export interface QueryType {
   "GET /users/skills": GetUserSkillsApi;
+  "GET /organizations": GetOrganizationsByUserIdApi;
 }
