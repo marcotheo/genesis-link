@@ -7,12 +7,11 @@ import {
   valiForm$,
 } from "@modular-forms/qwik";
 import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
-import { $, component$, useContext } from "@builder.io/qwik";
+import { $, component$ } from "@builder.io/qwik";
 import { Modal } from "@qwik-ui/headless";
 import * as v from "valibot";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { QueryContext } from "~/providers/query/query";
 import { useToast } from "~/hooks/use-toast/useToast";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
@@ -21,7 +20,7 @@ import * as TModal from "~/components/themed-modal/themed-modal";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 
-import { GetAPIMapping } from "~/common/types";
+import { useCache } from "~/hooks/use-cache/useCache";
 import { cn } from "~/common/utils";
 
 const schema = v.object({
@@ -37,10 +36,10 @@ const schema = v.object({
 type SchemaType = v.InferInput<typeof schema>;
 
 export default component$(() => {
-  const { setCacheData } = useContext(QueryContext);
   const toast = useToast();
 
-  const { mutate } = useMutate("/users/create/skills");
+  const { setCacheData } = useCache("GET /users/skills");
+  const { mutate } = useMutate("POST /users/skills");
 
   const [form, { Form, Field, FieldArray }] = useForm<SchemaType>({
     loader: {
@@ -67,16 +66,12 @@ export default component$(() => {
       if (response.error) throw response.error;
 
       if (response.result) {
-        await setCacheData("/users/skills", (currentData) => {
-          const temp = currentData as unknown as
-            | GetAPIMapping["/users/skills"]
-            | null;
+        await setCacheData((cached) => {
+          const newResult = cached ? cached : response.result;
 
-          const newResult = temp ? temp : response.result;
-
-          if (temp)
+          if (cached)
             newResult.data.skills = [
-              ...temp.data.skills,
+              ...cached.data.skills,
               ...response.result.data.skills,
             ];
 
