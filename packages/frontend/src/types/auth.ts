@@ -1,4 +1,4 @@
-// POST API /api/v1/auth/signin
+// POST API /auth/signin
 export interface SignInApi {
   parameters: {
     email: string;
@@ -13,7 +13,7 @@ export interface SignInApi {
   };
 }
 
-// POST API /api/v1/auth/create
+// POST API /auth/create
 export interface SignUpApi {
   parameters: { email: string; password: string };
   response: {
@@ -22,6 +22,18 @@ export interface SignUpApi {
     data: {
       email: string;
       password: string;
+    };
+  };
+}
+
+// POST API /auth/token/refresh
+export interface RefreshTokenApi {
+  parameters: null;
+  response: {
+    status: string;
+    message: string;
+    data: {
+      ExpiresIn: number;
     };
   };
 }

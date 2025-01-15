@@ -20,7 +20,7 @@ export const AuthContext = createContextId<AuthState>("auth.context");
 export default component$(() => {
   const authState = useStore<AuthState>({ ExpiresIn: null });
 
-  const { mutate } = useMutate<RefreshResponse>("/auth/token/refresh");
+  const { mutate } = useMutate("POST /auth/token/refresh");
 
   const getCookie = $((name: string) => {
     const value = `; ${document.cookie}`;
