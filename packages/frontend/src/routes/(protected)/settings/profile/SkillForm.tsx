@@ -38,7 +38,10 @@ type SchemaType = v.InferInput<typeof schema>;
 export default component$(() => {
   const toast = useToast();
 
-  const { setCacheData } = useCache("GET /users/skills");
+  const { setCacheData } = useCache("GET /users/skills", {
+    urlParams: null,
+    queryStrings: null,
+  });
   const { mutate } = useMutate("POST /users/skills");
 
   const [form, { Form, Field, FieldArray }] = useForm<SchemaType>({
@@ -71,7 +74,7 @@ export default component$(() => {
 
           if (cached)
             newResult.data.skills = [
-              ...cached.data.skills,
+              ...(cached.data.skills ?? []),
               ...response.result.data.skills,
             ];
 
@@ -162,9 +165,9 @@ export default component$(() => {
                           value={field.value}
                           errorMsg={field.error}
                           options={[
-                            { label: "Beginner", value: "Beginner" },
-                            { label: "Intermediate", value: "Intermediate" },
-                            { label: "Advanced", value: "Advanced" },
+                            { label: "Beginner", value: "beginner" },
+                            { label: "Intermediate", value: "intermediate" },
+                            { label: "Advanced", value: "advanced" },
                           ]}
                         />
                       )}

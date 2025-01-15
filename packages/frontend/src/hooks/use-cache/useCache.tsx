@@ -1,4 +1,4 @@
-import { $, useContext } from "@builder.io/qwik";
+import { $, Signal, useContext } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
 import { QueryType } from "~/types";
@@ -11,7 +11,15 @@ export interface FetchState<T> {
 }
 
 export const useCache = <Path extends keyof QueryType>(
-  key: Path,
+  apiKey: Path,
+  params: {
+    urlParams: QueryType[Path]["parameters"] extends null
+      ? null
+      : Record<string, Signal<NonNullable<QueryType[Path]["parameters"]>>>;
+    queryStrings: QueryType[Path]["queryString"] extends null
+      ? null
+      : Record<string, Signal<NonNullable<QueryType[Path]["queryString"]>>>;
+  },
   options?: {
     cacheTime?: number; // in milliseconds
   },
@@ -20,8 +28,32 @@ export const useCache = <Path extends keyof QueryType>(
 
   const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
 
-  const getCachedData = $(() => {
-    const cached = queryCtx.cache[key];
+  const getApiUrl = $((): string => {
+    // build Query String
+    const searchParams = new URLSearchParams();
+    if (!!params.queryStrings)
+      for (const key in params.queryStrings) {
+        searchParams.append(key, (params.queryStrings as any)[key].value);
+      }
+
+    // build api path
+    let [_, apiPath] = apiKey.split(" ") ?? ["GET", ""];
+
+    // update parameters inside the api path
+    if (apiPath.includes("{") && apiPath.includes("}"))
+      apiPath = apiPath.replace(
+        /\{(\w+)\}/g,
+        (_, key) => (params.urlParams as any)[key] || `{${key}}`,
+      );
+
+    return (
+      apiPath + (searchParams.size > 0 ? `?${searchParams.toString()}` : "")
+    );
+  });
+
+  const getCachedData = $(async () => {
+    const apiUrl = await getApiUrl();
+    const cached = queryCtx.cache[apiUrl];
 
     if (cached && Date.now() - cached.timestamp < cachedTime) {
       return cached.data as QueryType[Path]["response"];
@@ -31,15 +63,19 @@ export const useCache = <Path extends keyof QueryType>(
   });
 
   const setCacheData = $(
-    (
+    async (
       callback: (
         cached: QueryType[Path]["response"] | null,
       ) => QueryType[Path]["response"] | null,
     ) => {
-      // Retrieve existing data or default to null
-      const newData = callback(queryCtx.cache[key]?.data ?? null);
+      const apiUrl = await getApiUrl();
 
-      queryCtx.cache[key] = {
+      // Retrieve existing data or default to null
+      const newData = callback(queryCtx.cache[apiUrl]?.data ?? null);
+
+      console.log("NEW CACHE", newData);
+
+      queryCtx.cache[apiUrl] = {
         data: newData,
         timestamp: Date.now(),
       };

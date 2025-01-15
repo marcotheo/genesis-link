@@ -20,12 +20,11 @@ export interface FetchState<T> {
 }
 
 export const useQuery = <Path extends keyof QueryType>(
-  url: Path,
+  apiKey: Path,
   params: {
     urlParams: QueryType[Path]["parameters"] extends null
       ? null
       : Record<string, Signal<NonNullable<QueryType[Path]["parameters"]>>>;
-
     queryStrings: QueryType[Path]["queryString"] extends null
       ? null
       : Record<string, Signal<NonNullable<QueryType[Path]["queryString"]>>>;
@@ -54,12 +53,13 @@ export const useQuery = <Path extends keyof QueryType>(
   const getApiUrl = $((): string => {
     // build Query String
     const searchParams = new URLSearchParams();
-    for (const key in params.queryStrings) {
-      searchParams.append(key, (params.queryStrings as any)[key].value);
-    }
+    if (!!params.queryStrings)
+      for (const key in params.queryStrings) {
+        searchParams.append(key, (params.queryStrings as any)[key].value);
+      }
 
     // build api path
-    let [_, apiPath] = url.split(" ") ?? ["GET", ""];
+    let [_, apiPath] = apiKey.split(" ") ?? ["GET", ""];
 
     // update parameters inside the api path
     if (apiPath.includes("{") && apiPath.includes("}"))
@@ -110,8 +110,10 @@ export const useQuery = <Path extends keyof QueryType>(
         credentials: "include",
       });
 
+      console.log("DATA", result);
+
       // Cache the result
-      await setCacheData(url, result);
+      await setCacheData(apiUrl, result);
 
       state.result = result;
       state.success = true;
@@ -128,7 +130,7 @@ export const useQuery = <Path extends keyof QueryType>(
     }
   });
 
-  useTask$(({ track }) => {
+  useTask$(async ({ track }) => {
     if (params.urlParams !== null)
       for (const key in params.urlParams) {
         track(() => params.urlParams![key].value);
@@ -140,7 +142,8 @@ export const useQuery = <Path extends keyof QueryType>(
       }
 
     // Track cached result
-    track(() => queryCtx.cache[url]);
+    const apiUrl = await getApiUrl();
+    track(() => queryCtx.cache[apiUrl]);
 
     if (isServer) return;
 
