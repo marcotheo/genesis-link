@@ -167,7 +167,7 @@ func (h *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 
 type SkillParams struct {
 	SkillName     string `json:"skillName" validate:"required"`
-	SkillLevel    string `json:"skillLevel" validate:"omitempty,oneof=Beginner Intermediate Advanced"` // Optional, must be one of the valid levels if present
+	SkillLevel    string `json:"skillLevel" validate:"omitempty,oneof=beginner intermediate advanced"` // Optional, must be one of the valid levels if present
 	SkillCategory string `json:"skillCategory" validate:"omitempty"`
 }
 
