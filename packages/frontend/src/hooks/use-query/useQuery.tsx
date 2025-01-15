@@ -5,12 +5,12 @@ import {
   useContext,
   useVisibleTask$,
 } from "@builder.io/qwik";
+import { isServer } from "@builder.io/qwik/build";
 import { Signal } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
-import { isServer } from "@builder.io/qwik/build";
-import { GetAPIMapping } from "~/common/types";
 import { qwikFetch } from "~/common/utils";
+import { QueryType } from "~/types";
 
 export interface FetchState<T> {
   result: T | null;
@@ -19,32 +19,58 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useQuery = <Path extends keyof GetAPIMapping>(
+export const useQuery = <Path extends keyof QueryType>(
   url: Path,
-  signalObject: Record<string, Signal<any>>,
+  params: {
+    urlParams: QueryType[Path]["parameters"] extends null
+      ? null
+      : Record<string, Signal<NonNullable<QueryType[Path]["parameters"]>>>;
+
+    queryStrings: QueryType[Path]["queryString"] extends null
+      ? null
+      : Record<string, Signal<NonNullable<QueryType[Path]["queryString"]>>>;
+  },
   options?: {
-    defaultValues?: GetAPIMapping[Path] | null;
+    defaultValues?: QueryType[Path]["response"] | null;
     cacheTime?: number; // in milliseconds
     runOnRender?: boolean;
   },
 ) => {
   const queryCtx = useContext(QueryContext);
-
   const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
 
-  const state = useStore<FetchState<GetAPIMapping[Path]>>({
+  const state = useStore<{
+    result: QueryType[Path]["response"] | null;
+    loading: boolean | null;
+    error: null | string;
+    success: boolean;
+  }>({
     result: options?.defaultValues ?? null,
     loading: options?.runOnRender ? true : null,
     error: null,
     success: false,
   });
 
-  const buildQueryString = $((params: Record<string, Signal<any>>): string => {
-    const query = new URLSearchParams();
-    for (const key in params) {
-      query.append(key, params[key].value);
+  const getApiUrl = $((): string => {
+    // build Query String
+    const searchParams = new URLSearchParams();
+    for (const key in params.queryStrings) {
+      searchParams.append(key, (params.queryStrings as any)[key].value);
     }
-    return query.toString();
+
+    // build api path
+    let [_, apiPath] = url.split(" ") ?? ["GET", ""];
+
+    // update parameters inside the api path
+    if (apiPath.includes("{") && apiPath.includes("}"))
+      apiPath = apiPath.replace(
+        /\{(\w+)\}/g,
+        (_, key) => (params.urlParams as any)[key] || `{${key}}`,
+      );
+
+    return (
+      apiPath + (searchParams.size > 0 ? `?${searchParams.toString()}` : "")
+    );
   });
 
   const getCachedData = $((key: string) => {
@@ -52,10 +78,11 @@ export const useQuery = <Path extends keyof GetAPIMapping>(
     if (cached && Date.now() - cached.timestamp < cachedTime) {
       return cached.data;
     }
+
     return null;
   });
 
-  const setCacheData = $((key: string, data: GetAPIMapping[Path]) => {
+  const setCacheData = $((key: string, data: QueryType[Path]["response"]) => {
     queryCtx.cache[key] = {
       data,
       timestamp: Date.now(),
@@ -66,12 +93,10 @@ export const useQuery = <Path extends keyof GetAPIMapping>(
     state.loading = true;
     state.error = null;
 
-    const queryString = await buildQueryString(signalObject);
-
-    const urlFetch = `${url}?${queryString}`;
+    const apiUrl = await getApiUrl();
 
     // Check the cache first
-    const cachedResult = await getCachedData(url);
+    const cachedResult = await getCachedData(apiUrl);
     if (cachedResult) {
       state.result = cachedResult;
       state.success = true;
@@ -80,8 +105,8 @@ export const useQuery = <Path extends keyof GetAPIMapping>(
     }
 
     try {
-      const result = await qwikFetch<GetAPIMapping[Path]>(urlFetch, {
-        method: "GET", // Adjust method if needed
+      const result = await qwikFetch<QueryType[Path]["response"]>(apiUrl, {
+        method: "GET",
         credentials: "include",
       });
 
@@ -104,17 +129,22 @@ export const useQuery = <Path extends keyof GetAPIMapping>(
   });
 
   useTask$(({ track }) => {
-    // Track all signals within the signalObject
-    for (const key in signalObject) {
-      track(() => signalObject[key].value);
-    }
+    if (params.urlParams !== null)
+      for (const key in params.urlParams) {
+        track(() => params.urlParams![key].value);
+      }
+
+    if (params.queryStrings !== null)
+      for (const key in params.queryStrings) {
+        track(() => params.queryStrings![key].value);
+      }
 
     // Track cached result
     track(() => queryCtx.cache[url]);
 
-    // Execute the query when any of the signals change
     if (isServer) return;
 
+    // Execute the query when any of the signals change
     refetch();
   });
 
@@ -122,9 +152,8 @@ export const useQuery = <Path extends keyof GetAPIMapping>(
   useVisibleTask$(async () => {
     // Cache the default values as well, if provided
     if (!!options?.defaultValues) {
-      const queryString = await buildQueryString(signalObject);
-      const cacheUrl = `${url}?${queryString}`;
-      setCacheData(cacheUrl, options.defaultValues);
+      const apiUrl = await getApiUrl();
+      setCacheData(apiUrl, options.defaultValues);
     }
 
     if (options?.runOnRender) refetch();
