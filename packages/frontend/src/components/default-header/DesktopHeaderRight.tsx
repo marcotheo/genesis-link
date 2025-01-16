@@ -8,10 +8,9 @@ import Menu, {
   DropDownMenuLabel,
   DropDownSeparator,
 } from "~/components/drop-down/drop-down";
-import Button from "~/components/button/button";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { useAuthCheck } from "../../../layout";
+import { useAuthCheck } from "~/routes/layout";
 import { cn } from "~/common/utils";
 
 const Logout = component$(() => {

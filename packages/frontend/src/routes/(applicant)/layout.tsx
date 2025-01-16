@@ -1,7 +1,7 @@
 import { RequestHandler } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
 
-import Header from "./Header/Header";
+import DefaultHeader from "~/components/default-header/default-header.tsx";
 import { cn } from "~/common/utils";
 
 export const onRequest: RequestHandler = async ({ sharedMap, redirect }) => {
@@ -13,7 +13,7 @@ export default component$(() => {
   return (
     <div class="h-screen flex flex-col">
       <div class={cn("min-[350px]:px-5 sm:px-12 2xl:px-52")}>
-        <Header />
+        <DefaultHeader />
       </div>
 
       <div class="grow overflow-auto">

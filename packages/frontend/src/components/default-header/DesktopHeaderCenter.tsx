@@ -37,6 +37,11 @@ const CenterHeaderItem = component$<{ title: string; to: string }>(
 );
 
 export default component$(() => {
+  const location = useLocation();
+  const locationPathname = location.url.pathname;
+
+  if (locationPathname.includes("employer")) return null;
+
   return (
     <div class={cn("flex items-center gap-12 max-lg:hidden")}>
       <CenterHeaderItem title="profile" to="/settings/profile" />
