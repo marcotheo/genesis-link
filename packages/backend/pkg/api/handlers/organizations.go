@@ -28,11 +28,11 @@ func InitOrgHandler(dataService *services.DataService, utilService *services.Uti
 }
 
 type CreateOrgParams struct {
-	Company      string `json:"company" validate:"required"`
-	Email        string `json:"email" validate:"required"`
-	MobileNumber string `json:"mobileNumber" validate:"required"`
-	BannerLink   string `json:"bannerLink"`
-	LogoLink     string `json:"logoLink"`
+	Company       string `json:"company" validate:"required"`
+	Email         string `json:"email" validate:"required"`
+	ContactNumber string `json:"contactNumber"`
+	BannerLink    string `json:"bannerLink"`
+	LogoLink      string `json:"logoLink"`
 }
 
 type CreateOrgResponse struct {

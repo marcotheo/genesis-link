@@ -24,7 +24,7 @@ root-build:
 	zip -r deployment.zip server bootstrap
 
 migration:
-	goose -dir ${MIG_DIR} create $(name) sql
+	goose -dir ${MIG_DIR} create $(NAME) sql
 
 db-status:
 	goose -dir ${MIG_DIR} turso $(DB_URL) status

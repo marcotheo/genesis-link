@@ -4,7 +4,7 @@ CREATE TABLE organizations (
     orgId TEXT NOT NULL PRIMARY KEY,
     company TEXT NOT NULL,
     email TEXT NOT NULL,
-    mobileNumber TEXT,
+    contactNumber TEXT,
     bannerLink TEXT,
     logoLink TEXT,
     userId TEXT NOT NULL,
