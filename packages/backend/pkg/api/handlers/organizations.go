@@ -31,7 +31,7 @@ type CreateOrgParams struct {
 	Company      string `json:"company" validate:"required"`
 	Email        string `json:"email" validate:"required"`
 	MobileNumber string `json:"mobileNumber" validate:"required"`
-	PosterLink   string `json:"posterLink"`
+	BannerLink   string `json:"bannerLink"`
 	LogoLink     string `json:"logoLink"`
 }
 
@@ -79,6 +79,8 @@ func (h *OrgHandler) CreateOrg(w http.ResponseWriter, r *http.Request) {
 
 	dbData.Orgid = orgId
 	dbData.Userid = userId
+	dbData.Bannerlink = h.utilService.StringToNullString(params.BannerLink)
+	dbData.Logolink = h.utilService.StringToNullString(params.LogoLink)
 
 	errQ := h.dataService.Queries.CreateOrganization(context.Background(), dbData)
 	if errQ != nil {
