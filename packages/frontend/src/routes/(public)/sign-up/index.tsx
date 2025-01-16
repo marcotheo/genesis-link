@@ -20,6 +20,8 @@ import Alert from "~/components/alert/alert";
 
 const SignUpSchema = v.pipe(
   v.object({
+    firstName: v.pipe(v.string(), v.nonEmpty("Please enter first name.")),
+    lastName: v.pipe(v.string(), v.nonEmpty("Please enter last name.")),
     email: v.pipe(
       v.string(),
       v.nonEmpty("Please enter your email."),
@@ -69,6 +71,8 @@ const SignUpSchema = v.pipe(
 type SignUpForm = v.InferInput<typeof SignUpSchema>;
 
 export const useFormLoader = routeLoader$<InitialValues<SignUpForm>>(() => ({
+  firstName: "",
+  lastName: "",
   email: "",
   password: "",
   confirmPassword: "",
@@ -76,7 +80,7 @@ export const useFormLoader = routeLoader$<InitialValues<SignUpForm>>(() => ({
 }));
 
 export default component$(() => {
-  const { mutate, state } = useMutate("POST /auth/create");
+  const { mutate, state } = useMutate("POST /auth/register");
 
   const [signUpForm, { Form, Field }] = useForm<SignUpForm>({
     loader: useFormLoader(),
@@ -86,6 +90,8 @@ export default component$(() => {
   const handleSubmit = $<SubmitHandler<SignUpForm>>(async (values) => {
     try {
       const response = await mutate({
+        firstName: values.firstName,
+        lastName: values.lastName,
         email: values.email,
         password: values.password,
       });
@@ -123,6 +129,31 @@ export default component$(() => {
         />
 
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
+          <div class="flex gap-3">
+            <Field name="firstName">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="First Name"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              )}
+            </Field>
+            <Field name="lastName">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="Last Name"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                />
+              )}
+            </Field>
+          </div>
+
           <Field name="email">
             {(field, props) => (
               <Input

@@ -5,7 +5,7 @@ import { GenerateS3SignedUrlPutApi } from "./s3";
 
 export interface MutationsType {
   "POST /auth/signin": SignInApi;
-  "POST /auth/create": SignUpApi;
+  "POST /auth/register": SignUpApi;
   "POST /auth/token/refresh": RefreshTokenApi;
   "POST /auth/session/revoke": RevokeTokenApi;
 

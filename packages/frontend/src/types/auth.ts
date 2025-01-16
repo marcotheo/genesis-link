@@ -15,7 +15,12 @@ export interface SignInApi {
 
 // POST API /auth/create
 export interface SignUpApi {
-  parameters: { email: string; password: string };
+  parameters: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  };
   response: {
     status: string;
     message: string;
