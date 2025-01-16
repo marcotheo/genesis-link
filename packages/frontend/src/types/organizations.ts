@@ -2,10 +2,19 @@ import { Signal } from "@builder.io/qwik";
 
 // POST API /organizations
 export interface CreateOrganizationApi {
-  status: string;
-  message: string;
-  data: {
-    orgId: string;
+  parameters: {
+    company: string;
+    email: string;
+    contactNumber?: string;
+    bannerLink?: string;
+    logoLink?: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      orgId: string;
+    };
   };
 }
 
