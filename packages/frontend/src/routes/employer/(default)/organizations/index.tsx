@@ -13,7 +13,7 @@ const TableSkeleton = component$(() => {
   return (
     <>
       {[...Array(5)].map((_, idx) => (
-        <div class="p-10 bg-soft rounded animate-pulse" />
+        <div key={idx} class="p-10 bg-soft rounded animate-pulse" />
       ))}
     </>
   );
