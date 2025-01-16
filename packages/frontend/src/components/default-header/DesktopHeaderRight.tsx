@@ -1,5 +1,5 @@
+import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
 import { TbChevronDown, TbUser } from "@qwikest/icons/tablericons";
-import { Link, useNavigate } from "@builder.io/qwik-city";
 import { $, component$ } from "@builder.io/qwik";
 
 import Menu, {
@@ -29,6 +29,32 @@ const Logout = component$(() => {
         Logout
       </button>
     </DropDownMenuItem>
+  );
+});
+
+const MenuItems = component$(() => {
+  const location = useLocation();
+  const locationPathname = location.url.pathname;
+
+  if (locationPathname.includes("employer"))
+    return (
+      <>
+        <DropDownMenuItemLink link="/employer/organizations">
+          Organizations
+        </DropDownMenuItemLink>
+        <DropDownMenuItemLink link="/employer/settings">
+          Settings
+        </DropDownMenuItemLink>
+      </>
+    );
+
+  return (
+    <>
+      <DropDownMenuItemLink link="/settings">Applications</DropDownMenuItemLink>
+      <DropDownMenuItemLink link="/settings/profile">
+        Settings
+      </DropDownMenuItemLink>
+    </>
   );
 });
 
@@ -68,19 +94,8 @@ export default component$(() => {
           </div>
 
           <DropDownMenuLabel q:slot="label">My Account</DropDownMenuLabel>
-          <DropDownMenuItemLink link="/organizations">
-            Organizations
-          </DropDownMenuItemLink>
-          <DropDownMenuItemLink link="/posts">Posts</DropDownMenuItemLink>
-          <DropDownMenuItemLink link="/settings">
-            Applications
-          </DropDownMenuItemLink>
-
+          <MenuItems />
           <DropDownSeparator />
-
-          <DropDownMenuItemLink link="/settings/profile">
-            Settings
-          </DropDownMenuItemLink>
           <Logout />
         </Menu>
       </>
