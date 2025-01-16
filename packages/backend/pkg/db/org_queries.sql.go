@@ -15,7 +15,7 @@ INSERT INTO organizations (
     orgId, 
     company, 
     email, 
-    mobileNumber, 
+    contactNumber, 
     bannerLink, 
     logoLink,
     userId
@@ -25,13 +25,13 @@ INSERT INTO organizations (
 `
 
 type CreateOrganizationParams struct {
-	Orgid        string
-	Company      string
-	Email        string
-	Mobilenumber sql.NullString
-	Bannerlink   sql.NullString
-	Logolink     sql.NullString
-	Userid       string
+	Orgid         string
+	Company       string
+	Email         string
+	Contactnumber sql.NullString
+	Bannerlink    sql.NullString
+	Logolink      sql.NullString
+	Userid        string
 }
 
 func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganizationParams) error {
@@ -39,7 +39,7 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 		arg.Orgid,
 		arg.Company,
 		arg.Email,
-		arg.Mobilenumber,
+		arg.Contactnumber,
 		arg.Bannerlink,
 		arg.Logolink,
 		arg.Userid,

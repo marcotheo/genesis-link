@@ -3,7 +3,7 @@ INSERT INTO organizations (
     orgId, 
     company, 
     email, 
-    mobileNumber, 
+    contactNumber, 
     bannerLink, 
     logoLink,
     userId

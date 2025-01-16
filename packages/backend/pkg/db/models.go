@@ -40,15 +40,15 @@ type JobDetail struct {
 }
 
 type Organization struct {
-	Orgid        string
-	Company      string
-	Email        string
-	Mobilenumber sql.NullString
-	Bannerlink   sql.NullString
-	Logolink     sql.NullString
-	Userid       string
-	CreatedAt    sql.NullTime
-	UpdatedAt    interface{}
+	Orgid         string
+	Company       string
+	Email         string
+	Contactnumber sql.NullString
+	Bannerlink    sql.NullString
+	Logolink      sql.NullString
+	Userid        string
+	CreatedAt     sql.NullTime
+	UpdatedAt     interface{}
 }
 
 type Post struct {
