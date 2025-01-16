@@ -1,5 +1,7 @@
 CREATE TABLE users (
     userId TEXT NOT NULL PRIMARY KEY,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
     email TEXT NOT NULL,
     mobileNumber TEXT,
     resumeLink TEXT,

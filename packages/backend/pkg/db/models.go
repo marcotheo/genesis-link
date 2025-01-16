@@ -83,6 +83,8 @@ type PostTag struct {
 
 type User struct {
 	Userid       string
+	Firstname    string
+	Lastname     string
 	Email        string
 	Mobilenumber sql.NullString
 	Resumelink   sql.NullString

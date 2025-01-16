@@ -12,23 +12,32 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  userId, email
+  userId, email, firstName, lastName
 ) VALUES (
-  ?, ?
+  ?, ?, ?, ?
 )
-RETURNING userid, email, mobilenumber, resumelink, google_id, created_at, updated_at
+RETURNING userid, firstname, lastname, email, mobilenumber, resumelink, google_id, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Userid string
-	Email  string
+	Userid    string
+	Email     string
+	Firstname string
+	Lastname  string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Userid, arg.Email)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Userid,
+		arg.Email,
+		arg.Firstname,
+		arg.Lastname,
+	)
 	var i User
 	err := row.Scan(
 		&i.Userid,
+		&i.Firstname,
+		&i.Lastname,
 		&i.Email,
 		&i.Mobilenumber,
 		&i.Resumelink,
@@ -71,7 +80,7 @@ func (q *Queries) CreateUserSkill(ctx context.Context, arg CreateUserSkillParams
 }
 
 const getUser = `-- name: GetUser :one
-SELECT userid, email, mobilenumber, resumelink, google_id, created_at, updated_at FROM users
+SELECT userid, firstname, lastname, email, mobilenumber, resumelink, google_id, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
 `
 
@@ -80,6 +89,8 @@ func (q *Queries) GetUser(ctx context.Context, userid string) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.Userid,
+		&i.Firstname,
+		&i.Lastname,
 		&i.Email,
 		&i.Mobilenumber,
 		&i.Resumelink,

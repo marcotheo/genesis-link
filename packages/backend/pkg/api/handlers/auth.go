@@ -32,8 +32,10 @@ func InitAuthHandler(dataService *services.DataService, cognitoService *services
 }
 
 type CreateUserParamsValidation struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required"`
+	FirstName string `json:"firstName" validate:"required"`
+	LastName  string `json:"lastName" validate:"required"`
 }
 
 func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {

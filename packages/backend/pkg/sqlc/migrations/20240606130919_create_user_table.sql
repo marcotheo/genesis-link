@@ -2,6 +2,8 @@
 -- +goose StatementBegin
 CREATE TABLE users (
     userId TEXT NOT NULL PRIMARY KEY,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     mobileNumber TEXT,
     resumeLink TEXT,
