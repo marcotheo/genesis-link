@@ -26,7 +26,7 @@ CREATE TABLE organizations (
     company TEXT NOT NULL,
     email TEXT NOT NULL,
     mobileNumber TEXT,
-    posterLink TEXT,
+    bannerLink TEXT,
     logoLink TEXT,
     userId TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

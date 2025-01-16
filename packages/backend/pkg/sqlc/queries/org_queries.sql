@@ -4,7 +4,7 @@ INSERT INTO organizations (
     company, 
     email, 
     mobileNumber, 
-    posterLink, 
+    bannerLink, 
     logoLink,
     userId
 ) VALUES (

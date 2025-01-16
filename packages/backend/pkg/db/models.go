@@ -44,7 +44,7 @@ type Organization struct {
 	Company      string
 	Email        string
 	Mobilenumber sql.NullString
-	Posterlink   sql.NullString
+	Bannerlink   sql.NullString
 	Logolink     sql.NullString
 	Userid       string
 	CreatedAt    sql.NullTime
@@ -87,8 +87,8 @@ type User struct {
 	Mobilenumber sql.NullString
 	Resumelink   sql.NullString
 	GoogleID     sql.NullString
-	CreatedAt    interface{}
-	UpdatedAt    interface{}
+	CreatedAt    sql.NullTime
+	UpdatedAt    sql.NullTime
 }
 
 type UserSkill struct {
