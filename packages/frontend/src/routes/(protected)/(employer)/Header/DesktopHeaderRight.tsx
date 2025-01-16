@@ -11,19 +11,19 @@ import Menu, {
 import Button from "~/components/button/button";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { useAuthCheck } from "../layout";
+import { useAuthCheck } from "../../../layout";
 import { cn } from "~/common/utils";
 
 const Logout = component$(() => {
   const nav = useNavigate();
-  const { mutate } = useMutate("/auth/session/revoke");
+  const { mutate } = useMutate("POST /auth/session/revoke");
 
   return (
     <DropDownMenuItem>
       <button
         class="w-full h-full flex text-text"
         onClick$={$(async () => {
-          await mutate({}, { method: "DELETE", credentials: "include" });
+          await mutate(null, { method: "DELETE", credentials: "include" });
           nav("/sign-in");
         })}
       >

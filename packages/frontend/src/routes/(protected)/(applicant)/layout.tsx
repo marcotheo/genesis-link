@@ -1,7 +1,7 @@
 import { RequestHandler } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
 
-import Header from "~/routes/Header/Header";
+import Header from "./Header/Header";
 import { cn } from "~/common/utils";
 
 export const onRequest: RequestHandler = async ({ sharedMap, redirect }) => {

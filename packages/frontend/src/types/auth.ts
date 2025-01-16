@@ -37,3 +37,13 @@ export interface RefreshTokenApi {
     };
   };
 }
+
+// POST API /auth/session/revoke
+export interface RevokeTokenApi {
+  parameters: null;
+  response: {
+    status: string;
+    message: string;
+    data: null;
+  };
+}

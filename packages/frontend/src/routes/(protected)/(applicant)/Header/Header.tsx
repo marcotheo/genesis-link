@@ -1,10 +1,10 @@
 import { component$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
+import Image from "../../../../assets/images/logo.png?jsx";
 import DarkMode from "~/components/dark-mode/dark-mode";
 import DesktopHeaderCenter from "./DesktopHeaderCenter";
 import DesktopHeaderRight from "./DesktopHeaderRight";
-import Image from "../../assets/images/logo.png?jsx";
 import MobileDrawer from "./MobileDrawer";
 import { cn } from "~/common/utils";
 

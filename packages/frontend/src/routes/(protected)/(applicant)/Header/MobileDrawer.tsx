@@ -11,8 +11,8 @@ import { component$ } from "@builder.io/qwik";
 import Drawer, { DrawerLink } from "~/components/drawer/drawer";
 import Heading from "~/components/heading/heading";
 
-import Image from "../../assets/images/logo.png?jsx";
-import { useAuthCheck } from "../layout";
+import Image from "../../../../assets/images/logo.png?jsx";
+import { useAuthCheck } from "../../../layout";
 import { cn } from "~/common/utils";
 
 export default component$(() => {
