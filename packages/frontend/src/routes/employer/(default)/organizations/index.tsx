@@ -53,8 +53,9 @@ const Organizations = component$(() => {
       <>
         <div class={cn("max-h-96 overflow-y-auto", "space-y-2")}>
           {state.result.data.organizations.map((v) => (
-            <div
+            <Link
               key={v.orgId}
+              href={"/employer/organizations/dashboard/" + v.orgId}
               class={cn(
                 "bg-surface",
                 "w-full p-8",
@@ -67,7 +68,7 @@ const Organizations = component$(() => {
             >
               <Heading size="sm">{v.company}</Heading>
               <p>{dayjs.unix(v.createdAt).format("MMM DD, YYYY")}</p>
-            </div>
+            </Link>
           ))}
         </div>
 
