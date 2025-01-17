@@ -133,10 +133,12 @@ func (h *OrgHandler) GetOrgsByUserId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var limit int64 = 5
+
 	organizations, errQ := h.dataService.Queries.GetOrganizationsByUserId(context.Background(), db.GetOrganizationsByUserIdParams{
-		Offset: int64((page - 1) * 10),
+		Offset: int64((page - 1)) * limit,
 		Userid: userId,
-		Limit:  10,
+		Limit:  limit,
 	})
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(GET) GetOrgsByUserId => errQ %s \n", errQ))

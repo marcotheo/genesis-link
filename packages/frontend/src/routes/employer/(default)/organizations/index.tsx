@@ -21,6 +21,7 @@ const TableSkeleton = component$(() => {
 
 const Organizations = component$(() => {
   const page = useSignal(1);
+  const limit = 5;
 
   const { state } = useQuery(
     "GET /organizations",
@@ -53,6 +54,7 @@ const Organizations = component$(() => {
         <div class={cn("max-h-96 overflow-y-auto", "space-y-2")}>
           {state.result.data.organizations.map((v) => (
             <div
+              key={v.orgId}
               class={cn(
                 "bg-surface",
                 "w-full p-8",
@@ -73,7 +75,7 @@ const Organizations = component$(() => {
           <Pagination
             totalPages={
               state.result?.data.total
-                ? Math.ceil(state.result?.data.total / 10)
+                ? Math.ceil(state.result?.data.total / limit)
                 : 0
             }
             currentPage={page}
