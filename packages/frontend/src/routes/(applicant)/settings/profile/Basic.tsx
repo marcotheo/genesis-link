@@ -167,7 +167,6 @@ const Email = component$<{ value?: string }>(({ value }) => {
   const { mutate: updateInfo } = useMutate("PUT /users/update/info");
 
   const update = $(async () => {
-    if (!value) return;
     if (!store.value) return;
 
     store.loading = true;
@@ -234,7 +233,6 @@ const MobileNumber = component$<{ value?: string }>(({ value }) => {
   const { mutate: updateInfo } = useMutate("PUT /users/update/info");
 
   const update = $(async () => {
-    if (!value) return;
     if (!store.value) return;
 
     store.loading = true;
@@ -304,36 +302,16 @@ const AccountDetails = component$(() => {
   if (state.loading)
     return (
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div
-          class={cn(
-            "bg-soft relative rounded-md",
-            "w-full md:w-64 min-[1650px]:w-96",
-            "p-8 animate-pulse",
-          )}
-        />
-
-        <div
-          class={cn(
-            "bg-soft relative rounded-md",
-            "w-full md:w-64 min-[1650px]:w-96",
-            "p-8 animate-pulse",
-          )}
-        />
-        <div
-          class={cn(
-            "bg-soft relative rounded-md",
-            "w-full md:w-64 min-[1650px]:w-96",
-            "p-8 animate-pulse",
-          )}
-        />
-
-        <div
-          class={cn(
-            "bg-soft relative rounded-md",
-            "w-full md:w-64 min-[1650px]:w-96",
-            "p-8 animate-pulse",
-          )}
-        />
+        {[...Array(4)].map((_, idx) => (
+          <div
+            key={idx}
+            class={cn(
+              "bg-soft relative rounded-md",
+              "w-full md:w-64 min-[1650px]:w-96",
+              "p-8 animate-pulse",
+            )}
+          />
+        ))}
       </div>
     );
 
