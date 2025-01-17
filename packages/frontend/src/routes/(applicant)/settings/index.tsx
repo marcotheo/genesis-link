@@ -11,11 +11,5 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Settings",
-  meta: [
-    {
-      name: "description",
-      content: "settings for your account",
-    },
-  ],
+  title: "Ark point",
 };

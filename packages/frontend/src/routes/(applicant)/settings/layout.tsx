@@ -46,10 +46,6 @@ const Header = component$(() => {
     headerTitle = "Profile";
     subTitle = "Manage profile settings and details";
   }
-  if (locationPathname === "/settings/addressess") {
-    headerTitle = "Addressess";
-    subTitle = "Manage address settings";
-  }
 
   return (
     <div>
@@ -74,9 +70,8 @@ export default component$(() => {
       >
         <ul class="list-none space-y-5">
           <Item title="Profile" link="/settings/profile" />
-          <Item title="Password" link="/settings/details" />
-          <Item title="Addressess" link="/settings/addressess" />
-          <Item title="Plan" link="/settings/details" />
+          <Item title="Password" link="/settings/profile" />
+          <Item title="Plan" link="/settings/profile" />
         </ul>
       </div>
 
