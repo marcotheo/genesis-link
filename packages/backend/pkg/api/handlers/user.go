@@ -31,8 +31,8 @@ type UserDetailsAPI struct {
 	Email        string `json:"email"`
 	Mobilenumber string `json:"mobileNumber"`
 	Resumelink   string `json:"resumeLink"`
-	CreatedAt    string `json:"createdAt"`
-	UpdatedAt    string `json:"updatedAt"`
+	CreatedAt    int64  `json:"createdAt"`
+	UpdatedAt    int64  `json:"updatedAt"`
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -72,8 +72,8 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		Email:        user.Email,
 		Mobilenumber: h.utilService.ConvertNullString(user.Mobilenumber),
 		Resumelink:   h.utilService.ConvertNullString(user.Resumelink),
-		CreatedAt:    h.utilService.HandleInterfaceToString(user.CreatedAt),
-		UpdatedAt:    h.utilService.HandleInterfaceToString(user.UpdatedAt),
+		CreatedAt:    h.utilService.ConvertNullTime(user.CreatedAt),
+		UpdatedAt:    h.utilService.ConvertNullTime(user.UpdatedAt),
 	})
 }
 

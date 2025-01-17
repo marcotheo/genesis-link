@@ -58,12 +58,12 @@ const Organizations = component$(() => {
               href={"/employer/organizations/dashboard/" + v.orgId}
               class={cn(
                 "bg-surface",
-                "w-full p-8",
-                "rounded-md",
                 "flex justify-between items-center",
-                "duration-200 ease-in",
+                "w-full p-8 rounded-md",
                 "cursor-pointer",
+                "duration-200 ease-in",
                 "dark:hover:brightness-110 hover:brightness-90",
+                "animate-fade-in-slide",
               )}
             >
               <Heading size="sm">{v.company}</Heading>

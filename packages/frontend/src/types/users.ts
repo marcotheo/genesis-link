@@ -1,7 +1,28 @@
-// GET API /users/{userId}
-export interface GetUserAPI {
+// GET API /users/account/details"
+export interface GetAccountDetailsAPI {
   queryStrings: null;
   parameters: null;
+  response: {
+    status: string;
+    message: string;
+    data: {
+      userId: string;
+      email: string;
+      mobileNumber: string;
+      resumeLink: string;
+      createdAt: number;
+      updatedAt: number;
+    };
+  };
+}
+
+// PUT API /users/update/info"
+export interface UpdateUserInfoApi {
+  parameters: {
+    resumeLink?: string;
+    email?: string;
+    mobileNumber?: string;
+  };
   response: {
     status: string;
     message: string;
