@@ -10,7 +10,7 @@ import Button from "~/components/button/button";
 
 export default component$(() => {
   const loc = useLocation();
-  return <div>Hello {loc.params.username}!</div>;
+  return <div>Hello {loc.params.orgId}!</div>;
 });
 
 export const head: DocumentHead = {

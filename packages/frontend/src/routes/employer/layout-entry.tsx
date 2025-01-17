@@ -1,7 +1,13 @@
+import { RequestHandler } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
 
 import DefaultHeader from "~/components/default-header/default-header.tsx";
 import { cn } from "~/common/utils";
+
+export const onRequest: RequestHandler = async ({ sharedMap, redirect }) => {
+  const isLoggedIn = sharedMap.get("isLoggedIn");
+  if (!isLoggedIn) throw redirect(302, "/sign-in");
+};
 
 export default component$(() => {
   return (
