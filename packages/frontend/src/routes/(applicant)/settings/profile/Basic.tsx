@@ -6,16 +6,16 @@ import {
   useSignal,
   useStore,
 } from "@builder.io/qwik";
+import { TbEdit, TbLoader, TbXboxX } from "@qwikest/icons/tablericons";
 import dayjs from "dayjs";
 
-import { TbEdit, TbLoader, TbXboxX } from "@qwikest/icons/tablericons";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useToast } from "~/hooks/use-toast/useToast";
+import { useQuery } from "~/hooks/use-query/useQuery";
 import Button from "~/components/button/button";
 import FileInput from "~/components/file-input";
 import { cn, qwikFetch } from "~/common/utils";
 import Input from "~/components/input/input";
-import { useAccountDetailsLoader } from ".";
 
 const Item = component$<{ label: string; value: string; noEdit?: boolean }>(
   ({ label, value, noEdit }) => {
@@ -55,111 +55,107 @@ const Item = component$<{ label: string; value: string; noEdit?: boolean }>(
   },
 );
 
-const Resume = component$(() => {
-  const result = useAccountDetailsLoader();
-  const store = useStore<{
-    files: NoSerialize<File[]> | null;
-    loading: boolean;
-  }>({
-    files: null,
-    loading: false,
-  });
-  const toast = useToast();
-  const { mutate: getSignedUrl } = useMutate("/s3/generate/url/put");
+const Resume = component$<{ userId?: string; resumeLink?: string }>(
+  ({ userId, resumeLink }) => {
+    const store = useStore<{
+      files: NoSerialize<File[]> | null;
+      loading: boolean;
+    }>({
+      files: null,
+      loading: false,
+    });
+    const toast = useToast();
+    const { mutate: getSignedUrl } = useMutate("POST /s3/url/put");
 
-  const { mutate: updateResumeLink } = useMutate("/users/update/info");
+    const { mutate: updateResumeLink } = useMutate("PUT /users/update/info");
 
-  const uploadResume = $(async () => {
-    if (!result.value) return;
-    if ((store.files && store.files.length === 0) || !store.files) return;
+    const uploadResume = $(async () => {
+      if (!userId) return;
+      if ((store.files && store.files.length === 0) || !store.files) return;
 
-    const file = store.files[0];
+      const file = store.files[0];
 
-    const s3Key = `resume/${result.value.userId}/${file.name}`;
+      const s3Key = `resume/${userId}/${file.name}`;
 
-    store.loading = true;
+      store.loading = true;
 
-    try {
-      const s3 = await getSignedUrl(
-        {
-          Key: s3Key,
-        },
-        {
-          credentials: "include",
-        },
-      );
-
-      if (s3.error) throw s3.error;
-
-      if (s3.result)
-        await qwikFetch<null>(s3.result.data.URL, {
-          method: s3.result.data.Method,
-          headers: {
-            "Content-Type": file.type,
+      try {
+        const s3 = await getSignedUrl(
+          {
+            key: s3Key,
           },
-          body: file,
+          {
+            credentials: "include",
+          },
+        );
+
+        if (s3.error) throw s3.error;
+
+        if (s3.result)
+          await qwikFetch<null>(s3.result.data.URL, {
+            method: s3.result.data.Method,
+            headers: {
+              "Content-Type": file.type,
+            },
+            body: file,
+          });
+
+        await updateResumeLink(
+          {
+            resumeLink: s3Key,
+          },
+          {
+            credentials: "include",
+          },
+        );
+
+        toast.add({
+          title: "Update Succeessfuly",
+          message: "Resume updated",
+          type: "success",
         });
-
-      await updateResumeLink(
-        {
-          resumeLink: s3Key,
-        },
-        {
-          credentials: "include",
-        },
-      );
-
-      toast.add({
-        title: "Update Succeessfuly",
-        message: "Resume updated",
-        type: "success",
-      });
-    } catch (err) {
-      console.log(err);
-    } finally {
-      store.loading = false;
-    }
-  });
-
-  const handleFileSelect = $((v: NoSerialize<File[]>) => (store.files = v));
-
-  return (
-    <Item
-      label="Resume"
-      value={
-        !result.value?.resumeLink
-          ? "N/A"
-          : result.value.resumeLink.split("/")[2]
+      } catch (err) {
+        console.log(err);
+      } finally {
+        store.loading = false;
       }
-    >
-      <div class="flex flex-col gap-2 w-full">
-        <FileInput
-          label="Resume"
-          name="resume"
-          onFileSelect={handleFileSelect}
-        />
+    });
 
-        <div>
-          <Button size="sm" onClick$={uploadResume} disabled={store.loading}>
-            {store.loading ? (
-              <div class="flex items-center gap-3">
-                <p>Saving</p>
-                <div class="animate-spin ">
-                  <TbLoader />
+    const handleFileSelect = $((v: NoSerialize<File[]>) => (store.files = v));
+
+    return (
+      <Item
+        label="Resume"
+        value={!resumeLink ? "N/A" : resumeLink.split("/")[2]}
+      >
+        <div class="flex flex-col gap-2 w-full">
+          <FileInput
+            label="Resume"
+            name="resume"
+            onFileSelect={handleFileSelect}
+          />
+
+          <div>
+            <Button size="sm" onClick$={uploadResume} disabled={store.loading}>
+              {store.loading ? (
+                <div class="flex items-center gap-3">
+                  <p>Saving</p>
+                  <div class="animate-spin ">
+                    <TbLoader />
+                  </div>
                 </div>
-              </div>
-            ) : (
-              "Update"
-            )}
-          </Button>
+              ) : (
+                "Update"
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
-    </Item>
-  );
-});
+      </Item>
+    );
+  },
+);
 
-const Email = component$(() => {
-  const result = useAccountDetailsLoader();
+const Email = component$<{ value?: string }>(({ value }) => {
   const store = useStore<{
     value: string | null;
     loading: boolean;
@@ -168,10 +164,10 @@ const Email = component$(() => {
     loading: false,
   });
   const toast = useToast();
-  const { mutate: updateInfo } = useMutate("/users/update/info");
+  const { mutate: updateInfo } = useMutate("PUT /users/update/info");
 
   const update = $(async () => {
-    if (!result.value) return;
+    if (!value) return;
     if (!store.value) return;
 
     store.loading = true;
@@ -199,10 +195,7 @@ const Email = component$(() => {
   });
 
   return (
-    <Item
-      label="Email"
-      value={!result.value?.email ? "N/A" : result.value.email}
-    >
+    <Item label="Email" value={!value ? "N/A" : value}>
       <div class="flex flex-col gap-2 w-full">
         <Input
           label="Email"
@@ -229,8 +222,7 @@ const Email = component$(() => {
   );
 });
 
-const MobileNumber = component$(() => {
-  const result = useAccountDetailsLoader();
+const MobileNumber = component$<{ value?: string }>(({ value }) => {
   const store = useStore<{
     value: string | null;
     loading: boolean;
@@ -239,10 +231,10 @@ const MobileNumber = component$(() => {
     loading: false,
   });
   const toast = useToast();
-  const { mutate: updateInfo } = useMutate("/users/update/info");
+  const { mutate: updateInfo } = useMutate("PUT /users/update/info");
 
   const update = $(async () => {
-    if (!result.value) return;
+    if (!value) return;
     if (!store.value) return;
 
     store.loading = true;
@@ -270,10 +262,7 @@ const MobileNumber = component$(() => {
   });
 
   return (
-    <Item
-      label="Mobile Number"
-      value={!result.value?.mobileNumber ? "N/A" : result.value.mobileNumber}
-    >
+    <Item label="Mobile Number" value={!value ? "N/A" : value}>
       <div class="flex flex-col gap-2 w-full">
         <Input
           label="Mobile Number"
@@ -300,9 +289,84 @@ const MobileNumber = component$(() => {
   );
 });
 
-export default component$(() => {
-  const result = useAccountDetailsLoader();
+const AccountDetails = component$(() => {
+  const { state } = useQuery(
+    "GET /users/account/details",
+    {
+      queryStrings: null,
+      urlParams: null,
+    },
+    {
+      runOnRender: true,
+    },
+  );
 
+  if (state.loading)
+    return (
+      <>
+        <div class="space-y-3 w-full h-full">
+          <div
+            class={cn(
+              "bg-soft relative rounded-md",
+              "min-[1650px]:w-96",
+              "p-8 animate-pulse",
+            )}
+          />
+
+          <div
+            class={cn(
+              "bg-soft relative rounded-md",
+              "min-[1650px]:w-96",
+              "p-8 animate-pulse",
+            )}
+          />
+        </div>
+        <div class="space-y-3 w-full h-full">
+          <div
+            class={cn(
+              "bg-soft relative rounded-md",
+              "min-[1650px]:w-96",
+              "p-8 animate-pulse",
+            )}
+          />
+
+          <div
+            class={cn(
+              "bg-soft relative rounded-md",
+              "min-[1650px]:w-96",
+              "p-8 animate-pulse",
+            )}
+          />
+        </div>
+      </>
+    );
+
+  return (
+    <>
+      <div class="space-y-3 min-w-[1650px]:space-y-5">
+        <Email value={state.result?.data.email} />
+        <MobileNumber value={state.result?.data.mobileNumber} />
+      </div>
+      <div class="space-y-3 min-w-[1650px]:space-y-5">
+        <Resume
+          userId={state.result?.data.userId}
+          resumeLink={state.result?.data.resumeLink}
+        />
+        <Item
+          label="Registered At"
+          value={
+            state.result?.data.createdAt
+              ? dayjs.unix(state.result.data.createdAt).format("MMM DD, YYYY")
+              : "N/A"
+          }
+          noEdit
+        />
+      </div>
+    </>
+  );
+});
+
+export default component$(() => {
   return (
     <div
       class={cn(
@@ -325,18 +389,7 @@ export default component$(() => {
           "gap-3 min-w-[1650px]:gap-5",
         )}
       >
-        <div class="space-y-3 min-w-[1650px]:space-y-5">
-          <Email />
-          <MobileNumber />
-        </div>
-        <div class="space-y-3 min-w-[1650px]:space-y-5">
-          <Resume />
-          <Item
-            label="Registered At"
-            value={dayjs(result.value?.createdAt).format("MMM DD, YYYY")}
-            noEdit
-          />
-        </div>
+        <AccountDetails />
       </div>
     </div>
   );
