@@ -25,7 +25,7 @@ const Item = component$<{ label: string; value: string; noEdit?: boolean }>(
       <div
         class={cn(
           "bg-soft relative rounded-md",
-          "min-[1650px]:w-96",
+          "w-full min-[1650px]:w-96",
           "p-5",
           "animate-fade-in-scale",
         )}
@@ -303,66 +303,59 @@ const AccountDetails = component$(() => {
 
   if (state.loading)
     return (
-      <>
-        <div class="space-y-3 w-full h-full">
-          <div
-            class={cn(
-              "bg-soft relative rounded-md",
-              "min-[1650px]:w-96",
-              "p-8 animate-pulse",
-            )}
-          />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div
+          class={cn(
+            "bg-soft relative rounded-md",
+            "w-full md:w-64 min-[1650px]:w-96",
+            "p-8 animate-pulse",
+          )}
+        />
 
-          <div
-            class={cn(
-              "bg-soft relative rounded-md",
-              "min-[1650px]:w-96",
-              "p-8 animate-pulse",
-            )}
-          />
-        </div>
-        <div class="space-y-3 w-full h-full">
-          <div
-            class={cn(
-              "bg-soft relative rounded-md",
-              "min-[1650px]:w-96",
-              "p-8 animate-pulse",
-            )}
-          />
+        <div
+          class={cn(
+            "bg-soft relative rounded-md",
+            "w-full md:w-64 min-[1650px]:w-96",
+            "p-8 animate-pulse",
+          )}
+        />
+        <div
+          class={cn(
+            "bg-soft relative rounded-md",
+            "w-full md:w-64 min-[1650px]:w-96",
+            "p-8 animate-pulse",
+          )}
+        />
 
-          <div
-            class={cn(
-              "bg-soft relative rounded-md",
-              "min-[1650px]:w-96",
-              "p-8 animate-pulse",
-            )}
-          />
-        </div>
-      </>
+        <div
+          class={cn(
+            "bg-soft relative rounded-md",
+            "w-full md:w-64 min-[1650px]:w-96",
+            "p-8 animate-pulse",
+          )}
+        />
+      </div>
     );
 
   return (
-    <>
-      <div class="space-y-3 min-w-[1650px]:space-y-5">
-        <Email value={state.result?.data.email} />
-        <MobileNumber value={state.result?.data.mobileNumber} />
-      </div>
-      <div class="space-y-3 min-w-[1650px]:space-y-5">
-        <Resume
-          userId={state.result?.data.userId}
-          resumeLink={state.result?.data.resumeLink}
-        />
-        <Item
-          label="Registered At"
-          value={
-            state.result?.data.createdAt
-              ? dayjs.unix(state.result.data.createdAt).format("MMM DD, YYYY")
-              : "N/A"
-          }
-          noEdit
-        />
-      </div>
-    </>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <Email value={state.result?.data.email} />
+      <MobileNumber value={state.result?.data.mobileNumber} />
+
+      <Resume
+        userId={state.result?.data.userId}
+        resumeLink={state.result?.data.resumeLink}
+      />
+      <Item
+        label="Registered At"
+        value={
+          state.result?.data.createdAt
+            ? dayjs.unix(state.result.data.createdAt).format("MMM DD, YYYY")
+            : "N/A"
+        }
+        noEdit
+      />
+    </div>
   );
 });
 

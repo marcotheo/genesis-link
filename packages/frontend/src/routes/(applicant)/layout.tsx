@@ -12,12 +12,12 @@ export const onRequest: RequestHandler = async ({ sharedMap, redirect }) => {
 export default component$(() => {
   return (
     <div class="h-screen flex flex-col">
-      <div class={cn("min-[350px]:px-5 sm:px-12 2xl:px-52")}>
+      <div class={cn("min-[350px]:px-5 sm:px-12 2xl:px-36")}>
         <DefaultHeader />
       </div>
 
       <div class="grow overflow-auto">
-        <div class="h-full min-[350px]:px-5 sm:px-12 2xl:px-52">
+        <div class="h-full min-[350px]:px-5 sm:px-12 2xl:px-36">
           <Slot />
         </div>
       </div>
