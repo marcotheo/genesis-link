@@ -1,5 +1,5 @@
-import { TbEdit, TbLoader, TbXboxX } from "@qwikest/icons/tablericons";
 import { $, component$, Slot, useSignal, useStore } from "@builder.io/qwik";
+import { TbEdit, TbLoader, TbXboxX } from "@qwikest/icons/tablericons";
 import { Link, type DocumentHead } from "@builder.io/qwik-city";
 import dayjs from "dayjs";
 
@@ -60,7 +60,6 @@ const Email = component$<{ value?: string }>(({ value }) => {
   const { mutate: updateInfo } = useMutate("PUT /users/update/info");
 
   const update = $(async () => {
-    if (!value) return;
     if (!store.value) return;
 
     store.loading = true;
@@ -127,7 +126,6 @@ const MobileNumber = component$<{ value?: string }>(({ value }) => {
   const { mutate: updateInfo } = useMutate("PUT /users/update/info");
 
   const update = $(async () => {
-    if (!value) return;
     if (!store.value) return;
 
     store.loading = true;
