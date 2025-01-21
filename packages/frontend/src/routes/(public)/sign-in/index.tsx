@@ -1,4 +1,4 @@
-import { DocumentHead, Link } from "@builder.io/qwik-city";
+import { DocumentHead, Link, useLocation } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
 
 import { GoogleIcon } from "~/components/icons/icons";
@@ -6,6 +6,60 @@ import Heading from "~/components/heading/heading";
 import CredentialsLogin from "./CredentialsLogin";
 import Button from "~/components/button/button";
 import { cn } from "~/common/utils";
+
+const LoginHeader = component$(() => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.url.search);
+  const mode = params.get("mode");
+
+  return (
+    <div class="space-y-5">
+      <div class="flex justify-between items-end">
+        <Heading>Sign In</Heading>
+        <div
+          class={cn(
+            "flex items-end",
+            "rounded-lg overflow-hidden",
+            "border border-primary",
+          )}
+        >
+          <Link
+            href="/sign-in?mode=applicant"
+            class={cn(
+              "w-1/2 py-1 px-4",
+              "duration-300",
+              mode === "applicant"
+                ? "bg-primary text-white"
+                : "dark:hover:brightness-125 hover:brightness-95",
+            )}
+          >
+            Applicant
+          </Link>
+          <Link
+            href="/sign-in?mode=employer"
+            class={cn(
+              "w-1/2 py-1 px-4",
+              "duration-300",
+              mode === "employer"
+                ? "bg-primary text-white"
+                : "dark:hover:brightness-125 hover:brightness-95",
+            )}
+          >
+            Employer
+          </Link>
+        </div>
+      </div>
+
+      <div class="flex gap-1 text-sm">
+        <p class="text-gray-500">New to Ark Point?</p>
+        <Link href="/sign-up">
+          <p class="underline text-info">Create an account</p>
+        </Link>
+        .
+      </div>
+    </div>
+  );
+});
 
 export default component$(() => {
   return (
@@ -19,18 +73,7 @@ export default component$(() => {
           "rounded-xl md:shadow-xl",
         )}
       >
-        <div class="w-full flex justify-between">
-          <div>
-            <Heading>Sign In</Heading>
-            <div class="flex gap-1 text-sm">
-              <p class="text-gray-500">New to Genesis Link?</p>
-              <Link href="/sign-up">
-                <p class="underline text-info">Sign up for an account</p>
-              </Link>
-              .
-            </div>
-          </div>
-        </div>
+        <LoginHeader />
 
         <CredentialsLogin />
 
