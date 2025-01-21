@@ -104,7 +104,7 @@ export default component$(() => {
   return (
     <div class="flex gap-3">
       <Link
-        href="/sign-in"
+        href="/sign-in?mode=applicant"
         class={cn(
           "p-3 w-24",
           "bg-ghost",
