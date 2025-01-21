@@ -23,7 +23,7 @@ const Logout = component$(() => {
         class="w-full h-full flex text-text"
         onClick$={$(async () => {
           await mutate(null, { method: "DELETE", credentials: "include" });
-          nav("/sign-in");
+          nav("/sign-in?mode=applicant");
         })}
       >
         Logout

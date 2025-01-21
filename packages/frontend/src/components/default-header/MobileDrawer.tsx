@@ -38,7 +38,7 @@ export default component$(() => {
           <Heading size="xs" class="text-zinc-600 text-md pl-2">
             AUTHENTICATION
           </Heading>
-          <DrawerLink href="/sign-in">
+          <DrawerLink href="/sign-in?mode=applicant">
             <TbLock />
             Sign In
           </DrawerLink>

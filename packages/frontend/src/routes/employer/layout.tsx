@@ -4,7 +4,7 @@ import { cn } from "~/common/utils";
 
 export const onRequest: RequestHandler = async ({ sharedMap, redirect }) => {
   const isLoggedIn = sharedMap.get("isLoggedIn");
-  if (!isLoggedIn) throw redirect(302, "/sign-in");
+  if (!isLoggedIn) throw redirect(302, "/sign-in?mode=applicant");
 };
 
 export default component$(() => {

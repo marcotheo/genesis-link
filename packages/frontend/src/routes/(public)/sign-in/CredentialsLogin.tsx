@@ -1,11 +1,5 @@
-import {
-  InitialValues,
-  reset,
-  SubmitHandler,
-  useForm,
-  valiForm$,
-} from "@modular-forms/qwik";
-import { Link, routeLoader$, useNavigate } from "@builder.io/qwik-city";
+import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
+import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
 import { $, component$, useContext } from "@builder.io/qwik";
 import * as v from "valibot";
 
@@ -13,11 +7,9 @@ import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { AuthContext } from "~/providers/auth/auth";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { GoogleIcon } from "~/components/icons/icons";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import Alert from "~/components/alert/alert";
-import { cn } from "~/common/utils";
 
 const SignInSchema = v.object({
   email: v.pipe(
@@ -31,6 +23,10 @@ const SignInSchema = v.object({
 type SignInForm = v.InferInput<typeof SignInSchema>;
 
 export default component$(() => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.url.search);
+  const mode = params.get("mode");
+
   const authCtx = useContext(AuthContext);
 
   const navigate = useNavigate();
@@ -63,7 +59,8 @@ export default component$(() => {
         const unixTimestamp = Math.floor(Date.now() / 1000);
         authCtx.ExpiresIn = response.result.data.ExpiresIn + unixTimestamp;
         reset(signInForm);
-        navigate("/");
+
+        navigate(mode === "applicant" ? "/" : "/employer/organizations");
       }
 
       if (response.error) console.log("Error form", response.error);
