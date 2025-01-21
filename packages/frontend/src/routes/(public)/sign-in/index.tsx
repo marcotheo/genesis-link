@@ -1,148 +1,44 @@
-import {
-  InitialValues,
-  reset,
-  SubmitHandler,
-  useForm,
-  valiForm$,
-} from "@modular-forms/qwik";
-import {
-  DocumentHead,
-  Link,
-  routeLoader$,
-  useNavigate,
-} from "@builder.io/qwik-city";
-import { $, component$, useContext } from "@builder.io/qwik";
-import * as v from "valibot";
+import { DocumentHead, Link } from "@builder.io/qwik-city";
+import { component$ } from "@builder.io/qwik";
 
-import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { GoogleIcon } from "~/components/icons/icons";
-import { AuthContext } from "~/providers/auth/auth";
 import Heading from "~/components/heading/heading";
+import CredentialsLogin from "./CredentialsLogin";
 import Button from "~/components/button/button";
-import Input from "~/components/input/input";
-import Alert from "~/components/alert/alert";
 import { cn } from "~/common/utils";
 
-const SignInSchema = v.object({
-  email: v.pipe(
-    v.string(),
-    v.nonEmpty("Please enter your email."),
-    v.email("The email address is badly formatted."),
-  ),
-  password: v.pipe(v.string(), v.nonEmpty("Please enter your password.")),
-});
-
-type SignInForm = v.InferInput<typeof SignInSchema>;
-
-export const useFormLoader = routeLoader$<InitialValues<SignInForm>>(() => ({
-  email: "",
-  password: "",
-}));
-
 export default component$(() => {
-  const authCtx = useContext(AuthContext);
-
-  const navigate = useNavigate();
-
-  const { mutate, state } = useMutate("POST /auth/signin");
-
-  const [signInForm, { Form, Field }] = useForm<SignInForm>({
-    loader: useFormLoader(),
-    validate: valiForm$(SignInSchema),
-  });
-
-  const handleSubmit = $<SubmitHandler<SignInForm>>(async (values) => {
-    try {
-      const response = await mutate(
-        {
-          email: values.email,
-          password: values.password,
-        },
-        {
-          credentials: "include",
-        },
-      );
-
-      if (response.result) {
-        const unixTimestamp = Math.floor(Date.now() / 1000);
-        authCtx.ExpiresIn = response.result.data.ExpiresIn + unixTimestamp;
-        reset(signInForm);
-        navigate("/");
-      }
-
-      if (response.error) console.log("Error form", response.error);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
-  });
-
   return (
-    <div class="flex h-full w-full justify-center">
-      <LoadingOverlay open={state.loading}>Signing In</LoadingOverlay>
-
-      <div class={cn("w-[500px] md:mt-[70px]")}>
-        <Heading>Sign In</Heading>
-        <div class="flex gap-1 text-sm">
-          <p class="text-gray-500">New to Genesis Link?</p>
-          <Link href="/sign-up">
-            <p class="underline text-info">Sign up for an account</p>
-          </Link>
-          .
+    <div class={cn("flex flex-col items-center", "h-full w-full")}>
+      <div
+        class={cn(
+          "w-full md:w-[500px] md:mt-[100px]",
+          "space-y-5",
+          "md:bg-surface",
+          "sm:p-8",
+          "rounded-xl md:shadow-xl",
+        )}
+      >
+        <div class="w-full flex justify-between">
+          <div>
+            <Heading>Sign In</Heading>
+            <div class="flex gap-1 text-sm">
+              <p class="text-gray-500">New to Genesis Link?</p>
+              <Link href="/sign-up">
+                <p class="underline text-info">Sign up for an account</p>
+              </Link>
+              .
+            </div>
+          </div>
         </div>
 
-        <br />
+        <CredentialsLogin />
 
-        <Alert
-          open={!!state.error}
-          variant="error"
-          title="Error"
-          message={state.error ?? ""}
-        />
-
-        <Form class="flex flex-col gap-7" onSubmit$={handleSubmit}>
-          <Field name="email">
-            {(field, props) => (
-              <Input
-                {...props}
-                type="email"
-                label="Email"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-              />
-            )}
-          </Field>
-
-          <Field name="password">
-            {(field, props) => (
-              <Input
-                {...props}
-                type="password"
-                label="Password"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value}
-              />
-            )}
-          </Field>
-
-          <Link href="/password/reset" class="w-fit">
-            <p class="text-sm text-gray-500 hover:text-info duration-300  transition-all ease-out">
-              Forgot Password?
-            </p>
-          </Link>
-
-          <Button type="submit">Sign In</Button>
-        </Form>
-
-        <br />
         <div class="flex gap-3 items-center">
           <div class="border-gray-500 w-full h-[1px] bg-gray-500" />
           <p class="whitespace-nowrap text-sm">Or Sign in with</p>
           <div class="border-gray-500 w-full h-[1px] bg-gray-500" />
         </div>
-        <br />
 
         <Button
           variant="outline"
@@ -160,11 +56,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Sign In - Genesis Link",
+  title: "Sign In - Ark Point",
   meta: [
     {
       name: "description",
-      content: "Sign In here at Genesis Link",
+      content: "Sign In here at Ark Point",
     },
   ],
 };

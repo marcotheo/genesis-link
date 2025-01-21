@@ -6,14 +6,15 @@ import {
   valiForm$,
 } from "@modular-forms/qwik";
 import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
+import { $, component$ } from "@builder.io/qwik";
 import * as v from "valibot";
 
-import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import Checkbox from "~/components/checkbox/checkbox";
 import { cn, RegexValidations } from "~/common/utils";
+
+import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import Checkbox from "~/components/checkbox/checkbox";
 import Heading from "~/components/heading/heading";
-import { $, component$ } from "@builder.io/qwik";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import Alert from "~/components/alert/alert";
@@ -105,15 +106,20 @@ export default component$(() => {
   });
 
   return (
-    <div class="flex h-full w-full justify-center">
+    <div class={cn("flex flex-col items-center", "h-full w-full")}>
       <LoadingOverlay open={state.loading}>
         Processing Registration
       </LoadingOverlay>
 
-      <div class={cn("w-[500px] md:mt-[70px]")}>
-        <Heading>Sign Up</Heading>
-
-        <br />
+      <div
+        class={cn(
+          "w-full md:w-[500px] md:mt-[100px]",
+          "md:bg-surface overflow-visible",
+          "sm:p-8",
+          "rounded-xl md:shadow-xl",
+        )}
+      >
+        <Heading class="pb-4">Sign Up</Heading>
 
         <Alert
           open={!!state.success}
@@ -121,6 +127,7 @@ export default component$(() => {
           title="Success"
           message="email verification sent"
         />
+
         <Alert
           open={!!state.error}
           variant="error"
@@ -202,7 +209,7 @@ export default component$(() => {
               >
                 <p class="max-sm:text-sm">
                   By registering, you agree to the processing of your personal
-                  data by Genesis Link as described in the{" "}
+                  data by Ark Point as described in the{" "}
                   <span class="text-primary">Privacy Policy</span>.{" "}
                 </p>
               </Checkbox>
@@ -217,11 +224,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Sign up - Genesis Link",
+  title: "Sign up - Ark Point",
   meta: [
     {
       name: "description",
-      content: "Sign Up here at Genesis Link",
+      content: "Sign Up here at Ark Point",
     },
   ],
 };

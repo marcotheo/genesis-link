@@ -36,7 +36,7 @@ export default component$<Props>((props) => {
             "flex items-center gap-3 p-3",
             "rounded-r-sm rounded-br-sm",
             "border-l-4 bg-surface shadow-md",
-            "brightness-105",
+            "dark:brightness-110 brightness-95",
             variantBorder[props.variant],
           )}
         >
@@ -47,7 +47,7 @@ export default component$<Props>((props) => {
             <p class="text-sm">{props.message}</p>
           </div>
         </div>
-        <div class="w-full h-3" />
+        <div class="w-full h-5" />
       </div>
     </>
   );
