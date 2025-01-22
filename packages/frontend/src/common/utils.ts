@@ -170,3 +170,7 @@ export const generateRandomId = (length = 10) => {
   }
   return randomId;
 };
+
+export const createDashboardPath = (orgId: string, path: string) => {
+  return `/employer/organizations/dashboard/${orgId}` + path;
+};
