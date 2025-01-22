@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+import DashboardHeader from "./DashboardHeader";
 import { cn } from "~/common/utils";
 import SideNav from "./SideNav";
 
@@ -8,8 +9,12 @@ export default component$(() => {
       <SideNav />
 
       {/* content */}
-      <div class={cn("h-full grow", "p-10")}>
-        <Slot />
+      <div class={cn("h-full grow", "flex flex-col", "px-16", "space-y-10")}>
+        <DashboardHeader />
+
+        <div class="grow">
+          <Slot />
+        </div>
       </div>
     </div>
   );

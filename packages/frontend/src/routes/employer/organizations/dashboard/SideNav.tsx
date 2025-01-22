@@ -14,19 +14,22 @@ import Button from "~/components/button/button";
 
 const NavItem = component$<{ to: string }>(({ to }) => {
   return (
-    <Link href={to}>
-      <div
-        class={cn(
-          "flex gap-3 items-center",
-          "w-full p-2",
-          "duration-300",
-          "cursor-pointer hover:bg-zinc-700 rounded-md",
-          "whitespace-nowrap text-lg font-medium",
-        )}
-      >
-        <Slot />
-      </div>
-    </Link>
+    <div>
+      {" "}
+      <Link href={to}>
+        <div
+          class={cn(
+            "flex gap-3 items-center",
+            "w-full p-2",
+            "duration-300",
+            "cursor-pointer hover:bg-zinc-700 rounded-md",
+            "whitespace-nowrap text-lg font-medium",
+          )}
+        >
+          <Slot />
+        </div>
+      </Link>
+    </div>
   );
 });
 
@@ -34,7 +37,7 @@ const NavItems = component$(() => {
   const loc = useLocation();
 
   return (
-    <div class="px-5 mt-3">
+    <div class="px-5 mt-3 space-y-1">
       <NavItem to={`/employer/organizations/dashboard/${loc.params.orgId}`}>
         <TbDashboard /> Dashboard
       </NavItem>
@@ -68,7 +71,7 @@ export default component$(() => {
     >
       <div>
         {/* side nav header */}
-        <div class="h-32">
+        <div class="h-24">
           <div class="h-full w-full flex justify-center items-center">
             <div
               class={cn(
@@ -80,6 +83,7 @@ export default component$(() => {
             </div>
           </div>
         </div>
+
         <div
           class={cn("h-[0.5px] w-[90%] mx-auto", "bg-surface brightness-150")}
         />
