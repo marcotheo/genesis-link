@@ -1,5 +1,4 @@
-import { Link, useLocation } from "@builder.io/qwik-city";
-import { cn, createDashboardPath } from "~/common/utils";
+import { Link, useNavigate } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
 
 import {
@@ -9,8 +8,35 @@ import {
   TbLogout,
   TbSettings,
 } from "@qwikest/icons/tablericons";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { cn, createDashboardPath } from "~/common/utils";
 import Image from "~/assets/images/logo.png?jsx";
 import Button from "~/components/button/button";
+import { useOrgId } from "./layout";
+
+const Logout = component$(() => {
+  const nav = useNavigate();
+  const { mutate } = useMutate("POST /auth/session/revoke");
+
+  return (
+    <div class="p-5 w-full">
+      <Button
+        class="w-full"
+        onClick$={async () => {
+          await mutate({}, { method: "DELETE", credentials: "include" });
+          nav("/sign-in?mode=employer");
+        }}
+      >
+        <div class="flex gap-2 items-center justify-center bg-transparent">
+          <div class="text-white text-xl bg-transparent">
+            <TbLogout />
+          </div>
+          <p class="text-white">Log out</p>
+        </div>
+      </Button>
+    </div>
+  );
+});
 
 const NavItem = component$<{ to: string }>(({ to }) => {
   return (
@@ -34,20 +60,20 @@ const NavItem = component$<{ to: string }>(({ to }) => {
 });
 
 const NavItems = component$(() => {
-  const loc = useLocation();
+  const loc = useOrgId();
 
   return (
     <div class="px-5 mt-3 space-y-1">
-      <NavItem to={createDashboardPath(loc.params.orgId, "")}>
+      <NavItem to={createDashboardPath(loc.value.orgId, "")}>
         <TbDashboard /> Dashboard
       </NavItem>
-      <NavItem to={createDashboardPath(loc.params.orgId, "/posts")}>
+      <NavItem to={createDashboardPath(loc.value.orgId, "/posts")}>
         <TbBriefcase /> Job Posts
       </NavItem>
-      <NavItem to={createDashboardPath(loc.params.orgId, "/addresses")}>
+      <NavItem to={createDashboardPath(loc.value.orgId, "/addresses")}>
         <TbLocation /> Addresses
       </NavItem>
-      <NavItem to={createDashboardPath(loc.params.orgId, "/settings")}>
+      <NavItem to={createDashboardPath(loc.value.orgId, "/settings")}>
         <TbSettings /> Settings
       </NavItem>
     </div>
@@ -87,16 +113,7 @@ export default component$(() => {
       </div>
 
       {/* footer */}
-      <div class="p-5 w-full">
-        <Button class="w-full">
-          <div class="flex gap-2 items-center justify-center bg-transparent">
-            <div class="text-white text-xl bg-transparent">
-              <TbLogout />
-            </div>
-            <p class="text-white">Log out</p>
-          </div>
-        </Button>
-      </div>
+      <Logout />
     </div>
   );
 });
