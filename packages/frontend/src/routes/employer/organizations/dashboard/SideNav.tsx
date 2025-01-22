@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@builder.io/qwik-city";
+import { cn, createDashboardPath } from "~/common/utils";
 import { component$, Slot } from "@builder.io/qwik";
-import { cn } from "~/common/utils";
 
 import {
   TbBriefcase,
@@ -38,22 +38,16 @@ const NavItems = component$(() => {
 
   return (
     <div class="px-5 mt-3 space-y-1">
-      <NavItem to={`/employer/organizations/dashboard/${loc.params.orgId}`}>
+      <NavItem to={createDashboardPath(loc.params.orgId, "")}>
         <TbDashboard /> Dashboard
       </NavItem>
-      <NavItem
-        to={`/employer/organizations/dashboard/${loc.params.orgId}/posts`}
-      >
+      <NavItem to={createDashboardPath(loc.params.orgId, "/posts")}>
         <TbBriefcase /> Job Posts
       </NavItem>
-      <NavItem
-        to={`/employer/organizations/dashboard/${loc.params.orgId}/addresses`}
-      >
+      <NavItem to={createDashboardPath(loc.params.orgId, "/addresses")}>
         <TbLocation /> Addresses
       </NavItem>
-      <NavItem
-        to={`/employer/organizations/dashboard/${loc.params.orgId}/settings`}
-      >
+      <NavItem to={createDashboardPath(loc.params.orgId, "/settings")}>
         <TbSettings /> Settings
       </NavItem>
     </div>
