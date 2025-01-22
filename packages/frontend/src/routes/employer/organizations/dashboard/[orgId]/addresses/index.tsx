@@ -3,30 +3,35 @@ import { $, component$, useStore } from "@builder.io/qwik";
 import { TbTrash } from "@qwikest/icons/tablericons";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { GetAddresssesByOrgIdApi } from "~/types/organizations";
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { useFetch } from "~/hooks/use-fetch/useFetch";
-import { ListAddressResponse } from "~/common/types";
 import Button from "~/components/button/button";
 import { cn, qwikFetch } from "~/common/utils";
 
-export const useAddressesLoader = routeLoader$(async ({ resolveValue }) => {
-  try {
-    const headers = await resolveValue(useAuthHeadersLoader);
+export const useAddressesLoader = routeLoader$(
+  async ({ resolveValue, params }) => {
+    try {
+      const headers = await resolveValue(useAuthHeadersLoader);
 
-    if (!headers) return null;
+      if (!headers) return null;
 
-    const res = await qwikFetch<ListAddressResponse>("/address", {
-      method: "GET",
-      headers: headers,
-    });
+      const res = await qwikFetch<GetAddresssesByOrgIdApi>(
+        `/organizations/${params.orgId}/addresses`,
+        {
+          method: "GET",
+          headers: headers,
+        },
+      );
 
-    return res.data;
-  } catch (err: any) {
-    console.log("Error:", err);
+      return res.data;
+    } catch (err: any) {
+      console.log("Error:", err);
 
-    return null;
-  }
-});
+      return null;
+    }
+  },
+);
 
 const AddressList = component$(() => {
   const result = useAddressesLoader();
@@ -114,11 +119,5 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Address settings",
-  meta: [
-    {
-      name: "description",
-      content: "manage addressess",
-    },
-  ],
+  title: "Ark Point",
 };
