@@ -1,31 +1,16 @@
-import {
-  InitialValues,
-  reset,
-  SubmitHandler,
-  useForm,
-  valiForm$,
-} from "@modular-forms/qwik";
-import { routeLoader$, DocumentHead } from "@builder.io/qwik-city";
+import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
+import { DocumentHead, Link } from "@builder.io/qwik-city";
 import { $, component$, Slot } from "@builder.io/qwik";
 
 import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { cn, createDashboardPath } from "~/common/utils";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Alert from "~/components/alert/alert";
 import Input from "~/components/input/input";
-import { cn } from "~/common/utils";
-
-export const useFormLoader = routeLoader$<InitialValues<CreateAddressForm>>(
-  () => ({
-    region: undefined,
-    province: undefined,
-    city: undefined,
-    barangay: undefined,
-    addressDetails: undefined,
-  }),
-);
+import { useOrgId } from "../../../layout";
 
 const FlexWrapper = component$(() => {
   return (
@@ -36,19 +21,34 @@ const FlexWrapper = component$(() => {
 });
 
 export default component$(() => {
-  const { mutate, state } = useMutate("/address/create");
+  const result = useOrgId();
+
+  const { mutate, state } = useMutate("POST /organizations/{orgId}/addresses");
 
   const [createAddressForm, { Form, Field }] = useForm<CreateAddressForm>({
-    loader: useFormLoader(),
+    loader: {
+      value: {
+        region: undefined,
+        province: undefined,
+        city: undefined,
+        barangay: undefined,
+        addressDetails: undefined,
+      },
+    },
     validate: valiForm$(CreateAddessSchema),
   });
 
   const handleSubmit = $<SubmitHandler<CreateAddressForm>>(async (values) => {
     try {
-      const result = await mutate(
+      await mutate(
         {
-          ...values,
-          country: "Philippines",
+          bodyParams: {
+            ...values,
+            country: "Philippines",
+          },
+          pathParams: {
+            orgId: result.value.orgId,
+          },
         },
         {
           credentials: "include",
@@ -151,8 +151,20 @@ export default component$(() => {
               )}
             </Field>
           </FlexWrapper>
-          <div>
-            <Button type="submit">Add</Button>
+          <div class="flex gap-3 justify-end">
+            <Link href={createDashboardPath(result.value.orgId, "/addresses")}>
+              <Button
+                type="button"
+                class="min-[360px]:px-10 border-input text-input"
+                variant="outline"
+              >
+                {"<-"} Cancel
+              </Button>
+            </Link>
+
+            <Button class="min-[360px]:px-10" type="submit">
+              Submit
+            </Button>
           </div>
         </Form>
       </div>
@@ -161,11 +173,5 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Create Address",
-  meta: [
-    {
-      name: "description",
-      content: "create Address",
-    },
-  ],
+  title: "Ark Point",
 };
