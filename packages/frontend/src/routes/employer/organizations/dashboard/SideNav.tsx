@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@builder.io/qwik-city";
+import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
 import { component$, Slot } from "@builder.io/qwik";
 
 import {
@@ -19,19 +19,25 @@ const Logout = component$(() => {
   const { mutate } = useMutate("POST /auth/session/revoke");
 
   return (
-    <div class="p-5 w-full">
+    <div class="py-3">
       <Button
-        class="w-full"
+        class={cn(
+          "w-full",
+          "text-text",
+          "bg-surface hover:bg-surface",
+          "dark:hover:brightness-125 hover:brightness-90",
+        )}
         onClick$={async () => {
           await mutate({}, { method: "DELETE", credentials: "include" });
           nav("/sign-in?mode=employer");
         }}
       >
         <div class="flex gap-2 items-center justify-center bg-transparent">
-          <div class="text-white text-xl bg-transparent">
+          <div class="text-text text-xl bg-transparent">
             <TbLogout />
           </div>
-          <p class="text-white">Log out</p>
+
+          <p class="text-text">Log out</p>
         </div>
       </Button>
     </div>
@@ -39,21 +45,27 @@ const Logout = component$(() => {
 });
 
 const NavItem = component$<{ to: string }>(({ to }) => {
+  const loc = useLocation();
+
   return (
     <div>
-      {" "}
-      <Link href={to}>
-        <div
-          class={cn(
-            "flex gap-3 items-center",
-            "w-full p-2",
-            "duration-300",
-            "cursor-pointer hover:bg-zinc-700 rounded-md",
-            "whitespace-nowrap text-lg font-medium",
-          )}
-        >
-          <Slot />
-        </div>
+      <Link
+        href={to}
+        class={cn(
+          "flex gap-3 items-center",
+          "w-full p-2",
+          "cursor-pointer rounded-md",
+          "whitespace-nowrap text-lg font-medium",
+          "duration-300",
+          loc.url.pathname === to
+            ? "bg-primary text-white"
+            : "bg-surface hover:bg-surface",
+          loc.url.pathname === to
+            ? ""
+            : "dark:hover:brightness-125 hover:brightness-90",
+        )}
+      >
+        <Slot />
       </Link>
     </div>
   );
@@ -113,7 +125,10 @@ export default component$(() => {
       </div>
 
       {/* footer */}
-      <Logout />
+      <div class="w-[90%] mx-auto">
+        <div class={cn("h-[1px]", "bg-surface brightness-150")} />
+        <Logout />
+      </div>
     </div>
   );
 });
