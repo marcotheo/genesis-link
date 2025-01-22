@@ -3,11 +3,12 @@ import { $, component$, useStore } from "@builder.io/qwik";
 import { TbTrash } from "@qwikest/icons/tablericons";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { cn, createDashboardPath, qwikFetch } from "~/common/utils";
 import { GetAddresssesByOrgIdApi } from "~/types/organizations";
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { useFetch } from "~/hooks/use-fetch/useFetch";
 import Button from "~/components/button/button";
-import { cn, qwikFetch } from "~/common/utils";
+import { useOrgId } from "../../layout";
 
 export const useAddressesLoader = routeLoader$(
   async ({ resolveValue, params }) => {
@@ -16,7 +17,7 @@ export const useAddressesLoader = routeLoader$(
 
       if (!headers) return null;
 
-      const res = await qwikFetch<GetAddresssesByOrgIdApi>(
+      const res = await qwikFetch<GetAddresssesByOrgIdApi["response"]>(
         `/organizations/${params.orgId}/addresses`,
         {
           method: "GET",
@@ -98,18 +99,26 @@ const AddressList = component$(() => {
   );
 });
 
+const CreateAddressLink = component$(() => {
+  const result = useOrgId();
+
+  return (
+    <div class="flex justify-end">
+      <Link href={createDashboardPath(result.value.orgId, "/addresses/create")}>
+        <Button class="px-5 py-3" variant="ghost">
+          + Add Address
+        </Button>
+      </Link>
+    </div>
+  );
+});
+
 export default component$(() => {
   return (
     <div>
       <br />
 
-      <div class="flex justify-end">
-        <Link href="/settings/addressess/create">
-          <Button class="px-5 py-3" variant="ghost">
-            + Add Address
-          </Button>
-        </Link>
-      </div>
+      <CreateAddressLink />
 
       <br />
 
