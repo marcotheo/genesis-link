@@ -2,7 +2,7 @@ import { Signal } from "@builder.io/qwik";
 
 // POST API /organizations
 export interface CreateOrganizationApi {
-  parameters: {
+  bodyParams: {
     company: string;
     email: string;
     contactNumber?: string;
@@ -44,26 +44,45 @@ export interface GetOrganizationsByUserIdApi {
 // ============ ORG ADDRESSES ============
 // POST API /organizations/{orgId}/addresses
 export interface CreateOrgAddressApi {
-  status: string;
-  message: string;
-  data: {
-    addressId: string;
+  pathParams: {
+    orgId: string;
+  };
+  bodyParams: {
+    country: string;
+    region: string;
+    province: string;
+    city: string;
+    barangay: string;
+    addressDetails: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      addressId: string;
+    };
   };
 }
 
 // GET API /organizations/{orgId}/addresses
 export interface GetAddresssesByOrgIdApi {
-  status: string;
-  message: string;
-  data: {
-    Addressid: string;
-    Country: string;
-    Region: string;
-    Province: string;
-    City: string;
-    Barangay: string;
-    Addressdetails: string;
-  }[];
+  queryStrings: null;
+  parameters: {
+    orgId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      Addressid: string;
+      Country: string;
+      Region: string;
+      Province: string;
+      City: string;
+      Barangay: string;
+      Addressdetails: string;
+    }[];
+  };
 }
 
 // DELETE API /organizations/{orgId}/addresses/{addressId}

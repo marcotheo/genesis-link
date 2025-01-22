@@ -1,13 +1,15 @@
 import {
+  CreateOrgAddressApi,
+  CreateOrganizationApi,
+  GetAddresssesByOrgIdApi,
+  GetOrganizationsByUserIdApi,
+} from "./organizations";
+import {
   CreateUserSkillsApi,
   GetAccountDetailsAPI,
   GetUserSkillsApi,
   UpdateUserInfoApi,
 } from "./users";
-import {
-  CreateOrganizationApi,
-  GetOrganizationsByUserIdApi,
-} from "./organizations";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
 import { GenerateS3SignedUrlPutApi } from "./s3";
 
@@ -21,6 +23,7 @@ export interface MutationsType {
   "POST /users/skills": CreateUserSkillsApi;
 
   "POST /organizations": CreateOrganizationApi;
+  "POST /organizations/{orgId}/addresses": CreateOrgAddressApi;
 
   "POST /s3/url/put": GenerateS3SignedUrlPutApi;
 }
@@ -29,4 +32,6 @@ export interface QueryType {
   "GET /users/account/details": GetAccountDetailsAPI;
   "GET /users/skills": GetUserSkillsApi;
   "GET /organizations": GetOrganizationsByUserIdApi;
+
+  "GET /organizations/{orgId}/addresses": GetAddresssesByOrgIdApi;
 }
