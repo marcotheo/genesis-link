@@ -1,16 +1,8 @@
-import { Link, useLocation, type DocumentHead } from "@builder.io/qwik-city";
-import { $, component$, useSignal } from "@builder.io/qwik";
-import dayjs from "dayjs";
-
-import { Pagination } from "~/components/pagination/pagination";
-import { OrgPartialItem } from "~/types/organizations";
-import { useQuery } from "~/hooks/use-query/useQuery";
-import { Table } from "~/components/table/table";
-import Button from "~/components/button/button";
+import { useLocation, type DocumentHead } from "@builder.io/qwik-city";
+import { component$ } from "@builder.io/qwik";
 
 export default component$(() => {
-  const loc = useLocation();
-  return <div>Hello {loc.params.orgId}!</div>;
+  return <div>UNDER CONSTRUCTION</div>;
 });
 
 export const head: DocumentHead = {
