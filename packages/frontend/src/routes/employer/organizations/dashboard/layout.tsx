@@ -1,7 +1,16 @@
 import { component$, Slot } from "@builder.io/qwik";
+
+import { routeLoader$ } from "@builder.io/qwik-city";
 import DashboardHeader from "./DashboardHeader";
 import { cn } from "~/common/utils";
 import SideNav from "./SideNav";
+
+export const useOrgId = routeLoader$(({ params }) => {
+  const { orgId } = params; // Extract the route parameter
+  return {
+    orgId,
+  };
+});
 
 export default component$(() => {
   return (
