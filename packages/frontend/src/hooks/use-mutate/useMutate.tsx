@@ -26,7 +26,12 @@ export const useMutate = <Path extends keyof MutationsType>(url: Path) => {
   });
 
   const mutate = $(
-    async (json: MutationsType[Path]["parameters"], options?: RequestInit) => {
+    async (
+      params: Omit<MutationsType[Path], "response">,
+      options?: RequestInit,
+    ) => {
+      const mutateParams = params as any;
+
       state.loading = true;
       state.error = null;
 
@@ -40,11 +45,11 @@ export const useMutate = <Path extends keyof MutationsType>(url: Path) => {
         if (
           apiPath.includes("{") &&
           apiPath.includes("}") &&
-          typeof json === "object"
+          typeof mutateParams.pathParams === "object"
         ) {
           apiPath = apiPath.replace(
             /\{(\w+)\}/g,
-            (_, key) => (json as any)[key] || `{${key}}`,
+            (_, key) => mutateParams.pathParams[key] || `{${key}}`,
           );
         }
 
@@ -58,7 +63,9 @@ export const useMutate = <Path extends keyof MutationsType>(url: Path) => {
             },
             credentials: "include",
             ...additionalOptions,
-            body: json ? JSON.stringify(json) : undefined,
+            body: mutateParams.bodyParams
+              ? JSON.stringify(mutateParams.bodyParams)
+              : undefined,
           },
         );
 

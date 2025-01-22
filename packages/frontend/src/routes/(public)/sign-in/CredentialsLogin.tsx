@@ -47,8 +47,7 @@ export default component$(() => {
     try {
       const response = await mutate(
         {
-          email: values.email,
-          password: values.password,
+          bodyParams: { email: values.email, password: values.password },
         },
         {
           credentials: "include",

@@ -91,10 +91,12 @@ export default component$(() => {
   const handleSubmit = $<SubmitHandler<SignUpForm>>(async (values) => {
     try {
       const response = await mutate({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        password: values.password,
+        bodyParams: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          password: values.password,
+        },
       });
 
       if (response.result) reset(signUpForm);

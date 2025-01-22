@@ -67,7 +67,7 @@ const Email = component$<{ value?: string }>(({ value }) => {
     try {
       await updateInfo(
         {
-          email: store.value,
+          bodyParams: { email: store.value },
         },
         {
           credentials: "include",
@@ -133,7 +133,7 @@ const MobileNumber = component$<{ value?: string }>(({ value }) => {
     try {
       await updateInfo(
         {
-          mobileNumber: store.value,
+          bodyParams: { mobileNumber: store.value },
         },
         {
           credentials: "include",

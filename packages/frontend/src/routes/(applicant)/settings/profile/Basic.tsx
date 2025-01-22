@@ -82,7 +82,7 @@ const Resume = component$<{ userId?: string; resumeLink?: string }>(
       try {
         const s3 = await getSignedUrl(
           {
-            key: s3Key,
+            bodyParams: { key: s3Key },
           },
           {
             credentials: "include",
@@ -102,7 +102,7 @@ const Resume = component$<{ userId?: string; resumeLink?: string }>(
 
         await updateResumeLink(
           {
-            resumeLink: s3Key,
+            bodyParams: { resumeLink: s3Key },
           },
           {
             credentials: "include",
@@ -174,7 +174,7 @@ const Email = component$<{ value?: string }>(({ value }) => {
     try {
       await updateInfo(
         {
-          email: store.value,
+          bodyParams: { email: store.value },
         },
         {
           credentials: "include",
@@ -240,7 +240,7 @@ const MobileNumber = component$<{ value?: string }>(({ value }) => {
     try {
       await updateInfo(
         {
-          mobileNumber: store.value,
+          bodyParams: { mobileNumber: store.value },
         },
         {
           credentials: "include",

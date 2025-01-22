@@ -63,7 +63,7 @@ export default component$(() => {
   const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
     try {
       const response = await mutate({
-        skills: [...values.skills],
+        bodyParams: { skills: [...values.skills] },
       });
 
       if (response.error) throw response.error;

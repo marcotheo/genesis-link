@@ -18,7 +18,7 @@ export interface GetAccountDetailsAPI {
 
 // PUT API /users/update/info"
 export interface UpdateUserInfoApi {
-  parameters: {
+  bodyParams: {
     resumeLink?: string;
     email?: string;
     mobileNumber?: string;
@@ -59,7 +59,7 @@ export interface GetUserSkillsApi {
 
 // POST API /users/skills
 export interface CreateUserSkillsApi {
-  parameters: {
+  bodyParams: {
     skills: {
       skillName: string;
       skillLevel: string;

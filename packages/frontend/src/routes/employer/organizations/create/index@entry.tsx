@@ -74,14 +74,13 @@ export default component$(() => {
       let logoS3key = undefined;
 
       if (logoFile) {
-        const file = logoFile as any as File;
         const id = nanoid();
 
         logoS3key = `company/logo_${values.company}_${id}`;
 
         const s3 = await logoUpload(
           {
-            key: logoS3key,
+            bodyParams: { key: logoS3key },
           },
           {
             credentials: "include",
@@ -102,8 +101,7 @@ export default component$(() => {
 
       const res = await mutate(
         {
-          ...rest,
-          logoLink: logoS3key,
+          bodyParams: { ...rest, logoLink: logoS3key },
         },
         {
           credentials: "include",

@@ -1,6 +1,6 @@
 // POST API /auth/signin
 export interface SignInApi {
-  parameters: {
+  bodyParams: {
     email: string;
     password: string;
   };
@@ -15,7 +15,7 @@ export interface SignInApi {
 
 // POST API /auth/create
 export interface SignUpApi {
-  parameters: {
+  bodyParams: {
     firstName: string;
     lastName: string;
     email: string;
@@ -33,7 +33,6 @@ export interface SignUpApi {
 
 // POST API /auth/token/refresh
 export interface RefreshTokenApi {
-  parameters: null;
   response: {
     status: string;
     message: string;
@@ -45,7 +44,6 @@ export interface RefreshTokenApi {
 
 // POST API /auth/session/revoke
 export interface RevokeTokenApi {
-  parameters: null;
   response: {
     status: string;
     message: string;

@@ -1,6 +1,6 @@
 // POST API /s3//url/put
 export interface GenerateS3SignedUrlPutApi {
-  parameters: {
+  bodyParams: {
     key: string;
   };
   response: {
