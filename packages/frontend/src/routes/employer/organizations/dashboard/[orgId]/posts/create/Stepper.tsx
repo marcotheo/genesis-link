@@ -44,21 +44,18 @@ export default component$(() => {
       <ItemStep title="Post Information" isActive={activeStep.value === 1}>
         <TbInbox />
       </ItemStep>
-      <ItemStep title="Visuals & Branding" isActive={activeStep.value === 2}>
-        <TbUpload />
-      </ItemStep>
-      <ItemStep title="Address Information" isActive={activeStep.value === 3}>
+      <ItemStep title="Address Information" isActive={activeStep.value === 2}>
         <TbMapPin />
       </ItemStep>
-      <ItemStep title="Job Details" isActive={activeStep.value === 4}>
+      <ItemStep title="Job Details" isActive={activeStep.value === 3}>
         <TbBriefcase />
       </ItemStep>
-      <ItemStep title="Job Requirements" isActive={activeStep.value === 5}>
+      <ItemStep title="Job Requirements" isActive={activeStep.value === 4}>
         <TbList />
       </ItemStep>
       <ItemStep
         title="Additional Information"
-        isActive={activeStep.value === 6}
+        isActive={activeStep.value === 5}
       >
         <TbList />
       </ItemStep>

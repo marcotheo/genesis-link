@@ -56,7 +56,7 @@ export default component$(() => {
 
   return (
     <div class={cn("flex h-full w-full justify-center")}>
-      <div class={cn("px-5 lg:px-24 w-full")}>
+      <div class={cn("px-5 lg:px-12 w-full")}>
         <Heading class="max-md:hidden">Post Information</Heading>
 
         <p class="text-gray-500 max-md:hidden">

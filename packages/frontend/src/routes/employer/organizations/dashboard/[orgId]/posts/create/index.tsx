@@ -60,7 +60,7 @@ export default component$(() => {
 
   return (
     <div class="h-full flex flex-col md:flex-row gap-3 relative">
-      {/* <div
+      <div
         class={cn(
           "duration-500 transition-[height]",
           "md:h-[95%] px-5 md:py-12",
@@ -72,9 +72,9 @@ export default component$(() => {
       >
         <StepHeader />
         <Stepper />
-      </div> */}
+      </div>
 
-      <div class={cn("h-[95%] overflow-auto", "w-full")}>
+      <div class={cn("h-[95%] overflow-auto", "w-full md:py-12")}>
         <ActiveForm />
       </div>
     </div>

@@ -89,7 +89,7 @@ export default component$(() => {
         Saving Job Requirements
       </LoadingOverlay>
 
-      <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
+      <div class={cn("px-5 lg:px-12 md:py-12 w-full")}>
         <Heading class="max-md:hidden">Job Requirements</Heading>
 
         <br class="max-md:hidden" />

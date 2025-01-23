@@ -154,7 +154,7 @@ export default component$(() => {
     <div class={cn("flex h-full w-full justify-center")}>
       <LoadingOverlay open={state.loading}>Initializing Post</LoadingOverlay>
 
-      <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
+      <div class={cn("px-5 lg:px-12  md:py-12 w-full")}>
         <Heading class="max-md:hidden">Address Information</Heading>
 
         <br class="max-md:hidden" />
