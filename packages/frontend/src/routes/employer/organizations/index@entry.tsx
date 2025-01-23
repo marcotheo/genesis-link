@@ -29,7 +29,6 @@ const Organizations = component$(() => {
       queryStrings: {
         page,
       },
-      urlParams: null,
     },
     {
       defaultValues: {
