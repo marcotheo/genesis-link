@@ -51,7 +51,7 @@ const AddressList = component$(() => {
 
       if (state.addresses)
         state.addresses = state.addresses.filter(
-          (v) => v.Addressid !== addressId,
+          (v) => v.addressId !== addressId,
         );
     } catch (err) {
       console.log("Error:", err);
@@ -66,7 +66,7 @@ const AddressList = component$(() => {
 
       {state.addresses?.map((v) => (
         <div
-          key={v.Addressid}
+          key={v.addressId}
           class={cn(
             "p-5 shadow-sm bg-surface rounded-md",
             "flex justify-between items-center",
@@ -76,18 +76,18 @@ const AddressList = component$(() => {
           <div>
             {" "}
             <p>
-              {v.Addressdetails}, {v.Barangay},
+              {v.addressDetails}, {v.barangay},
             </p>
             <p>
-              {v.City}, {v.Province}, {v.Region},
+              {v.city}, {v.province}, {v.region},
             </p>
-            <p>{v.Country},</p>
+            <p>{v.country},</p>
           </div>
 
           <Button
             class="group cursor-pointer bg-transparent"
             variant="ghost"
-            onClick$={() => onDelete(v.Addressid)}
+            onClick$={() => onDelete(v.addressId)}
           >
             <div class="text-destructive text-2xl w-fit">
               <TbTrash />

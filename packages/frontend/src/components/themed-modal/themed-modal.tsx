@@ -47,7 +47,7 @@ export const Content = component$<Props>(
           modalSizes[size],
         )}
       >
-        <Modal.Title>{modalTitle ?? ""}</Modal.Title>
+        <Modal.Title class="text-2xl">{modalTitle ?? ""}</Modal.Title>
 
         <Modal.Description class="text-gray-500 text-sm">
           {modalDescription ?? ""}

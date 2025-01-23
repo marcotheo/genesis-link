@@ -65,21 +65,20 @@ export interface CreateOrgAddressApi {
 
 // GET API /organizations/{orgId}/addresses
 export interface GetAddresssesByOrgIdApi {
-  queryStrings: null;
-  parameters: {
+  pathParams: {
     orgId: string;
   };
   response: {
     status: string;
     message: string;
     data: {
-      Addressid: string;
-      Country: string;
-      Region: string;
-      Province: string;
-      City: string;
-      Barangay: string;
-      Addressdetails: string;
+      addressId: string;
+      country: string;
+      region: string;
+      province: string;
+      city: string;
+      barangay: string;
+      addressDetails: string;
     }[];
   };
 }
@@ -95,10 +94,24 @@ export interface DeleteOrgAddressApi {
 // ============ ORG POSTS ============
 // POST API /organizations/{orgId}/posts
 export interface CreateOrgJobPostApi {
-  status: string;
-  message: string;
-  data: {
-    postId: string;
+  bodyParams: {
+    title: string;
+    description?: string;
+    additionalInfoLink?: string;
+    wfh: 0 | 1;
+    deadline: string;
+    addressId: string;
+    tags: {
+      tagName: string;
+      tagCategory: string;
+    }[];
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      postId: string;
+    };
   };
 }
 

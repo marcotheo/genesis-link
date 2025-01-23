@@ -4,8 +4,8 @@ import { $, component$, Slot } from "@builder.io/qwik";
 
 import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { cn, createDashboardPath, defaultCountry } from "~/common/utils";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { cn, createDashboardPath } from "~/common/utils";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Alert from "~/components/alert/alert";
@@ -44,7 +44,7 @@ export default component$(() => {
         {
           bodyParams: {
             ...values,
-            country: "Philippines",
+            country: defaultCountry,
           },
           pathParams: {
             orgId: result.value.orgId,

@@ -1,5 +1,5 @@
 import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
-import { $, component$, Slot, useContext } from "@builder.io/qwik";
+import { $, component$, Slot } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import * as TModal from "~/components/themed-modal/themed-modal";
@@ -9,10 +9,9 @@ import Input from "~/components/input/input";
 
 import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { Address, GetAPIMapping } from "~/common/types";
-import { QueryContext } from "~/providers/query/query";
-import { useCreateAddressFormLoader } from ".";
-import { cn } from "~/common/utils";
+import { useCache } from "~/hooks/use-cache/useCache";
+import { cn, defaultCountry } from "~/common/utils";
+import { useOrgId } from "../../../layout";
 
 const FlexWrapper = component$(() => {
   return (
@@ -23,13 +22,23 @@ const FlexWrapper = component$(() => {
 });
 
 export default component$(() => {
-  const countryValue = "Philippines";
-  const { setCacheData } = useContext(QueryContext);
+  const org = useOrgId();
+  const { setCacheData } = useCache("GET /organizations/{orgId}/addresses", {
+    pathParams: { orgId: org.value.orgId },
+  });
 
-  const { mutate, state } = useMutate("/address/create");
+  const { mutate, state } = useMutate("POST /organizations/{orgId}/addresses");
 
   const [createAddressForm, { Form, Field }] = useForm<CreateAddressForm>({
-    loader: useCreateAddressFormLoader(),
+    loader: {
+      value: {
+        region: undefined,
+        province: undefined,
+        city: undefined,
+        barangay: undefined,
+        addressDetails: undefined,
+      },
+    },
     validate: valiForm$(CreateAddessSchema),
   });
 
@@ -37,8 +46,13 @@ export default component$(() => {
     try {
       const res = await mutate(
         {
-          ...values,
-          country: countryValue,
+          bodyParams: {
+            ...values,
+            country: defaultCountry,
+          },
+          pathParams: {
+            orgId: org.value.orgId,
+          },
         },
         {
           credentials: "include",
@@ -46,28 +60,18 @@ export default component$(() => {
       );
 
       if (res.result)
-        await setCacheData("/address", (currentData) => {
-          const temp = currentData as unknown as
-            | GetAPIMapping["/address"]
-            | null;
-
-          const newAddress = {
-            Addressid: res.result.addressId,
-            Country: countryValue,
-            Region: values.region,
-            Province: values.province,
-            City: values.city,
-            Barangay: values.barangay,
-            Addressdetails: values.addressDetails,
-          } as Address;
-
-          if (temp)
-            return {
-              ...temp,
-              data: [...temp.data, newAddress],
-            };
-
-          return temp;
+        await setCacheData((currentData) => {
+          return {
+            ...(currentData ?? { status: "", message: "" }),
+            data: [
+              ...(currentData?.data ?? []),
+              {
+                ...values,
+                addressId: res.result.data.addressId,
+                country: defaultCountry,
+              },
+            ],
+          };
         });
 
       reset(createAddressForm);

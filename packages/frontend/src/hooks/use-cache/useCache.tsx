@@ -1,4 +1,4 @@
-import { $, Signal, useContext } from "@builder.io/qwik";
+import { $, useContext } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
 import { QueryType } from "~/types";
@@ -10,14 +10,9 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-type ExtractUrlParams<T> = T extends null ? null : NonNullable<T>;
-
 export const useCache = <Path extends keyof QueryType>(
   apiKey: Path,
-  params: {
-    urlParams: ExtractUrlParams<QueryType[Path]["parameters"]>;
-    queryStrings: ExtractUrlParams<QueryType[Path]["queryStrings"]>;
-  },
+  params: Omit<QueryType[Path], "response">, // must contain optiona properties of { pathParams and queryStrings } refer to /types folder index.ts
   options?: {
     cacheTime?: number; // in milliseconds
   },
@@ -27,11 +22,13 @@ export const useCache = <Path extends keyof QueryType>(
   const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
 
   const getApiUrl = $((): string => {
+    const apiParams = params as any;
+
     // build Query String
     const searchParams = new URLSearchParams();
-    if (!!params.queryStrings)
-      for (const key in params.queryStrings) {
-        searchParams.append(key, (params.queryStrings as any)[key].value);
+    if (!!apiParams.queryStrings)
+      for (const key in apiParams.queryStrings) {
+        searchParams.append(key, apiParams.queryStrings[key].value);
       }
 
     // build api path
@@ -41,7 +38,7 @@ export const useCache = <Path extends keyof QueryType>(
     if (apiPath.includes("{") && apiPath.includes("}"))
       apiPath = apiPath.replace(
         /\{(\w+)\}/g,
-        (_, key) => (params.urlParams as any)[key] || `{${key}}`,
+        (_, key) => apiParams.pathParams[key] || `{${key}}`,
       );
 
     return (

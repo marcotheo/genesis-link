@@ -174,3 +174,5 @@ export const generateRandomId = (length = 10) => {
 export const createDashboardPath = (orgId: string, path: string) => {
   return `/employer/organizations/dashboard/${orgId}` + path;
 };
+
+export const defaultCountry = "Philippines";

@@ -38,10 +38,7 @@ type SchemaType = v.InferInput<typeof schema>;
 export default component$(() => {
   const toast = useToast();
 
-  const { setCacheData } = useCache("GET /users/skills", {
-    urlParams: null,
-    queryStrings: null,
-  });
+  const { setCacheData } = useCache("GET /users/skills", {});
   const { mutate } = useMutate("POST /users/skills");
 
   const [form, { Form, Field, FieldArray }] = useForm<SchemaType>({
