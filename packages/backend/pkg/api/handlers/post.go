@@ -273,7 +273,7 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 
 type Requirement struct {
 	RequirementType string `json:"requirementType" validate:"required,oneof=responsibility qualification"`
-	Requirement     string `json:"requirement" validate:"required,min=5,max=500"`
+	Requirement     string `json:"requirement" validate:"required,min=1,max=500"`
 }
 type PostRequirementsParams struct {
 	Requirements []Requirement `json:"requirements" validate:"required,dive"`
