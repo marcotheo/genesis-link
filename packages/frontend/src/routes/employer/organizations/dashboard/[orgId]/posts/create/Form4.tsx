@@ -111,7 +111,9 @@ export default component$(() => {
               >
                 <Heading>{capitalizeFirstLetter(fieldArray.name)}</Heading>
 
-                <div class="py-3 space-y-3">
+                <div
+                  class={cn("space-y-5 py-3 px-1", "max-h-40 overflow-y-auto")}
+                >
                   {fieldArray.items.map((item, idx) => (
                     <div key={item} class="flex gap-3 items-end">
                       <Field name={`${fieldArray.name}.${idx}`}>
@@ -167,7 +169,9 @@ export default component$(() => {
               >
                 <Heading>{capitalizeFirstLetter(fieldArray.name)}</Heading>
 
-                <div class="py-3 space-y-3">
+                <div
+                  class={cn("space-y-5 py-3 px-1", "max-h-40 overflow-y-auto")}
+                >
                   {fieldArray.items.map((item, idx) => (
                     <div key={item} class="flex gap-3 items-end">
                       <Field name={`${fieldArray.name}.${idx}`}>
