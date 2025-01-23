@@ -1,31 +1,35 @@
-import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
-import { component$, Slot } from "@builder.io/qwik";
-
 import {
   TbBriefcase,
+  TbChevronLeft,
   TbDashboard,
   TbLocation,
   TbLogout,
   TbSettings,
 } from "@qwikest/icons/tablericons";
+import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
+import { component$, Signal, Slot, useSignal } from "@builder.io/qwik";
+
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { cn, createDashboardPath } from "~/common/utils";
-import Image from "~/assets/images/logo.png?jsx";
 import Button from "~/components/button/button";
 import { useOrgId } from "./layout";
 
-const Logout = component$(() => {
+import LogoOnlyImage from "~/assets/images/logo_symbol.png?jsx";
+import LogoWithTextImage from "~/assets/images/logo.png?jsx";
+
+const Logout = component$<{ open: Signal<boolean> }>(({ open }) => {
   const nav = useNavigate();
   const { mutate } = useMutate("POST /auth/session/revoke");
 
   return (
-    <div class="py-3">
+    <div class={cn("py-2", open.value ? "" : "px-1")}>
       <Button
         class={cn(
           "w-full",
-          "text-text",
+          "text-text whitespace-nowrap",
           "bg-surface hover:bg-surface",
           "dark:hover:brightness-125 hover:brightness-90",
+          "py-4",
         )}
         onClick$={async () => {
           await mutate({}, { method: "DELETE", credentials: "include" });
@@ -34,85 +38,132 @@ const Logout = component$(() => {
       >
         <div class="flex gap-2 items-center justify-center bg-transparent">
           <div class="text-text text-xl bg-transparent">
-            <TbLogout />
+            <TbLogout font-size="25px" />
           </div>
 
-          <p class="text-text">Log out</p>
+          {open.value && <p class="text-text">Log out</p>}
         </div>
       </Button>
     </div>
   );
 });
 
-const NavItem = component$<{ to: string }>(({ to }) => {
-  const loc = useLocation();
+const NavItem = component$<{ to: string; open: Signal<boolean> }>(
+  ({ to, open }) => {
+    const loc = useLocation();
 
-  return (
-    <div>
-      <Link
-        href={to}
-        class={cn(
-          "flex gap-3 items-center",
-          "w-full p-2",
-          "cursor-pointer rounded-md",
-          "whitespace-nowrap text-lg font-medium",
-          "duration-300",
-          loc.url.pathname === to
-            ? "bg-primary text-white"
-            : "bg-surface hover:bg-surface",
-          loc.url.pathname === to
-            ? ""
-            : "dark:hover:brightness-125 hover:brightness-90",
-        )}
-      >
-        <Slot />
-      </Link>
-    </div>
-  );
-});
+    return (
+      <div>
+        <Link
+          href={to}
+          class={cn(
+            "flex gap-3 items-center",
+            open.value ? "" : "justify-center",
+            "w-full p-5",
+            "cursor-pointer rounded-md",
+            "whitespace-nowrap text-lg font-medium",
+            "duration-300",
+            loc.url.pathname === to
+              ? "bg-primary text-white"
+              : "bg-surface hover:bg-surface",
+            loc.url.pathname === to
+              ? ""
+              : "dark:hover:brightness-125 hover:brightness-90",
+          )}
+        >
+          <Slot />
+        </Link>
+      </div>
+    );
+  },
+);
 
-const NavItems = component$(() => {
+const NavItems = component$<{ open: Signal<boolean> }>(({ open }) => {
   const loc = useOrgId();
 
   return (
-    <div class="px-5 mt-3 space-y-1">
-      <NavItem to={createDashboardPath(loc.value.orgId, "")}>
-        <TbDashboard /> Dashboard
+    <div class={cn("mt-3 space-y-3", open.value ? "px-5" : "px-3")}>
+      <NavItem to={createDashboardPath(loc.value.orgId, "")} open={open}>
+        <TbDashboard font-size="25px" />
+        {open.value ? "Dashboard" : ""}
       </NavItem>
-      <NavItem to={createDashboardPath(loc.value.orgId, "/posts")}>
-        <TbBriefcase /> Job Posts
+      <NavItem to={createDashboardPath(loc.value.orgId, "/posts")} open={open}>
+        <TbBriefcase font-size="25px" />
+
+        {open.value ? "Job Posts" : ""}
       </NavItem>
-      <NavItem to={createDashboardPath(loc.value.orgId, "/addresses")}>
-        <TbLocation /> Addresses
+      <NavItem
+        to={createDashboardPath(loc.value.orgId, "/addresses")}
+        open={open}
+      >
+        <TbLocation font-size="25px" />
+        {open.value ? "Addresses" : ""}
       </NavItem>
-      <NavItem to={createDashboardPath(loc.value.orgId, "/settings")}>
-        <TbSettings /> Settings
+      <NavItem
+        to={createDashboardPath(loc.value.orgId, "/settings")}
+        open={open}
+      >
+        <TbSettings font-size="25px" />
+        {open.value ? "Settings" : ""}
       </NavItem>
     </div>
   );
 });
 
 export default component$(() => {
+  const open = useSignal(false);
+
   return (
     <div
       class={cn(
-        "h-full w-80",
+        "relative",
+        "h-full",
         "bg-surface shadow-lg",
         "flex flex-col justify-between",
+        "duration-500",
+        open.value ? "w-80" : "w-24",
       )}
     >
+      <button
+        class={cn(
+          "absolute",
+          "top-1/2 -right-3",
+          "-translate-y-1/2",
+          "bg-primary",
+          "p-2 rounded-full",
+          "text-white",
+          "duration-300",
+          "hover:brightness-125",
+          open.value ? "" : "rotate-180",
+        )}
+        onClick$={() => (open.value = !open.value)}
+      >
+        <TbChevronLeft />
+      </button>
+
       <div>
         {/* side nav header */}
         <div class="h-24">
           <div class="h-full w-full flex justify-center items-center">
-            <div
-              class={cn(
-                "relative w-56 min-w-56",
-                "flex items-center justify-center",
-              )}
-            >
-              <Image class="w-full h-auto block" />
-            </div>
+            {open.value ? (
+              <div
+                class={cn(
+                  "relative w-56 min-w-56",
+                  "flex items-center justify-center",
+                )}
+              >
+                <LogoWithTextImage class="w-full h-auto block" />
+              </div>
+            ) : (
+              <div
+                class={cn(
+                  "relative w-14 min-w-14",
+                  "flex items-center justify-center",
+                )}
+              >
+                <LogoOnlyImage class="w-full h-auto block" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -121,13 +172,13 @@ export default component$(() => {
         />
 
         {/* side nav content */}
-        <NavItems />
+        <NavItems open={open} />
       </div>
 
       {/* footer */}
       <div class="w-[90%] mx-auto">
         <div class={cn("h-[1px]", "bg-surface brightness-150")} />
-        <Logout />
+        <Logout open={open} />
       </div>
     </div>
   );
