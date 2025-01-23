@@ -83,13 +83,13 @@ func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 }
 
 type AddressResponse struct {
-	AddressID      string `json:"Addressid"`
-	Country        string `json:"Country"`
-	Region         string `json:"Region,omitempty"`
-	Province       string `json:"Province,omitempty"`
-	City           string `json:"City,omitempty"`
-	Barangay       string `json:"Barangay,omitempty"`
-	AddressDetails string `json:"Addressdetails,omitempty"`
+	AddressID      string `json:"addressId"`
+	Country        string `json:"country"`
+	Region         string `json:"region,omitempty"`
+	Province       string `json:"province,omitempty"`
+	City           string `json:"city,omitempty"`
+	Barangay       string `json:"barangay,omitempty"`
+	AddressDetails string `json:"addressDetails,omitempty"`
 }
 
 func (h *AddressHandler) GetAddressesByOrgId(w http.ResponseWriter, r *http.Request) {
