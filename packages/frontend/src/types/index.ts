@@ -1,6 +1,7 @@
 import {
   CreateOrgAddressApi,
   CreateOrganizationApi,
+  CreateOrgJobPostApi,
   GetAddresssesByOrgIdApi,
   GetOrganizationsByUserIdApi,
   GetPostsByOrgApi,
@@ -23,6 +24,7 @@ export interface MutationsType {
   "POST /users/skills": CreateUserSkillsApi;
   "POST /organizations": CreateOrganizationApi;
   "POST /organizations/{orgId}/addresses": CreateOrgAddressApi;
+  "POST /organizations/{orgId}/posts": CreateOrgJobPostApi;
   "POST /s3/url/put": GenerateS3SignedUrlPutApi;
 }
 

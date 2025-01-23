@@ -4,7 +4,6 @@ import { Maybe } from "@modular-forms/qwik";
 import * as v from "valibot";
 
 export const CreateBasicPostInfoSchema = v.object({
-  company: v.pipe(v.string("Required"), v.nonEmpty("Please enter company.")),
   title: v.pipe(v.string("Required"), v.nonEmpty("Please enter title.")),
   description: v.pipe(
     v.string("Required"),
@@ -14,13 +13,13 @@ export const CreateBasicPostInfoSchema = v.object({
     v.union([v.literal("yes"), v.literal("no")], "Required"),
     v.nonEmpty("Please choose wfh."),
   ),
-  email: v.pipe(
-    v.string("Required"),
-    v.nonEmpty("Please enter your email."),
-    v.email("Invalid email"),
-  ),
-  phone: v.pipe(v.string("Required"), v.nonEmpty("Required")),
   deadline: v.date("Required"),
+  tags: v.array(
+    v.object({
+      tagName: v.pipe(v.string(), v.nonEmpty()),
+      tagCategory: v.pipe(v.string(), v.nonEmpty()),
+    }),
+  ),
 });
 
 export type BasicPostInfoStep = v.InferInput<typeof CreateBasicPostInfoSchema>;
@@ -69,11 +68,7 @@ export type RichTextEditorStep = v.InferInput<typeof RichTextEditorSchema>;
 export type CreateJobPostFormData = {
   postId?: string;
   form1?: BasicPostInfoStep;
-  form2?: BrandingVisualsStep & {
-    logoS3key: string | null;
-    posterS3Key: string | null;
-  };
-  form3?: string;
+  form2?: string;
   form4?: JobDetailsInfoStep;
   form5?: JobRequirementsStep;
   form6?: RichTextEditorStep;

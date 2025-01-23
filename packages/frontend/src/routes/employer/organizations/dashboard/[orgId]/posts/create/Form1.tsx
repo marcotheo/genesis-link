@@ -1,15 +1,23 @@
-import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
+import {
+  insert,
+  remove,
+  reset,
+  SubmitHandler,
+  useForm,
+  valiForm$,
+} from "@modular-forms/qwik";
 import { $, component$, Slot, useContext, useTask$ } from "@builder.io/qwik";
 
 import RadioButtonGroup from "~/components/radio-button-group/radio-button-group";
 import { CreateBasicPostInfoSchema, BasicPostInfoStep } from "./common";
-import { FormDataCtx, FormStepCtx, useForm1Loader } from "./index";
+import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
+import { capitalizeFirstLetter, cn } from "~/common/utils";
 import TextArea from "~/components/text-area/text-area";
 import Heading from "~/components/heading/heading";
+import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import FormWrapper from "./FormWrapper";
-import { cn } from "~/common/utils";
 
 const FlexWrapper = component$(() => {
   return (
@@ -23,10 +31,20 @@ export default component$(() => {
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
 
-  const [basicPostInfoForm, { Form, Field }] = useForm<BasicPostInfoStep>({
-    loader: useForm1Loader(),
-    validate: valiForm$(CreateBasicPostInfoSchema),
-  });
+  const [basicPostInfoForm, { Form, Field, FieldArray }] =
+    useForm<BasicPostInfoStep>({
+      loader: {
+        value: {
+          title: undefined,
+          description: undefined,
+          wfh: undefined,
+          deadline: undefined,
+          tags: [],
+        },
+      },
+      validate: valiForm$(CreateBasicPostInfoSchema),
+      fieldArrays: ["tags"],
+    });
 
   const handleSubmit = $<SubmitHandler<BasicPostInfoStep>>(async (values) => {
     try {
@@ -50,10 +68,8 @@ export default component$(() => {
 
   return (
     <FormWrapper formStep={1} activeStep={activeStep.value}>
-      <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
+      <div class={cn("px-5 lg:px-24 w-full")}>
         <Heading class="max-md:hidden">Post Information</Heading>
-
-        <br class="max-md:hidden" />
 
         <p class="text-gray-500 max-md:hidden">
           Enter Post Information to initialize post.
@@ -63,18 +79,6 @@ export default component$(() => {
 
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
           <FlexWrapper>
-            <Field name="company">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Company"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-
             <Field name="title">
               {(field, props) => (
                 <Input
@@ -99,32 +103,6 @@ export default component$(() => {
               />
             )}
           </Field>
-
-          <FlexWrapper>
-            <Field name="email">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  type="email"
-                  label="Email"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-            <Field name="phone">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Phone"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-          </FlexWrapper>
 
           <Field name="wfh">
             {(field, props) => (
@@ -155,6 +133,90 @@ export default component$(() => {
               />
             )}
           </Field>
+
+          <FieldArray name="tags">
+            {(fieldArray) => (
+              <div
+                id={fieldArray.name}
+                class={cn("p-4 rounded-lg", "bg-surface shadow-lg")}
+              >
+                <Heading>
+                  {capitalizeFirstLetter(fieldArray.name)} (
+                  {fieldArray.items.length})
+                </Heading>
+
+                <div
+                  class={cn("space-y-5 py-3 px-1", "max-h-40 overflow-y-auto")}
+                >
+                  {fieldArray.items.map((item, idx) => (
+                    <div
+                      key={item}
+                      class={cn(
+                        "flex flex-col min-[550px]:flex-row",
+                        "gap-3 items-start",
+                        "animate-fade-in-slide ",
+                      )}
+                    >
+                      <Field name={`${fieldArray.name}.${idx}.tagName`}>
+                        {(field, props) => (
+                          <Input
+                            {...props}
+                            label="enter tag name"
+                            variant="filled"
+                            errorMsg={field.error}
+                            value={field.value}
+                            class="h-[50px]"
+                          />
+                        )}
+                      </Field>
+
+                      <Field name={`${fieldArray.name}.${idx}.tagCategory`}>
+                        {(field, props) => (
+                          <Input
+                            {...props}
+                            label="enter tag category"
+                            variant="filled"
+                            errorMsg={field.error}
+                            value={field.value}
+                            class="h-[50px]"
+                          />
+                        )}
+                      </Field>
+
+                      <div class="h-[50px]">
+                        <Button
+                          type="button"
+                          class="bg-destructive h-full max-[400px]:px-3"
+                          onClick$={() =>
+                            remove(basicPostInfoForm, "tags", {
+                              at: idx,
+                            })
+                          }
+                        >
+                          <TbTrash />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  type="button"
+                  onClick$={() => {
+                    insert(basicPostInfoForm, "tags", {
+                      value: {
+                        tagName: "",
+                        tagCategory: "",
+                      },
+                    });
+                  }}
+                  class="py-3 px-3"
+                >
+                  <TbPlus />
+                </Button>
+              </div>
+            )}
+          </FieldArray>
 
           <div class="flex justify-end gap-3 mt-5">
             <Button type="submit" class="px-10">
