@@ -3,25 +3,25 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
-import { ListPostsResponse, Post } from "~/common/types";
+import { GetPostsByOrgApi } from "~/types/organizations";
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { Table } from "~/components/table/table";
 import Button from "~/components/button/button";
 import { qwikFetch } from "~/common/utils";
+import { useOrgId } from "../../layout";
 
-// need access token here
-export const usePostsLoader = routeLoader$(async ({ resolveValue }) => {
+export const usePostsLoader = routeLoader$(async ({ resolveValue, params }) => {
   try {
     const headers = await resolveValue(useAuthHeadersLoader);
 
     if (!headers) return null;
 
-    const params = new URLSearchParams();
-    params.append("page", "1");
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", "1");
 
-    const res = await qwikFetch<ListPostsResponse>(
-      `/posts/list?${params.toString()}`,
+    const res = await qwikFetch<GetPostsByOrgApi["response"]>(
+      `/organizations/${params.orgId}/posts?${queryParams.toString()}`,
       {
         method: "GET",
         headers,
@@ -38,22 +38,31 @@ export const usePostsLoader = routeLoader$(async ({ resolveValue }) => {
 
 export default component$(() => {
   const result = usePostsLoader();
+  const org = useOrgId();
   const page = useSignal(1);
 
   const { state } = useQuery(
-    "/posts/list",
-    { page },
+    "GET /organizations/{orgId}/posts",
+    {
+      queryStrings: {
+        page,
+      },
+      pathParams: {
+        orgId: org.value.orgId,
+      },
+    },
     {
       defaultValues: {
         status: "",
         message: "",
-        data: result.value ? result.value : { Total: 0, Posts: [] },
+        data: result.value ? result.value : { total: 0, posts: [] },
       },
     },
   );
 
-  const DeadlineRow = $((item: Post) =>
-    dayjs.unix(item.Deadline).format("MMM DD, YYYY"),
+  const DeadlineRow = $(
+    (item: GetPostsByOrgApi["response"]["data"]["posts"][0]) =>
+      dayjs.unix(item.deadline).format("MMM DD, YYYY"),
   );
 
   return (
@@ -71,15 +80,15 @@ export default component$(() => {
 
       <Table
         loading={state.loading}
-        data={state.result!.data.Posts}
-        headers={["Job Title", "Company", "Deadline"]}
-        rowKey={"Postid"}
-        rowDef={["Title", "Company", DeadlineRow]}
+        data={state?.result?.data.posts ?? []}
+        headers={["Job Title", "Deadline"]}
+        rowKey={"postId"}
+        rowDef={["title", DeadlineRow]}
       />
 
       <div class="flex w-full justify-end">
         <Pagination
-          totalPages={result.value ? Math.ceil(result.value.Total / 10) : 0}
+          totalPages={result.value ? Math.ceil(result.value.total / 10) : 0}
           currentPage={page}
         />
       </div>
@@ -88,11 +97,5 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Accounts Posts List",
-  meta: [
-    {
-      name: "description",
-      content: "accounts list of job/volunteering posts created",
-    },
-  ],
+  title: "ArkPoint",
 };
