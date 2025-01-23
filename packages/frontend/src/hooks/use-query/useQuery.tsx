@@ -4,8 +4,9 @@ import {
   useTask$,
   useContext,
   useVisibleTask$,
+  useSignal,
+  isSignal,
 } from "@builder.io/qwik";
-import { isServer } from "@builder.io/qwik/build";
 
 import { QueryContext } from "~/providers/query/query";
 import { qwikFetch } from "~/common/utils";
@@ -18,18 +19,16 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-type ExtractUrlParams<T> = T extends null ? null : NonNullable<T>;
-
 export const useQuery = <Path extends keyof QueryType>(
   apiKey: Path,
-  // must contain optiona properties of { pathParams and queryStrings } refer to /types folder index.ts
-  params: Omit<QueryType[Path], "response">,
+  params: Omit<QueryType[Path], "response">, // must contain optiona properties of { pathParams and queryStrings } refer to /types folder index.ts
   options?: {
     defaultValues?: QueryType[Path]["response"] | null;
     cacheTime?: number; // in milliseconds
     runOnRender?: boolean;
   },
 ) => {
+  const hasMounted = useSignal(false);
   const queryCtx = useContext(QueryContext);
   const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
 
@@ -62,7 +61,10 @@ export const useQuery = <Path extends keyof QueryType>(
     if (apiPath.includes("{") && apiPath.includes("}"))
       apiPath = apiPath.replace(
         /\{(\w+)\}/g,
-        (_, key) => apiParams.urlParams[key].value || `{${key}}`,
+        (_, key) =>
+          apiParams.pathParams[key].value ||
+          apiParams.pathParams[key] ||
+          `{${key}}`,
       );
 
     return (
@@ -129,17 +131,24 @@ export const useQuery = <Path extends keyof QueryType>(
     const apiParams = params as any;
 
     if (apiParams.pathParams !== null)
-      for (const key in apiParams.pathParams) track(apiParams.pathParams[key]);
+      for (const key in apiParams.pathParams)
+        if (isSignal(apiParams.pathParams[key]))
+          track(apiParams.pathParams[key]);
 
     if (apiParams.queryStrings !== null)
       for (const key in apiParams.queryStrings)
-        track(apiParams.queryStrings[key]);
+        if (isSignal(apiParams.queryStrings[key]))
+          track(apiParams.queryStrings[key]);
 
     // Track cached result
     const apiUrl = await getApiUrl();
     track(() => queryCtx.cache[apiUrl]);
 
-    if (isServer) return;
+    if (!hasMounted.value) {
+      // Skip execution on initial mount and route changes
+      hasMounted.value = true;
+      return;
+    }
 
     // Execute the query when any of the signals change
     refetch();
