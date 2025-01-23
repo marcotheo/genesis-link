@@ -71,6 +71,12 @@ ol {
 
     /* Animations */
     --modal-animation: forwards cubic-bezier(0.6, 0.6, 0, 1);
+
+    .ql-editor.ql-blank::before {
+      color: #888888; /* Custom color for placeholder */
+      font-size: 16px; /* Custom font size for placeholder */
+      font-style: italic; /* Optional: Make placeholder italic */
+    }
   }
 
   .dark {
@@ -104,6 +110,12 @@ ol {
 
     /* Animations */
     --modal-animation: forwards cubic-bezier(0.6, 0.6, 0, 1);
+
+    .ql-editor.ql-blank::before {
+      color: #888888; /* Custom color for placeholder */
+      font-size: 16px; /* Custom font size for placeholder */
+      font-style: italic; /* Optional: Make placeholder italic */
+    }
   }
 }
 
@@ -152,12 +164,6 @@ button {
 
 .ql-editor li {
   list-style-position: inside; /* Align bullet/number with text */
-}
-
-.ql-editor.ql-blank::before {
-  color: #888888; /* Custom color for placeholder */
-  font-size: 16px; /* Custom font size for placeholder */
-  font-style: italic; /* Optional: Make placeholder italic */
 }
 
 .ql-editor:focus-within {
