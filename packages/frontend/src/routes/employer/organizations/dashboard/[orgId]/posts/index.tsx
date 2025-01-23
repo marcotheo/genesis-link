@@ -3,12 +3,13 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
+import { createDashboardPath, qwikFetch } from "~/common/utils";
 import { GetPostsByOrgApi } from "~/types/organizations";
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { useQuery } from "~/hooks/use-query/useQuery";
+import { TbPlus } from "@qwikest/icons/tablericons";
 import { Table } from "~/components/table/table";
 import Button from "~/components/button/button";
-import { qwikFetch } from "~/common/utils";
 import { useOrgId } from "../../layout";
 
 export const usePostsLoader = routeLoader$(async ({ resolveValue, params }) => {
@@ -69,9 +70,14 @@ export default component$(() => {
     <div class="overflow-hidden pb-6">
       <br />
       <div class="flex justify-end">
-        <Link href="/posts/create">
-          <Button class="text-3xl" size="sm" variant="outline">
-            +
+        <Link href={createDashboardPath(org.value.orgId, "/posts/create")}>
+          <Button variant="ghost">
+            <div class="flex gap-3 items-center bg-transparent">
+              <div class="bg-transparent">
+                <TbPlus />
+              </div>
+              Create Post
+            </div>
           </Button>
         </Link>
       </div>
