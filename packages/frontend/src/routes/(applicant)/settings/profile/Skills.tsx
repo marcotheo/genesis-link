@@ -9,7 +9,7 @@ import SkillForm from "./SkillForm";
 const SkillList = component$(() => {
   const { state } = useQuery(
     "GET /users/skills",
-    { urlParams: null, queryStrings: null },
+    {},
     {
       runOnRender: true,
     },

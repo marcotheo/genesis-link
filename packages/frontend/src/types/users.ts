@@ -1,7 +1,5 @@
 // GET API /users/account/details"
 export interface GetAccountDetailsAPI {
-  queryStrings: null;
-  parameters: null;
   response: {
     status: string;
     message: string;
@@ -46,8 +44,6 @@ type UserSkill = {
 
 // GET API /users/skills
 export interface GetUserSkillsApi {
-  queryStrings: null;
-  parameters: null;
   response: {
     status: string;
     message: string;

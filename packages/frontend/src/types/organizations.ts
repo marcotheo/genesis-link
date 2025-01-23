@@ -30,7 +30,6 @@ export interface GetOrganizationsByUserIdApi {
   queryStrings: {
     page: Signal<number>;
   };
-  parameters: null;
   response: {
     status: string;
     message: string;
@@ -126,16 +125,23 @@ export interface CreatePostRequirementsApi {
 
 // GET API /organizations/{orgId}/posts
 export interface GetPostsByOrgApi {
-  status: string;
-  message: string;
-  data: {
-    posts: {
-      PostId: string;
-      Title: string;
-      Company?: string;
-      Deadline?: number;
-    }[];
-    total: number;
+  queryStrings: {
+    page: Signal<number>;
+  };
+  pathParams: {
+    orgId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      posts: {
+        postId: string;
+        title: string;
+        deadline: number;
+      }[];
+      total: number;
+    };
   };
 }
 // ============ ORG POSTS ============

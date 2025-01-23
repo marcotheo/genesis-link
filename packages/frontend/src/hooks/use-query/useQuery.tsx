@@ -22,10 +22,8 @@ type ExtractUrlParams<T> = T extends null ? null : NonNullable<T>;
 
 export const useQuery = <Path extends keyof QueryType>(
   apiKey: Path,
-  params: {
-    urlParams: ExtractUrlParams<QueryType[Path]["parameters"]>;
-    queryStrings: ExtractUrlParams<QueryType[Path]["queryStrings"]>;
-  },
+  // must contain optiona properties of { pathParams and queryStrings } refer to /types folder index.ts
+  params: Omit<QueryType[Path], "response">,
   options?: {
     defaultValues?: QueryType[Path]["response"] | null;
     cacheTime?: number; // in milliseconds
@@ -48,11 +46,13 @@ export const useQuery = <Path extends keyof QueryType>(
   });
 
   const getApiUrl = $((): string => {
+    const apiParams = params as any;
+
     // build Query String
     const searchParams = new URLSearchParams();
-    if (!!params.queryStrings)
-      for (const key in params.queryStrings) {
-        searchParams.append(key, (params.queryStrings as any)[key].value);
+    if (!!apiParams.queryStrings)
+      for (const key in apiParams.queryStrings) {
+        searchParams.append(key, apiParams.queryStrings[key].value);
       }
 
     // build api path
@@ -62,7 +62,7 @@ export const useQuery = <Path extends keyof QueryType>(
     if (apiPath.includes("{") && apiPath.includes("}"))
       apiPath = apiPath.replace(
         /\{(\w+)\}/g,
-        (_, key) => (params.urlParams as any)[key].value || `{${key}}`,
+        (_, key) => apiParams.urlParams[key].value || `{${key}}`,
       );
 
     return (
@@ -126,13 +126,14 @@ export const useQuery = <Path extends keyof QueryType>(
   });
 
   useTask$(async ({ track }) => {
-    if (params.urlParams !== null)
-      for (const key in params.urlParams as any)
-        track((params.urlParams as any)[key]);
+    const apiParams = params as any;
 
-    if (params.queryStrings !== null)
-      for (const key in params.queryStrings as any)
-        track((params.queryStrings as any)[key]);
+    if (apiParams.pathParams !== null)
+      for (const key in apiParams.pathParams) track(apiParams.pathParams[key]);
+
+    if (apiParams.queryStrings !== null)
+      for (const key in apiParams.queryStrings)
+        track(apiParams.queryStrings[key]);
 
     // Track cached result
     const apiUrl = await getApiUrl();

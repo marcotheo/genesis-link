@@ -290,10 +290,7 @@ const MobileNumber = component$<{ value?: string }>(({ value }) => {
 const AccountDetails = component$(() => {
   const { state } = useQuery(
     "GET /users/account/details",
-    {
-      queryStrings: null,
-      urlParams: null,
-    },
+    {},
     {
       runOnRender: true,
     },
