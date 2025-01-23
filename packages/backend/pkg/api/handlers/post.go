@@ -355,10 +355,9 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 }
 
 type Post struct {
-	PostId   string `json:"Postid"`
-	Title    string `json:"Title"`
-	Company  string `json:"Company,omitempty"`
-	Deadline int64  `json:"Deadline,omitempty"`
+	PostId   string `json:"postId"`
+	Title    string `json:"title"`
+	Deadline int64  `json:"deadline,omitempty"`
 }
 
 type GetPostsResponse struct {
@@ -403,7 +402,6 @@ func (h *PostHandler) GetPostsByOrg(w http.ResponseWriter, r *http.Request) {
 		item := Post{
 			PostId:   post.Postid,
 			Title:    post.Title,
-			Company:  h.utilService.ConvertNullString(post.Company),
 			Deadline: h.utilService.ConvertNullInt64(post.Deadline),
 		}
 
