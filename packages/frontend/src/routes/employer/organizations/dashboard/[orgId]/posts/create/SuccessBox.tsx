@@ -4,7 +4,6 @@ import { LuCheckCircle } from "@qwikest/icons/lucide";
 import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
-import FormWrapper from "./FormWrapper";
 import { cn } from "~/common/utils";
 
 export default component$(() => {
@@ -12,7 +11,7 @@ export default component$(() => {
   const activeStep = useContext(FormStepCtx);
 
   return (
-    <FormWrapper formStep={7} activeStep={activeStep.value}>
+    <div class={cn("flex h-full w-full justify-center")}>
       <div
         class={cn(
           "p-5 w-[90%] max-w-[60rem]",
@@ -46,6 +45,6 @@ export default component$(() => {
           DONE
         </Button>
       </div>
-    </FormWrapper>
+    </div>
   );
 });

@@ -1,12 +1,11 @@
 import {
   insert,
   remove,
-  reset,
   SubmitHandler,
   useForm,
   valiForm$,
 } from "@modular-forms/qwik";
-import { $, component$, Slot, useContext, useTask$ } from "@builder.io/qwik";
+import { $, component$, Slot, useContext } from "@builder.io/qwik";
 
 import RadioButtonGroup from "~/components/radio-button-group/radio-button-group";
 import { CreateBasicPostInfoSchema, BasicPostInfoStep } from "./common";
@@ -17,7 +16,6 @@ import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
-import FormWrapper from "./FormWrapper";
 
 const FlexWrapper = component$(() => {
   return (
@@ -30,17 +28,18 @@ const FlexWrapper = component$(() => {
 export default component$(() => {
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
+  const defaultValue = {
+    title: undefined,
+    description: undefined,
+    wfh: undefined,
+    deadline: undefined,
+    tags: [],
+  };
 
   const [basicPostInfoForm, { Form, Field, FieldArray }] =
     useForm<BasicPostInfoStep>({
       loader: {
-        value: {
-          title: undefined,
-          description: undefined,
-          wfh: undefined,
-          deadline: undefined,
-          tags: [],
-        },
+        value: formDataCtx.form1 ?? { ...defaultValue },
       },
       validate: valiForm$(CreateBasicPostInfoSchema),
       fieldArrays: ["tags"],
@@ -55,19 +54,8 @@ export default component$(() => {
     }
   });
 
-  // reset form values if not submitted
-  useTask$(({ track }) => {
-    const stepTracker = track(() => activeStep.value);
-
-    if (stepTracker === 1) {
-      reset(basicPostInfoForm, {
-        initialValues: formDataCtx.form1,
-      });
-    }
-  });
-
   return (
-    <FormWrapper formStep={1} activeStep={activeStep.value}>
+    <div class={cn("flex h-full w-full justify-center")}>
       <div class={cn("px-5 lg:px-24 w-full")}>
         <Heading class="max-md:hidden">Post Information</Heading>
 
@@ -91,7 +79,6 @@ export default component$(() => {
               )}
             </Field>
           </FlexWrapper>
-
           <Field name="description">
             {(field, props) => (
               <TextArea
@@ -103,7 +90,6 @@ export default component$(() => {
               />
             )}
           </Field>
-
           <Field name="wfh">
             {(field, props) => (
               <>
@@ -120,7 +106,6 @@ export default component$(() => {
               </>
             )}
           </Field>
-
           <Field name="deadline" type="Date">
             {(field, props) => (
               <Input
@@ -133,17 +118,16 @@ export default component$(() => {
               />
             )}
           </Field>
-
           <FieldArray name="tags">
             {(fieldArray) => (
               <div
                 id={fieldArray.name}
-                class={cn("p-4 rounded-lg", "bg-surface shadow-lg")}
+                class={cn("p-4 rounded-lg", "bg-surface shadow-lg", "relative")}
               >
-                <Heading>
-                  {capitalizeFirstLetter(fieldArray.name)} (
-                  {fieldArray.items.length})
-                </Heading>
+                <div class="flex justify-between">
+                  <Heading>{capitalizeFirstLetter(fieldArray.name)}</Heading>
+                  <Heading>({fieldArray.items.length})</Heading>
+                </div>
 
                 <div
                   class={cn("space-y-5 py-3 px-1", "max-h-40 overflow-y-auto")}
@@ -187,11 +171,11 @@ export default component$(() => {
                         <Button
                           type="button"
                           class="bg-destructive h-full max-[400px]:px-3"
-                          onClick$={() =>
+                          onClick$={() => {
                             remove(basicPostInfoForm, "tags", {
                               at: idx,
-                            })
-                          }
+                            });
+                          }}
                         >
                           <TbTrash />
                         </Button>
@@ -199,7 +183,6 @@ export default component$(() => {
                     </div>
                   ))}
                 </div>
-
                 <Button
                   type="button"
                   onClick$={() => {
@@ -225,6 +208,6 @@ export default component$(() => {
           </div>
         </Form>
       </div>
-    </FormWrapper>
+    </div>
   );
 });

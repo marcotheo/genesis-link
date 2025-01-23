@@ -106,6 +106,9 @@ export interface CreateOrgJobPostApi {
       tagCategory: string;
     }[];
   };
+  pathParams: {
+    orgId: string;
+  };
   response: {
     status: string;
     message: string;
@@ -117,23 +120,43 @@ export interface CreateOrgJobPostApi {
 
 // POST API /organizations/{orgId}/posts/{postId}/update/additionalInfoLink
 export interface UpdatePostAdditionalInfoLinkApi {
-  status: string;
-  message: string;
-  data: null;
+  pathParams: {
+    orgId: string;
+    postId: string;
+  };
+  bodyParams: { additionalInfoLink: string };
+  response: { status: string; message: string; data: null };
 }
 
 // POST API /organizations/{orgId}/posts/{postId}/job_details
 export interface CreatePostJobDetailsApi {
-  status: string;
-  message: string;
-  data: null;
+  pathParams: {
+    orgId: string;
+    postId: string;
+  };
+  bodyParams: {
+    jobType: "full-time" | "part-time" | "contract" | "internship";
+    salaryType?: "fixed" | "hourly" | "monthly";
+    salaryAmountMin: number;
+    salaryAmountMax: number;
+    salaryCurrency: string;
+  };
+  response: { status: string; message: string; data: null };
 }
 
 // POST API /organizations/{orgId}/posts/{postId}/requirements
 export interface CreatePostRequirementsApi {
-  status: string;
-  message: string;
-  data: null;
+  pathParams: {
+    orgId: string;
+    postId: string;
+  };
+  bodyParams: {
+    requirements: {
+      requirementType: string;
+      requirement: string;
+    }[];
+  };
+  response: { status: string; message: string; data: null };
 }
 
 // GET API /organizations/{orgId}/posts

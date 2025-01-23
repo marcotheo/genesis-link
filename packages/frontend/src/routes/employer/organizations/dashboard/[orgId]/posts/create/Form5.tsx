@@ -1,73 +1,83 @@
-import {
-  insert,
-  remove,
-  reset,
-  SubmitHandler,
-  useForm,
-  valiForm$,
-} from "@modular-forms/qwik";
-import { $, component$, useContext, useTask$ } from "@builder.io/qwik";
+import { SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
+import { $, component$, useContext } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { JobRequirementsStep, JobRequirmentsSchema } from "./common";
-import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
-import { capitalizeFirstLetter, cn } from "~/common/utils";
+import { RichTextEditorStep, RichTextEditorSchema } from "./common";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
-import Input from "~/components/input/input";
-import FormWrapper from "./FormWrapper";
+import Editor from "~/components/editor/editor";
+import { cn, qwikFetch } from "~/common/utils";
 
 export default component$(() => {
+  const toast = useToast();
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
 
-  const toast = useToast();
+  const { mutate } = useMutate(
+    "POST /organizations/{orgId}/posts/{postId}/update/additionalInfoLink",
+  );
 
-  const { mutate } = useMutate("/posts/create/requirements");
+  const { mutate: getUploadLink } = useMutate("POST /s3/url/put");
 
-  const [jobRequirementsForm, { Form, Field, FieldArray }] =
-    useForm<JobRequirementsStep>({
-      loader: {
-        value: {
-          qualifications: [],
-          responsibilities: [],
-        },
+  const [richTextEditorForm, { Form, Field }] = useForm<RichTextEditorStep>({
+    loader: {
+      value: {
+        richTextContent: formDataCtx.form5?.richTextContent ?? "",
       },
-      validate: valiForm$(JobRequirmentsSchema),
-      fieldArrays: ["qualifications", "responsibilities"],
-    });
+    },
+    validate: valiForm$(RichTextEditorSchema),
+  });
 
-  const handleSubmit = $<SubmitHandler<JobRequirementsStep>>(async (values) => {
+  const handleSubmit = $<SubmitHandler<RichTextEditorStep>>(async (values) => {
     try {
       if (!formDataCtx.postId) throw "No post created yet";
 
-      const qualifications = values.qualifications.map((value) => ({
-        requirementType: "qualification",
-        requirement: value,
-      }));
+      if (values.richTextContent) {
+        formDataCtx.form5 = values;
 
-      const responsibilities = values.responsibilities.map((value) => ({
-        requirementType: "responsibility",
-        requirement: value,
-      }));
+        const s3Key = `post/additionalInfo_${formDataCtx.postId}.html`;
 
-      const res = await mutate({
-        postId: formDataCtx.postId,
-        requirements: [...qualifications, ...responsibilities],
-      });
+        const s3 = await getUploadLink(
+          {
+            bodyParams: {
+              key: s3Key,
+            },
+          },
+          {
+            credentials: "include",
+          },
+        );
 
-      formDataCtx.form5 = values;
+        if (s3.error) throw s3.error;
 
-      if (res.error) throw res.error;
+        if (s3.result)
+          await qwikFetch<null>(s3.result.data.URL, {
+            method: s3.result.data.Method,
+            headers: {
+              "Content-Type": "text/html", // Specify the content type
+            },
+            body: values.richTextContent,
+          });
 
-      toast.add({
-        title: "Success",
-        message: "Job requirements saved",
-        type: "success",
-      });
+        const res = await mutate({
+          bodyParams: { additionalInfoLink: s3Key },
+          pathParams: {
+            orgId: formDataCtx.orgId ?? "",
+            postId: formDataCtx.postId,
+          },
+        });
+
+        if (res.error) throw res.error;
+
+        toast.add({
+          title: "Success",
+          message: "Updates Saved",
+          type: "success",
+        });
+      }
 
       activeStep.value = 6;
     } catch (error) {
@@ -81,155 +91,43 @@ export default component$(() => {
     }
   });
 
-  // reset form values if not submitted
-  useTask$(({ track }) => {
-    const stepTracker = track(() => activeStep.value);
-
-    if (stepTracker === 5) {
-      reset(jobRequirementsForm, {
-        initialValues: formDataCtx.form5,
-      });
-    }
-  });
-
   return (
-    <FormWrapper formStep={5} activeStep={activeStep.value}>
-      <LoadingOverlay open={jobRequirementsForm.submitting}>
-        Saving Job Requirements
+    <div class={cn("flex h-full w-full justify-center")}>
+      <LoadingOverlay open={richTextEditorForm.submitting}>
+        Saving Updates
       </LoadingOverlay>
 
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
-        <Heading class="max-md:hidden">Job Requirements</Heading>
+        <Heading class="max-md:hidden">Additional Information</Heading>
 
         <br class="max-md:hidden" />
 
         <p class="text-gray-500 max-md:hidden">
-          Specify the key qualifications and responsibilities for the job to
-          ensure candidates understand the skills and tasks required for the
-          role.
+          Add any extra details about the job post, such as company culture,
+          team dynamics, or other important information that could help attract
+          candidates.
         </p>
 
         <br class="max-md:hidden" />
 
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
-          <FieldArray name="qualifications">
-            {(fieldArray) => (
-              <div
-                id={fieldArray.name}
-                class={cn("p-4 rounded-lg", "bg-surface shadow-lg")}
-              >
-                <Heading>{capitalizeFirstLetter(fieldArray.name)}</Heading>
-
-                <div class="pb-5">
-                  {fieldArray.items.map((item, idx) => (
-                    <div key={item} class="flex gap-3 items-end">
-                      <Field name={`${fieldArray.name}.${idx}`}>
-                        {(field, props) => (
-                          <Input
-                            {...props}
-                            label="enter qualification"
-                            variant="filled"
-                            errorMsg={field.error}
-                            value={field.value}
-                            class="h-[50px]"
-                          />
-                        )}
-                      </Field>
-
-                      <div class="h-[50px]">
-                        <Button
-                          type="button"
-                          class="bg-destructive h-full max-[400px]:px-3"
-                          onClick$={() =>
-                            remove(jobRequirementsForm, "qualifications", {
-                              at: idx,
-                            })
-                          }
-                        >
-                          <TbTrash />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <Button
-                  type="button"
-                  onClick$={() => {
-                    insert(jobRequirementsForm, "qualifications", {
-                      value: "",
-                    });
-                  }}
-                  class="py-3 px-3"
-                >
-                  <TbPlus />
-                </Button>
-              </div>
+          <Field name="richTextContent">
+            {(field, props) => (
+              <Editor
+                {...props}
+                placeholder="Write more about the job here ..."
+                errorMsg={field.error}
+                value={field.value}
+              />
             )}
-          </FieldArray>
-
-          <FieldArray name="responsibilities">
-            {(fieldArray) => (
-              <div
-                id={fieldArray.name}
-                class={cn("p-4 rounded-lg", "bg-surface shadow-lg")}
-              >
-                <Heading>{capitalizeFirstLetter(fieldArray.name)}</Heading>
-
-                <div class="pb-5">
-                  {fieldArray.items.map((item, idx) => (
-                    <div key={item} class="flex gap-3 items-end">
-                      <Field name={`${fieldArray.name}.${idx}`}>
-                        {(field, props) => (
-                          <Input
-                            {...props}
-                            label="enter responsibility"
-                            variant="filled"
-                            errorMsg={field.error}
-                            value={field.value}
-                            class="h-[50px]"
-                          />
-                        )}
-                      </Field>
-
-                      <div class="h-[50px]">
-                        <Button
-                          type="button"
-                          class="bg-destructive h-full max-[400px]:px-3"
-                          onClick$={() =>
-                            remove(jobRequirementsForm, "responsibilities", {
-                              at: idx,
-                            })
-                          }
-                        >
-                          <TbTrash />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <Button
-                  type="button"
-                  onClick$={() => {
-                    insert(jobRequirementsForm, "responsibilities", {
-                      value: "",
-                    });
-                  }}
-                  class="py-3 px-3"
-                >
-                  <TbPlus />
-                </Button>
-              </div>
-            )}
-          </FieldArray>
+          </Field>
 
           <div class="flex justify-end gap-3 mt-5">
             <Button
               type="button"
               class="min-[360px]:px-10 border-input text-input"
               variant="outline"
-              onClick$={() => (activeStep.value = 3)}
+              onClick$={() => (activeStep.value = 4)}
             >
               {"<-"} Prev
             </Button>
@@ -240,6 +138,6 @@ export default component$(() => {
           </div>
         </Form>
       </div>
-    </FormWrapper>
+    </div>
   );
 });

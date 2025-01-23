@@ -1,12 +1,4 @@
-import {
-  $,
-  component$,
-  Signal,
-  useContext,
-  useSignal,
-  useTask$,
-} from "@builder.io/qwik";
-import { isServer } from "@builder.io/qwik/build";
+import { $, component$, Signal, useContext, useSignal } from "@builder.io/qwik";
 import { Modal } from "@qwik-ui/headless";
 import dayjs from "dayjs";
 
@@ -22,19 +14,17 @@ import Alert from "~/components/alert/alert";
 
 import { FormDataCtx, FormStepCtx } from "./index";
 import CreateAddress from "./CreateAddress";
-import { useOrgId } from "../../../layout";
-import FormWrapper from "./FormWrapper";
 import { cn } from "~/common/utils";
 
 const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
   ({ selectedAddress }) => {
-    const org = useOrgId();
+    const formDataCtx = useContext(FormDataCtx);
 
     const { state } = useQuery(
       "GET /organizations/{orgId}/addresses",
       {
         pathParams: {
-          orgId: org.value.orgId,
+          orgId: formDataCtx.orgId ?? "",
         },
       },
       { runOnRender: true },
@@ -107,16 +97,15 @@ const AddressOptions = component$<{ selectedAddress: Signal<string> }>(
 
 export default component$(() => {
   const formDataCtx = useContext(FormDataCtx);
+  const toast = useToast();
   const activeStep = useContext(FormStepCtx);
   const selectedAddress = useSignal(formDataCtx.form2 ?? "");
-
-  const toast = useToast();
 
   const { mutate, state } = useMutate("POST /organizations/{orgId}/posts");
 
   const handleSubmit = $(async () => {
     try {
-      if (!formDataCtx.form1 || !formDataCtx.form2) return;
+      if (!formDataCtx.form1 || formDataCtx.postId) return;
 
       const res = await mutate(
         {
@@ -125,6 +114,9 @@ export default component$(() => {
             wfh: formDataCtx.form1.wfh === "yes" ? 1 : 0,
             deadline: dayjs(formDataCtx.form1.deadline).format("YYYY-MM-DD"),
             addressId: selectedAddress.value,
+          },
+          pathParams: {
+            orgId: formDataCtx.orgId ?? "",
           },
         },
         {
@@ -146,7 +138,7 @@ export default component$(() => {
         formDataCtx.postId = res.result.data.postId;
       }
 
-      activeStep.value = 4;
+      activeStep.value = 3;
     } catch (err) {
       console.error("Error Initializing Post:", err);
 
@@ -158,19 +150,8 @@ export default component$(() => {
     }
   });
 
-  useTask$(({ track }) => {
-    const stepTracker = track(() => activeStep.value);
-
-    if (isServer) return;
-
-    if (stepTracker === 2) {
-      // reset form values if not submitted
-      selectedAddress.value = formDataCtx.form2 ?? "";
-    }
-  });
-
   return (
-    <FormWrapper formStep={2} activeStep={activeStep.value}>
+    <div class={cn("flex h-full w-full justify-center")}>
       <LoadingOverlay open={state.loading}>Initializing Post</LoadingOverlay>
 
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
@@ -206,6 +187,6 @@ export default component$(() => {
           </Button>
         </div>
       </div>
-    </FormWrapper>
+    </div>
   );
 });

@@ -8,14 +8,9 @@ import {
   useStore,
 } from "@builder.io/qwik";
 
-import {
-  BasicPostInfoStep,
-  BrandingVisualsStep,
-  CreateJobPostFormData,
-} from "./common";
 import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
-import { CreateAddressForm } from "~/common/formSchema";
-import { InitialValues } from "@modular-forms/qwik";
+import { CreateJobPostFormData } from "./common";
+import { useOrgId } from "../../../layout";
 import StepHeader from "./StepHeader";
 import SuccessBox from "./SuccessBox";
 import { cn } from "~/common/utils";
@@ -25,40 +20,6 @@ import Form2 from "./Form2";
 import Form3 from "./Form3";
 import Form4 from "./Form4";
 import Form5 from "./Form5";
-import Form6 from "./Form6";
-
-export const useForm1Loader = routeLoader$<InitialValues<BasicPostInfoStep>>(
-  () => ({
-    title: undefined,
-    description: undefined,
-    postType: undefined,
-    jobType: undefined,
-    company: undefined,
-    location: undefined,
-    salary: undefined,
-    wfh: undefined,
-    email: undefined,
-    phone: undefined,
-    deadline: undefined,
-  }),
-);
-
-export const useForm2Loader = routeLoader$<InitialValues<BrandingVisualsStep>>(
-  () => ({
-    logoFile: undefined,
-    posterFile: undefined,
-  }),
-);
-
-export const useCreateAddressFormLoader = routeLoader$<
-  InitialValues<CreateAddressForm>
->(() => ({
-  region: undefined,
-  province: undefined,
-  city: undefined,
-  barangay: undefined,
-  addressDetails: undefined,
-}));
 
 export const FormStepCtx = createContextId<Signal<number>>("form.step.context");
 
@@ -66,11 +27,15 @@ export const FormDataCtx =
   createContextId<CreateJobPostFormData>("form.data.context");
 
 const ActiveForm = component$(() => {
+  const org = useOrgId();
   const activeStep = useContext(FormStepCtx);
   const formDataState = useStore<CreateJobPostFormData>({
+    orgId: org.value.orgId,
     form1: undefined,
     form2: undefined,
-    form6: undefined,
+    form3: undefined,
+    form4: undefined,
+    form5: undefined,
   });
 
   useContextProvider(FormDataCtx, formDataState);
@@ -78,13 +43,12 @@ const ActiveForm = component$(() => {
 
   return (
     <>
-      <Form1 />
-      <Form2 />
-      <Form3 />
-      <Form4 />
-      <Form5 />
-      <Form6 />
-      <SuccessBox />
+      {activeStep.value === 1 && <Form1 />}
+      {activeStep.value === 2 && <Form2 />}
+      {activeStep.value === 3 && <Form3 />}
+      {activeStep.value === 4 && <Form4 />}
+      {activeStep.value === 5 && <Form5 />}
+      {activeStep.value === 6 && <SuccessBox />}
     </>
   );
 });
@@ -96,7 +60,7 @@ export default component$(() => {
 
   return (
     <div class="h-full flex flex-col md:flex-row gap-3 relative">
-      <div
+      {/* <div
         class={cn(
           "duration-500 transition-[height]",
           "md:h-[95%] px-5 md:py-12",
@@ -108,7 +72,7 @@ export default component$(() => {
       >
         <StepHeader />
         <Stepper />
-      </div>
+      </div> */}
 
       <div class={cn("h-[95%] overflow-auto", "w-full")}>
         <ActiveForm />
@@ -118,11 +82,5 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Create Job Post",
-  meta: [
-    {
-      name: "description",
-      content: "create job post form",
-    },
-  ],
+  title: "ArkPoint",
 };

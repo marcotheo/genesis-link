@@ -1,55 +1,64 @@
-import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
-import { $, component$, Slot, useContext, useTask$ } from "@builder.io/qwik";
+import {
+  insert,
+  remove,
+  SubmitHandler,
+  useForm,
+  valiForm$,
+} from "@modular-forms/qwik";
+import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
+import { $, component$, useContext } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import ThemedSelect from "~/components/themed-select/themed-select";
+import { JobRequirementsStep, JobRequirmentsSchema } from "./common";
+import { capitalizeFirstLetter, cn } from "~/common/utils";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
+import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 
-import { JobDetailsInfoStep, JobDetailsInfoSchema } from "./common";
-import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { useToast } from "~/hooks/use-toast/useToast";
-import { FormDataCtx, FormStepCtx } from "./index";
-import FormWrapper from "./FormWrapper";
-import { cn } from "~/common/utils";
-
-const FlexWrapper = component$(() => {
-  return (
-    <div class="flex gap-5">
-      <Slot />
-    </div>
-  );
-});
-
 export default component$(() => {
+  const toast = useToast();
   const formDataCtx = useContext(FormDataCtx);
   const activeStep = useContext(FormStepCtx);
 
-  const toast = useToast();
+  const { mutate } = useMutate(
+    "POST /organizations/{orgId}/posts/{postId}/requirements",
+  );
 
-  const { mutate } = useMutate("/posts/create/job_details");
-
-  const [jobDetailsInfoForm, { Form, Field }] = useForm<JobDetailsInfoStep>({
-    loader: {
-      value: {
-        jobType: undefined,
-        salaryType: undefined,
-        salaryAmountMin: undefined,
-        salaryAmountMax: undefined,
-        salaryCurrency: undefined,
+  const [jobRequirementsForm, { Form, Field, FieldArray }] =
+    useForm<JobRequirementsStep>({
+      loader: {
+        value: formDataCtx.form4 ?? {
+          qualifications: [],
+          responsibilities: [],
+        },
       },
-    },
-    validate: valiForm$(JobDetailsInfoSchema),
-  });
+      validate: valiForm$(JobRequirmentsSchema),
+      fieldArrays: ["qualifications", "responsibilities"],
+    });
 
-  const handleSubmit = $<SubmitHandler<JobDetailsInfoStep>>(async (values) => {
+  const handleSubmit = $<SubmitHandler<JobRequirementsStep>>(async (values) => {
     try {
       if (!formDataCtx.postId) throw "No post created yet";
 
+      const qualifications = values.qualifications.map((value) => ({
+        requirementType: "qualification",
+        requirement: value,
+      }));
+
+      const responsibilities = values.responsibilities.map((value) => ({
+        requirementType: "responsibility",
+        requirement: value,
+      }));
+
       const res = await mutate({
-        ...values,
-        postId: formDataCtx.postId,
+        bodyParams: { requirements: [...qualifications, ...responsibilities] },
+        pathParams: {
+          orgId: formDataCtx.orgId ?? "",
+          postId: formDataCtx.postId,
+        },
       });
 
       formDataCtx.form4 = values;
@@ -58,7 +67,7 @@ export default component$(() => {
 
       toast.add({
         title: "Success",
-        message: "Job details saved",
+        message: "Job requirements saved",
         type: "success",
       });
 
@@ -74,115 +83,137 @@ export default component$(() => {
     }
   });
 
-  // reset form values if not submitted
-  useTask$(({ track }) => {
-    const stepTracker = track(() => activeStep.value);
-
-    if (stepTracker === 4) {
-      reset(jobDetailsInfoForm, {
-        initialValues: formDataCtx.form4,
-      });
-    }
-  });
-
   return (
-    <FormWrapper formStep={4} activeStep={activeStep.value}>
-      <LoadingOverlay open={jobDetailsInfoForm.submitting}>
-        Saving Job Details
+    <div class={cn("flex h-full w-full justify-center")}>
+      <LoadingOverlay open={jobRequirementsForm.submitting}>
+        Saving Job Requirements
       </LoadingOverlay>
 
       <div class={cn("px-5 lg:px-24 md:py-12 w-full")}>
-        <Heading class="max-md:hidden">Job Details</Heading>
+        <Heading class="max-md:hidden">Job Requirements</Heading>
 
         <br class="max-md:hidden" />
 
         <p class="text-gray-500 max-md:hidden">
-          Provide the essential details about the job opportunity, including the
-          working arrangement, and compensation information. This step ensures
-          candidates understand the nature and requirements of the role.
+          Specify the key qualifications and responsibilities for the job to
+          ensure candidates understand the skills and tasks required for the
+          role.
         </p>
 
         <br class="max-md:hidden" />
 
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
-          <FlexWrapper>
-            <Field name="jobType">
-              {(field, props) => (
-                <ThemedSelect
-                  {...props}
-                  name={field.name}
-                  label="Job Type"
-                  value={field.value}
-                  errorMsg={field.error}
-                  variant="filled"
-                  options={[
-                    { label: "full-time", value: "full-time" },
-                    { label: "part-time", value: "part-time" },
-                    { label: "contract", value: "contract" },
-                    { label: "internship", value: "internship" },
-                  ]}
-                />
-              )}
-            </Field>
+          <FieldArray name="qualifications">
+            {(fieldArray) => (
+              <div
+                id={fieldArray.name}
+                class={cn("p-4 rounded-lg", "bg-surface shadow-lg")}
+              >
+                <Heading>{capitalizeFirstLetter(fieldArray.name)}</Heading>
 
-            <Field name="salaryType">
-              {(field, props) => (
-                <ThemedSelect
-                  {...props}
-                  name={field.name}
-                  label="Salary Type"
-                  value={field.value}
-                  errorMsg={field.error}
-                  variant="filled"
-                  options={[
-                    { label: "fixed", value: "fixed" },
-                    { label: "hourly", value: "hourly" },
-                    { label: "monthly", value: "monthly" },
-                  ]}
-                />
-              )}
-            </Field>
-          </FlexWrapper>
+                <div class="py-3 space-y-3">
+                  {fieldArray.items.map((item, idx) => (
+                    <div key={item} class="flex gap-3 items-end">
+                      <Field name={`${fieldArray.name}.${idx}`}>
+                        {(field, props) => (
+                          <Input
+                            {...props}
+                            label="enter qualification"
+                            variant="filled"
+                            errorMsg={field.error}
+                            value={field.value}
+                            class="h-[50px]"
+                          />
+                        )}
+                      </Field>
 
-          <FlexWrapper>
-            <Field name="salaryAmountMin" type="number">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Minimum Salary"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                  type="number"
-                />
-              )}
-            </Field>
+                      <div class="h-[50px]">
+                        <Button
+                          type="button"
+                          class="bg-destructive h-full max-[400px]:px-3"
+                          onClick$={() =>
+                            remove(jobRequirementsForm, "qualifications", {
+                              at: idx,
+                            })
+                          }
+                        >
+                          <TbTrash />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-            <Field name="salaryAmountMax" type="number">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Minimum Salary"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                  type="number"
-                />
-              )}
-            </Field>
+                <Button
+                  type="button"
+                  onClick$={() => {
+                    insert(jobRequirementsForm, "qualifications", {
+                      value: "",
+                    });
+                  }}
+                  class="py-3 px-3"
+                >
+                  <TbPlus />
+                </Button>
+              </div>
+            )}
+          </FieldArray>
 
-            <Field name="salaryCurrency">
-              {(field, props) => (
-                <Input
-                  {...props}
-                  label="Currency"
-                  variant="filled"
-                  errorMsg={field.error}
-                  value={field.value}
-                />
-              )}
-            </Field>
-          </FlexWrapper>
+          <FieldArray name="responsibilities">
+            {(fieldArray) => (
+              <div
+                id={fieldArray.name}
+                class={cn("p-4 rounded-lg", "bg-surface shadow-lg")}
+              >
+                <Heading>{capitalizeFirstLetter(fieldArray.name)}</Heading>
+
+                <div class="py-3 space-y-3">
+                  {fieldArray.items.map((item, idx) => (
+                    <div key={item} class="flex gap-3 items-end">
+                      <Field name={`${fieldArray.name}.${idx}`}>
+                        {(field, props) => (
+                          <Input
+                            {...props}
+                            label="enter responsibility"
+                            variant="filled"
+                            errorMsg={field.error}
+                            value={field.value}
+                            class="h-[50px]"
+                          />
+                        )}
+                      </Field>
+
+                      <div class="h-[50px]">
+                        <Button
+                          type="button"
+                          class="bg-destructive h-full max-[400px]:px-3"
+                          onClick$={() =>
+                            remove(jobRequirementsForm, "responsibilities", {
+                              at: idx,
+                            })
+                          }
+                        >
+                          <TbTrash />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  type="button"
+                  onClick$={() => {
+                    insert(jobRequirementsForm, "responsibilities", {
+                      value: "",
+                    });
+                  }}
+                  class="py-3 px-3"
+                >
+                  <TbPlus />
+                </Button>
+              </div>
+            )}
+          </FieldArray>
 
           <div class="flex justify-end gap-3 mt-5">
             <Button
@@ -200,6 +231,6 @@ export default component$(() => {
           </div>
         </Form>
       </div>
-    </FormWrapper>
+    </div>
   );
 });
