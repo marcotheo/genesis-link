@@ -1,9 +1,20 @@
-import { component$, Slot } from "@builder.io/qwik";
+import {
+  component$,
+  createContextId,
+  Signal,
+  Slot,
+  useContextProvider,
+  useSignal,
+} from "@builder.io/qwik";
 
 import { routeLoader$ } from "@builder.io/qwik-city";
 import DashboardHeader from "./DashboardHeader";
 import { cn } from "~/common/utils";
 import SideNav from "./SideNav";
+
+export const DashboardDrawerCtx = createContextId<Signal<boolean>>(
+  "dashboard.drawer.context",
+);
 
 export const useOrgId = routeLoader$(({ params }) => {
   const { orgId } = params; // Extract the route parameter
@@ -13,12 +24,23 @@ export const useOrgId = routeLoader$(({ params }) => {
 });
 
 export default component$(() => {
+  const drawerOpen = useSignal(false);
+
+  useContextProvider(DashboardDrawerCtx, drawerOpen);
+
   return (
     <div class={cn("h-screen w-full", "flex")}>
       <SideNav />
 
       {/* content */}
-      <div class={cn("h-full grow", "flex flex-col", "px-16", "space-y-10")}>
+      <div
+        class={cn(
+          "h-full grow",
+          "flex flex-col",
+          "px-5 md:px-16",
+          "space-y-10",
+        )}
+      >
         <DashboardHeader />
 
         <div class="grow">

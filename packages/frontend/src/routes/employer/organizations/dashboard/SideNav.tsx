@@ -6,13 +6,13 @@ import {
   TbLogout,
   TbSettings,
 } from "@qwikest/icons/tablericons";
+import { component$, Signal, Slot, useContext } from "@builder.io/qwik";
 import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
-import { component$, Signal, Slot, useSignal } from "@builder.io/qwik";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { cn, createDashboardPath } from "~/common/utils";
+import { DashboardDrawerCtx, useOrgId } from "./layout";
 import Button from "~/components/button/button";
-import { useOrgId } from "./layout";
 
 import LogoOnlyImage from "~/assets/images/logo_symbol.png?jsx";
 import LogoWithTextImage from "~/assets/images/logo.png?jsx";
@@ -111,17 +111,20 @@ const NavItems = component$<{ open: Signal<boolean> }>(({ open }) => {
 });
 
 export default component$(() => {
-  const open = useSignal(false);
+  const open = useContext(DashboardDrawerCtx);
 
   return (
     <div
       class={cn(
-        "relative",
         "h-full",
+        "absolute lg:relative",
+        "top-0 bottom-0 z-50",
         "bg-surface shadow-lg",
         "flex flex-col justify-between",
         "duration-500",
-        open.value ? "w-80" : "w-24",
+        open.value
+          ? "w-80 max-lg:animate-sheet-open"
+          : "max-lg:animate-sheet-close w-80 lg:w-24",
       )}
     >
       <button
