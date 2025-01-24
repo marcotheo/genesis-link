@@ -45,7 +45,7 @@ export default component$<DrawerProps>(({ defaultValue = false }) => {
           "h-full w-72",
           "top-0 left-0 ml-0",
           "bg-surface",
-          "data-[open]:animate-sheet-open ",
+          "data-[open]:animate-sheet-open",
           "data-[closed]:animate-sheet-close",
           "overflow-visible",
 
