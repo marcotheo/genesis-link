@@ -114,10 +114,10 @@ const TableBody = component$(
 
 export const Table = component$(<T extends object>(props: ITableProps<T>) => {
   return (
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto w-full">
       <table
         class={cn(
-          "w-full min-w-[800px]",
+          "w-full",
           "rounded-lg overflow-hidden",
           "table border-collapse",
         )}

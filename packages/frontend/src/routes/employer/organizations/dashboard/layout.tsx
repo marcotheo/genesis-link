@@ -32,10 +32,9 @@ export default component$(() => {
     <div class={cn("h-screen w-full", "flex")}>
       <SideNav />
 
-      {/* content */}
       <div
         class={cn(
-          "h-full grow",
+          "h-full grow overflow-auto",
           "flex flex-col",
           "px-5 md:px-16",
           "space-y-10",
