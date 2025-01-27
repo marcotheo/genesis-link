@@ -40,6 +40,22 @@ export interface GetOrganizationsByUserIdApi {
   };
 }
 
+// PUT API /organizations/{orgId}/update/assets
+export interface UpdateOrganizationAssetsApi {
+  pathParams: {
+    orgId: string;
+  };
+  bodyParams: {
+    bannerLink?: string;
+    logoLink?: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: null;
+  };
+}
+
 // ============ ORG ADDRESSES ============
 // POST API /organizations/{orgId}/addresses
 export interface CreateOrgAddressApi {

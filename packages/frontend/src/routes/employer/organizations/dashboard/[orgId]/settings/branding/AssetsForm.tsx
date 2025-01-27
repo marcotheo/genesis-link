@@ -1,15 +1,7 @@
-import {
-  getValue,
-  Maybe,
-  SubmitHandler,
-  useForm,
-  valiForm$,
-} from "@modular-forms/qwik";
-import { $, component$, NoSerialize, useTask$ } from "@builder.io/qwik";
+import { Maybe, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
+import { $, component$, NoSerialize } from "@builder.io/qwik";
 import { TbLoader } from "@qwikest/icons/tablericons";
-import { isServer } from "@builder.io/qwik/build";
 import { useSignal } from "@builder.io/qwik";
-import { nanoid } from "nanoid";
 import * as v from "valibot";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
@@ -20,6 +12,7 @@ import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useToast } from "~/hooks/use-toast/useToast";
 
 import { cn, qwikFetchWithProgress } from "~/common/utils";
+import Heading from "~/components/heading/heading";
 import { isBlob } from "~/common/formSchema";
 import { useOrgId } from "../../../layout";
 
@@ -42,8 +35,11 @@ export default component$(() => {
   const toast = useToast();
   const org = useOrgId();
   const logoUploadProgress = useSignal<number | null>(null);
-  const posterUploadProgress = useSignal<number | null>(null);
+  const bannerUploadProgress = useSignal<number | null>(null);
 
+  const { mutate: updateAssets } = useMutate(
+    "PUT /organizations/{orgId}/update/assets",
+  );
   const { mutate: logoMutate } = useMutate("POST /s3/url/put");
   const { mutate: posterMutate } = useMutate("POST /s3/url/put");
 
@@ -59,26 +55,19 @@ export default component$(() => {
 
   const handleSubmit = $<SubmitHandler<BrandingVisualsStep>>(async (values) => {
     try {
-      let logoS3key = null;
-      let posterS3Key = null;
+      let logoS3key;
+      let banners3Key;
 
       await Promise.all([
         (async () => {
           if (values.logoFile) {
-            const id = nanoid();
+            logoS3key = `company/${org.value.orgId}_logo`;
 
-            logoS3key = `company/logo_${org.value.orgId}_${id}`;
-
-            const s3 = await logoMutate(
-              {
-                bodyParams: {
-                  key: logoS3key,
-                },
+            const s3 = await logoMutate({
+              bodyParams: {
+                key: logoS3key,
               },
-              {
-                credentials: "include",
-              },
-            );
+            });
 
             if (s3.error) throw s3.error;
 
@@ -98,18 +87,11 @@ export default component$(() => {
         })(),
         (async () => {
           if (values.bannerFile) {
-            const id = nanoid();
+            banners3Key = `company/${org.value.orgId}_banner`;
 
-            posterS3Key = `company/banner_${org.value.orgId}_${id}`;
-
-            const s3 = await posterMutate(
-              {
-                bodyParams: { key: posterS3Key },
-              },
-              {
-                credentials: "include",
-              },
-            );
+            const s3 = await posterMutate({
+              bodyParams: { key: banners3Key },
+            });
 
             if (s3.error) throw s3.error;
 
@@ -123,11 +105,21 @@ export default component$(() => {
                   },
                   body: values.bannerFile,
                 },
-                logoUploadProgress,
+                bannerUploadProgress,
               );
           }
         })(),
       ]);
+
+      await updateAssets({
+        bodyParams: {
+          logoLink: logoS3key,
+          bannerLink: banners3Key,
+        },
+        pathParams: {
+          orgId: org.value.orgId,
+        },
+      });
     } catch (error) {
       console.error("Error submitting form:", error);
 
@@ -139,29 +131,12 @@ export default component$(() => {
     }
   });
 
-  useTask$(({ track }) => {
-    const logoValueTracker = track(() =>
-      getValue(brandingVisualForm, "logoFile"),
-    );
-    const posterValueTracker = track(() =>
-      getValue(brandingVisualForm, "bannerFile"),
-    );
-
-    if (isServer) return;
-
-    if (!!logoValueTracker) logoUploadProgress.value = 0;
-    if (!!posterValueTracker) posterUploadProgress.value = 0;
-  });
-
   return (
     <>
-      <LoadingOverlay
-        open={
-          brandingVisualForm.submitting && logoUploadProgress.value !== null
-        }
-        type="component"
-      >
+      <LoadingOverlay open={brandingVisualForm.submitting} type="component">
         <div class="space-y-3">
+          <Heading size="sm">Uploading ...</Heading>
+
           <div
             class={cn(
               "flex gap-3 items-center",
@@ -178,20 +153,20 @@ export default component$(() => {
             class={cn(
               "h-[0.5px] w-full border-popup z-50 my-1",
               logoUploadProgress.value !== null &&
-                posterUploadProgress.value !== null,
+                bannerUploadProgress.value !== null,
             )}
           />
 
           <div
             class={cn(
               "flex gap-3 items-center",
-              posterUploadProgress.value === null ? "hidden" : "",
+              bannerUploadProgress.value === null ? "hidden" : "",
             )}
           >
             <div class="animate-spin text-2xl">
               <TbLoader />
             </div>
-            <p>Saving Poster Image {`${posterUploadProgress.value}`}%</p>
+            <p>Saving Poster Image {`${bannerUploadProgress.value}`}%</p>
           </div>
         </div>
       </LoadingOverlay>
