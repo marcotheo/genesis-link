@@ -24,7 +24,7 @@ export const useOrgId = routeLoader$(({ params }) => {
 });
 
 export default component$(() => {
-  const drawerOpen = useSignal(false);
+  const drawerOpen = useSignal(true);
 
   useContextProvider(DashboardDrawerCtx, drawerOpen);
 

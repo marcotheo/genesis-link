@@ -1,12 +1,25 @@
 import {
+  TbBrand4Chan,
   TbBriefcase,
+  TbBuilding,
+  TbChevronDown,
   TbChevronLeft,
   TbDashboard,
   TbLocation,
   TbLogout,
   TbSettings,
 } from "@qwikest/icons/tablericons";
-import { component$, Signal, Slot, useContext } from "@builder.io/qwik";
+import Menu, {
+  DropDownMenuItemLink,
+  DropDownMenuLabel,
+} from "~/components/drop-down/drop-down";
+import {
+  component$,
+  Signal,
+  Slot,
+  useContext,
+  useSignal,
+} from "@builder.io/qwik";
 import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
@@ -59,7 +72,7 @@ const NavItem = component$<{ to: string; open: Signal<boolean> }>(
           class={cn(
             "flex gap-3 items-center",
             open.value ? "" : "justify-center",
-            "w-full p-5",
+            "w-full p-3",
             "cursor-pointer rounded-md",
             "whitespace-nowrap text-lg font-medium",
             "duration-300",
@@ -78,34 +91,138 @@ const NavItem = component$<{ to: string; open: Signal<boolean> }>(
   },
 );
 
+const SettingsItems = component$<{ open: Signal<boolean> }>(({ open }) => {
+  const org = useOrgId();
+  const parentOpen = useSignal(false);
+
+  if (open.value)
+    return (
+      <>
+        <button
+          class={cn(
+            "flex items-center justify-between",
+            "w-full p-3",
+            "rounded-md",
+            "whitespace-nowrap text-lg font-medium",
+            "duration-300 bg-surface hover:bg-surface",
+            "dark:hover:brightness-125 hover:brightness-90",
+            "group",
+          )}
+          onClick$={() => (parentOpen.value = !parentOpen.value)}
+        >
+          <div class="flex items-center gap-3">
+            <TbSettings font-size="25px" />
+            {open.value ? "Settings" : ""}
+          </div>
+
+          <div class={cn("duration-300", parentOpen.value ? "rotate-180" : "")}>
+            <TbChevronDown />
+          </div>
+        </button>
+
+        <div
+          class={cn(
+            "pl-10 m-0",
+            "overflow-hidden",
+            "flex flex-col gap-2",
+            "duration-500 ease-in-out",
+            parentOpen.value ? "h-fit max-h-56" : "max-h-0",
+          )}
+        >
+          <NavItem
+            to={createDashboardPath(org.value.orgId, "/settings/company")}
+            open={open}
+          >
+            <TbBuilding font-size="25px" />
+            {open.value ? "Company" : ""}
+          </NavItem>
+          <NavItem
+            to={createDashboardPath(org.value.orgId, "/settings/branding")}
+            open={open}
+          >
+            <TbBrand4Chan font-size="25px" />
+            {open.value ? "Branding" : ""}
+          </NavItem>
+        </div>
+      </>
+    );
+
+  return (
+    <Menu panelWidth="w-56" position="bottom-end">
+      <div
+        q:slot="trigger"
+        class={cn(
+          "relative",
+          "flex items-center justify-center",
+          "w-full h-full p-3",
+          "rounded-md",
+          "whitespace-nowrap text-lg font-medium",
+          "duration-300 bg-surface hover:bg-surface",
+          "dark:hover:brightness-125 hover:brightness-90",
+          "group",
+        )}
+      >
+        <div class="text-2xl">
+          <TbSettings font-size="25px" />
+        </div>
+
+        <div
+          class={cn(
+            "h-5 w-5",
+            "flex items-center justify-center",
+            "shadow-lg rounded-full",
+            "absolute bottom-0 right-0",
+            "group-focus:rotate-180 duration-150",
+          )}
+        >
+          <TbChevronDown />
+        </div>
+      </div>
+      <DropDownMenuLabel q:slot="label">
+        Organization Settings
+      </DropDownMenuLabel>
+      <>
+        <DropDownMenuItemLink
+          link={createDashboardPath(org.value.orgId, "/settings/company")}
+        >
+          <div class="flex gap-2 items-center">
+            <TbBuilding font-size="25px" /> Company
+          </div>
+        </DropDownMenuItemLink>
+        <DropDownMenuItemLink
+          link={createDashboardPath(org.value.orgId, "/settings/branding")}
+        >
+          <div class="flex gap-2 items-center">
+            <TbBrand4Chan font-size="25px" /> Branding
+          </div>
+        </DropDownMenuItemLink>
+      </>
+    </Menu>
+  );
+});
+
 const NavItems = component$<{ open: Signal<boolean> }>(({ open }) => {
-  const loc = useOrgId();
+  const org = useOrgId();
 
   return (
     <div class={cn("mt-3 space-y-3", open.value ? "px-5" : "px-3")}>
-      <NavItem to={createDashboardPath(loc.value.orgId, "")} open={open}>
+      <NavItem to={createDashboardPath(org.value.orgId, "")} open={open}>
         <TbDashboard font-size="25px" />
         {open.value ? "Dashboard" : ""}
       </NavItem>
-      <NavItem to={createDashboardPath(loc.value.orgId, "/posts")} open={open}>
+      <NavItem to={createDashboardPath(org.value.orgId, "/posts")} open={open}>
         <TbBriefcase font-size="25px" />
 
         {open.value ? "Job Posts" : ""}
       </NavItem>
       <NavItem
-        to={createDashboardPath(loc.value.orgId, "/addresses")}
+        to={createDashboardPath(org.value.orgId, "/addresses")}
         open={open}
       >
         <TbLocation font-size="25px" />
         {open.value ? "Addresses" : ""}
       </NavItem>
-      <NavItem
-        to={createDashboardPath(loc.value.orgId, "/settings")}
-        open={open}
-      >
-        <TbSettings font-size="25px" />
-        {open.value ? "Settings" : ""}
-      </NavItem>
+      <SettingsItems open={open} />
     </div>
   );
 });
@@ -130,7 +247,7 @@ export default component$(() => {
       <button
         class={cn(
           "absolute",
-          "top-1/2 -right-3",
+          "top-1/2 -right-4",
           "-translate-y-1/2",
           "bg-primary",
           "p-2 rounded-full",
