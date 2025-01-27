@@ -132,7 +132,7 @@ export default component$(() => {
   });
 
   return (
-    <>
+    <div class="pr-3">
       <LoadingOverlay open={brandingVisualForm.submitting} type="component">
         <div class="space-y-3">
           <Heading size="sm">Uploading ...</Heading>
@@ -218,6 +218,6 @@ export default component$(() => {
           </div>
         </Form>
       </div>
-    </>
+    </div>
   );
 });
