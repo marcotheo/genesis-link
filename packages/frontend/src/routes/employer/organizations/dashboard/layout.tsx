@@ -42,7 +42,7 @@ export default component$(() => {
       >
         <DashboardHeader />
 
-        <div class="grow">
+        <div class="grow overflow-auto">
           <Slot />
         </div>
       </div>
