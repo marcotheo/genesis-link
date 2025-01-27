@@ -170,3 +170,51 @@ func (h *OrgHandler) GetOrgsByUserId(w http.ResponseWriter, r *http.Request) {
 
 	successResponse(w, GetOrgsByUserIdResponse{Organizations: orgsResponse, Total: totalCount})
 }
+
+type UpdateBrandingAssetsParams struct {
+	LogoLink   string `json:"logoLink"`
+	BannerLink string `json:"bannerLink"`
+}
+
+func (h *OrgHandler) UpdateBrandingAssets(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) UpdateBrandingAssets => invoked")
+
+	orgId := r.PathValue("orgId")
+
+	var params UpdateBrandingAssetsParams
+
+	errRead := ReadAndValidateBody(r, &params)
+	if errRead != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) UpdateBrandingAssets => ReadAndValidateBody %s", errRead))
+		http.Error(w, errRead.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if params.LogoLink != "" {
+		errQ := h.dataService.Queries.UpdateLogoLink(context.Background(), db.UpdateLogoLinkParams{
+			Orgid:    orgId,
+			Logolink: h.utilService.StringToNullString(params.LogoLink),
+		})
+		if errQ != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateBrandingAssets => errQ %s \n", errQ))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if params.BannerLink != "" {
+		errQ := h.dataService.Queries.UpdateBannerLink(context.Background(), db.UpdateBannerLinkParams{
+			Orgid:      orgId,
+			Bannerlink: h.utilService.StringToNullString(params.BannerLink),
+		})
+		if errQ != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateBrandingAssets => errQ %s \n", errQ))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	clog.Logger.Success("(POST) UpdateBrandingAssets => update successful")
+
+	w.WriteHeader(http.StatusNoContent)
+}

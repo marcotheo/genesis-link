@@ -113,3 +113,37 @@ func (q *Queries) GetOrganizationsCountByuserId(ctx context.Context, userid stri
 	err := row.Scan(&total_count)
 	return total_count, err
 }
+
+const updateBannerLink = `-- name: UpdateBannerLink :exec
+UPDATE organizations
+SET bannerLink = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?
+`
+
+type UpdateBannerLinkParams struct {
+	Bannerlink sql.NullString
+	Orgid      string
+}
+
+func (q *Queries) UpdateBannerLink(ctx context.Context, arg UpdateBannerLinkParams) error {
+	_, err := q.db.ExecContext(ctx, updateBannerLink, arg.Bannerlink, arg.Orgid)
+	return err
+}
+
+const updateLogoLink = `-- name: UpdateLogoLink :exec
+UPDATE organizations
+SET logoLink = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?
+`
+
+type UpdateLogoLinkParams struct {
+	Logolink sql.NullString
+	Orgid    string
+}
+
+func (q *Queries) UpdateLogoLink(ctx context.Context, arg UpdateLogoLinkParams) error {
+	_, err := q.db.ExecContext(ctx, updateLogoLink, arg.Logolink, arg.Orgid)
+	return err
+}

@@ -29,6 +29,7 @@ func (o *OrgRoutes) Routes() func(subRouter justarouter.SubRouter) {
 
 		subRouter.POST("", o.orgHandler.CreateOrg)
 		subRouter.GET("", o.orgHandler.GetOrgsByUserId)
+		subRouter.PUT("/{orgId}/update/assets", o.orgHandler.UpdateBrandingAssets)
 
 		// org/address routes
 		subRouter.POST("/{orgId}/addresses", o.addressHandler.CreateAddress)

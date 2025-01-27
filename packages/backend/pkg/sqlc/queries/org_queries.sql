@@ -27,3 +27,15 @@ SELECT
     COUNT(*) AS total_count
 FROM organizations
 WHERE userId = ?;
+
+-- name: UpdateLogoLink :exec
+UPDATE organizations
+SET logoLink = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?;
+
+-- name: UpdateBannerLink :exec
+UPDATE organizations
+SET bannerLink = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?;
