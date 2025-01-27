@@ -15,44 +15,61 @@ import { cn, generateRandomId } from "~/common/utils";
 interface DropDownMenuProps extends HTMLAttributes<HTMLMenuElement> {
   panelCss?: string;
   panelWidth?: string;
+  position?:
+    | boolean
+    | "top"
+    | "top-start"
+    | "top-end"
+    | "bottom"
+    | "bottom-start"
+    | "bottom-end"
+    | "right"
+    | "right-start"
+    | "right-end"
+    | "left"
+    | "left-start"
+    | "left-end"
+    | undefined;
 }
 
 export const DropDownContext = createContextId<{
   id: string;
 }>("dropdown.context");
 
-export default component$<DropDownMenuProps>(({ panelCss, panelWidth }) => {
-  const popoverId = generateRandomId();
+export default component$<DropDownMenuProps>(
+  ({ panelCss, panelWidth, position }) => {
+    const popoverId = generateRandomId();
 
-  useContextProvider(DropDownContext, {
-    id: popoverId,
-  });
+    useContextProvider(DropDownContext, {
+      id: popoverId,
+    });
 
-  return (
-    <Popover.Root id={popoverId}>
-      <Popover.Trigger class="group">
-        <Slot name="trigger" />
-      </Popover.Trigger>
+    return (
+      <Popover.Root id={popoverId} floating={position}>
+        <Popover.Trigger class="group w-full">
+          <Slot name="trigger" />
+        </Popover.Trigger>
 
-      <Popover.Panel
-        class={cn(
-          "absolute bg-surface",
-          "mt-1 py-1",
-          "shadow-md rounded-md",
-          "border-[0.5px] border-popup",
-          "data-[open]:animate-fade-in-slide",
-          panelCss,
-          panelWidth ? panelWidth : "w-fit",
-        )}
-      >
-        <Slot name="label" />
-        <div class="flex flex-col overflow-auto max-h-56">
-          <Slot />
-        </div>
-      </Popover.Panel>
-    </Popover.Root>
-  );
-});
+        <Popover.Panel
+          class={cn(
+            "absolute bg-surface",
+            "mt-1 py-1",
+            "shadow-md rounded-md",
+            "border-[0.5px] border-popup",
+            "data-[open]:animate-fade-in-slide",
+            panelCss,
+            panelWidth ? panelWidth : "w-fit",
+          )}
+        >
+          <Slot name="label" />
+          <div class="flex flex-col overflow-auto max-h-56">
+            <Slot />
+          </div>
+        </Popover.Panel>
+      </Popover.Root>
+    );
+  },
+);
 
 export const DropDownMenuLabel = component$(() => {
   return (
@@ -106,9 +123,7 @@ export const DropDownMenuItemLink = component$<{ link: string }>(({ link }) => {
               "duration-100 ease-out",
             )}
           >
-            <p class="font-semibold text-xs">
-              <Slot />
-            </p>
+            <Slot />
           </div>
         </div>
       </Link>

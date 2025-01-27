@@ -51,9 +51,11 @@ const MenuItems = component$(() => {
 
   return (
     <>
-      <DropDownMenuItemLink link="/settings">Applications</DropDownMenuItemLink>
+      <DropDownMenuItemLink link="/settings">
+        <p class="font-semibold text-xs">Applications</p>
+      </DropDownMenuItemLink>
       <DropDownMenuItemLink link="/settings/profile">
-        Settings
+        <p class="font-semibold text-xs">Settings</p>
       </DropDownMenuItemLink>
     </>
   );
