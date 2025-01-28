@@ -175,7 +175,7 @@ func (h *OrgHandler) GetOrgsByUserId(w http.ResponseWriter, r *http.Request) {
 }
 
 type GetOrganizationAssetsByOrgIdResponse struct {
-	Bannerlink *v4.PresignedHTTPRequest `json:"banerLink"`
+	Bannerlink *v4.PresignedHTTPRequest `json:"bannerLink"`
 	Logolink   *v4.PresignedHTTPRequest `json:"logoLink"`
 }
 
