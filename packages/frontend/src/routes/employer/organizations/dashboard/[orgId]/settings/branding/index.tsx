@@ -1,4 +1,5 @@
 import { component$, isServer, useSignal, useTask$ } from "@builder.io/qwik";
+import { TbLoader } from "@qwikest/icons/tablericons";
 import { DocumentHead } from "@builder.io/qwik-city";
 
 import { useQuery } from "~/hooks/use-query/useQuery";
@@ -25,21 +26,18 @@ const Content = component$(() => {
   );
 
   useTask$(async ({ track }) => {
-    const stateTracked = track(state);
+    const stateTracked = track(() => state.result);
 
     if (isServer) return;
 
     if (
-      stateTracked.result?.data.bannerLink?.SignedHeader &&
-      Object.keys(stateTracked.result.data.bannerLink.SignedHeader).length > 0
+      stateTracked?.data.bannerLink?.SignedHeader &&
+      Object.keys(stateTracked.data.bannerLink.SignedHeader).length > 0
     ) {
-      const imageResponse = await fetch(
-        stateTracked.result.data.bannerLink.URL,
-        {
-          method: stateTracked.result.data.bannerLink.Method,
-          headers: stateTracked.result.data.bannerLink.SignedHeader,
-        },
-      );
+      const imageResponse = await fetch(stateTracked.data.bannerLink.URL, {
+        method: stateTracked.data.bannerLink.Method,
+        headers: stateTracked.data.bannerLink.SignedHeader,
+      });
 
       if (!imageResponse.ok) {
         throw new Error("Failed to fetch the image");
@@ -50,16 +48,16 @@ const Content = component$(() => {
 
       bannerImgUrl.value = imageObjectURL;
     } else {
-      bannerImgUrl.value = stateTracked.result?.data.bannerLink?.URL ?? "";
+      bannerImgUrl.value = stateTracked?.data.bannerLink?.URL ?? "";
     }
 
     if (
-      stateTracked.result?.data.logoLink?.SignedHeader &&
-      Object.keys(stateTracked.result.data.logoLink.SignedHeader).length > 0
+      stateTracked?.data.logoLink?.SignedHeader &&
+      Object.keys(stateTracked.data.logoLink.SignedHeader).length > 0
     ) {
-      const imageResponse = await fetch(stateTracked.result.data.logoLink.URL, {
-        method: stateTracked.result.data.logoLink.Method,
-        headers: stateTracked.result.data.logoLink.SignedHeader,
+      const imageResponse = await fetch(stateTracked.data.logoLink.URL, {
+        method: stateTracked.data.logoLink.Method,
+        headers: stateTracked.data.logoLink.SignedHeader,
       });
 
       if (!imageResponse.ok) {
@@ -71,14 +69,18 @@ const Content = component$(() => {
 
       logoImgUrl.value = imageObjectURL;
     } else {
-      logoImgUrl.value = stateTracked.result?.data.logoLink?.URL ?? "";
+      logoImgUrl.value = stateTracked?.data.logoLink?.URL ?? "";
     }
   });
 
   return (
     <div>
       {state.loading ? (
-        "Loading ..."
+        <div class={cn("w-full h-[35rem]", "flex justify-center items-center")}>
+          <div class="animate-spin text-5xl">
+            <TbLoader />
+          </div>
+        </div>
       ) : (
         <AssetsForm
           orgId={org.value.orgId}
