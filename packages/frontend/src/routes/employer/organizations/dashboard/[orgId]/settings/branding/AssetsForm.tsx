@@ -14,7 +14,6 @@ import { useToast } from "~/hooks/use-toast/useToast";
 import { cn, qwikFetchWithProgress } from "~/common/utils";
 import Heading from "~/components/heading/heading";
 import { isBlob } from "~/common/formSchema";
-import { useOrgId } from "../../../layout";
 
 export const BrandingVisualsSchema = v.object({
   logoFile: v.custom<NoSerialize<Maybe<Blob>>>((input: unknown) => {
@@ -31,9 +30,12 @@ export const BrandingVisualsSchema = v.object({
 
 export type BrandingVisualsStep = v.InferInput<typeof BrandingVisualsSchema>;
 
-export default component$(() => {
+export default component$<{
+  orgId: string;
+  bannerImgUrl: string;
+  logoImgUrl: string;
+}>(({ orgId, bannerImgUrl, logoImgUrl }) => {
   const toast = useToast();
-  const org = useOrgId();
   const logoUploadProgress = useSignal<number | null>(null);
   const bannerUploadProgress = useSignal<number | null>(null);
 
@@ -61,7 +63,7 @@ export default component$(() => {
       await Promise.all([
         (async () => {
           if (values.logoFile) {
-            logoS3key = `company/${org.value.orgId}_logo`;
+            logoS3key = `company/${orgId}_logo`;
 
             const s3 = await logoMutate({
               bodyParams: {
@@ -87,7 +89,7 @@ export default component$(() => {
         })(),
         (async () => {
           if (values.bannerFile) {
-            banners3Key = `company/${org.value.orgId}_banner`;
+            banners3Key = `company/${orgId}_banner`;
 
             const s3 = await posterMutate({
               bodyParams: { key: banners3Key },
@@ -117,7 +119,7 @@ export default component$(() => {
           bannerLink: banners3Key,
         },
         pathParams: {
-          orgId: org.value.orgId,
+          orgId: orgId,
         },
       });
     } catch (error) {
@@ -132,7 +134,7 @@ export default component$(() => {
   });
 
   return (
-    <div class="pr-3">
+    <div>
       <LoadingOverlay open={brandingVisualForm.submitting} type="component">
         <div class="space-y-3">
           <Heading size="sm">Uploading ...</Heading>
@@ -173,43 +175,47 @@ export default component$(() => {
 
       <div class={cn("md:py-12 w-full")}>
         <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
-          <Field name="logoFile" type="File">
-            {(field, props) => (
-              <ImageInput
-                {...props}
-                value={field.value}
-                errorMsg={field.error}
-                label="Logo Upload"
-                maxSize={{
-                  size: 100,
-                  unit: "KB",
-                }}
-                maxDimensions={{
-                  width: 300,
-                  height: 300,
-                }}
-              />
-            )}
-          </Field>
+          <div class="max-h-[35rem] overflow-auto pr-2">
+            <Field name="logoFile" type="File">
+              {(field, props) => (
+                <ImageInput
+                  {...props}
+                  value={field.value}
+                  defaultImgUrl={logoImgUrl}
+                  errorMsg={field.error}
+                  label="Logo Upload"
+                  maxSize={{
+                    size: 100,
+                    unit: "KB",
+                  }}
+                  maxDimensions={{
+                    width: 300,
+                    height: 300,
+                  }}
+                />
+              )}
+            </Field>
 
-          <Field name="bannerFile" type="File">
-            {(field, props) => (
-              <ImageInput
-                {...props}
-                value={field.value}
-                errorMsg={field.error}
-                label="Banner Upload"
-                maxSize={{
-                  size: 500,
-                  unit: "KB",
-                }}
-                maxDimensions={{
-                  width: 360,
-                  height: 360,
-                }}
-              />
-            )}
-          </Field>
+            <Field name="bannerFile" type="File">
+              {(field, props) => (
+                <ImageInput
+                  {...props}
+                  value={field.value}
+                  defaultImgUrl={bannerImgUrl}
+                  errorMsg={field.error}
+                  label="Banner Upload"
+                  maxSize={{
+                    size: 500,
+                    unit: "KB",
+                  }}
+                  maxDimensions={{
+                    width: 360,
+                    height: 360,
+                  }}
+                />
+              )}
+            </Field>
+          </div>
 
           <div class="flex justify-end gap-3 mt-5">
             <Button type="submit" class="min-[360px]:px-10">

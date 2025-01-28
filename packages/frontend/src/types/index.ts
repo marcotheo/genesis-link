@@ -5,6 +5,7 @@ import {
   CreatePostJobDetailsApi,
   CreatePostRequirementsApi,
   GetAddresssesByOrgIdApi,
+  GetOrganizationAssetsApi,
   GetOrganizationsByUserIdApi,
   GetPostsByOrgApi,
   UpdateOrganizationAssetsApi,
@@ -42,4 +43,5 @@ export interface QueryType {
   "GET /organizations": GetOrganizationsByUserIdApi;
   "GET /organizations/{orgId}/addresses": GetAddresssesByOrgIdApi;
   "GET /organizations/{orgId}/posts": GetPostsByOrgApi;
+  "GET /organizations/{orgId}/assets": GetOrganizationAssetsApi;
 }

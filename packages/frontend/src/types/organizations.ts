@@ -40,6 +40,27 @@ export interface GetOrganizationsByUserIdApi {
   };
 }
 
+type PresignedHTTPRequest = {
+  Method: string; // HTTP method, e.g., "GET", "PUT"
+  URL: string; // Presigned URL
+  SignedHeader?: Record<string, string>; // Optional headers for the request
+};
+
+// GET API /organizations/{orgId}/assets
+export interface GetOrganizationAssetsApi {
+  pathParams: {
+    orgId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      bannerLink: PresignedHTTPRequest | null;
+      logoLink: PresignedHTTPRequest | null;
+    };
+  };
+}
+
 // PUT API /organizations/{orgId}/update/assets
 export interface UpdateOrganizationAssetsApi {
   pathParams: {

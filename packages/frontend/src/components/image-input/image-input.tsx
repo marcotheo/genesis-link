@@ -24,6 +24,7 @@ interface ImageUploadProps {
   ref: QRL<(element: HTMLInputElement) => void>;
   name: string;
   value: NoSerialize<Blob> | NoSerialize<File> | null | undefined;
+  defaultImgUrl?: string;
   onInput$: (event: Event, element: HTMLInputElement) => void;
   onChange$: (event: Event, element: HTMLInputElement) => void;
   onBlur$: (event: Event, element: HTMLInputElement) => void;
@@ -36,16 +37,27 @@ interface ImageUploadProps {
 }
 
 export default component$<ImageUploadProps>(
-  ({ name, value, label, errorMsg, maxSize, maxDimensions, ...props }) => {
+  ({
+    name,
+    value,
+    defaultImgUrl,
+    label,
+    errorMsg,
+    maxSize,
+    maxDimensions,
+    ...props
+  }) => {
     const fileState = useStore<{
       file: NoSerialize<File> | null;
       imageUrl: string | null;
+      defaultImgUrl: string | null;
       error: string | null;
       imgWidth: number;
       imgHeight: number;
     }>({
       file: null,
       imageUrl: value ? URL.createObjectURL(value as Blob) : null,
+      defaultImgUrl: defaultImgUrl ?? null,
       error: null,
       imgWidth: 0,
       imgHeight: 0,
@@ -163,6 +175,14 @@ export default component$<ImageUploadProps>(
                   width={fileState.imgWidth}
                   height={fileState.imgHeight}
                   style={{ maxWidth: "100%", maxHeight: "300px" }}
+                />
+              </div>
+            ) : fileState.defaultImgUrl ? (
+              <div>
+                <img
+                  src={fileState.defaultImgUrl}
+                  alt="default alt image"
+                  style={{ maxWidth: "100%" }}
                 />
               </div>
             ) : (
