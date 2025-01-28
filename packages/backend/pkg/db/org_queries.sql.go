@@ -196,3 +196,37 @@ func (q *Queries) UpdateLogoLink(ctx context.Context, arg UpdateLogoLinkParams) 
 	_, err := q.db.ExecContext(ctx, updateLogoLink, arg.Logolink, arg.Orgid)
 	return err
 }
+
+const updateOrgContactNumber = `-- name: UpdateOrgContactNumber :exec
+UPDATE organizations
+SET contactNumber = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?
+`
+
+type UpdateOrgContactNumberParams struct {
+	Contactnumber sql.NullString
+	Orgid         string
+}
+
+func (q *Queries) UpdateOrgContactNumber(ctx context.Context, arg UpdateOrgContactNumberParams) error {
+	_, err := q.db.ExecContext(ctx, updateOrgContactNumber, arg.Contactnumber, arg.Orgid)
+	return err
+}
+
+const updateOrgEmail = `-- name: UpdateOrgEmail :exec
+UPDATE organizations
+SET email = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?
+`
+
+type UpdateOrgEmailParams struct {
+	Email string
+	Orgid string
+}
+
+func (q *Queries) UpdateOrgEmail(ctx context.Context, arg UpdateOrgEmailParams) error {
+	_, err := q.db.ExecContext(ctx, updateOrgEmail, arg.Email, arg.Orgid)
+	return err
+}

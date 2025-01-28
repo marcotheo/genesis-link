@@ -73,7 +73,24 @@ export interface GetOrganizationDetailsApi {
       company: string;
       email: string;
       contactNumber?: string;
+      createdAt: number;
     };
+  };
+}
+
+// PUT API /organizations/{orgId}/update/details
+export interface UpdateOrganizationDetailsApi {
+  pathParams: {
+    orgId: string;
+  };
+  bodyParams: {
+    email?: string;
+    contactNumber?: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: null;
   };
 }
 

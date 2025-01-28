@@ -44,6 +44,18 @@ SELECT
 FROM organizations
 WHERE orgId = ?;
 
+-- name: UpdateOrgEmail :exec
+UPDATE organizations
+SET email = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?;
+
+-- name: UpdateOrgContactNumber :exec
+UPDATE organizations
+SET contactNumber = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE orgId = ?;
+
 -- name: UpdateLogoLink :exec
 UPDATE organizations
 SET logoLink = ?,

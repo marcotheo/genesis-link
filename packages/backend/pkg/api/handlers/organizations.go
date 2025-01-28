@@ -299,3 +299,51 @@ func (h *OrgHandler) UpdateBrandingAssets(w http.ResponseWriter, r *http.Request
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+type UpdateOrgDetailsParams struct {
+	Email         string `json:"email"`
+	Contactnumber string `json:"contactNumber"`
+}
+
+func (h *OrgHandler) UpdateOrgDetails(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(PUT) UpdateOrgDetails => invoked")
+
+	orgId := r.PathValue("orgId")
+
+	var params UpdateOrgDetailsParams
+
+	errRead := ReadAndValidateBody(r, &params)
+	if errRead != nil {
+		clog.Logger.Error(fmt.Sprintf("(PUT) UpdateOrgDetails => ReadAndValidateBody %s", errRead))
+		http.Error(w, errRead.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if params.Email != "" {
+		errQ := h.dataService.Queries.UpdateOrgEmail(context.Background(), db.UpdateOrgEmailParams{
+			Orgid: orgId,
+			Email: params.Email,
+		})
+		if errQ != nil {
+			clog.Logger.Error(fmt.Sprintf("(PUT) UpdateOrgDetails => errQ %s \n", errQ))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if params.Contactnumber != "" {
+		errQ := h.dataService.Queries.UpdateOrgContactNumber(context.Background(), db.UpdateOrgContactNumberParams{
+			Orgid:         orgId,
+			Contactnumber: h.utilService.StringToNullString(params.Contactnumber),
+		})
+		if errQ != nil {
+			clog.Logger.Error(fmt.Sprintf("(PUT) UpdateOrgDetails => errQ %s \n", errQ))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	clog.Logger.Success("(PUT) UpdateOrgDetails => update successful")
+
+	w.WriteHeader(http.StatusNoContent)
+}

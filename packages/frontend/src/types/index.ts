@@ -10,6 +10,7 @@ import {
   GetOrganizationsByUserIdApi,
   GetPostsByOrgApi,
   UpdateOrganizationAssetsApi,
+  UpdateOrganizationDetailsApi,
   UpdatePostAdditionalInfoLinkApi,
 } from "./organizations";
 import {
@@ -29,6 +30,7 @@ export interface MutationsType {
   "PUT /users/update/info": UpdateUserInfoApi;
   "POST /users/skills": CreateUserSkillsApi;
   "POST /organizations": CreateOrganizationApi;
+  "PUT /organizations/{orgId}/update/details": UpdateOrganizationDetailsApi;
   "PUT /organizations/{orgId}/update/assets": UpdateOrganizationAssetsApi;
   "POST /organizations/{orgId}/addresses": CreateOrgAddressApi;
   "POST /organizations/{orgId}/posts": CreateOrgJobPostApi;
