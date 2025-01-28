@@ -61,6 +61,22 @@ export interface GetOrganizationAssetsApi {
   };
 }
 
+// GET API /organizations/{orgId}/details
+export interface GetOrganizationDetailsApi {
+  pathParams: {
+    orgId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      company: string;
+      email: string;
+      contactNumber?: string;
+    };
+  };
+}
+
 // PUT API /organizations/{orgId}/update/assets
 export interface UpdateOrganizationAssetsApi {
   pathParams: {

@@ -174,6 +174,35 @@ func (h *OrgHandler) GetOrgsByUserId(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, GetOrgsByUserIdResponse{Organizations: orgsResponse, Total: totalCount})
 }
 
+type GetOrganizationDetailsByOrgIdResponse struct {
+	Company       string `json:"company"`
+	Email         string `json:"email"`
+	Contactnumber string `json:"contactNumber"`
+	CreatedAt     int64  `json:"createdAt,omitempty"`
+}
+
+func (h *OrgHandler) GetOrganizationDetailsByOrgId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetOrganizationDetailsByOrgId => invoked")
+
+	orgId := r.PathValue("orgId")
+
+	result, errQ := h.dataService.Queries.GetOrganizationDetailsByOrgId(context.Background(), orgId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetOrganizationDetailsByOrgId => errQ %s \n", errQ))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(GET) GetOrganizationDetailsByOrgId => success")
+
+	successResponse(w, GetOrganizationDetailsByOrgIdResponse{
+		Company:       result.Company,
+		Email:         result.Email,
+		Contactnumber: h.utilService.ConvertNullString(result.Contactnumber),
+		CreatedAt:     h.utilService.ConvertNullTime(result.CreatedAt),
+	})
+}
+
 type GetOrganizationAssetsByOrgIdResponse struct {
 	Bannerlink *v4.PresignedHTTPRequest `json:"bannerLink"`
 	Logolink   *v4.PresignedHTTPRequest `json:"logoLink"`

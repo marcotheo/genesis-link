@@ -67,6 +67,35 @@ func (q *Queries) GetOrganizationAssetsByOrgId(ctx context.Context, orgid string
 	return i, err
 }
 
+const getOrganizationDetailsByOrgId = `-- name: GetOrganizationDetailsByOrgId :one
+SELECT 
+    company, 
+    email, 
+    contactNumber,
+    created_at
+FROM organizations
+WHERE orgId = ?
+`
+
+type GetOrganizationDetailsByOrgIdRow struct {
+	Company       string
+	Email         string
+	Contactnumber sql.NullString
+	CreatedAt     sql.NullTime
+}
+
+func (q *Queries) GetOrganizationDetailsByOrgId(ctx context.Context, orgid string) (GetOrganizationDetailsByOrgIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getOrganizationDetailsByOrgId, orgid)
+	var i GetOrganizationDetailsByOrgIdRow
+	err := row.Scan(
+		&i.Company,
+		&i.Email,
+		&i.Contactnumber,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getOrganizationsByUserId = `-- name: GetOrganizationsByUserId :many
 SELECT 
     orgId,

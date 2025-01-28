@@ -28,6 +28,15 @@ SELECT
 FROM organizations
 WHERE userId = ?;
 
+-- name: GetOrganizationDetailsByOrgId :one
+SELECT 
+    company, 
+    email, 
+    contactNumber,
+    created_at
+FROM organizations
+WHERE orgId = ?;
+
 -- name: GetOrganizationAssetsByOrgId :one
 SELECT 
     bannerLink, 
