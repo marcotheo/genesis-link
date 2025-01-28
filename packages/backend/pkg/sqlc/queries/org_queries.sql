@@ -28,6 +28,13 @@ SELECT
 FROM organizations
 WHERE userId = ?;
 
+-- name: GetOrganizationAssetsByOrgId :one
+SELECT 
+    bannerLink, 
+    logoLink
+FROM organizations
+WHERE orgId = ?;
+
 -- name: UpdateLogoLink :exec
 UPDATE organizations
 SET logoLink = ?,

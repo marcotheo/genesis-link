@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
@@ -17,13 +18,15 @@ type OrgHandler struct {
 	dataService    *services.DataService
 	utilService    *services.UtilService
 	cognitoService *services.CognitoService
+	s3Service      *services.S3Service
 }
 
-func InitOrgHandler(dataService *services.DataService, utilService *services.UtilService, cognitoService *services.CognitoService) *OrgHandler {
+func InitOrgHandler(dataService *services.DataService, utilService *services.UtilService, cognitoService *services.CognitoService, s3Service *services.S3Service) *OrgHandler {
 	return &OrgHandler{
 		dataService:    dataService,
 		utilService:    utilService,
 		cognitoService: cognitoService,
+		s3Service:      s3Service,
 	}
 }
 
@@ -169,6 +172,55 @@ func (h *OrgHandler) GetOrgsByUserId(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(GET) GetOrgsByUserId => successful")
 
 	successResponse(w, GetOrgsByUserIdResponse{Organizations: orgsResponse, Total: totalCount})
+}
+
+type GetOrganizationAssetsByOrgIdResponse struct {
+	Bannerlink *v4.PresignedHTTPRequest `json:"banerLink"`
+	Logolink   *v4.PresignedHTTPRequest `json:"logoLink"`
+}
+
+func (h *OrgHandler) GetOrganizationAssetsByOrgId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetOrganizationAssetsByOrgId => invoked")
+
+	orgId := r.PathValue("orgId")
+
+	result, errQ := h.dataService.Queries.GetOrganizationAssetsByOrgId(context.Background(), orgId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetOrganizationAssetsByOrgId => errQ %s \n", errQ))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	var bannerSignedLink *v4.PresignedHTTPRequest
+	var logoSignedLink *v4.PresignedHTTPRequest
+
+	if result.Bannerlink.Valid {
+		signedLink, err := h.s3Service.GetObjectUrl(result.Bannerlink.String, 300)
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetOrganizationAssetsByOrgId => err Bannerlink %s \n", err))
+			http.Error(w, "error obtaining banner signed link", http.StatusInternalServerError)
+			return
+		}
+
+		bannerSignedLink = signedLink
+	}
+
+	if result.Logolink.Valid {
+		signedLink, err := h.s3Service.GetObjectUrl(result.Logolink.String, 300)
+		if err != nil {
+			http.Error(w, "error obtaining logo signed link", http.StatusInternalServerError)
+			return
+		}
+
+		logoSignedLink = signedLink
+	}
+
+	clog.Logger.Success("(GET) GetOrganizationAssetsByOrgId => success")
+
+	successResponse(w, GetOrganizationAssetsByOrgIdResponse{
+		Bannerlink: bannerSignedLink,
+		Logolink:   logoSignedLink,
+	})
 }
 
 type UpdateBrandingAssetsParams struct {

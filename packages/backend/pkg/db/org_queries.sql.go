@@ -47,6 +47,26 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 	return err
 }
 
+const getOrganizationAssetsByOrgId = `-- name: GetOrganizationAssetsByOrgId :one
+SELECT 
+    bannerLink, 
+    logoLink
+FROM organizations
+WHERE orgId = ?
+`
+
+type GetOrganizationAssetsByOrgIdRow struct {
+	Bannerlink sql.NullString
+	Logolink   sql.NullString
+}
+
+func (q *Queries) GetOrganizationAssetsByOrgId(ctx context.Context, orgid string) (GetOrganizationAssetsByOrgIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getOrganizationAssetsByOrgId, orgid)
+	var i GetOrganizationAssetsByOrgIdRow
+	err := row.Scan(&i.Bannerlink, &i.Logolink)
+	return i, err
+}
+
 const getOrganizationsByUserId = `-- name: GetOrganizationsByUserId :many
 SELECT 
     orgId,
