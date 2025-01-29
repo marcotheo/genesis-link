@@ -131,6 +131,26 @@ const config = {
             transform: "translateX(-100%)",
           },
         },
+        "sheet-up": {
+          from: {
+            opacity: "0",
+            transform: "translateY(100%)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0%)",
+          },
+        },
+        "sheet-down": {
+          from: {
+            opacity: "1",
+            transform: "translateY(0%)",
+          },
+          to: {
+            opacity: "0",
+            transform: "translateY(100%)",
+          },
+        },
         "collapsible-open": {
           "0%": { height: "0" },
           "100%": { height: "var(--qwikui-collapsible-content-height)" },
@@ -154,6 +174,8 @@ const config = {
         "fade-out-scale": "fade-out-scale 0.2s ease-out forwards",
         "sheet-open": "sheet-open 0.75s var(--modal-animation)",
         "sheet-close": "sheet-close 0.75s var(--modal-animation)",
+        "sheet-up": "sheet-up 0.75s var(--modal-animation)",
+        "sheet-down": "sheet-down 0.75s var(--modal-animation)",
         "collapsible-open":
           "collapsible-open 550ms cubic-bezier(0.87, 0, 0.13, 1) forwards",
         "collapsible-closed":

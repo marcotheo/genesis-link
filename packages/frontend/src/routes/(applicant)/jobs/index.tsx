@@ -1,63 +1,59 @@
-import { TbSearch } from "@qwikest/icons/tablericons";
+import {
+  component$,
+  createContextId,
+  useContextProvider,
+  useStore,
+} from "@builder.io/qwik";
 import { DocumentHead } from "@builder.io/qwik-city";
-import { component$ } from "@builder.io/qwik";
 
-import ThemedSelect from "~/components/themed-select/themed-select";
 import Heading from "~/components/heading/heading";
-import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
+import Filters from "./Filters";
+import List from "./List";
+
+type FilterState = {
+  keyword: string;
+  province: string;
+  city: string;
+  workSetup: string;
+};
+
+export const SearchJobCtx = createContextId<FilterState>("search.job.context");
 
 export default component$(() => {
+  const filterState = useStore<FilterState>({
+    keyword: "",
+    province: "",
+    city: "",
+    workSetup: "",
+  });
+
+  useContextProvider(SearchJobCtx, filterState);
+
   return (
     <div
       class={cn(
-        "py-8 w-full",
+        "py-8 w-full h-full",
         "flex flex-col gap-5",
         "justify-center items-start",
         "overflow-hidden",
       )}
     >
-      <div class="space-y-5">
-        <Heading size="xxl">Connecting Ambitions</Heading>
-        <Heading size="xxl">
-          Building <span class="text-primary">Careers</span>
+      <div
+        class={cn(
+          "w-fit md:w-full mx-auto",
+          "flex flex-col md:flex-row md:justify-between",
+          "gap-5",
+        )}
+      >
+        <Heading class="text-3xl md:text-5xl">
+          Explore and <span class="text-primary">Apply</span>
         </Heading>
+
+        <Filters />
       </div>
 
-      <div class="p-1 flex gap-3 w-full">
-        <div class="w-[60%] relative">
-          <div
-            class={cn(
-              "bg-transparent",
-              "absolute z-50",
-              "top-1/2 right-3",
-              "-translate-y-1/2",
-              "h-fit text-2xl",
-            )}
-          >
-            <TbSearch />
-          </div>
-
-          <Input label="Search Job" variant="filled" />
-        </div>
-        <div class="w-[20%]">
-          <Input label="Province" variant="filled" />
-        </div>
-        <div class="w-[20%]">
-          <Input label="City" variant="filled" />
-        </div>
-        <div class="w-[20%]">
-          <ThemedSelect
-            variant="filled"
-            label="skill level"
-            options={[
-              { label: "Remote", value: "remote" },
-              { label: "Hybrid", value: "hybrid" },
-              { label: "Site", value: "site" },
-            ]}
-          />
-        </div>
-      </div>
+      <List />
     </div>
   );
 });
