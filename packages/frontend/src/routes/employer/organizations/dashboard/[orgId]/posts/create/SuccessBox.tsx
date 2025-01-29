@@ -1,6 +1,6 @@
 import { component$, useContext } from "@builder.io/qwik";
-
 import { LuCheckCircle } from "@qwikest/icons/lucide";
+
 import Heading from "~/components/heading/heading";
 import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";

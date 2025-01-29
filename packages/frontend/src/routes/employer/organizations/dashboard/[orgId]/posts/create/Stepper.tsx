@@ -5,7 +5,6 @@ import {
   TbInbox,
   TbList,
   TbMapPin,
-  TbUpload,
 } from "@qwikest/icons/tablericons";
 import { cn } from "~/common/utils";
 import { FormStepCtx } from ".";
