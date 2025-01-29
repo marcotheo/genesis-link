@@ -39,7 +39,6 @@ const ActiveForm = component$(() => {
   });
 
   useContextProvider(FormDataCtx, formDataState);
-  useContextProvider(FormStepCtx, activeStep);
 
   return (
     <>
