@@ -305,19 +305,20 @@ JOIN addresses ON posts.addressId = addresses.addressId
 WHERE 
     vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.2
     AND addresses.country = ?
-    AND addresses.province = ?
+    AND (? IS NULL OR addresses.province = ?)
     AND (? IS NULL OR addresses.city = ?)
 ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
 LIMIT 10 OFFSET ?
 `
 
 type JobSearchQueryParams struct {
-	Embedding interface{}
-	Country   string
-	Province  sql.NullString
-	Citynull  interface{}
-	City      sql.NullString
-	Offset    int64
+	Embedding    interface{}
+	Country      string
+	Provincenull interface{}
+	Province     sql.NullString
+	Citynull     interface{}
+	City         sql.NullString
+	Offset       int64
 }
 
 type JobSearchQueryRow struct {
@@ -329,6 +330,7 @@ func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) 
 	rows, err := q.db.QueryContext(ctx, jobSearchQuery,
 		arg.Embedding,
 		arg.Country,
+		arg.Provincenull,
 		arg.Province,
 		arg.Citynull,
 		arg.City,

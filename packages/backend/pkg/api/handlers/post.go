@@ -450,7 +450,7 @@ type SearchJobParams struct {
 }
 
 type SearchJobResponse struct {
-	Posts []JobPost
+	Posts []JobPost `json:"posts"`
 }
 
 func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
@@ -471,12 +471,13 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	posts, errQ := h.dataService.Queries.JobSearchQuery(context.Background(), db.JobSearchQueryParams{
-		Offset:    int64((params.Page - 1) * 10),
-		Embedding: matchEmbedding,
-		Country:   "Philippines",
-		Province:  h.utilService.StringToNullString(params.Province),
-		Citynull:  h.utilService.StringToNullString(params.City),
-		City:      h.utilService.StringToNullString(params.City),
+		Offset:       int64((params.Page - 1) * 10),
+		Embedding:    matchEmbedding,
+		Country:      "Philippines",
+		Province:     h.utilService.StringToNullString(params.Province),
+		Provincenull: h.utilService.StringToNullString(params.Province),
+		Citynull:     h.utilService.StringToNullString(params.City),
+		City:         h.utilService.StringToNullString(params.City),
 	})
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => errQ %s \n", errQ))

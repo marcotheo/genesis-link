@@ -87,7 +87,7 @@ JOIN addresses ON posts.addressId = addresses.addressId
 WHERE 
     vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.2
     AND addresses.country = ?
-    AND addresses.province = ?
+    AND (:provincenull IS NULL OR addresses.province = ?)
     AND (:citynull IS NULL OR addresses.city = ?)
 ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
 LIMIT 10 OFFSET ?;
