@@ -1,20 +1,54 @@
-import { component$, useContext, useTask$ } from "@builder.io/qwik";
+import {
+  $,
+  component$,
+  isServer,
+  useContext,
+  useTask$,
+} from "@builder.io/qwik";
 import { TbSearchOff } from "@qwikest/icons/tablericons";
 
+import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { cn } from "~/common/utils";
 import { SearchJobCtx } from ".";
 
 export default component$(() => {
   const searchCtx = useContext(SearchJobCtx);
 
+  const { mutate, state } = useMutate("POST /posts/search/jobs");
+
+  const fetchJobs = $(async () => {
+    console.log("Fetching posts related to ", searchCtx.keyword);
+
+    try {
+      const res = await mutate({
+        bodyParams: {
+          page: 1,
+          keyword: searchCtx.keyword,
+        },
+      });
+
+      if (res.result?.data) console.log("result", res.result.data.posts);
+    } catch (err) {
+      console.log(
+        `Error fetching related jobs for ${searchCtx.keyword} ::`,
+        err,
+      );
+    }
+  });
+
   useTask$(({ track }) => {
     track(() => searchCtx.keyword);
 
-    console.log("TRACKED", searchCtx.keyword);
+    if (isServer) return;
+
+    fetchJobs();
   });
 
   return (
     <>
+      <LoadingOverlay open={state.loading}>Searching for jobs</LoadingOverlay>
+
       <div class={cn("grow w-full relative")}>
         <div
           class={cn(

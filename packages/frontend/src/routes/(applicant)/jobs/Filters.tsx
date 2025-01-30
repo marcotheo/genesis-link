@@ -1,6 +1,6 @@
+import { $, component$, Signal, useContext, useSignal } from "@builder.io/qwik";
 import { SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
 import { TbChevronDown, TbSearch } from "@qwikest/icons/tablericons";
-import { $, component$, useContext } from "@builder.io/qwik";
 import { Modal } from "@qwik-ui/headless";
 import * as v from "valibot";
 
@@ -19,7 +19,7 @@ const schema = v.object({
 
 type SchemaType = v.InferInput<typeof schema>;
 
-const ModalForm = component$(() => {
+const ModalForm = component$<{ open: Signal<boolean> }>(({ open }) => {
   const searchCtx = useContext(SearchJobCtx);
 
   const [form, { Form, Field }] = useForm<SchemaType>({
@@ -38,6 +38,7 @@ const ModalForm = component$(() => {
     try {
       console.log("form values", values);
       searchCtx.keyword = values.keyword;
+      open.value = false;
     } catch (err) {
       console.log("error here:", err);
     }
@@ -143,8 +144,10 @@ const ModalForm = component$(() => {
 });
 
 export default component$(() => {
+  const open = useSignal(false);
+
   return (
-    <Modal.Root>
+    <Modal.Root bind:show={open}>
       <Modal.Trigger
         class={cn(
           "bg-primary rounded-md w-full",
@@ -172,7 +175,7 @@ export default component$(() => {
           Search Jobs
         </div>
 
-        <ModalForm />
+        <ModalForm open={open} />
 
         <Modal.Close
           class={cn(
