@@ -93,10 +93,17 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	var tagNames []string
 	for _, tag := range createPostParams.Tags {
-		tagNames = append(tagNames, tag.TagName)
+		tagName := strings.TrimSpace(strings.ToLower(tag.TagName)) // Remove spaces and convert to uppercase
+		if tagName != "" {                                         // Only add non-empty tag names
+			tagNames = append(tagNames, tagName)
+		}
 	}
 
-	postData.Embedding, err = h.openAIService.GenerateEmbedding(createPostParams.Title + " " + strings.Join(tagNames, " "))
+	embeddingInput := fmt.Sprintf("%s | %s",
+		strings.TrimSpace(strings.ToLower(createPostParams.Title)),
+		strings.Join(tagNames, ", "))
+
+	postData.Embedding, err = h.openAIService.GenerateEmbedding(embeddingInput)
 
 	if err != nil {
 		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating embedding %s \n", err))
@@ -463,7 +470,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	matchEmbedding, err := h.openAIService.GenerateEmbedding(params.Keyword)
+	matchEmbedding, err := h.openAIService.GenerateEmbedding(strings.ToLower(params.Keyword))
 	if err != nil {
 		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => error generating embedding %s \n", err))
 		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)

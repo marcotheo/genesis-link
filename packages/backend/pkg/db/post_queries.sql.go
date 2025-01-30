@@ -303,7 +303,7 @@ SELECT
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
 WHERE 
-    vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.2
+    vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.6
     AND addresses.country = ?
     AND (? IS NULL OR addresses.province = ?)
     AND (? IS NULL OR addresses.city = ?)

@@ -24,7 +24,7 @@ func (c *OpenAIService) GenerateEmbedding(input string) (string, error) {
 
 	resp, err := c.Client.CreateEmbeddings(context.Background(), openai.EmbeddingRequest{
 		Input: []string{input},
-		Model: openai.AdaEmbeddingV2,
+		Model: openai.SmallEmbedding3,
 	})
 
 	if err != nil {
