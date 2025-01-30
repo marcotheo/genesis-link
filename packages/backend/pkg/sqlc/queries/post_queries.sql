@@ -82,7 +82,9 @@ WITH embedding_vector AS (
 SELECT  
     posts.postId,
     posts.title,
-    organizations.company
+    posts.description,
+    organizations.company,
+    posts.posted_at
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
 JOIN organizations ON posts.orgId = organizations.orgId

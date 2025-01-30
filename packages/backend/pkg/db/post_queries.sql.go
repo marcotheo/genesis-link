@@ -300,7 +300,9 @@ WITH embedding_vector AS (
 SELECT  
     posts.postId,
     posts.title,
-    organizations.company
+    posts.description,
+    organizations.company,
+    posts.posted_at
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
 JOIN organizations ON posts.orgId = organizations.orgId
@@ -324,9 +326,11 @@ type JobSearchQueryParams struct {
 }
 
 type JobSearchQueryRow struct {
-	Postid  string
-	Title   string
-	Company string
+	Postid      string
+	Title       string
+	Description sql.NullString
+	Company     string
+	PostedAt    sql.NullTime
 }
 
 func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) ([]JobSearchQueryRow, error) {
@@ -346,7 +350,13 @@ func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) 
 	var items []JobSearchQueryRow
 	for rows.Next() {
 		var i JobSearchQueryRow
-		if err := rows.Scan(&i.Postid, &i.Title, &i.Company); err != nil {
+		if err := rows.Scan(
+			&i.Postid,
+			&i.Title,
+			&i.Description,
+			&i.Company,
+			&i.PostedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
