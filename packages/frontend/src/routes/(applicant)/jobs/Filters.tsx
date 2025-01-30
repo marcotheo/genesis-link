@@ -35,13 +35,9 @@ const ModalForm = component$<{ open: Signal<boolean> }>(({ open }) => {
   });
 
   const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
-    try {
-      console.log("form values", values);
-      searchCtx.keyword = values.keyword;
-      open.value = false;
-    } catch (err) {
-      console.log("error here:", err);
-    }
+    console.log("form values", values);
+    searchCtx.keyword = values.keyword;
+    open.value = false;
   });
 
   return (
