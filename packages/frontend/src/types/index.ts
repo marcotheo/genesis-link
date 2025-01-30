@@ -21,6 +21,7 @@ import {
 } from "./users";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
 import { GenerateS3SignedUrlPutApi } from "./s3";
+import { SearchJobsApi } from "./post";
 
 export interface MutationsType {
   "POST /auth/signin": SignInApi;
@@ -37,6 +38,7 @@ export interface MutationsType {
   "POST /organizations/{orgId}/posts/{postId}/job_details": CreatePostJobDetailsApi;
   "POST /organizations/{orgId}/posts/{postId}/requirements": CreatePostRequirementsApi;
   "POST /organizations/{orgId}/posts/{postId}/update/additionalInfoLink": UpdatePostAdditionalInfoLinkApi;
+  "POST /posts/search/jobs": SearchJobsApi;
   "POST /s3/url/put": GenerateS3SignedUrlPutApi;
 }
 
