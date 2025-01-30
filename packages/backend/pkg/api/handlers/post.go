@@ -496,8 +496,9 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 
 	for _, post := range posts {
 		item := JobPost{
-			PostId: post.Postid,
-			Title:  post.Title,
+			PostId:  post.Postid,
+			Company: post.Company,
+			Title:   post.Title,
 		}
 
 		postsData = append(postsData, item)

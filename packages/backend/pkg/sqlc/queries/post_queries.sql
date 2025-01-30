@@ -81,9 +81,11 @@ WITH embedding_vector AS (
 )
 SELECT  
     posts.postId,
-    posts.title
+    posts.title,
+    organizations.company
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
+JOIN organizations ON posts.orgId = organizations.orgId
 WHERE 
     vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.6
     AND addresses.country = ?
