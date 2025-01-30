@@ -1,6 +1,6 @@
 import { SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
 import { TbChevronDown, TbSearch } from "@qwikest/icons/tablericons";
-import { $, component$ } from "@builder.io/qwik";
+import { $, component$, useContext } from "@builder.io/qwik";
 import { Modal } from "@qwik-ui/headless";
 import * as v from "valibot";
 
@@ -8,6 +8,7 @@ import ThemedSelect from "~/components/themed-select/themed-select";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
+import { SearchJobCtx } from ".";
 
 const schema = v.object({
   keyword: v.pipe(v.string("Required"), v.nonEmpty("Please enter keyword")),
@@ -19,6 +20,8 @@ const schema = v.object({
 type SchemaType = v.InferInput<typeof schema>;
 
 const ModalForm = component$(() => {
+  const searchCtx = useContext(SearchJobCtx);
+
   const [form, { Form, Field }] = useForm<SchemaType>({
     loader: {
       value: {
@@ -32,7 +35,12 @@ const ModalForm = component$(() => {
   });
 
   const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
-    console.log("VALUES", values);
+    try {
+      console.log("form values", values);
+      searchCtx.keyword = values.keyword;
+    } catch (err) {
+      console.log("error here:", err);
+    }
   });
 
   return (

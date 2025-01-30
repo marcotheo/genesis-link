@@ -1,8 +1,18 @@
+import { component$, useContext, useTask$ } from "@builder.io/qwik";
 import { TbSearchOff } from "@qwikest/icons/tablericons";
-import { component$ } from "@builder.io/qwik";
+
 import { cn } from "~/common/utils";
+import { SearchJobCtx } from ".";
 
 export default component$(() => {
+  const searchCtx = useContext(SearchJobCtx);
+
+  useTask$(({ track }) => {
+    track(() => searchCtx.keyword);
+
+    console.log("TRACKED", searchCtx.keyword);
+  });
+
   return (
     <>
       <div class={cn("grow w-full relative")}>
