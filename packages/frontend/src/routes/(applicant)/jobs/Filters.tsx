@@ -1,11 +1,138 @@
+import { SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
 import { TbChevronDown, TbSearch } from "@qwikest/icons/tablericons";
-import { component$ } from "@builder.io/qwik";
+import { $, component$ } from "@builder.io/qwik";
 import { Modal } from "@qwik-ui/headless";
+import * as v from "valibot";
 
 import ThemedSelect from "~/components/themed-select/themed-select";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import { cn } from "~/common/utils";
+
+const schema = v.object({
+  keyword: v.pipe(v.string("Required"), v.nonEmpty("Please enter keyword")),
+  workSetup: v.optional(v.string()),
+  province: v.optional(v.string()),
+  city: v.optional(v.string()),
+});
+
+type SchemaType = v.InferInput<typeof schema>;
+
+const ModalForm = component$(() => {
+  const [form, { Form, Field }] = useForm<SchemaType>({
+    loader: {
+      value: {
+        keyword: "",
+        workSetup: undefined,
+        province: undefined,
+        city: undefined,
+      },
+    },
+    validate: valiForm$(schema),
+  });
+
+  const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
+    console.log("VALUES", values);
+  });
+
+  return (
+    <div>
+      <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
+        <div
+          class={cn(
+            "w-full p-3 md:p-10",
+            "grid grid-cols-6 gap-5",
+            "overflow-hidden",
+            "duration-500 ease-in-out",
+          )}
+        >
+          <div class="col-span-6 relative">
+            <div
+              class={cn(
+                "bg-transparent",
+                "absolute",
+                "top-1/2 right-3",
+                "-translate-y-1/2",
+                "h-fit text-2xl",
+              )}
+            >
+              <TbSearch />
+            </div>
+
+            <Field name="keyword">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="Search Job"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                  required
+                />
+              )}
+            </Field>
+          </div>
+
+          <div class="col-span-6 md:col-span-2">
+            <Field name="workSetup">
+              {(field, props) => (
+                <ThemedSelect
+                  {...props}
+                  name={field.name}
+                  variant="filled"
+                  label="Work Setup"
+                  value={field.value}
+                  errorMsg={field.error}
+                  options={[
+                    { label: "Remote", value: "remote" },
+                    { label: "Hybrid", value: "hybrid" },
+                    { label: "Site", value: "site" },
+                  ]}
+                />
+              )}
+            </Field>
+          </div>
+
+          <div class="col-span-3 md:col-span-2">
+            <Field name="province">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="Province"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                  required
+                />
+              )}
+            </Field>
+          </div>
+
+          <div class="col-span-3 md:col-span-2">
+            <Field name="city">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  label="city"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value}
+                  required
+                />
+              )}
+            </Field>
+          </div>
+
+          <div class="col-span-2 md:col-span-1">
+            <Button class="h-12 w-full" type="submit">
+              Search
+            </Button>
+          </div>
+        </div>
+      </Form>
+    </div>
+  );
+});
 
 export default component$(() => {
   return (
@@ -37,54 +164,7 @@ export default component$(() => {
           Search Jobs
         </div>
 
-        <div
-          class={cn(
-            "w-full p-3 md:p-10",
-            "grid grid-cols-6 gap-5",
-            "overflow-hidden",
-            "duration-500 ease-in-out",
-          )}
-        >
-          <div class="col-span-6 relative">
-            <div
-              class={cn(
-                "bg-transparent",
-                "absolute",
-                "top-1/2 right-3",
-                "-translate-y-1/2",
-                "h-fit text-2xl",
-              )}
-            >
-              <TbSearch />
-            </div>
-
-            <Input label="Search Job" variant="filled" />
-          </div>
-
-          <div class="col-span-6 md:col-span-2">
-            <ThemedSelect
-              variant="filled"
-              label="Work Setup"
-              options={[
-                { label: "Remote", value: "remote" },
-                { label: "Hybrid", value: "hybrid" },
-                { label: "Site", value: "site" },
-              ]}
-            />
-          </div>
-
-          <div class="col-span-3 md:col-span-2">
-            <Input label="Province" variant="filled" />
-          </div>
-
-          <div class="col-span-3 md:col-span-2">
-            <Input label="City" variant="filled" />
-          </div>
-
-          <div class="col-span-2 md:col-span-1">
-            <Button class="h-12 w-full">Search</Button>
-          </div>
-        </div>
+        <ModalForm />
 
         <Modal.Close
           class={cn(
