@@ -1,8 +1,8 @@
 import {
   $,
   component$,
-  isServer,
   useContext,
+  useSignal,
   useTask$,
 } from "@builder.io/qwik";
 import { TbSearchOff } from "@qwikest/icons/tablericons";
@@ -10,11 +10,12 @@ import { TbSearchOff } from "@qwikest/icons/tablericons";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import Heading from "~/components/heading/heading";
-import { cn } from "~/common/utils";
+import { cn, timeAgo } from "~/common/utils";
 import { SearchJobCtx } from ".";
 
 export default component$(() => {
   const searchCtx = useContext(SearchJobCtx);
+  const hasMounted = useSignal(false);
 
   const { mutate, state } = useMutate("POST /posts/search/jobs");
 
@@ -41,7 +42,11 @@ export default component$(() => {
   useTask$(({ track }) => {
     track(() => searchCtx.keyword);
 
-    if (isServer) return;
+    if (!hasMounted.value) {
+      // Skip execution on initial mount and route changes
+      hasMounted.value = true;
+      return;
+    }
 
     fetchJobs();
   });
@@ -50,20 +55,29 @@ export default component$(() => {
     <>
       <LoadingOverlay open={state.loading}>Searching for jobs</LoadingOverlay>
 
-      <div class={cn("grow w-full relative py-5")}>
+      <div class={cn("grow overflow-auto w-full relative", "py-5 pr-5")}>
         {state.result?.data.posts && state.result.data.posts.length > 0 ? (
           <div class="space-y-5">
             {state.result.data.posts.map((v) => (
               <div key={v.postId}>
                 <div
                   class={cn(
-                    "w-full px-5 py-8",
+                    "w-full px-5 py-5",
                     "border-t border-soft",
                     "animate-fade-in-slide",
+                    "space-y-5",
                   )}
                 >
+                  <p>{"Posted " + timeAgo(v.postedAt)}</p>
                   <Heading>{v.title}</Heading>
                   <p>{v.description}</p>
+                  <div class="flex flex-wrap gap-5 items-center">
+                    {v.tags.map((v) => (
+                      <div key={v} class="rounded-full px-5 py-1 bg-soft">
+                        {v}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
