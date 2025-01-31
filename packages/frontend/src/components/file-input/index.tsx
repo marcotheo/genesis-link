@@ -8,7 +8,7 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 
-import { TbFile, TbPhoto } from "@qwikest/icons/tablericons";
+import { TbFile } from "@qwikest/icons/tablericons";
 import InputError from "../input-error/input-error";
 import { cn } from "~/common/utils";
 
