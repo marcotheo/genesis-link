@@ -16,6 +16,7 @@ export interface SearchJobsApi {
         title: string;
         company: string;
         description: string;
+        tags: string[];
         postedAt: number;
       }[];
     };
