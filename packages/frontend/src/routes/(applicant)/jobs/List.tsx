@@ -68,10 +68,14 @@ export default component$(() => {
                     "space-y-5",
                   )}
                 >
-                  <p>{"Posted " + timeAgo(v.postedAt)}</p>
-                  <Heading>{v.title}</Heading>
+                  <div>
+                    <p class="text-sm text-input">
+                      {"Posted " + timeAgo(v.postedAt)}
+                    </p>
+                    <Heading>{v.title}</Heading>
+                  </div>
                   <p>{v.description}</p>
-                  <div class="flex flex-wrap gap-5 items-center">
+                  <div class="flex flex-wrap gap-3 items-center">
                     {v.tags.map((v) => (
                       <div key={v} class="rounded-full px-5 py-1 bg-soft">
                         {v}
