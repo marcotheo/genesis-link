@@ -302,15 +302,18 @@ SELECT
     posts.title,
     posts.description,
     organizations.company,
+    COALESCE(GROUP_CONCAT(post_tags.tagName, ', '), '') AS tags,
     posts.posted_at
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
 JOIN organizations ON posts.orgId = organizations.orgId
+LEFT JOIN post_tags ON posts.postId = post_tags.postId
 WHERE 
     vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.6
     AND addresses.country = ?
     AND (? IS NULL OR addresses.province = ?)
     AND (? IS NULL OR addresses.city = ?)
+GROUP BY posts.postId
 ORDER BY vector_distance_cos(embedding, embedding_vector.vec) ASC
 LIMIT 10 OFFSET ?
 `
@@ -330,6 +333,7 @@ type JobSearchQueryRow struct {
 	Title       string
 	Description sql.NullString
 	Company     string
+	Tags        interface{}
 	PostedAt    sql.NullTime
 }
 
@@ -355,6 +359,7 @@ func (q *Queries) JobSearchQuery(ctx context.Context, arg JobSearchQueryParams) 
 			&i.Title,
 			&i.Description,
 			&i.Company,
+			&i.Tags,
 			&i.PostedAt,
 		); err != nil {
 			return nil, err

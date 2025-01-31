@@ -444,11 +444,12 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 type JobPost struct {
-	PostId      string `json:"postId"`
-	Title       string `json:"title"`
-	Company     string `json:"company,omitempty"`
-	Description string `json:"description"`
-	PostedAt    int64  `json:"postedAt"`
+	PostId      string   `json:"postId"`
+	Title       string   `json:"title"`
+	Company     string   `json:"company,omitempty"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+	PostedAt    int64    `json:"postedAt"`
 }
 
 type SearchJobParams struct {
@@ -499,11 +500,18 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 	var postsData []JobPost
 
 	for _, post := range posts {
+		var tags []string
+
+		if post.Tags != "" {
+			tags = strings.Split(post.Tags.(string), ", ")
+		}
+
 		item := JobPost{
 			PostId:      post.Postid,
 			Company:     post.Company,
 			Title:       post.Title,
 			Description: h.utilService.ConvertNullString(post.Description),
+			Tags:        tags,
 			PostedAt:    h.utilService.ConvertNullTime(post.PostedAt),
 		}
 
