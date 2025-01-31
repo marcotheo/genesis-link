@@ -1,8 +1,15 @@
+import relativeTime from "dayjs/plugin/relativeTime";
 import { type ClassValue, clsx } from "clsx";
 import { Signal } from "@builder.io/qwik";
 import { twMerge } from "tailwind-merge";
-import { baseApiUrl } from "./constants";
 import { $ } from "@builder.io/qwik";
+import utc from "dayjs/plugin/utc";
+import dayjs from "dayjs";
+
+import { baseApiUrl } from "./constants";
+
+dayjs.extend(relativeTime);
+dayjs.extend(utc); // Add UTC support
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -176,3 +183,20 @@ export const createDashboardPath = (orgId: string, path: string) => {
 };
 
 export const defaultCountry = "Philippines";
+
+export const timeAgo = (timestamp: number): string => {
+  const now = dayjs().startOf("day"); // Start of today (00:00)
+  const date = dayjs.unix(timestamp).utc().local(); // Convert to local time
+  const startOfDay = date.startOf("day"); // Start of the timestamp’s day
+  const diffDays = now.diff(startOfDay, "day"); // Difference in full days
+
+  if (diffDays === 0) return "today"; // Same calendar day
+  if (diffDays === 1) return "yesterday"; // Previous calendar day
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30)
+    return `${Math.floor(diffDays / 7)} week${diffDays >= 14 ? "s" : ""} ago`;
+  if (diffDays < 365)
+    return `${Math.floor(diffDays / 30)} month${diffDays >= 60 ? "s" : ""} ago`;
+
+  return `${Math.floor(diffDays / 365)} year${diffDays >= 730 ? "s" : ""} ago`;
+};
