@@ -71,7 +71,7 @@ INSERT INTO posts (
     title, 
     description, 
     additionalInfoLink, 
-    wfh, 
+    workSetup, 
     deadline, 
     addressId, 
     orgId,
@@ -86,7 +86,7 @@ type CreatePostParams struct {
 	Title              string
 	Description        sql.NullString
 	Additionalinfolink sql.NullString
-	Wfh                sql.NullInt64
+	Worksetup          string
 	Deadline           sql.NullInt64
 	Addressid          string
 	Orgid              string
@@ -99,7 +99,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 		arg.Title,
 		arg.Description,
 		arg.Additionalinfolink,
-		arg.Wfh,
+		arg.Worksetup,
 		arg.Deadline,
 		arg.Addressid,
 		arg.Orgid,
@@ -184,7 +184,7 @@ func (q *Queries) GetPostCountByOrgId(ctx context.Context, orgid string) (int64,
 
 const getPostDetailsByPostId = `-- name: GetPostDetailsByPostId :one
 SELECT  
-   p.postid, p.title, p.description, p.additionalinfolink, p.wfh, p.deadline, p.embedding, p.posted_at, p.updated_at, p.addressid, p.orgid,
+   p.postid, p.title, p.description, p.additionalinfolink, p.worksetup, p.deadline, p.embedding, p.posted_at, p.updated_at, p.addressid, p.orgid,
    jb.jobdetailid, jb.postid, jb.jobtype, jb.salarytype, jb.salaryamountmin, jb.salaryamountmax, jb.salarycurrency
 FROM posts p
 LEFT JOIN job_details jb
@@ -197,7 +197,7 @@ type GetPostDetailsByPostIdRow struct {
 	Title              string
 	Description        sql.NullString
 	Additionalinfolink sql.NullString
-	Wfh                sql.NullInt64
+	Worksetup          string
 	Deadline           sql.NullInt64
 	Embedding          interface{}
 	PostedAt           sql.NullTime
@@ -221,7 +221,7 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 		&i.Title,
 		&i.Description,
 		&i.Additionalinfolink,
-		&i.Wfh,
+		&i.Worksetup,
 		&i.Deadline,
 		&i.Embedding,
 		&i.PostedAt,

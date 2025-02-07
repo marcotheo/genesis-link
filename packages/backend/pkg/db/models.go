@@ -56,7 +56,7 @@ type Post struct {
 	Title              string
 	Description        sql.NullString
 	Additionalinfolink sql.NullString
-	Wfh                sql.NullInt64
+	Worksetup          string
 	Deadline           sql.NullInt64
 	Embedding          interface{}
 	PostedAt           sql.NullTime

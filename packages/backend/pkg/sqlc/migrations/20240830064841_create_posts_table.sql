@@ -5,7 +5,7 @@ CREATE TABLE posts (
     title TEXT NOT NULL,
     description TEXT,
     additionalInfoLink TEXT,
-    wfh INTEGER DEFAULT 0,
+    workSetup TEXT CHECK(workSetup IN ('remote', 'on-site', 'hybrid')) NOT NULL, 
     deadline INTEGER,
     embedding F32_BLOB(1536) NOT NULL,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -17,19 +17,19 @@ CREATE TABLE posts (
 );
 
 CREATE INDEX posts_embedding_idx ON posts(libsql_vector_idx(embedding));
-CREATE INDEX idx_posted_at ON posts(posted_at);
-CREATE INDEX idx_wfh ON posts(wfh);
-CREATE INDEX idx_posts_orgId ON posts(orgId);
-CREATE INDEX idx_posts_addressId ON posts(addressId);
+CREATE INDEX idx_posted_at_idx ON posts(posted_at);
+CREATE INDEX idx_workSetup_idx ON posts(workSetup);
+CREATE INDEX idx_posts_orgId_idx ON posts(orgId);
+CREATE INDEX idx_posts_addressId_idx ON posts(addressId);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 DROP INDEX posts_embedding_idx;
-DROP INDEX idx_posted_at;
-DROP INDEX idx_wfh;
-DROP INDEX idx_posts_orgId;
-DROP INDEX idx_posts_addressId;
+DROP INDEX idx_posted_at_idx;
+DROP INDEX idx_workSetup_idx;
+DROP INDEX idx_posts_orgId_idx;
+DROP INDEX idx_posts_addressId_idx;
 
 DROP TABLE posts;
 -- +goose StatementEnd

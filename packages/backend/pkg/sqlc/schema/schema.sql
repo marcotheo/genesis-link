@@ -58,7 +58,7 @@ CREATE TABLE posts (
     title TEXT NOT NULL,
     description TEXT,
     additionalInfoLink TEXT,
-    wfh INTEGER DEFAULT 0,
+    workSetup TEXT CHECK(workSetup IN ('remote', 'on-site', 'hybrid')) NOT NULL,   
     deadline INTEGER,
     embedding F32_BLOB(1536) NOT NULL,
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

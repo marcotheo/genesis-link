@@ -4,7 +4,7 @@ INSERT INTO posts (
     title, 
     description, 
     additionalInfoLink, 
-    wfh, 
+    workSetup, 
     deadline, 
     addressId, 
     orgId,
