@@ -15,6 +15,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/marcotheo/justarouter v1.0.6
 	github.com/matoous/go-nanoid/v2 v2.1.0
+	github.com/sashabaranov/go-openai v1.36.1
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240416075003-747366ff79c4
 	go.uber.org/dig v1.17.1
 )
@@ -41,7 +42,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/libsql/sqlite-antlr4-parser v0.0.0-20240327125255-dbf53b6cbf06 // indirect
-	github.com/sashabaranov/go-openai v1.36.1 // indirect
 	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
 	golang.org/x/net v0.21.0 // indirect
