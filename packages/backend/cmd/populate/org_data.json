@@ -1,0 +1,152 @@
+[
+  {
+    "company": "Tech Solutions Inc.",
+    "email": "info@techsolutions.com",
+    "contactNumber": "+639171234567",
+    "bannerLink": "https://example.com/banners/techsolutions.jpg",
+    "logoLink": "https://example.com/logos/techsolutions.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "NCR",
+      "province": "Metro Manila",
+      "city": "Makati",
+      "barangay": "Bel-Air",
+      "addressDetails": "123 Ayala Avenue, Bel-Air, Makati"
+    }
+  },
+  {
+    "company": "Green Energy Corp.",
+    "email": "contact@greenenergy.com",
+    "contactNumber": "+639182345678",
+    "bannerLink": "https://example.com/banners/greenenergy.jpg",
+    "logoLink": "https://example.com/logos/greenenergy.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "Region IV-A",
+      "province": "Cavite",
+      "city": "Tagaytay",
+      "barangay": "Silang Junction",
+      "addressDetails": "456 Tagaytay Ridge, Silang Junction, Tagaytay"
+    }
+  },
+  {
+    "company": "NextGen Software",
+    "email": "support@nextgensoft.com",
+    "contactNumber": "+639193456789",
+    "bannerLink": "https://example.com/banners/nextgensoft.jpg",
+    "logoLink": "https://example.com/logos/nextgensoft.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "Region III",
+      "province": "Pampanga",
+      "city": "San Fernando",
+      "barangay": "Dolores",
+      "addressDetails": "789 MacArthur Highway, Dolores, San Fernando"
+    }
+  },
+  {
+    "company": "CloudWorks Ltd.",
+    "email": "sales@cloudworks.com",
+    "contactNumber": "+639204567890",
+    "bannerLink": "https://example.com/banners/cloudworks.jpg",
+    "logoLink": "https://example.com/logos/cloudworks.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "Region VII",
+      "province": "Cebu",
+      "city": "Cebu City",
+      "barangay": "Lahug",
+      "addressDetails": "101 IT Park, Lahug, Cebu City"
+    }
+  },
+  {
+    "company": "AI Innovators",
+    "email": "hello@aiinnovators.com",
+    "contactNumber": "+639215678901",
+    "bannerLink": "https://example.com/banners/aiinnovators.jpg",
+    "logoLink": "https://example.com/logos/aiinnovators.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "Region XI",
+      "province": "Davao del Sur",
+      "city": "Davao City",
+      "barangay": "Buhangin",
+      "addressDetails": "202 JP Laurel Avenue, Buhangin, Davao City"
+    }
+  },
+  {
+    "company": "CyberShield Security",
+    "email": "info@cybershield.com",
+    "contactNumber": "+639226789012",
+    "bannerLink": "https://example.com/banners/cybershield.jpg",
+    "logoLink": "https://example.com/logos/cybershield.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "NCR",
+      "province": "Metro Manila",
+      "city": "Quezon City",
+      "barangay": "Diliman",
+      "addressDetails": "303 Commonwealth Avenue, Diliman, Quezon City"
+    }
+  },
+  {
+    "company": "MediTech Solutions",
+    "email": "support@meditech.com",
+    "contactNumber": "+639237890123",
+    "bannerLink": "https://example.com/banners/meditech.jpg",
+    "logoLink": "https://example.com/logos/meditech.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "Region VI",
+      "province": "Iloilo",
+      "city": "Iloilo City",
+      "barangay": "Jaro",
+      "addressDetails": "505 Jaro Plaza, Iloilo City"
+    }
+  },
+  {
+    "company": "EduSmart Academy",
+    "email": "info@edusmart.com",
+    "contactNumber": "+639248901234",
+    "bannerLink": "https://example.com/banners/edusmart.jpg",
+    "logoLink": "https://example.com/logos/edusmart.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "Region V",
+      "province": "Albay",
+      "city": "Legazpi",
+      "barangay": "Rawis",
+      "addressDetails": "707 Daraga Highway, Rawis, Legazpi"
+    }
+  },
+  {
+    "company": "RetailX Solutions",
+    "email": "contact@retailx.com",
+    "contactNumber": "+639259012345",
+    "bannerLink": "https://example.com/banners/retailx.jpg",
+    "logoLink": "https://example.com/logos/retailx.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "Region I",
+      "province": "Pangasinan",
+      "city": "Dagupan",
+      "barangay": "Bonuan",
+      "addressDetails": "808 Tondaligan Road, Bonuan, Dagupan"
+    }
+  },
+  {
+    "company": "FinTrust Banking",
+    "email": "support@fintrust.com",
+    "contactNumber": "+639260123456",
+    "bannerLink": "https://example.com/banners/fintrust.jpg",
+    "logoLink": "https://example.com/logos/fintrust.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "CAR",
+      "province": "Benguet",
+      "city": "Baguio",
+      "barangay": "Session Road",
+      "addressDetails": "909 Session Road, Baguio"
+    }
+  }
+]
