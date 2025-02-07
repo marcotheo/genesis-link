@@ -40,7 +40,7 @@ type CreatePostParams struct {
 	Title              string    `json:"title" validate:"required"`
 	Description        string    `json:"description"`
 	AdditionalInfoLink string    `json:"additionalInfoLink"`
-	Wfh                int       `json:"wfh" validate:"oneof=0 1"`
+	Worksetup          string    `json:"wfh" validate:"required,oneof=remote on-site hybrid"`
 	Deadline           string    `json:"deadline" validate:"required,date"`
 	AddressId          string    `json:"addressId" validate:"required,nanoid"`
 	Tags               []PostTag `json:"tags" validate:"required,dive"`
