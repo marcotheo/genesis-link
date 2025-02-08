@@ -9,6 +9,8 @@ CREATE TABLE addresses (
     barangay TEXT,
     addressDetails TEXT,  -- House number, unit, building, street, etc.
     orgId TEXT NOT NULL,  -- Define orgId column
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     FOREIGN KEY (orgId) REFERENCES organizations(orgId)
 );
 

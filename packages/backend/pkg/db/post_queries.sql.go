@@ -39,7 +39,7 @@ INSERT INTO job_details (
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?
 )
-RETURNING jobdetailid, postid, jobtype, salarytype, salaryamountmin, salaryamountmax, salarycurrency
+RETURNING jobdetailid, postid, jobtype, salarytype, salaryamountmin, salaryamountmax, salarycurrency, created_at, updated_at
 `
 
 type CreateJobDetailsParams struct {
@@ -117,7 +117,7 @@ INSERT INTO post_requirements (
 ) VALUES (
     ?, ?, ?, ?
 )
-RETURNING requirementid, postid, requirementtype, requirement
+RETURNING requirementid, postid, requirementtype, requirement, created_at, updated_at
 `
 
 type CreatePostRequirementParams struct {
@@ -185,7 +185,7 @@ func (q *Queries) GetPostCountByOrgId(ctx context.Context, orgid string) (int64,
 const getPostDetailsByPostId = `-- name: GetPostDetailsByPostId :one
 SELECT  
    p.postid, p.title, p.description, p.additionalinfolink, p.worksetup, p.deadline, p.embedding, p.posted_at, p.updated_at, p.addressid, p.orgid,
-   jb.jobdetailid, jb.postid, jb.jobtype, jb.salarytype, jb.salaryamountmin, jb.salaryamountmax, jb.salarycurrency
+   jb.jobdetailid, jb.postid, jb.jobtype, jb.salarytype, jb.salaryamountmin, jb.salaryamountmax, jb.salarycurrency, jb.created_at, jb.updated_at
 FROM posts p
 LEFT JOIN job_details jb
 ON p.postId = jb.postId
@@ -211,6 +211,8 @@ type GetPostDetailsByPostIdRow struct {
 	Salaryamountmin    sql.NullInt64
 	Salaryamountmax    sql.NullInt64
 	Salarycurrency     sql.NullString
+	CreatedAt          sql.NullTime
+	UpdatedAt_2        interface{}
 }
 
 func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (GetPostDetailsByPostIdRow, error) {
@@ -235,6 +237,8 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 		&i.Salaryamountmin,
 		&i.Salaryamountmax,
 		&i.Salarycurrency,
+		&i.CreatedAt,
+		&i.UpdatedAt_2,
 	)
 	return i, err
 }

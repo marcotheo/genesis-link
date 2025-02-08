@@ -17,6 +17,8 @@ type Address struct {
 	Barangay       sql.NullString
 	Addressdetails sql.NullString
 	Orgid          string
+	CreatedAt      sql.NullTime
+	UpdatedAt      interface{}
 }
 
 type Application struct {
@@ -37,6 +39,8 @@ type JobDetail struct {
 	Salaryamountmin sql.NullInt64
 	Salaryamountmax sql.NullInt64
 	Salarycurrency  sql.NullString
+	CreatedAt       sql.NullTime
+	UpdatedAt       interface{}
 }
 
 type Organization struct {
@@ -70,6 +74,8 @@ type PostRequirement struct {
 	Postid          string
 	Requirementtype string
 	Requirement     string
+	CreatedAt       sql.NullTime
+	UpdatedAt       interface{}
 }
 
 type PostTag struct {

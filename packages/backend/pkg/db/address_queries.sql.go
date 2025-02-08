@@ -23,7 +23,7 @@ INSERT INTO addresses (
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?, ?
 )
-RETURNING addressid, country, region, province, city, barangay, addressdetails, orgid
+RETURNING addressid, country, region, province, city, barangay, addressdetails, orgid, created_at, updated_at
 `
 
 type CreateAddressParams struct {
@@ -67,7 +67,7 @@ func (q *Queries) DeleteAddress(ctx context.Context, arg DeleteAddressParams) er
 }
 
 const getAllAddressByOrgId = `-- name: GetAllAddressByOrgId :many
-SELECT addressid, country, region, province, city, barangay, addressdetails, orgid FROM addresses
+SELECT addressid, country, region, province, city, barangay, addressdetails, orgid, created_at, updated_at FROM addresses
 WHERE orgId = ?
 `
 
@@ -89,6 +89,8 @@ func (q *Queries) GetAllAddressByOrgId(ctx context.Context, orgid string) ([]Add
 			&i.Barangay,
 			&i.Addressdetails,
 			&i.Orgid,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
