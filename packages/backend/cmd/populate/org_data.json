@@ -12,141 +12,246 @@
       "city": "Makati",
       "barangay": "Bel-Air",
       "addressDetails": "123 Ayala Avenue, Bel-Air, Makati"
-    }
+    },
+    "posts": [
+      {
+        "title": "Backend Developer",
+        "description": "Build and maintain APIs using Node.js and PostgreSQL.",
+        "additionalInfoLink": "https://company.com/job-details",
+        "wfh": "remote",
+        "deadline": "2025-05-01",
+        "addressId": "abc987xyz",
+        "tags": [
+          {
+            "tagName": "Node.js",
+            "tagCategory": "Backend Framework"
+          },
+          {
+            "tagName": "PostgreSQL",
+            "tagCategory": "Database"
+          },
+          {
+            "tagName": "REST API",
+            "tagCategory": "Technology"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 50000,
+          "salaryAmountMax": 70000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Develop and maintain backend services."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Proficiency in Node.js and PostgreSQL."
+            }
+          ]
+        }
+      },
+      {
+        "title": "Data Analyst",
+        "description": "Analyze business data and provide insights.",
+        "additionalInfoLink": "https://company.com/job-details",
+        "wfh": "on-site",
+        "deadline": "2025-05-15",
+        "addressId": "xyz654def",
+        "tags": [
+          {
+            "tagName": "SQL",
+            "tagCategory": "Data Analysis"
+          },
+          {
+            "tagName": "Python",
+            "tagCategory": "Programming Language"
+          },
+          {
+            "tagName": "Power BI",
+            "tagCategory": "Business Intelligence"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 45000,
+          "salaryAmountMax": 60000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Gather, clean, and analyze data for insights."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience in SQL, Python, and Power BI."
+            }
+          ]
+        }
+      },
+      {
+        "title": "UI/UX Designer",
+        "description": "Design and improve user interfaces for web applications.",
+        "additionalInfoLink": "https://company.com/job-details",
+        "wfh": "hybrid",
+        "deadline": "2025-06-01",
+        "addressId": "lmn321pqr",
+        "tags": [
+          {
+            "tagName": "Figma",
+            "tagCategory": "Design Tool"
+          },
+          {
+            "tagName": "User Experience",
+            "tagCategory": "Design Principle"
+          },
+          {
+            "tagName": "Prototyping",
+            "tagCategory": "Design Methodology"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "contract",
+          "salaryType": "fixed",
+          "salaryAmountMin": 60000,
+          "salaryAmountMax": 80000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Create user-friendly designs for web applications."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience in Figma and UX best practices."
+            }
+          ]
+        }
+      }
+    ]
   },
   {
-    "company": "Green Energy Corp.",
-    "email": "contact@greenenergy.com",
-    "contactNumber": "+639182345678",
-    "bannerLink": "https://example.com/banners/greenenergy.jpg",
-    "logoLink": "https://example.com/logos/greenenergy.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "Region IV-A",
-      "province": "Cavite",
-      "city": "Tagaytay",
-      "barangay": "Silang Junction",
-      "addressDetails": "456 Tagaytay Ridge, Silang Junction, Tagaytay"
-    }
-  },
-  {
-    "company": "NextGen Software",
-    "email": "support@nextgensoft.com",
-    "contactNumber": "+639193456789",
-    "bannerLink": "https://example.com/banners/nextgensoft.jpg",
-    "logoLink": "https://example.com/logos/nextgensoft.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "Region III",
-      "province": "Pampanga",
-      "city": "San Fernando",
-      "barangay": "Dolores",
-      "addressDetails": "789 MacArthur Highway, Dolores, San Fernando"
-    }
-  },
-  {
-    "company": "CloudWorks Ltd.",
-    "email": "sales@cloudworks.com",
-    "contactNumber": "+639204567890",
-    "bannerLink": "https://example.com/banners/cloudworks.jpg",
-    "logoLink": "https://example.com/logos/cloudworks.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "Region VII",
-      "province": "Cebu",
-      "city": "Cebu City",
-      "barangay": "Lahug",
-      "addressDetails": "101 IT Park, Lahug, Cebu City"
-    }
-  },
-  {
-    "company": "AI Innovators",
-    "email": "hello@aiinnovators.com",
-    "contactNumber": "+639215678901",
-    "bannerLink": "https://example.com/banners/aiinnovators.jpg",
-    "logoLink": "https://example.com/logos/aiinnovators.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "Region XI",
-      "province": "Davao del Sur",
-      "city": "Davao City",
-      "barangay": "Buhangin",
-      "addressDetails": "202 JP Laurel Avenue, Buhangin, Davao City"
-    }
-  },
-  {
-    "company": "CyberShield Security",
-    "email": "info@cybershield.com",
-    "contactNumber": "+639226789012",
-    "bannerLink": "https://example.com/banners/cybershield.jpg",
-    "logoLink": "https://example.com/logos/cybershield.jpg",
+    "company": "Innovate Tech Solutions",
+    "email": "contact@innovate-tech.com",
+    "contactNumber": "+639176543210",
+    "bannerLink": "https://example.com/banners/innovate-tech.jpg",
+    "logoLink": "https://example.com/logos/innovate-tech.jpg",
     "address": {
       "country": "Philippines",
       "region": "NCR",
       "province": "Metro Manila",
-      "city": "Quezon City",
-      "barangay": "Diliman",
-      "addressDetails": "303 Commonwealth Avenue, Diliman, Quezon City"
-    }
-  },
-  {
-    "company": "MediTech Solutions",
-    "email": "support@meditech.com",
-    "contactNumber": "+639237890123",
-    "bannerLink": "https://example.com/banners/meditech.jpg",
-    "logoLink": "https://example.com/logos/meditech.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "Region VI",
-      "province": "Iloilo",
-      "city": "Iloilo City",
-      "barangay": "Jaro",
-      "addressDetails": "505 Jaro Plaza, Iloilo City"
-    }
-  },
-  {
-    "company": "EduSmart Academy",
-    "email": "info@edusmart.com",
-    "contactNumber": "+639248901234",
-    "bannerLink": "https://example.com/banners/edusmart.jpg",
-    "logoLink": "https://example.com/logos/edusmart.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "Region V",
-      "province": "Albay",
-      "city": "Legazpi",
-      "barangay": "Rawis",
-      "addressDetails": "707 Daraga Highway, Rawis, Legazpi"
-    }
-  },
-  {
-    "company": "RetailX Solutions",
-    "email": "contact@retailx.com",
-    "contactNumber": "+639259012345",
-    "bannerLink": "https://example.com/banners/retailx.jpg",
-    "logoLink": "https://example.com/logos/retailx.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "Region I",
-      "province": "Pangasinan",
-      "city": "Dagupan",
-      "barangay": "Bonuan",
-      "addressDetails": "808 Tondaligan Road, Bonuan, Dagupan"
-    }
-  },
-  {
-    "company": "FinTrust Banking",
-    "email": "support@fintrust.com",
-    "contactNumber": "+639260123456",
-    "bannerLink": "https://example.com/banners/fintrust.jpg",
-    "logoLink": "https://example.com/logos/fintrust.jpg",
-    "address": {
-      "country": "Philippines",
-      "region": "CAR",
-      "province": "Benguet",
-      "city": "Baguio",
-      "barangay": "Session Road",
-      "addressDetails": "909 Session Road, Baguio"
-    }
+      "city": "Taguig",
+      "barangay": "Fort Bonifacio",
+      "addressDetails": "30th Street, Fort Bonifacio, Taguig"
+    },
+    "posts": [
+      {
+        "title": "Software Engineer",
+        "description": "Develop scalable web applications using Go and React.",
+        "additionalInfoLink": "https://example.com/jobs/software-engineer",
+        "wfh": "remote",
+        "deadline": "2025-05-10",
+        "addressId": "job123xyz",
+        "tags": [
+          {
+            "tagName": "Go",
+            "tagCategory": "Backend Language"
+          },
+          {
+            "tagName": "React",
+            "tagCategory": "Frontend Framework"
+          },
+          {
+            "tagName": "SQL",
+            "tagCategory": "Database"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 60000,
+          "salaryAmountMax": 90000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Develop, test, and deploy backend APIs."
+            },
+            {
+              "requirementType": "responsibility",
+              "requirement": "Collaborate with frontend engineers to integrate APIs."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Strong experience with Go and PostgreSQL."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience with cloud platforms such as AWS or GCP."
+            }
+          ]
+        }
+      },
+      {
+        "title": "Frontend Developer",
+        "description": "Create dynamic user interfaces using React and TypeScript.",
+        "additionalInfoLink": "https://example.com/jobs/frontend-developer",
+        "wfh": "hybrid",
+        "deadline": "2025-06-01",
+        "addressId": "job456abc",
+        "tags": [
+          {
+            "tagName": "React",
+            "tagCategory": "Frontend Framework"
+          },
+          {
+            "tagName": "TypeScript",
+            "tagCategory": "Programming Language"
+          },
+          {
+            "tagName": "CSS",
+            "tagCategory": "Design"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 50000,
+          "salaryAmountMax": 70000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Develop responsive UI components."
+            },
+            {
+              "requirementType": "responsibility",
+              "requirement": "Ensure UI/UX consistency across devices."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Proficiency in React and TypeScript."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience in state management libraries like Redux or Zustand."
+            }
+          ]
+        }
+      }
+    ]
   }
 ]

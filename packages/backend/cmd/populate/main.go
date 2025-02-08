@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -16,37 +18,20 @@ import (
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
-// func generateFakePost(f *faker.Faker, ai *services.OpenAIService, orgId string, addressId string) *db.CreatePostParams {
-// 	postId, err := gonanoid.New()
-// 	if err != nil {
-// 		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating post id %s \n", err))
-// 		return nil
-// 	}
-
-// 	jobTitle := gofakeit.JobTitle()
-// 	description := gofakeit.Paragraph(2, 3, 5, " ")
-
-// 	embedding, errAI := ai.GenerateEmbedding(jobTitle)
-// 	if errAI != nil {
-// 		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating embedding %s \n", err))
-// 		return nil
-// 	}
-
-// 	return &db.CreatePostParams{
-// 		Postid:             postId,
-// 		Title:              jobTitle,
-// 		Description:        sql.NullString{String: description, Valid: true},
-// 		Additionalinfolink: sql.NullString{String: f.Internet().URL(), Valid: true},
-// 		Wfh:                sql.NullInt64{Int64: int64(rand.Intn(2)), Valid: true},
-// 		Deadline:           sql.NullInt64{Int64: time.Now().Add(time.Duration(rand.Intn(30)+1) * 24 * time.Hour).Unix(), Valid: true},
-// 		Addressid:          addressId,
-// 		Orgid:              orgId,
-// 		Embedding:          embedding,
-// 	}
-// }
+func convertToUnixTimestamp(dateStr string) (int64, error) {
+	t, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return 0, err
+	}
+	return t.Unix(), nil
+}
 
 func ConvertToNullString(str string) sql.NullString {
 	return sql.NullString{String: str, Valid: str != ""}
+}
+
+func ConvertToNullInt(value int64) sql.NullInt64 {
+	return sql.NullInt64{Int64: value, Valid: true}
 }
 
 type CreateAddressParams struct {
@@ -58,6 +43,39 @@ type CreateAddressParams struct {
 	AddressDetails string `json:"addressDetails"`
 }
 
+type PostTag struct {
+	TagName     string `json:"tagName" validate:"required"`
+	TagCategory string `json:"tagCategory" validate:"required"`
+}
+
+type CreateJobDetailsParams struct {
+	JobType         string `json:"jobType" validate:"oneof=full-time part-time contract internship"`
+	SalaryType      string `json:"salaryType" validate:"omitempty,oneof=fixed hourly monthly"`
+	SalaryAmountMin int    `json:"salaryAmountMin"`
+	SalaryAmountMax int    `json:"salaryAmountMax"`
+	SalaryCurrency  string `json:"salaryCurrency"`
+}
+
+type Requirement struct {
+	RequirementType string `json:"requirementType" validate:"required,oneof=responsibility qualification"`
+	Requirement     string `json:"requirement" validate:"required,min=1,max=500"`
+}
+type PostRequirementsParams struct {
+	Requirements []Requirement `json:"requirements" validate:"required,dive"`
+}
+
+type CreatePostParams struct {
+	Title              string                 `json:"title" validate:"required"`
+	Description        string                 `json:"description"`
+	AdditionalInfoLink string                 `json:"additionalInfoLink"`
+	Worksetup          string                 `json:"wfh" validate:"required,oneof=remote on-site hybrid"`
+	Deadline           string                 `json:"deadline" validate:"required,date"`
+	AddressId          string                 `json:"addressId" validate:"required,nanoid"`
+	Tags               []PostTag              `json:"tags" validate:"required,dive"`
+	JobDetails         CreateJobDetailsParams `json:"jobDetails"`
+	PostRequirements   PostRequirementsParams `json:"postRequirements"`
+}
+
 type CreateOrgParams struct {
 	Company       string              `json:"company"`
 	Email         string              `json:"email"`
@@ -65,6 +83,7 @@ type CreateOrgParams struct {
 	BannerLink    string              `json:"bannerLink"`
 	LogoLink      string              `json:"logoLink"`
 	Address       CreateAddressParams `json:"address"`
+	Posts         []CreatePostParams  `json:"posts"`
 }
 
 func CreateOrganization(qtx *db.Queries, userId string, orgData CreateOrgParams) string {
@@ -115,13 +134,125 @@ func CreateAddress(qtx *db.Queries, orgId string, addressData CreateAddressParam
 	return addressId
 }
 
+func CreatePost(qtx *db.Queries, openAI *services.OpenAIService, orgId string, addressId string, postDataParams CreatePostParams) string {
+	postId, err := gonanoid.New()
+	if err != nil {
+		fmt.Println("Error generating post ID:", err)
+		return ""
+	}
+
+	var tagNames []string
+	for _, tag := range postDataParams.Tags {
+		tagName := strings.TrimSpace(strings.ToLower(tag.TagName)) // Remove spaces and convert to uppercase
+		if tagName != "" {                                         // Only add non-empty tag names
+			tagNames = append(tagNames, tagName)
+		}
+	}
+
+	embeddingInput := fmt.Sprintf("%s | %s",
+		strings.TrimSpace(strings.ToLower(postDataParams.Title)),
+		strings.Join(tagNames, ", "))
+
+	fmt.Printf("Embedding here %v \n", embeddingInput)
+
+	embedding, err := openAI.GenerateEmbedding(embeddingInput)
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating embedding %s \n", err))
+		return ""
+	}
+
+	// Convert deadline to UNIX timestamp
+	deadlineTimestamp, err := convertToUnixTimestamp(postDataParams.Deadline)
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => err converting deadlinetimestamp %s", err))
+		return ""
+	}
+
+	// Create Post
+	if err := qtx.CreatePost(context.Background(), db.CreatePostParams{
+		Postid:             postId,
+		Addressid:          addressId,
+		Orgid:              orgId,
+		Title:              postDataParams.Title,
+		Description:        ConvertToNullString(postDataParams.Description),
+		Worksetup:          postDataParams.Worksetup,
+		Additionalinfolink: ConvertToNullString(postDataParams.AdditionalInfoLink),
+		Deadline:           sql.NullInt64{Int64: deadlineTimestamp, Valid: true},
+		Embedding:          embedding,
+	}); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => err %s", err))
+		return ""
+	}
+
+	// Create Tags
+	for _, tag := range postDataParams.Tags {
+		tagId, err := gonanoid.New()
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreatePostTag => Error generating tagId: %s", err))
+			return ""
+		}
+
+		// Insert the skill into the database
+		if err := qtx.CreatePostTag(context.Background(), db.CreatePostTagParams{
+			Tagid:       tagId,
+			Postid:      postId,
+			Tagname:     tag.TagName,
+			Tagcategory: ConvertToNullString(tag.TagCategory),
+		}); err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreatePostTag => err %s", err))
+			return ""
+		}
+	}
+
+	// Create Post Job Details
+	jobDetailsId, err := gonanoid.New()
+	if err != nil {
+		fmt.Println("Error generating jobDetailsId:", err)
+		return ""
+	}
+
+	if err := qtx.CreateJobDetails(context.Background(), db.CreateJobDetailsParams{
+		Jobdetailid:     jobDetailsId,
+		Postid:          postId,
+		Jobtype:         postDataParams.JobDetails.JobType,
+		Salarytype:      ConvertToNullString(postDataParams.JobDetails.SalaryType),
+		Salaryamountmin: ConvertToNullInt(int64(postDataParams.JobDetails.SalaryAmountMin)),
+		Salaryamountmax: ConvertToNullInt(int64(postDataParams.JobDetails.SalaryAmountMax)),
+		Salarycurrency:  ConvertToNullString(postDataParams.JobDetails.SalaryCurrency),
+	}); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateJobDetails => err %s", err))
+		return ""
+	}
+
+	// Create Post Requirements
+	for _, data := range postDataParams.PostRequirements.Requirements {
+		requirementId, err := gonanoid.New()
+		if err != nil {
+			fmt.Println("(POST) CreatePostRequirements => Error generating ID:", err)
+			return ""
+		}
+
+		if err = qtx.CreatePostRequirement(context.Background(), db.CreatePostRequirementParams{
+			Postid:          postId,
+			Requirementid:   requirementId,
+			Requirementtype: data.RequirementType,
+			Requirement:     data.Requirement,
+		}); err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreatePostRequirements => err %s \n", err))
+			return ""
+		}
+	}
+
+	return postId
+}
+
 func main() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found")
 	}
 
 	dbInstance := services.InitDataService()
-	// openAI := services.InitOpenAIService()
+	openAI := services.InitOpenAIService()
 
 	defer dbInstance.Conn.Close()
 
@@ -171,6 +302,14 @@ func main() {
 			if addressId == "" {
 				log.Fatalf("error creating address: %v", err)
 				return
+			}
+
+			for _, postParams := range org.Posts {
+				postId := CreatePost(qtx, openAI, orgId, addressId, postParams)
+				if postId == "" {
+					log.Fatalf("error creating post: %v", err)
+					return
+				}
 			}
 		}
 	}
