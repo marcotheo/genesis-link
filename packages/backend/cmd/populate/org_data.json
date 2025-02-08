@@ -18,7 +18,7 @@
         "title": "Backend Developer",
         "description": "Build and maintain APIs using Node.js and PostgreSQL.",
         "additionalInfoLink": "https://company.com/job-details",
-        "wfh": "remote",
+        "workSetup": "remote",
         "deadline": "2025-05-01",
         "addressId": "abc987xyz",
         "tags": [
@@ -59,7 +59,7 @@
         "title": "Data Analyst",
         "description": "Analyze business data and provide insights.",
         "additionalInfoLink": "https://company.com/job-details",
-        "wfh": "on-site",
+        "workSetup": "on-site",
         "deadline": "2025-05-15",
         "addressId": "xyz654def",
         "tags": [
@@ -100,7 +100,7 @@
         "title": "UI/UX Designer",
         "description": "Design and improve user interfaces for web applications.",
         "additionalInfoLink": "https://company.com/job-details",
-        "wfh": "hybrid",
+        "workSetup": "hybrid",
         "deadline": "2025-06-01",
         "addressId": "lmn321pqr",
         "tags": [
@@ -158,7 +158,7 @@
         "title": "Software Engineer",
         "description": "Develop scalable web applications using Go and React.",
         "additionalInfoLink": "https://example.com/jobs/software-engineer",
-        "wfh": "remote",
+        "workSetup": "remote",
         "deadline": "2025-05-10",
         "addressId": "job123xyz",
         "tags": [
@@ -207,7 +207,7 @@
         "title": "Frontend Developer",
         "description": "Create dynamic user interfaces using React and TypeScript.",
         "additionalInfoLink": "https://example.com/jobs/frontend-developer",
-        "wfh": "hybrid",
+        "workSetup": "hybrid",
         "deadline": "2025-06-01",
         "addressId": "job456abc",
         "tags": [
