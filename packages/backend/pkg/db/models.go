@@ -18,7 +18,7 @@ type Address struct {
 	Addressdetails sql.NullString
 	Orgid          string
 	CreatedAt      sql.NullTime
-	UpdatedAt      interface{}
+	UpdatedAt      sql.NullTime
 }
 
 type Application struct {
@@ -40,7 +40,7 @@ type JobDetail struct {
 	Salaryamountmax sql.NullInt64
 	Salarycurrency  sql.NullString
 	CreatedAt       sql.NullTime
-	UpdatedAt       interface{}
+	UpdatedAt       sql.NullTime
 }
 
 type Organization struct {
@@ -52,7 +52,7 @@ type Organization struct {
 	Logolink      sql.NullString
 	Userid        string
 	CreatedAt     sql.NullTime
-	UpdatedAt     interface{}
+	UpdatedAt     sql.NullTime
 }
 
 type Post struct {
@@ -75,7 +75,7 @@ type PostRequirement struct {
 	Requirementtype string
 	Requirement     string
 	CreatedAt       sql.NullTime
-	UpdatedAt       interface{}
+	UpdatedAt       sql.NullTime
 }
 
 type PostTag struct {

@@ -212,7 +212,7 @@ type GetPostDetailsByPostIdRow struct {
 	Salaryamountmax    sql.NullInt64
 	Salarycurrency     sql.NullString
 	CreatedAt          sql.NullTime
-	UpdatedAt_2        interface{}
+	UpdatedAt_2        sql.NullTime
 }
 
 func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (GetPostDetailsByPostIdRow, error) {

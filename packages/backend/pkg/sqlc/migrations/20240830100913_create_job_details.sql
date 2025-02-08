@@ -9,7 +9,7 @@ CREATE TABLE job_details (
     salaryAmountMax INTEGER,
     salaryCurrency TEXT DEFAULT 'PHP',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (postId) REFERENCES posts(postId)
 );
 

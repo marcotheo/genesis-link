@@ -6,7 +6,7 @@ CREATE TABLE post_requirements (
     requirementType TEXT CHECK(requirementType IN ('responsibility', 'qualification')) NOT NULL,
     requirement TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (postId) REFERENCES posts(postId)
 );
 
