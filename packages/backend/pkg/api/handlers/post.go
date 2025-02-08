@@ -444,12 +444,20 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 type JobPost struct {
-	PostId      string   `json:"postId"`
-	Title       string   `json:"title"`
-	Company     string   `json:"company,omitempty"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
-	PostedAt    int64    `json:"postedAt"`
+	PostId          string   `json:"postId"`
+	Title           string   `json:"title"`
+	Company         string   `json:"company,omitempty"`
+	Description     string   `json:"description"`
+	Worksetup       string   `json:"workSetup"`
+	JobType         string   `json:"jobType"`
+	SalaryAmountMin int64    `json:"salaryAmountMin"`
+	SalaryAmountMax int64    `json:"salaryAmountMax"`
+	SalaryCurrency  string   `json:"salaryCurrency"`
+	SalaryType      string   `json:"salaryType"`
+	Country         string   `json:"country"`
+	City            string   `json:"city"`
+	Tags            []string `json:"tags"`
+	PostedAt        int64    `json:"postedAt"`
 }
 
 type SearchJobParams struct {
@@ -507,12 +515,20 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		}
 
 		item := JobPost{
-			PostId:      post.Postid,
-			Company:     post.Company,
-			Title:       post.Title,
-			Description: h.utilService.ConvertNullString(post.Description),
-			Tags:        tags,
-			PostedAt:    h.utilService.ConvertNullTime(post.PostedAt),
+			PostId:          post.Postid,
+			Company:         post.Company,
+			Title:           post.Title,
+			Description:     h.utilService.ConvertNullString(post.Description),
+			Worksetup:       post.Worksetup,
+			JobType:         h.utilService.ConvertNullString(post.Jobtype),
+			SalaryAmountMin: h.utilService.ConvertNullInt64(post.Salaryamountmin),
+			SalaryAmountMax: h.utilService.ConvertNullInt64(post.Salaryamountmax),
+			SalaryCurrency:  h.utilService.ConvertNullString(post.Salarycurrency),
+			SalaryType:      h.utilService.ConvertNullString(post.Salarytype),
+			Country:         post.Country,
+			City:            h.utilService.ConvertNullString(post.City),
+			Tags:            tags,
+			PostedAt:        h.utilService.ConvertNullTime(post.PostedAt),
 		}
 
 		postsData = append(postsData, item)

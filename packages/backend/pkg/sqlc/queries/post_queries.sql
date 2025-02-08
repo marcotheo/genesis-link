@@ -84,12 +84,21 @@ SELECT
     posts.title,
     posts.description,
     organizations.company,
+    posts.workSetup,
+    job_details.jobType,
+    job_details.salaryAmountMin,
+    job_details.salaryAmountMax,
+    job_details.salaryCurrency,
+    job_details.salaryType,
+    addresses.country,
+    addresses.city,
     COALESCE(GROUP_CONCAT(post_tags.tagName, ', '), '') AS tags,
     posts.posted_at
 FROM posts, embedding_vector
 JOIN addresses ON posts.addressId = addresses.addressId
 JOIN organizations ON posts.orgId = organizations.orgId
 LEFT JOIN post_tags ON posts.postId = post_tags.postId
+LEFT JOIN job_details ON posts.postId = job_details.postId
 WHERE 
     vector_distance_cos(posts.embedding, embedding_vector.vec) < 0.6
     AND addresses.country = ?
