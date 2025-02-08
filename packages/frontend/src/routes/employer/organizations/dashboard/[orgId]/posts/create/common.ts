@@ -6,10 +6,7 @@ export const CreateBasicPostInfoSchema = v.object({
     v.string("Required"),
     v.nonEmpty("Please enter description."),
   ),
-  wfh: v.pipe(
-    v.union([v.literal("yes"), v.literal("no")], "Required"),
-    v.nonEmpty("Please choose wfh."),
-  ),
+  workSetup: v.picklist(["on-site", "hybrid", "remote"]),
   deadline: v.date("Required"),
   tags: v.array(
     v.object({

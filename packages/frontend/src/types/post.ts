@@ -14,10 +14,18 @@ export interface SearchJobsApi {
       posts: {
         postId: string;
         title: string;
-        company: string;
+        company?: string;
         description: string;
+        workSetup: string;
+        jobType: string;
+        salaryAmountMin: number;
+        salaryAmountMax: number;
+        salaryCurrency: string;
+        salaryType: string;
+        country: string;
+        city: string;
         tags: string[];
-        postedAt: number;
+        postedAt: number; // Assuming it's a timestamp (UNIX time in seconds or milliseconds)
       }[];
     };
   };
