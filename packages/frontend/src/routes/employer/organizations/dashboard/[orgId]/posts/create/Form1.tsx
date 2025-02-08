@@ -6,16 +6,17 @@ import {
   valiForm$,
 } from "@modular-forms/qwik";
 import { $, component$, Slot, useContext } from "@builder.io/qwik";
-
-import RadioButtonGroup from "~/components/radio-button-group/radio-button-group";
-import { CreateBasicPostInfoSchema, BasicPostInfoStep } from "./common";
 import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
-import { capitalizeFirstLetter, cn } from "~/common/utils";
+
+import ThemedSelect from "~/components/themed-select/themed-select";
 import TextArea from "~/components/text-area/text-area";
 import Heading from "~/components/heading/heading";
-import { FormDataCtx, FormStepCtx } from "./index";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
+
+import { CreateBasicPostInfoSchema, BasicPostInfoStep } from "./common";
+import { capitalizeFirstLetter, cn } from "~/common/utils";
+import { FormDataCtx, FormStepCtx } from "./index";
 
 const FlexWrapper = component$(() => {
   return (
@@ -31,7 +32,7 @@ export default component$(() => {
   const defaultValue = {
     title: undefined,
     description: undefined,
-    wfh: undefined,
+    workSetup: undefined,
     deadline: undefined,
     tags: [],
   };
@@ -48,6 +49,8 @@ export default component$(() => {
   const handleSubmit = $<SubmitHandler<BasicPostInfoStep>>(async (values) => {
     try {
       formDataCtx.form1 = values;
+
+      console.log("DATA", formDataCtx.form1);
       activeStep.value = 2;
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -56,7 +59,7 @@ export default component$(() => {
 
   return (
     <div class={cn("flex h-full w-full justify-center")}>
-      <div class={cn("px-5 lg:px-12 w-full")}>
+      <div class={cn("min-[420px]:px-5 lg:px-12 w-full")}>
         <Heading class="max-md:hidden">Post Information</Heading>
 
         <p class="text-gray-500 max-md:hidden">
@@ -90,34 +93,37 @@ export default component$(() => {
               />
             )}
           </Field>
-          <Field name="wfh">
-            {(field, props) => (
-              <>
-                <RadioButtonGroup
+          <div class="flex flex-col min-[500px]:flex-row gap-5 items-center">
+            <Field name="workSetup">
+              {(field, props) => (
+                <ThemedSelect
                   {...props}
-                  label="Remote Work?"
-                  options={[
-                    { value: "yes", label: "Yes" },
-                    { value: "no", label: "No" },
-                  ]}
-                  errorMsg={field.error}
+                  name={field.name}
+                  label="Job Type"
                   value={field.value}
+                  errorMsg={field.error}
+                  variant="filled"
+                  options={[
+                    { label: "on-site", value: "on-site" },
+                    { label: "remote", value: "remote" },
+                    { label: "hybrid", value: "hybrid" },
+                  ]}
                 />
-              </>
-            )}
-          </Field>
-          <Field name="deadline" type="Date">
-            {(field, props) => (
-              <Input
-                {...props}
-                type="date"
-                label="Deadline"
-                variant="filled"
-                errorMsg={field.error}
-                value={field.value?.toString() ?? undefined}
-              />
-            )}
-          </Field>
+              )}
+            </Field>
+            <Field name="deadline" type="Date">
+              {(field, props) => (
+                <Input
+                  {...props}
+                  type="date"
+                  label="Deadline"
+                  variant="filled"
+                  errorMsg={field.error}
+                  value={field.value?.toString() ?? undefined}
+                />
+              )}
+            </Field>
+          </div>
           <FieldArray name="tags">
             {(fieldArray) => (
               <div
