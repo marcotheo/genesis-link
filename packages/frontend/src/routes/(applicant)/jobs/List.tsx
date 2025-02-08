@@ -8,8 +8,9 @@ import {
 import { TbSearchOff } from "@qwikest/icons/tablericons";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import { useMutate } from "~/hooks/use-mutate/useMutate";
 import Heading from "~/components/heading/heading";
+
+import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { cn, timeAgo } from "~/common/utils";
 import { SearchJobCtx } from ".";
 
@@ -68,16 +69,54 @@ export default component$(() => {
                     "space-y-5",
                   )}
                 >
-                  <div>
+                  <div class="flex flex-col">
                     <p class="text-sm text-input">
                       {"Posted " + timeAgo(v.postedAt)}
                     </p>
-                    <Heading>{v.title}</Heading>
+
+                    <div
+                      class={cn(
+                        "flex flex-col lg:flex-row",
+                        "lg:items-center gap-5",
+                      )}
+                    >
+                      <Heading>{v.title}</Heading>
+
+                      <div
+                        class={cn(
+                          "flex flex-col justify-center",
+                          "lg:pl-5 lg:border-l lg:border-l-text",
+                        )}
+                      >
+                        <div
+                          class={cn(
+                            "flex flex-col min-[500px]:flex-row",
+                            "min-[500px]:items-center min-[500px]:gap-3",
+                            "text-lg font-medium",
+                          )}
+                        >
+                          <p>{v.company}</p>
+                          <div class="w-2 h-2 rounded-full bg-text max-[500px]:hidden" />
+                          <p>
+                            {v.jobType} - {v.workSetup}
+                          </p>
+                        </div>
+                        <p class="text-sm text-input">
+                          {v.salaryCurrency} {v.salaryAmountMin} -{" "}
+                          {v.salaryAmountMax} | {v.country}, {v.city}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+
                   <p>{v.description}</p>
+
                   <div class="flex flex-wrap gap-3 items-center">
                     {v.tags.map((v) => (
-                      <div key={v} class="rounded-full px-5 py-1 bg-soft">
+                      <div
+                        key={v}
+                        class="rounded-full px-3 py-1 bg-soft text-sm"
+                      >
                         {v}
                       </div>
                     ))}
