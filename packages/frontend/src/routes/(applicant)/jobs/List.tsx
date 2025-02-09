@@ -8,10 +8,10 @@ import {
 import { TbSearchOff } from "@qwikest/icons/tablericons";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-import Heading from "~/components/heading/heading";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { cn, timeAgo } from "~/common/utils";
+import { cn } from "~/common/utils";
+import PostItem from "./PostItem";
 import { SearchJobCtx } from ".";
 
 export default component$(() => {
@@ -60,69 +60,7 @@ export default component$(() => {
         {state.result?.data.posts && state.result.data.posts.length > 0 ? (
           <div class="space-y-5">
             {state.result.data.posts.map((v) => (
-              <div key={v.postId}>
-                <div
-                  class={cn(
-                    "w-full px-5 py-5",
-                    "border-t border-soft",
-                    "animate-fade-in-slide",
-                    "space-y-5",
-                  )}
-                >
-                  <div class="flex flex-col">
-                    <p class="text-sm text-input">
-                      {"Posted " + timeAgo(v.postedAt)}
-                    </p>
-
-                    <div
-                      class={cn(
-                        "flex flex-col lg:flex-row",
-                        "lg:items-center gap-5",
-                      )}
-                    >
-                      <Heading>{v.title}</Heading>
-
-                      <div
-                        class={cn(
-                          "flex flex-col justify-center",
-                          "lg:pl-5 lg:border-l lg:border-l-text",
-                        )}
-                      >
-                        <div
-                          class={cn(
-                            "flex flex-col min-[500px]:flex-row",
-                            "min-[500px]:items-center min-[500px]:gap-3",
-                            "text-lg font-medium",
-                          )}
-                        >
-                          <p>{v.company}</p>
-                          <div class="w-2 h-2 rounded-full bg-text max-[500px]:hidden" />
-                          <p>
-                            {v.jobType} - {v.workSetup}
-                          </p>
-                        </div>
-                        <p class="text-sm text-input">
-                          {v.salaryCurrency} {v.salaryAmountMin} -{" "}
-                          {v.salaryAmountMax} | {v.country}, {v.city}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p>{v.description}</p>
-
-                  <div class="flex flex-wrap gap-3 items-center">
-                    {v.tags.map((v) => (
-                      <div
-                        key={v}
-                        class="rounded-full px-3 py-1 bg-soft text-sm"
-                      >
-                        {v}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <PostItem key={v.postId} postData={v} />
             ))}
           </div>
         ) : (
