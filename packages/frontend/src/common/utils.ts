@@ -200,3 +200,7 @@ export const timeAgo = (timestamp: number): string => {
 
   return `${Math.floor(diffDays / 365)} year${diffDays >= 730 ? "s" : ""} ago`;
 };
+
+export const formatNumberWithCommas = (num: number): string => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
