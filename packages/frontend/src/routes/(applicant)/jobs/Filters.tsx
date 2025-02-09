@@ -1,6 +1,7 @@
 import { $, component$, Signal, useContext, useSignal } from "@builder.io/qwik";
 import { SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
 import { TbChevronDown, TbSearch } from "@qwikest/icons/tablericons";
+import { useLocation, useNavigate } from "@builder.io/qwik-city";
 import { Modal } from "@qwik-ui/headless";
 import * as v from "valibot";
 
@@ -21,6 +22,8 @@ type SchemaType = v.InferInput<typeof schema>;
 
 const ModalForm = component$<{ open: Signal<boolean> }>(({ open }) => {
   const searchCtx = useContext(SearchJobCtx);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [form, { Form, Field }] = useForm<SchemaType>({
     loader: {
@@ -37,6 +40,13 @@ const ModalForm = component$<{ open: Signal<boolean> }>(({ open }) => {
   const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
     console.log("form values", values);
     searchCtx.keyword = values.keyword;
+    searchCtx.page = 1;
+
+    const currentParams = new URLSearchParams(location.url.search);
+    currentParams.set("page", "1");
+    currentParams.set("keyword", values.keyword);
+
+    navigate(`/jobs?${currentParams.toString()}`, { replaceState: true });
     open.value = false;
   });
 

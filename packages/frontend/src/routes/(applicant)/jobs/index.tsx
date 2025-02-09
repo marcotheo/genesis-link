@@ -12,6 +12,7 @@ import Filters from "./Filters";
 import List from "./List";
 
 type FilterState = {
+  page?: number;
   keyword: string;
   province: string;
   city: string;
@@ -22,6 +23,7 @@ export const SearchJobCtx = createContextId<FilterState>("search.job.context");
 
 export default component$(() => {
   const filterState = useStore<FilterState>({
+    page: undefined,
     keyword: "",
     province: "",
     city: "",
