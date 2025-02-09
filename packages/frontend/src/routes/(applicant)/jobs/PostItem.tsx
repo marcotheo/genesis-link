@@ -13,10 +13,11 @@ export default component$<Props>(({ postData }) => {
     <div>
       <div
         class={cn(
-          "w-full px-5 py-5",
+          "w-full p-5 space-y-5",
           "border-t border-soft",
           "animate-fade-in-slide",
-          "space-y-5",
+          "duration-300",
+          "cursor-pointer dark:hover:brightness-150 hover:brightness-90",
         )}
       >
         <div class="flex flex-col">

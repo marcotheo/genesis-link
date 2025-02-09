@@ -58,7 +58,7 @@ export default component$(() => {
 
       <div class={cn("grow overflow-auto w-full relative", "py-5 pr-5")}>
         {state.result?.data.posts && state.result.data.posts.length > 0 ? (
-          <div class="space-y-5">
+          <div>
             {state.result.data.posts.map((v) => (
               <PostItem key={v.postId} postData={v} />
             ))}
