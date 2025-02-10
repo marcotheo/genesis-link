@@ -53,6 +53,10 @@ export interface GetJobPostDetails {
       country: string;
       city: string;
       tags: string[];
+      requirements: {
+        requirementType: "responsibility" | "qualification";
+        requirement: string;
+      }[];
       postedAt: number; // Assuming it's a timestamp (UNIX time in seconds or milliseconds)
     };
   };
