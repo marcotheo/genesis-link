@@ -426,21 +426,22 @@ type Requirement struct {
 	Requirement     string `json:"requirement"`
 }
 type JobPostFullDetails struct {
-	PostId          string        `json:"postId"`
-	Title           string        `json:"title"`
-	Company         string        `json:"company,omitempty"`
-	Description     string        `json:"description"`
-	Worksetup       string        `json:"workSetup"`
-	JobType         string        `json:"jobType"`
-	SalaryAmountMin int64         `json:"salaryAmountMin"`
-	SalaryAmountMax int64         `json:"salaryAmountMax"`
-	SalaryCurrency  string        `json:"salaryCurrency"`
-	SalaryType      string        `json:"salaryType"`
-	Country         string        `json:"country"`
-	City            string        `json:"city"`
-	Tags            []string      `json:"tags"`
-	Requirements    []Requirement `json:"requirements"`
-	PostedAt        int64         `json:"postedAt"`
+	PostId             string        `json:"postId"`
+	Title              string        `json:"title"`
+	Company            string        `json:"company,omitempty"`
+	AdditionalInfoLink string        `json:"additionalInfoLink"`
+	Description        string        `json:"description"`
+	Worksetup          string        `json:"workSetup"`
+	JobType            string        `json:"jobType"`
+	SalaryAmountMin    int64         `json:"salaryAmountMin"`
+	SalaryAmountMax    int64         `json:"salaryAmountMax"`
+	SalaryCurrency     string        `json:"salaryCurrency"`
+	SalaryType         string        `json:"salaryType"`
+	Country            string        `json:"country"`
+	City               string        `json:"city"`
+	Tags               []string      `json:"tags"`
+	Requirements       []Requirement `json:"requirements"`
+	PostedAt           int64         `json:"postedAt"`
 }
 
 func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
@@ -504,29 +505,35 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tags []string
+	var additionalInfoLink string = ""
 
 	if post.Tags != "" {
 		tags = strings.Split(post.Tags.(string), ", ")
 	}
 
+	if post.Additionalinfolink.Valid {
+		additionalInfoLink = h.utilService.CloudfrontUrl + "/" + post.Additionalinfolink.String
+	}
+
 	clog.Logger.Success("(GET) GetPosts => successful")
 
 	successResponse(w, JobPostFullDetails{
-		PostId:          post.Postid,
-		Title:           post.Title,
-		Company:         post.Company,
-		Description:     h.utilService.ConvertNullString(post.Description),
-		Worksetup:       post.Worksetup,
-		JobType:         h.utilService.ConvertNullString(post.Jobtype),
-		SalaryAmountMin: h.utilService.ConvertNullInt64(post.Salaryamountmin),
-		SalaryAmountMax: h.utilService.ConvertNullInt64(post.Salaryamountmax),
-		SalaryCurrency:  h.utilService.ConvertNullString(post.Salarycurrency),
-		SalaryType:      h.utilService.ConvertNullString(post.Salarytype),
-		Country:         post.Country,
-		City:            h.utilService.ConvertNullString(post.City),
-		Tags:            tags,
-		Requirements:    requirements,
-		PostedAt:        h.utilService.ConvertNullTime(post.PostedAt),
+		PostId:             post.Postid,
+		Title:              post.Title,
+		Company:            post.Company,
+		AdditionalInfoLink: additionalInfoLink,
+		Description:        h.utilService.ConvertNullString(post.Description),
+		Worksetup:          post.Worksetup,
+		JobType:            h.utilService.ConvertNullString(post.Jobtype),
+		SalaryAmountMin:    h.utilService.ConvertNullInt64(post.Salaryamountmin),
+		SalaryAmountMax:    h.utilService.ConvertNullInt64(post.Salaryamountmax),
+		SalaryCurrency:     h.utilService.ConvertNullString(post.Salarycurrency),
+		SalaryType:         h.utilService.ConvertNullString(post.Salarytype),
+		Country:            post.Country,
+		City:               h.utilService.ConvertNullString(post.City),
+		Tags:               tags,
+		Requirements:       requirements,
+		PostedAt:           h.utilService.ConvertNullTime(post.PostedAt),
 	})
 }
 

@@ -43,6 +43,7 @@ export interface GetJobPostDetails {
       postId: string;
       title: string;
       company?: string;
+      additionalInfoLink: string;
       description: string;
       workSetup: string;
       jobType: string;
