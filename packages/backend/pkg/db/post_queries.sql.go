@@ -184,35 +184,43 @@ func (q *Queries) GetPostCountByOrgId(ctx context.Context, orgid string) (int64,
 
 const getPostDetailsByPostId = `-- name: GetPostDetailsByPostId :one
 SELECT  
-   p.postid, p.title, p.description, p.additionalinfolink, p.worksetup, p.deadline, p.embedding, p.posted_at, p.updated_at, p.addressid, p.orgid,
-   jb.jobdetailid, jb.postid, jb.jobtype, jb.salarytype, jb.salaryamountmin, jb.salaryamountmax, jb.salarycurrency, jb.created_at, jb.updated_at
-FROM posts p
-LEFT JOIN job_details jb
-ON p.postId = jb.postId
-WHERE p.postId = ?
+  posts.postId,
+    posts.title,
+    posts.description,
+    organizations.company,
+    posts.workSetup,
+    job_details.jobType,
+    job_details.salaryAmountMin,
+    job_details.salaryAmountMax,
+    job_details.salaryCurrency,
+    job_details.salaryType,
+    addresses.country,
+    addresses.city,
+    COALESCE(GROUP_CONCAT(post_tags.tagName, ', '), '') AS tags,
+    posts.posted_at
+FROM posts
+JOIN addresses ON posts.addressId = addresses.addressId
+JOIN organizations ON posts.orgId = organizations.orgId
+LEFT JOIN post_tags ON posts.postId = post_tags.postId
+LEFT JOIN job_details ON posts.postId = job_details.postId
+WHERE posts.postId = ?
 `
 
 type GetPostDetailsByPostIdRow struct {
-	Postid             string
-	Title              string
-	Description        sql.NullString
-	Additionalinfolink sql.NullString
-	Worksetup          string
-	Deadline           sql.NullInt64
-	Embedding          interface{}
-	PostedAt           sql.NullTime
-	UpdatedAt          sql.NullTime
-	Addressid          string
-	Orgid              string
-	Jobdetailid        sql.NullString
-	Postid_2           sql.NullString
-	Jobtype            sql.NullString
-	Salarytype         sql.NullString
-	Salaryamountmin    sql.NullInt64
-	Salaryamountmax    sql.NullInt64
-	Salarycurrency     sql.NullString
-	CreatedAt          sql.NullTime
-	UpdatedAt_2        sql.NullTime
+	Postid          string
+	Title           string
+	Description     sql.NullString
+	Company         string
+	Worksetup       string
+	Jobtype         sql.NullString
+	Salaryamountmin sql.NullInt64
+	Salaryamountmax sql.NullInt64
+	Salarycurrency  sql.NullString
+	Salarytype      sql.NullString
+	Country         string
+	City            sql.NullString
+	Tags            interface{}
+	PostedAt        sql.NullTime
 }
 
 func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (GetPostDetailsByPostIdRow, error) {
@@ -222,23 +230,17 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 		&i.Postid,
 		&i.Title,
 		&i.Description,
-		&i.Additionalinfolink,
+		&i.Company,
 		&i.Worksetup,
-		&i.Deadline,
-		&i.Embedding,
-		&i.PostedAt,
-		&i.UpdatedAt,
-		&i.Addressid,
-		&i.Orgid,
-		&i.Jobdetailid,
-		&i.Postid_2,
 		&i.Jobtype,
-		&i.Salarytype,
 		&i.Salaryamountmin,
 		&i.Salaryamountmax,
 		&i.Salarycurrency,
-		&i.CreatedAt,
-		&i.UpdatedAt_2,
+		&i.Salarytype,
+		&i.Country,
+		&i.City,
+		&i.Tags,
+		&i.PostedAt,
 	)
 	return i, err
 }

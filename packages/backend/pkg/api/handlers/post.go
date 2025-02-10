@@ -420,6 +420,23 @@ func (h *PostHandler) GetPostsByOrg(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, GetPostsResponse{Posts: postsData, Total: totalCount})
 }
 
+type JobPostFullDetails struct {
+	PostId          string   `json:"postId"`
+	Title           string   `json:"title"`
+	Company         string   `json:"company,omitempty"`
+	Description     string   `json:"description"`
+	Worksetup       string   `json:"workSetup"`
+	JobType         string   `json:"jobType"`
+	SalaryAmountMin int64    `json:"salaryAmountMin"`
+	SalaryAmountMax int64    `json:"salaryAmountMax"`
+	SalaryCurrency  string   `json:"salaryCurrency"`
+	SalaryType      string   `json:"salaryType"`
+	Country         string   `json:"country"`
+	City            string   `json:"city"`
+	Tags            []string `json:"tags"`
+	PostedAt        int64    `json:"postedAt"`
+}
+
 func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(GET) GetPostDetails => invoked")
 
@@ -440,10 +457,31 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(GET) GetPosts => successful")
 
-	successResponse(w, post)
+	var tags []string
+
+	if post.Tags != "" {
+		tags = strings.Split(post.Tags.(string), ", ")
+	}
+
+	successResponse(w, JobPostFullDetails{
+		PostId:          post.Postid,
+		Title:           post.Title,
+		Company:         post.Company,
+		Description:     h.utilService.ConvertNullString(post.Description),
+		Worksetup:       post.Worksetup,
+		JobType:         h.utilService.ConvertNullString(post.Jobtype),
+		SalaryAmountMin: h.utilService.ConvertNullInt64(post.Salaryamountmin),
+		SalaryAmountMax: h.utilService.ConvertNullInt64(post.Salaryamountmax),
+		SalaryCurrency:  h.utilService.ConvertNullString(post.Salarycurrency),
+		SalaryType:      h.utilService.ConvertNullString(post.Salarytype),
+		Country:         post.Country,
+		City:            h.utilService.ConvertNullString(post.City),
+		Tags:            tags,
+		PostedAt:        h.utilService.ConvertNullTime(post.PostedAt),
+	})
 }
 
-type JobPost struct {
+type JobPostPartial struct {
 	PostId          string   `json:"postId"`
 	Title           string   `json:"title"`
 	Company         string   `json:"company,omitempty"`
@@ -468,7 +506,7 @@ type SearchJobParams struct {
 }
 
 type SearchJobResponse struct {
-	Posts []JobPost `json:"posts"`
+	Posts []JobPostPartial `json:"posts"`
 }
 
 func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
@@ -505,7 +543,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var postsData []JobPost
+	var postsData []JobPostPartial
 
 	for _, post := range posts {
 		var tags []string
@@ -514,7 +552,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 			tags = strings.Split(post.Tags.(string), ", ")
 		}
 
-		item := JobPost{
+		item := JobPostPartial{
 			PostId:          post.Postid,
 			Company:         post.Company,
 			Title:           post.Title,

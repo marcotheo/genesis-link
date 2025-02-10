@@ -68,12 +68,26 @@ WHERE postId = ? AND orgId = ?;
 
 -- name: GetPostDetailsByPostId :one
 SELECT  
-   p.*,
-   jb.*
-FROM posts p
-LEFT JOIN job_details jb
-ON p.postId = jb.postId
-WHERE p.postId = ?;
+  posts.postId,
+    posts.title,
+    posts.description,
+    organizations.company,
+    posts.workSetup,
+    job_details.jobType,
+    job_details.salaryAmountMin,
+    job_details.salaryAmountMax,
+    job_details.salaryCurrency,
+    job_details.salaryType,
+    addresses.country,
+    addresses.city,
+    COALESCE(GROUP_CONCAT(post_tags.tagName, ', '), '') AS tags,
+    posts.posted_at
+FROM posts
+JOIN addresses ON posts.addressId = addresses.addressId
+JOIN organizations ON posts.orgId = organizations.orgId
+LEFT JOIN post_tags ON posts.postId = post_tags.postId
+LEFT JOIN job_details ON posts.postId = job_details.postId
+WHERE posts.postId = ?;
 
 -- name: JobSearchQuery :many
 WITH embedding_vector AS (
