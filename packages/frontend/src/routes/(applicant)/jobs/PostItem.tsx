@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+import { Link } from "@builder.io/qwik-city";
 
 import { cn, formatNumberWithCommas, timeAgo } from "~/common/utils";
 import Heading from "~/components/heading/heading";
@@ -10,14 +11,14 @@ interface Props {
 
 export default component$<Props>(({ postData }) => {
   return (
-    <div>
+    <Link href={"/jobs/" + postData.postId}>
       <div
         class={cn(
           "w-full p-5 space-y-5",
           "border-t border-soft",
           "animate-fade-in-slide",
           "duration-300",
-          "cursor-pointer dark:hover:brightness-150 hover:brightness-90",
+          "dark:hover:brightness-150 hover:brightness-90",
         )}
       >
         <div class="flex flex-col">
@@ -67,6 +68,6 @@ export default component$<Props>(({ postData }) => {
           ))}
         </div>
       </div>
-    </div>
+    </Link>
   );
 });
