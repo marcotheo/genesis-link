@@ -245,6 +245,42 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 	return i, err
 }
 
+const getPostRequirements = `-- name: GetPostRequirements :many
+SELECT 
+    requirementType,
+    requirement
+FROM post_requirements
+WHERE postId = ?
+`
+
+type GetPostRequirementsRow struct {
+	Requirementtype string
+	Requirement     string
+}
+
+func (q *Queries) GetPostRequirements(ctx context.Context, postid string) ([]GetPostRequirementsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPostRequirements, postid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPostRequirementsRow
+	for rows.Next() {
+		var i GetPostRequirementsRow
+		if err := rows.Scan(&i.Requirementtype, &i.Requirement); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPostsByOrgId = `-- name: GetPostsByOrgId :many
 SELECT  
     p.postId,

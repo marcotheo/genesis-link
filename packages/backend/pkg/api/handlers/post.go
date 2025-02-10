@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -278,12 +279,12 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-type Requirement struct {
+type RequirementParams struct {
 	RequirementType string `json:"requirementType" validate:"required,oneof=responsibility qualification"`
 	Requirement     string `json:"requirement" validate:"required,min=1,max=500"`
 }
 type PostRequirementsParams struct {
-	Requirements []Requirement `json:"requirements" validate:"required,dive"`
+	Requirements []RequirementParams `json:"requirements" validate:"required,dive"`
 }
 
 func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Request) {
@@ -420,21 +421,26 @@ func (h *PostHandler) GetPostsByOrg(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, GetPostsResponse{Posts: postsData, Total: totalCount})
 }
 
+type Requirement struct {
+	Requirementtype string `json:"requirementType"`
+	Requirement     string `json:"requirement"`
+}
 type JobPostFullDetails struct {
-	PostId          string   `json:"postId"`
-	Title           string   `json:"title"`
-	Company         string   `json:"company,omitempty"`
-	Description     string   `json:"description"`
-	Worksetup       string   `json:"workSetup"`
-	JobType         string   `json:"jobType"`
-	SalaryAmountMin int64    `json:"salaryAmountMin"`
-	SalaryAmountMax int64    `json:"salaryAmountMax"`
-	SalaryCurrency  string   `json:"salaryCurrency"`
-	SalaryType      string   `json:"salaryType"`
-	Country         string   `json:"country"`
-	City            string   `json:"city"`
-	Tags            []string `json:"tags"`
-	PostedAt        int64    `json:"postedAt"`
+	PostId          string        `json:"postId"`
+	Title           string        `json:"title"`
+	Company         string        `json:"company,omitempty"`
+	Description     string        `json:"description"`
+	Worksetup       string        `json:"workSetup"`
+	JobType         string        `json:"jobType"`
+	SalaryAmountMin int64         `json:"salaryAmountMin"`
+	SalaryAmountMax int64         `json:"salaryAmountMax"`
+	SalaryCurrency  string        `json:"salaryCurrency"`
+	SalaryType      string        `json:"salaryType"`
+	Country         string        `json:"country"`
+	City            string        `json:"city"`
+	Tags            []string      `json:"tags"`
+	Requirements    []Requirement `json:"requirements"`
+	PostedAt        int64         `json:"postedAt"`
 }
 
 func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
@@ -442,10 +448,52 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 
 	postId := r.PathValue("postId")
 
-	post, errQ := h.dataService.Queries.GetPostDetailsByPostId(context.Background(), postId)
-	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(GET) GetPostDetails => errQ %s \n", errQ))
-		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+	var post db.GetPostDetailsByPostIdRow
+	var requirements []Requirement
+	var wg sync.WaitGroup
+	errChan := make(chan error, 1) // Buffered channel to capture the first error
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		postDbResponse, err := h.dataService.Queries.GetPostDetailsByPostId(context.Background(), postId)
+
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetPostDetails => error fetch post details %s \n", err))
+			errChan <- fmt.Errorf("error fetching post details: %v", err)
+			return
+		}
+
+		post = postDbResponse
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		rawRequirements, err := h.dataService.Queries.GetPostRequirements(context.Background(), postId)
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetPostDetails => error fetch post requirements %s \n", err))
+			errChan <- fmt.Errorf("error fetch post requirements: %v", err)
+			return
+		}
+
+		requirements = make([]Requirement, len(rawRequirements))
+
+		for i, req := range rawRequirements {
+			requirements[i] = Requirement{
+				Requirementtype: req.Requirementtype,
+				Requirement:     req.Requirement,
+			}
+		}
+	}()
+
+	wg.Wait()
+	close(errChan)
+
+	if err := <-errChan; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -455,13 +503,13 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clog.Logger.Success("(GET) GetPosts => successful")
-
 	var tags []string
 
 	if post.Tags != "" {
 		tags = strings.Split(post.Tags.(string), ", ")
 	}
+
+	clog.Logger.Success("(GET) GetPosts => successful")
 
 	successResponse(w, JobPostFullDetails{
 		PostId:          post.Postid,
@@ -477,6 +525,7 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 		Country:         post.Country,
 		City:            h.utilService.ConvertNullString(post.City),
 		Tags:            tags,
+		Requirements:    requirements,
 		PostedAt:        h.utilService.ConvertNullTime(post.PostedAt),
 	})
 }

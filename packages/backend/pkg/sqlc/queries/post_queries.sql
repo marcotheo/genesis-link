@@ -89,6 +89,13 @@ LEFT JOIN post_tags ON posts.postId = post_tags.postId
 LEFT JOIN job_details ON posts.postId = job_details.postId
 WHERE posts.postId = ?;
 
+-- name: GetPostRequirements :many
+SELECT 
+    requirementType,
+    requirement
+FROM post_requirements
+WHERE postId = ?;
+
 -- name: JobSearchQuery :many
 WITH embedding_vector AS (
     SELECT vector32(:embedding) AS vec
