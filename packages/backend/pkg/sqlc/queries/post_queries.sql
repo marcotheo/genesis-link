@@ -71,6 +71,7 @@ SELECT
   posts.postId,
     posts.title,
     posts.description,
+    posts.additionalInfoLink,
     organizations.company,
     posts.workSetup,
     job_details.jobType,

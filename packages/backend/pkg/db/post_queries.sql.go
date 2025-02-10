@@ -187,6 +187,7 @@ SELECT
   posts.postId,
     posts.title,
     posts.description,
+    posts.additionalInfoLink,
     organizations.company,
     posts.workSetup,
     job_details.jobType,
@@ -207,20 +208,21 @@ WHERE posts.postId = ?
 `
 
 type GetPostDetailsByPostIdRow struct {
-	Postid          string
-	Title           string
-	Description     sql.NullString
-	Company         string
-	Worksetup       string
-	Jobtype         sql.NullString
-	Salaryamountmin sql.NullInt64
-	Salaryamountmax sql.NullInt64
-	Salarycurrency  sql.NullString
-	Salarytype      sql.NullString
-	Country         string
-	City            sql.NullString
-	Tags            interface{}
-	PostedAt        sql.NullTime
+	Postid             string
+	Title              string
+	Description        sql.NullString
+	Additionalinfolink sql.NullString
+	Company            string
+	Worksetup          string
+	Jobtype            sql.NullString
+	Salaryamountmin    sql.NullInt64
+	Salaryamountmax    sql.NullInt64
+	Salarycurrency     sql.NullString
+	Salarytype         sql.NullString
+	Country            string
+	City               sql.NullString
+	Tags               interface{}
+	PostedAt           sql.NullTime
 }
 
 func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (GetPostDetailsByPostIdRow, error) {
@@ -230,6 +232,7 @@ func (q *Queries) GetPostDetailsByPostId(ctx context.Context, postid string) (Ge
 		&i.Postid,
 		&i.Title,
 		&i.Description,
+		&i.Additionalinfolink,
 		&i.Company,
 		&i.Worksetup,
 		&i.Jobtype,
