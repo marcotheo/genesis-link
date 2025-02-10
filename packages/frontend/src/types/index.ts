@@ -20,8 +20,8 @@ import {
   UpdateUserInfoApi,
 } from "./users";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
+import { GetJobPostDetails, SearchJobsApi } from "./post";
 import { GenerateS3SignedUrlPutApi } from "./s3";
-import { SearchJobsApi } from "./post";
 
 export interface MutationsType {
   "POST /auth/signin": SignInApi;
@@ -50,4 +50,5 @@ export interface QueryType {
   "GET /organizations/{orgId}/posts": GetPostsByOrgApi;
   "GET /organizations/{orgId}/assets": GetOrganizationAssetsApi;
   "GET /organizations/{orgId}/details": GetOrganizationDetailsApi;
+  "GET /posts/{postId}": GetJobPostDetails;
 }

@@ -30,3 +30,30 @@ export interface SearchJobsApi {
     };
   };
 }
+
+// GET API /posts/{postId}
+export interface GetJobPostDetails {
+  pathParams: {
+    postId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      postId: string;
+      title: string;
+      company?: string;
+      description: string;
+      workSetup: string;
+      jobType: string;
+      salaryAmountMin: number;
+      salaryAmountMax: number;
+      salaryCurrency: string;
+      salaryType: string;
+      country: string;
+      city: string;
+      tags: string[];
+      postedAt: number; // Assuming it's a timestamp (UNIX time in seconds or milliseconds)
+    };
+  };
+}
