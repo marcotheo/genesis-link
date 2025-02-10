@@ -6,6 +6,7 @@ import { useQuery } from "~/hooks/use-query/useQuery";
 
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
+import AdditionalHtml from "./AdditionalHtml";
 
 export const usePostId = routeLoader$(({ params }) => {
   const { postId } = params; // Extract the route parameter
@@ -33,7 +34,7 @@ export default component$(() => {
 
   return (
     <div class="h-full">
-      <div class={cn("h-full", "flex flex-col gap-10")}>
+      <div class={cn("h-full", "flex flex-col gap-10", "pb-10")}>
         {/* post header */}
         <div
           class={cn(
@@ -134,6 +135,11 @@ export default component$(() => {
                 ))}
             </ul>
           </div>
+
+          {/* additional info html content */}
+          {state.result?.data.additionalInfoLink && (
+            <AdditionalHtml htmlLink={state.result.data.additionalInfoLink} />
+          )}
         </div>
       </div>
     </div>
