@@ -3,16 +3,22 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type UtilService struct {
+	CloudfrontUrl string
 }
 
 func InitUtilService() *UtilService {
-	return &UtilService{}
+	cdnUrl := os.Getenv("CLOUDFRONT_URL")
+
+	return &UtilService{
+		CloudfrontUrl: cdnUrl,
+	}
 }
 
 func (a *UtilService) GenerateUUID() string {
