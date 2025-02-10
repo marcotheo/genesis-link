@@ -130,7 +130,12 @@ func (c *CognitoService) SignInUser(username string, password string) (types.Aut
 			return types.AuthenticationResultType{}, errors.New("invalid credentials")
 		}
 
-		return types.AuthenticationResultType{}, fmt.Errorf("failed authenticate user: %w", err)
+		if strings.Contains(err.Error(), "User does not exist") {
+			return types.AuthenticationResultType{}, errors.New("invalid credentials")
+		}
+
+		return types.AuthenticationResultType{}, errors.New("something went wrong")
+
 	}
 
 	clog.Logger.Info("(COGNITO) user authenticated")
