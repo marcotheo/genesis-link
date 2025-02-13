@@ -62,3 +62,27 @@ export interface GetJobPostDetails {
     };
   };
 }
+
+// POST API /posts/{postId}/save
+export interface CreateSavedPostApi {
+  pathParams: {
+    postId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: null;
+  };
+}
+
+// GET API /posts/{postId}/save
+export interface GetUserSavedPostApi {
+  pathParams: {
+    postId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: { savePostId: string };
+  };
+}

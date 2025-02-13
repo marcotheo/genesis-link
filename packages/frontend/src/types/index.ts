@@ -19,8 +19,13 @@ import {
   GetUserSkillsApi,
   UpdateUserInfoApi,
 } from "./users";
+import {
+  CreateSavedPostApi,
+  GetJobPostDetails,
+  GetUserSavedPostApi,
+  SearchJobsApi,
+} from "./post";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
-import { GetJobPostDetails, SearchJobsApi } from "./post";
 import { GenerateS3SignedUrlPutApi } from "./s3";
 
 export interface MutationsType {
@@ -39,6 +44,7 @@ export interface MutationsType {
   "POST /organizations/{orgId}/posts/{postId}/requirements": CreatePostRequirementsApi;
   "POST /organizations/{orgId}/posts/{postId}/update/additionalInfoLink": UpdatePostAdditionalInfoLinkApi;
   "POST /posts/search/jobs": SearchJobsApi;
+  "POST /posts/{postId}/save": CreateSavedPostApi;
   "POST /s3/url/put": GenerateS3SignedUrlPutApi;
 }
 
@@ -51,4 +57,5 @@ export interface QueryType {
   "GET /organizations/{orgId}/assets": GetOrganizationAssetsApi;
   "GET /organizations/{orgId}/details": GetOrganizationDetailsApi;
   "GET /posts/{postId}": GetJobPostDetails;
+  "GET /posts/{postId}/save": GetUserSavedPostApi;
 }
