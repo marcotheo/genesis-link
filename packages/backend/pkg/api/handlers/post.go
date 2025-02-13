@@ -674,6 +674,8 @@ func (h *PostHandler) CreateSavedPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	clog.Logger.Success("(POST) CreateSavedPost => successful")
+
 	successResponse(w, GetUserSavedPostResponse{SavedPostId: savedPostId})
 }
 
@@ -712,6 +714,8 @@ func (h *PostHandler) GetUserSavedPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	clog.Logger.Success("(GET) GetUserSavedPost => successful")
+
 	successResponse(w, GetUserSavedPostResponse{SavedPostId: result})
 }
 
@@ -743,6 +747,8 @@ func (h *PostHandler) DeleteSavedPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error deleting saved post", http.StatusInternalServerError)
 		return
 	}
+
+	clog.Logger.Info("(DELETE) DeleteSavedPost => successful")
 
 	w.WriteHeader(http.StatusNoContent)
 }
