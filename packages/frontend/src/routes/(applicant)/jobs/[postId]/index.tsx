@@ -1,9 +1,11 @@
+import { TbBookmark, TbBookmarkFilled } from "@qwikest/icons/tablericons";
 import { routeLoader$ } from "@builder.io/qwik-city";
-import { component$ } from "@builder.io/qwik";
+import { $, component$ } from "@builder.io/qwik";
 
 import { timeAgo, cn, formatNumberWithCommas } from "~/common/utils";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useQuery } from "~/hooks/use-query/useQuery";
-
+import { useCache } from "~/hooks/use-cache/useCache";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import AdditionalHtml from "./AdditionalHtml";
@@ -13,6 +15,71 @@ export const usePostId = routeLoader$(({ params }) => {
   return {
     postId,
   };
+});
+
+const BookMark = component$<{ postId: string }>(({ postId }) => {
+  const { state } = useQuery(
+    "GET /posts/{postId}/save",
+    {
+      pathParams: {
+        postId,
+      },
+    },
+    {
+      runOnRender: true,
+    },
+  );
+
+  const { mutate: savePost } = useMutate("POST /posts/{postId}/save");
+  const { mutate: deleteSavedPost } = useMutate("DELETE /posts/{postId}/save");
+
+  const { setCacheData } = useCache("GET /posts/{postId}/save", {
+    pathParams: {
+      postId,
+    },
+  });
+
+  const toggleSavePost = $(async () => {
+    let savedPostId = "";
+
+    if (!state.result?.data.savePostId) {
+      const result = await savePost({
+        pathParams: { postId },
+      });
+
+      savedPostId = result.result?.data.savePostId ?? "";
+    } else {
+      try {
+        await deleteSavedPost({
+          pathParams: { postId },
+        });
+      } catch (err) {
+        savedPostId = state.result.data.savePostId;
+        console.log("deleting saved post failed");
+      }
+    }
+
+    await setCacheData((cached) => {
+      return {
+        status: "",
+        message: "",
+        data: {
+          savePostId: savedPostId,
+        },
+      };
+    });
+  });
+
+  if (state.loading) return <div class="h-11 w-8 bg-soft rounded" />;
+
+  return (
+    <button
+      class={cn("text-5xl", "duration-300", "hover:brightness-150")}
+      onClick$={toggleSavePost}
+    >
+      {state.result?.data.savePostId ? <TbBookmarkFilled /> : <TbBookmark />}
+    </button>
+  );
 });
 
 export default component$(() => {
@@ -90,7 +157,10 @@ export default component$(() => {
             </div>
           </div>
 
-          <Button class="px-10">Apply</Button>
+          <div class="flex items-center gap-3">
+            <BookMark postId={result.value.postId} />
+            <Button class="px-10">Apply</Button>
+          </div>
         </div>
 
         <div class={cn("flex flex-col gap-10", "overflow-y-auto grow")}>
