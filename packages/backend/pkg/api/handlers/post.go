@@ -633,6 +633,10 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, SearchJobResponse{Posts: postsData})
 }
 
+type GetUserSavedPostResponse struct {
+	SavedPostId string `json:"savePostId"`
+}
+
 func (h *PostHandler) CreateSavedPost(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateSavedPost => invoked")
 
@@ -670,11 +674,7 @@ func (h *PostHandler) CreateSavedPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
-}
-
-type GetUserSavedPostResponse struct {
-	SavedPostId string `json:"savePostId"`
+	successResponse(w, GetUserSavedPostResponse{SavedPostId: savedPostId})
 }
 
 func (h *PostHandler) GetUserSavedPost(w http.ResponseWriter, r *http.Request) {

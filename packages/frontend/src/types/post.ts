@@ -71,7 +71,7 @@ export interface CreateSavedPostApi {
   response: {
     status: string;
     message: string;
-    data: null;
+    data: { savePostId: string };
   };
 }
 
