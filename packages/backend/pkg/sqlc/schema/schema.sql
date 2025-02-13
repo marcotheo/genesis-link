@@ -117,6 +117,19 @@ CREATE TABLE post_requirements (
 
 CREATE INDEX idx_post_requirements_postId ON post_requirements(postId);
 
+CREATE TABLE saved_posts (
+    savedJobId TEXT NOT NULL PRIMARY KEY,
+    postId TEXT NOT NULL,
+    userId TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (postId) REFERENCES posts(postId), 
+    FOREIGN KEY (userId) REFERENCES users(userId)
+)
+
+CREATE INDEX idx_saved_posts_postId ON applications(postId);
+CREATE INDEX idx_saved_posts_userId ON applications(userId);
+
 CREATE TABLE applications (
     applicationId TEXT NOT NULL PRIMARY KEY,
     resumeLink TEXT,
