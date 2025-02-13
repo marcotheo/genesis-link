@@ -127,8 +127,7 @@ CREATE TABLE saved_posts (
     FOREIGN KEY (userId) REFERENCES users(userId)
 )
 
-CREATE INDEX idx_saved_posts_postId ON applications(postId);
-CREATE INDEX idx_saved_posts_userId ON applications(userId);
+CREATE UNIQUE INDEX idx_saved_posts_user_post ON saved_posts(userId, postId);
 
 CREATE TABLE applications (
     applicationId TEXT NOT NULL PRIMARY KEY,

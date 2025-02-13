@@ -9,10 +9,8 @@ CREATE TABLE saved_posts (
     FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
-CREATE INDEX idx_saved_posts_postId ON saved_posts(postId);
-CREATE INDEX idx_saved_posts_userId ON saved_posts(userId);
+CREATE UNIQUE INDEX idx_saved_posts_user_post ON saved_posts(userId, postId);
 
 -- +goose Down
-DROP INDEX IF EXISTS idx_saved_posts_userId;
-DROP INDEX IF EXISTS idx_saved_posts_postId;
+DROP INDEX IF EXISTS idx_saved_posts_user_post;
 DROP TABLE IF EXISTS saved_posts;

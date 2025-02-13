@@ -357,6 +357,24 @@ func (q *Queries) GetPostsByOrgId(ctx context.Context, arg GetPostsByOrgIdParams
 	return items, nil
 }
 
+const getUserSavedPost = `-- name: GetUserSavedPost :one
+SELECT savedJobId 
+FROM saved_posts
+WHERE userId = ? AND postId = ?
+`
+
+type GetUserSavedPostParams struct {
+	Userid string
+	Postid string
+}
+
+func (q *Queries) GetUserSavedPost(ctx context.Context, arg GetUserSavedPostParams) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUserSavedPost, arg.Userid, arg.Postid)
+	var savedjobid string
+	err := row.Scan(&savedjobid)
+	return savedjobid, err
+}
+
 const jobSearchQuery = `-- name: JobSearchQuery :many
 WITH embedding_vector AS (
     SELECT vector32(?) AS vec

@@ -149,3 +149,9 @@ INSERT INTO saved_posts (
 ) VALUES (
     ?, ?, ?
 ) RETURNING *;
+
+-- name: GetUserSavedPost :one
+SELECT savedJobId 
+FROM saved_posts
+WHERE userId = ? AND postId = ?;
+
