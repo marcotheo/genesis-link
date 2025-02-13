@@ -150,6 +150,11 @@ INSERT INTO saved_posts (
     ?, ?, ?
 ) RETURNING *;
 
+-- name: DeleteSavedPost :exec
+DELETE FROM saved_posts 
+WHERE userId = ? AND postId = ?;
+
+
 -- name: GetUserSavedPost :one
 SELECT savedPostId 
 FROM saved_posts

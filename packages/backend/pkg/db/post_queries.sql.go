@@ -187,6 +187,21 @@ func (q *Queries) CreateSavedPost(ctx context.Context, arg CreateSavedPostParams
 	return err
 }
 
+const deleteSavedPost = `-- name: DeleteSavedPost :exec
+DELETE FROM saved_posts 
+WHERE userId = ? AND postId = ?
+`
+
+type DeleteSavedPostParams struct {
+	Userid string
+	Postid string
+}
+
+func (q *Queries) DeleteSavedPost(ctx context.Context, arg DeleteSavedPostParams) error {
+	_, err := q.db.ExecContext(ctx, deleteSavedPost, arg.Userid, arg.Postid)
+	return err
+}
+
 const getPostCountByOrgId = `-- name: GetPostCountByOrgId :one
 SELECT  
     COUNT(*) AS total_count

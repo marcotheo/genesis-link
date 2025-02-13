@@ -28,5 +28,6 @@ func (o *PostRoutes) Routes() func(subRouter justarouter.SubRouter) {
 
 		subRouter.POST("/{postId}/save", o.handlers.CreateSavedPost)
 		subRouter.GET("/{postId}/save", o.handlers.GetUserSavedPost)
+		subRouter.DELETE("/{postId}/save", o.handlers.DeleteSavedPost)
 	}
 }
