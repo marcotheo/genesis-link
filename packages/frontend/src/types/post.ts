@@ -86,3 +86,27 @@ export interface GetUserSavedPostApi {
     data: { savePostId: string };
   };
 }
+
+// DELETE API /posts/{postId}/save
+export interface DeleteSavedPostApi {
+  pathParams: {
+    postId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: null;
+  };
+}
+
+// GET API /posts/{postId}/save
+export interface GetUserSavedPostApi {
+  pathParams: {
+    postId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: { savePostId: string };
+  };
+}
