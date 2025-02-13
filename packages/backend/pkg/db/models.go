@@ -87,6 +87,14 @@ type PostTag struct {
 	UpdatedAt   sql.NullTime
 }
 
+type SavedPost struct {
+	Savedjobid string
+	Postid     string
+	Userid     string
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
+}
+
 type User struct {
 	Userid       string
 	Firstname    string

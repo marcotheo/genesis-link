@@ -632,3 +632,43 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 
 	successResponse(w, SearchJobResponse{Posts: postsData})
 }
+
+func (h *PostHandler) CreateSavedPost(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) CreateSavedPost => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	postId := r.PathValue("postId")
+
+	savedJobId, err := gonanoid.New()
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateSavedPost => Error generating savedJobId: %s", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	errQ := h.dataService.Queries.CreateSavedPost(context.Background(), db.CreateSavedPostParams{
+		Savedjobid: savedJobId,
+		Postid:     postId,
+		Userid:     userId,
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateSavedPost => errQ %s \n", errQ))
+		http.Error(w, "Error fetching user skills", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

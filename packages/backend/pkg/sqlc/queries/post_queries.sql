@@ -142,3 +142,10 @@ INSERT INTO post_tags (
     ?,
     ?
 ) RETURNING *;
+
+-- name: CreateSavedPost :exec
+INSERT INTO saved_posts (
+    savedJobId, postId, userId
+) VALUES (
+    ?, ?, ?
+) RETURNING *;

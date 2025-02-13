@@ -168,6 +168,25 @@ func (q *Queries) CreatePostTag(ctx context.Context, arg CreatePostTagParams) er
 	return err
 }
 
+const createSavedPost = `-- name: CreateSavedPost :exec
+INSERT INTO saved_posts (
+    savedJobId, postId, userId
+) VALUES (
+    ?, ?, ?
+) RETURNING savedjobid, postid, userid, created_at, updated_at
+`
+
+type CreateSavedPostParams struct {
+	Savedjobid string
+	Postid     string
+	Userid     string
+}
+
+func (q *Queries) CreateSavedPost(ctx context.Context, arg CreateSavedPostParams) error {
+	_, err := q.db.ExecContext(ctx, createSavedPost, arg.Savedjobid, arg.Postid, arg.Userid)
+	return err
+}
+
 const getPostCountByOrgId = `-- name: GetPostCountByOrgId :one
 SELECT  
     COUNT(*) AS total_count
