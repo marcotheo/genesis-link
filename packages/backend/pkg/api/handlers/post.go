@@ -702,7 +702,13 @@ func (h *PostHandler) GetUserSavedPost(w http.ResponseWriter, r *http.Request) {
 
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(GET) GetUserSavedPost => errQ %s \n", errQ))
-		http.Error(w, "Error fetching saved post", http.StatusInternalServerError)
+
+		if strings.Contains(errQ.Error(), "no rows in result set") {
+			http.Error(w, "Saved post does not exist", http.StatusBadRequest)
+		} else {
+			http.Error(w, "Error fetching saved post", http.StatusInternalServerError)
+		}
+
 		return
 	}
 
