@@ -170,20 +170,20 @@ func (q *Queries) CreatePostTag(ctx context.Context, arg CreatePostTagParams) er
 
 const createSavedPost = `-- name: CreateSavedPost :exec
 INSERT INTO saved_posts (
-    savedJobId, postId, userId
+    savedPostId, postId, userId
 ) VALUES (
     ?, ?, ?
-) RETURNING savedjobid, postid, userid, created_at, updated_at
+) RETURNING savedpostid, postid, userid, created_at, updated_at
 `
 
 type CreateSavedPostParams struct {
-	Savedjobid string
-	Postid     string
-	Userid     string
+	Savedpostid string
+	Postid      string
+	Userid      string
 }
 
 func (q *Queries) CreateSavedPost(ctx context.Context, arg CreateSavedPostParams) error {
-	_, err := q.db.ExecContext(ctx, createSavedPost, arg.Savedjobid, arg.Postid, arg.Userid)
+	_, err := q.db.ExecContext(ctx, createSavedPost, arg.Savedpostid, arg.Postid, arg.Userid)
 	return err
 }
 
@@ -358,7 +358,7 @@ func (q *Queries) GetPostsByOrgId(ctx context.Context, arg GetPostsByOrgIdParams
 }
 
 const getUserSavedPost = `-- name: GetUserSavedPost :one
-SELECT savedJobId 
+SELECT savedPostId 
 FROM saved_posts
 WHERE userId = ? AND postId = ?
 `
@@ -370,9 +370,9 @@ type GetUserSavedPostParams struct {
 
 func (q *Queries) GetUserSavedPost(ctx context.Context, arg GetUserSavedPostParams) (string, error) {
 	row := q.db.QueryRowContext(ctx, getUserSavedPost, arg.Userid, arg.Postid)
-	var savedjobid string
-	err := row.Scan(&savedjobid)
-	return savedjobid, err
+	var savedpostid string
+	err := row.Scan(&savedpostid)
+	return savedpostid, err
 }
 
 const jobSearchQuery = `-- name: JobSearchQuery :many

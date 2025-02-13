@@ -88,11 +88,11 @@ type PostTag struct {
 }
 
 type SavedPost struct {
-	Savedjobid string
-	Postid     string
-	Userid     string
-	CreatedAt  sql.NullTime
-	UpdatedAt  sql.NullTime
+	Savedpostid string
+	Postid      string
+	Userid      string
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
 }
 
 type User struct {

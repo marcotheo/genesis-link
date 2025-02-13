@@ -145,13 +145,13 @@ INSERT INTO post_tags (
 
 -- name: CreateSavedPost :exec
 INSERT INTO saved_posts (
-    savedJobId, postId, userId
+    savedPostId, postId, userId
 ) VALUES (
     ?, ?, ?
 ) RETURNING *;
 
 -- name: GetUserSavedPost :one
-SELECT savedJobId 
+SELECT savedPostId 
 FROM saved_posts
 WHERE userId = ? AND postId = ?;
 

@@ -118,7 +118,7 @@ CREATE TABLE post_requirements (
 CREATE INDEX idx_post_requirements_postId ON post_requirements(postId);
 
 CREATE TABLE saved_posts (
-    savedJobId TEXT NOT NULL PRIMARY KEY,
+    savedPostId TEXT NOT NULL PRIMARY KEY,
     postId TEXT NOT NULL,
     userId TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

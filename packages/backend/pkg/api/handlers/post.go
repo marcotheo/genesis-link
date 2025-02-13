@@ -651,7 +651,7 @@ func (h *PostHandler) CreateSavedPost(w http.ResponseWriter, r *http.Request) {
 
 	postId := r.PathValue("postId")
 
-	savedJobId, err := gonanoid.New()
+	savedPostId, err := gonanoid.New()
 	if err != nil {
 		clog.Logger.Error(fmt.Sprintf("(POST) CreateSavedPost => Error generating savedJobId: %s", err))
 		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
@@ -659,9 +659,9 @@ func (h *PostHandler) CreateSavedPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	errQ := h.dataService.Queries.CreateSavedPost(context.Background(), db.CreateSavedPostParams{
-		Savedjobid: savedJobId,
-		Postid:     postId,
-		Userid:     userId,
+		Savedpostid: savedPostId,
+		Postid:      postId,
+		Userid:      userId,
 	})
 
 	if errQ != nil {
