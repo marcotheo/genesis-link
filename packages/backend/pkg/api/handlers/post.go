@@ -515,7 +515,7 @@ func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
 		additionalInfoLink = h.utilService.CloudfrontUrl + "/" + post.Additionalinfolink.String
 	}
 
-	clog.Logger.Success("(GET) GetPosts => successful")
+	clog.Logger.Success("(GET) GetPostDetails => successful")
 
 	successResponse(w, JobPostFullDetails{
 		PostId:             post.Postid,
@@ -701,8 +701,8 @@ func (h *PostHandler) GetUserSavedPost(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) CreateSavedPost => errQ %s \n", errQ))
-		http.Error(w, "Error fetching user skills", http.StatusInternalServerError)
+		clog.Logger.Error(fmt.Sprintf("(GET) GetUserSavedPost => errQ %s \n", errQ))
+		http.Error(w, "Error fetching saved post", http.StatusInternalServerError)
 		return
 	}
 
