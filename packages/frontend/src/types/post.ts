@@ -1,4 +1,4 @@
-// POST API /posts/search/jobs
+// GET API /posts/search/jobs
 export interface SearchJobsApi {
   bodyParams: {
     keyword: string;

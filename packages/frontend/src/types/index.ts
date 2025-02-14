@@ -44,7 +44,6 @@ export interface MutationsType {
   "POST /organizations/{orgId}/posts/{postId}/job_details": CreatePostJobDetailsApi;
   "POST /organizations/{orgId}/posts/{postId}/requirements": CreatePostRequirementsApi;
   "POST /organizations/{orgId}/posts/{postId}/update/additionalInfoLink": UpdatePostAdditionalInfoLinkApi;
-  "POST /posts/search/jobs": SearchJobsApi;
   "POST /posts/{postId}/save": CreateSavedPostApi;
   "DELETE /posts/{postId}/save": DeleteSavedPostApi;
   "POST /s3/url/put": GenerateS3SignedUrlPutApi;
@@ -58,6 +57,7 @@ export interface QueryType {
   "GET /organizations/{orgId}/posts": GetPostsByOrgApi;
   "GET /organizations/{orgId}/assets": GetOrganizationAssetsApi;
   "GET /organizations/{orgId}/details": GetOrganizationDetailsApi;
+  "GET /posts/search/jobs": SearchJobsApi;
   "GET /posts/{postId}": GetJobPostDetails;
   "GET /posts/{postId}/save": GetUserSavedPostApi;
 }

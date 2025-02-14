@@ -23,7 +23,7 @@ func (o *PostRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
-		subRouter.POST("/search/jobs", o.handlers.SearchJob)
+		subRouter.GET("/search/jobs", o.handlers.SearchJob)
 		subRouter.GET("/{postId}", o.handlers.GetPostDetails)
 
 		subRouter.POST("/{postId}/save", o.handlers.CreateSavedPost)

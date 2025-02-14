@@ -566,7 +566,7 @@ type SearchJobResponse struct {
 }
 
 func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(POST) SearchJob => invoked")
+	clog.Logger.Info("(GET) SearchJob => invoked")
 
 	var params SearchJobParams
 
@@ -577,12 +577,12 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 
 	matchEmbedding, err := h.openAIService.GenerateEmbedding(strings.ToLower(params.Keyword))
 	if err != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) SearchJob => error generating embedding %s \n", err))
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => error generating embedding %s \n", err))
 		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
 
-	clog.Logger.Info("(POST) SearchJob => querying for jobs ...")
+	clog.Logger.Info("(GET) SearchJob => querying for jobs ...")
 
 	posts, errQ := h.dataService.Queries.JobSearchQuery(context.Background(), db.JobSearchQueryParams{
 		Offset:       int64((params.Page - 1) * 10),
@@ -594,7 +594,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		City:         h.utilService.StringToNullString(params.City),
 	})
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) SearchJob => errQ %s \n", errQ))
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => errQ %s \n", errQ))
 		http.Error(w, "Error fetching data", http.StatusInternalServerError)
 		return
 	}
@@ -628,7 +628,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		postsData = append(postsData, item)
 	}
 
-	clog.Logger.Success("(POST) SearchJob => successful")
+	clog.Logger.Success("(GET) SearchJob => successful")
 
 	successResponse(w, SearchJobResponse{Posts: postsData})
 }
