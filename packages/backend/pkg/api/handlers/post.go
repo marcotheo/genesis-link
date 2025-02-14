@@ -570,7 +570,8 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 
 	var params SearchJobParams
 
-	if err := ReadAndValidateBody(r, &params); err != nil {
+	if err := ParseAndValidateQuery(r, &params); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => invalid parameters %s \n", err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

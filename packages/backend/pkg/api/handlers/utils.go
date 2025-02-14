@@ -11,7 +11,11 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"reflect"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -66,6 +70,87 @@ func ReadAndValidateBody(r *http.Request, v interface{}) error {
 	err = validate.Struct(v)
 	if err != nil {
 		return fmt.Errorf("validation failed: %w", err)
+	}
+
+	return nil
+}
+
+func ParseAndValidateQuery(r *http.Request, v interface{}) error {
+	// Validate the struct
+	validate := validator.New()
+
+	// Register custom validations once (if not already done)
+	validate.RegisterValidation("nanoid", nanoidValidation)
+	validate.RegisterValidation("date", isValidDate)
+
+	// Parse query parameters and map to struct
+	if err := mapQueryParamsToStruct(r.URL.Query(), v); err != nil {
+		return fmt.Errorf("failed to map query parameters: %w", err)
+	}
+
+	// Validate the struct
+	if err := validate.Struct(v); err != nil {
+		return fmt.Errorf("validation failed: %w", err)
+	}
+
+	return nil
+}
+
+func mapQueryParamsToStruct(values url.Values, v interface{}) error {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.Ptr || val.IsNil() {
+		return fmt.Errorf("v must be a non-nil pointer to a struct")
+	}
+
+	val = val.Elem()
+	if val.Kind() != reflect.Struct {
+		return fmt.Errorf("v must be a pointer to a struct")
+	}
+
+	typ := val.Type()
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		fieldValue := val.Field(i)
+
+		// Use the struct field name as the query parameter key (you can customize this)
+		paramName := strings.ToLower(field.Name)
+		if tag, ok := field.Tag.Lookup("schema"); ok {
+			paramName = tag
+		}
+
+		// Get the query parameter value
+		if paramValue := values.Get(paramName); paramValue != "" {
+			if err := setFieldValue(fieldValue, paramValue); err != nil {
+				return fmt.Errorf("failed to set field %s: %w", field.Name, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func setFieldValue(field reflect.Value, value string) error {
+	if !field.CanSet() {
+		return fmt.Errorf("field cannot be set")
+	}
+
+	switch field.Kind() {
+	case reflect.String:
+		field.SetString(value)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		intVal, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return err
+		}
+		field.SetInt(intVal)
+	case reflect.Bool:
+		boolVal, err := strconv.ParseBool(value)
+		if err != nil {
+			return err
+		}
+		field.SetBool(boolVal)
+	default:
+		return fmt.Errorf("unsupported field type: %s", field.Kind())
 	}
 
 	return nil
