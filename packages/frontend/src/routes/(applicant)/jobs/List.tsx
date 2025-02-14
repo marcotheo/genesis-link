@@ -1,16 +1,9 @@
-import {
-  $,
-  component$,
-  useContext,
-  useSignal,
-  useTask$,
-  useVisibleTask$,
-} from "@builder.io/qwik";
+import { component$, useContext, useVisibleTask$ } from "@builder.io/qwik";
 import { TbSearchOff } from "@qwikest/icons/tablericons";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 
-import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { useQuery } from "~/hooks/use-query/useQuery";
 import { useLocation } from "@builder.io/qwik-city";
 import { cn } from "~/common/utils";
 import PostItem from "./PostItem";
@@ -19,41 +12,12 @@ import { SearchJobCtx } from ".";
 export default component$(() => {
   const location = useLocation();
   const searchCtx = useContext(SearchJobCtx);
-  const hasMounted = useSignal(false);
 
-  const { mutate, state } = useMutate("POST /posts/search/jobs");
-
-  const fetchJobs = $(async () => {
-    console.log("Fetching posts related to ", searchCtx.keyword);
-
-    try {
-      const res = await mutate({
-        bodyParams: {
-          page: searchCtx.page ?? 1,
-          keyword: searchCtx.keyword,
-        },
-      });
-
-      if (res.result?.data) console.log("result", res.result.data.posts);
-    } catch (err) {
-      console.log(
-        `Error fetching related jobs for ${searchCtx.keyword} ::`,
-        err,
-      );
-    }
-  });
-
-  useTask$(({ track }) => {
-    track(() => searchCtx.page);
-    track(() => searchCtx.keyword);
-
-    if (!hasMounted.value) {
-      // Skip execution on initial mount and route changesasdasdasd
-      hasMounted.value = true;
-      return;
-    }
-
-    fetchJobs();
+  const { state } = useQuery("GET /posts/search/jobs", {
+    queryStrings: {
+      page: searchCtx.page,
+      keyword: searchCtx.keyword,
+    },
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
@@ -62,8 +26,8 @@ export default component$(() => {
     const page = queryParams.get("page") || null;
     const keyword = queryParams.get("keyword") || null;
 
-    if (page) searchCtx.page = parseInt(page, 10);
-    if (keyword) searchCtx.keyword = keyword;
+    if (page) searchCtx.page.value = parseInt(page, 10);
+    if (keyword) searchCtx.keyword.value = keyword;
   });
 
   return (

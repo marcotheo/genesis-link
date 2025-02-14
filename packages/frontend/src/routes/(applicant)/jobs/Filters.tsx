@@ -38,8 +38,8 @@ const ModalForm = component$<{ open: Signal<boolean> }>(({ open }) => {
   });
 
   const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
-    searchCtx.keyword = values.keyword;
-    searchCtx.page = 1;
+    searchCtx.keyword.value = values.keyword;
+    searchCtx.page.value = 1;
 
     const currentParams = new URLSearchParams(location.url.search);
     currentParams.set("page", "1");

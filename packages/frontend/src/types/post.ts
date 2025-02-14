@@ -1,11 +1,13 @@
+import { Signal } from "@builder.io/qwik";
+
 // GET API /posts/search/jobs
 export interface SearchJobsApi {
-  bodyParams: {
-    keyword: string;
-    page: number;
-    workSetup?: string;
-    province?: string;
-    city?: string;
+  queryStrings: {
+    keyword: Signal<string>;
+    page: Signal<number>;
+    workSetup?: Signal<string>;
+    province?: Signal<string>;
+    city?: Signal<string>;
   };
   response: {
     status: string;

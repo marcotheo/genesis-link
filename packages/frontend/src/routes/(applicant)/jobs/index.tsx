@@ -1,8 +1,9 @@
 import {
   component$,
   createContextId,
+  Signal,
   useContextProvider,
-  useStore,
+  useSignal,
 } from "@builder.io/qwik";
 import { DocumentHead } from "@builder.io/qwik-city";
 
@@ -12,25 +13,29 @@ import Filters from "./Filters";
 import List from "./List";
 
 type FilterState = {
-  page?: number;
-  keyword: string;
-  province: string;
-  city: string;
-  workSetup: string;
+  keyword: Signal<string>;
+  page: Signal<number>;
+  workSetup?: Signal<string>;
+  province?: Signal<string>;
+  city?: Signal<string>;
 };
 
 export const SearchJobCtx = createContextId<FilterState>("search.job.context");
 
 export default component$(() => {
-  const filterState = useStore<FilterState>({
-    page: undefined,
-    keyword: "",
-    province: "",
-    city: "",
-    workSetup: "",
-  });
+  const page = useSignal(0);
+  const keyword = useSignal("");
+  const province = useSignal("");
+  const city = useSignal("");
+  const workSetup = useSignal("");
 
-  useContextProvider(SearchJobCtx, filterState);
+  useContextProvider(SearchJobCtx, {
+    page,
+    keyword,
+    province,
+    city,
+    workSetup,
+  });
 
   return (
     <div
