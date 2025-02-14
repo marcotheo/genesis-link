@@ -697,6 +697,7 @@ func (h *PostHandler) GetUserSavedPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	postId := r.PathValue("postId")
+	savedPostId := ""
 
 	result, errQ := h.dataService.Queries.GetUserSavedPost(context.Background(), db.GetUserSavedPostParams{
 		Postid: postId,
@@ -704,20 +705,18 @@ func (h *PostHandler) GetUserSavedPost(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(GET) GetUserSavedPost => errQ %s \n", errQ))
-
-		if strings.Contains(errQ.Error(), "no rows in result set") {
-			http.Error(w, "Saved post does not exist", http.StatusBadRequest)
-		} else {
+		if !strings.Contains(errQ.Error(), "no rows in result set") {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetUserSavedPost => errQ %s \n", errQ))
 			http.Error(w, "Error fetching saved post", http.StatusInternalServerError)
+			return
 		}
-
-		return
 	}
+
+	savedPostId = result
 
 	clog.Logger.Success("(GET) GetUserSavedPost => successful")
 
-	successResponse(w, GetUserSavedPostResponse{SavedPostId: result})
+	successResponse(w, GetUserSavedPostResponse{SavedPostId: savedPostId})
 }
 
 func (h *PostHandler) DeleteSavedPost(w http.ResponseWriter, r *http.Request) {
