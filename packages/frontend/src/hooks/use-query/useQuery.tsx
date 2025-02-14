@@ -51,7 +51,8 @@ export const useQuery = <Path extends keyof QueryType>(
     const searchParams = new URLSearchParams();
     if (!!apiParams.queryStrings)
       for (const key in apiParams.queryStrings) {
-        searchParams.append(key, apiParams.queryStrings[key].value);
+        if (apiParams.queryStrings[key]?.value)
+          searchParams.append(key, apiParams.queryStrings[key].value);
       }
 
     // build api path
