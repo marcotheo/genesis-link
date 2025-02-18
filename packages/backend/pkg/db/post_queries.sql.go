@@ -374,7 +374,7 @@ func (q *Queries) GetPostsByOrgId(ctx context.Context, arg GetPostsByOrgIdParams
 }
 
 const getSavedPostsByUserAndPostIDs = `-- name: GetSavedPostsByUserAndPostIDs :many
-SELECT savedPostId
+SELECT savedPostId, postId
 FROM saved_posts
 WHERE userId = ?
 AND postId IN (/*SLICE:postids*/?)
@@ -385,7 +385,12 @@ type GetSavedPostsByUserAndPostIDsParams struct {
 	Postids []string
 }
 
-func (q *Queries) GetSavedPostsByUserAndPostIDs(ctx context.Context, arg GetSavedPostsByUserAndPostIDsParams) ([]string, error) {
+type GetSavedPostsByUserAndPostIDsRow struct {
+	Savedpostid string
+	Postid      string
+}
+
+func (q *Queries) GetSavedPostsByUserAndPostIDs(ctx context.Context, arg GetSavedPostsByUserAndPostIDsParams) ([]GetSavedPostsByUserAndPostIDsRow, error) {
 	query := getSavedPostsByUserAndPostIDs
 	var queryParams []interface{}
 	queryParams = append(queryParams, arg.Userid)
@@ -402,13 +407,13 @@ func (q *Queries) GetSavedPostsByUserAndPostIDs(ctx context.Context, arg GetSave
 		return nil, err
 	}
 	defer rows.Close()
-	var items []string
+	var items []GetSavedPostsByUserAndPostIDsRow
 	for rows.Next() {
-		var savedpostid string
-		if err := rows.Scan(&savedpostid); err != nil {
+		var i GetSavedPostsByUserAndPostIDsRow
+		if err := rows.Scan(&i.Savedpostid, &i.Postid); err != nil {
 			return nil, err
 		}
-		items = append(items, savedpostid)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
