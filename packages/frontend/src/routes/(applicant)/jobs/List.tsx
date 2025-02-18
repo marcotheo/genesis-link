@@ -1,10 +1,10 @@
 import { component$, useContext, useVisibleTask$ } from "@builder.io/qwik";
 import { TbSearchOff } from "@qwikest/icons/tablericons";
+import { useLocation } from "@builder.io/qwik-city";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
-
 import { useQuery } from "~/hooks/use-query/useQuery";
-import { useLocation } from "@builder.io/qwik-city";
+
 import { cn } from "~/common/utils";
 import PostItem from "./PostItem";
 import { SearchJobCtx } from ".";
