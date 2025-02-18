@@ -551,6 +551,7 @@ type JobPostPartial struct {
 	Country         string   `json:"country"`
 	City            string   `json:"city"`
 	Tags            []string `json:"tags"`
+	IsSaved         bool     `json:"isSaved"`
 	PostedAt        int64    `json:"postedAt"`
 }
 
@@ -567,6 +568,19 @@ type SearchJobResponse struct {
 
 func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(GET) SearchJob => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
 
 	var params SearchJobParams
 
@@ -594,6 +608,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		Citynull:     h.utilService.StringToNullString(params.City),
 		City:         h.utilService.StringToNullString(params.City),
 	})
+
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => errQ %s \n", errQ))
 		http.Error(w, "Error fetching data", http.StatusInternalServerError)
@@ -601,6 +616,7 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var postsData []JobPostPartial
+	var postIds []string
 
 	for _, post := range posts {
 		var tags []string
@@ -627,6 +643,26 @@ func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
 		}
 
 		postsData = append(postsData, item)
+		postIds = append(postIds, post.Postid)
+	}
+
+	savedPosts, errSavedPostQ := h.dataService.Queries.GetSavedPostsByUserAndPostIDs(context.Background(), db.GetSavedPostsByUserAndPostIDsParams{
+		Userid:  userId,
+		Postids: postIds,
+	})
+
+	if errSavedPostQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => errSavedPostQ %s \n", errSavedPostQ))
+		http.Error(w, "Error fetching data", http.StatusInternalServerError)
+		return
+	}
+
+	for idx, post := range postsData {
+		for _, savedPost := range savedPosts {
+			if post.PostId == savedPost.Postid {
+				postsData[idx].IsSaved = true
+			}
+		}
 	}
 
 	clog.Logger.Success("(GET) SearchJob => successful")
