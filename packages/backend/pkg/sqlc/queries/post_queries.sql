@@ -160,3 +160,9 @@ SELECT savedPostId
 FROM saved_posts
 WHERE userId = ? AND postId = ?;
 
+-- name: GetSavedPostsByUserAndPostIDs :many
+SELECT savedPostId
+FROM saved_posts
+WHERE userId = ?
+AND postId IN (sqlc.slice(postIds))
+

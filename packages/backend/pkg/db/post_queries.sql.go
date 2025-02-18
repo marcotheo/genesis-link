@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"strings"
 )
 
 const checkIfPostExistByOrg = `-- name: CheckIfPostExistByOrg :one
@@ -362,6 +363,52 @@ func (q *Queries) GetPostsByOrgId(ctx context.Context, arg GetPostsByOrgIdParams
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSavedPostsByUserAndPostIDs = `-- name: GetSavedPostsByUserAndPostIDs :many
+SELECT savedPostId
+FROM saved_posts
+WHERE userId = ?
+AND postId IN (/*SLICE:postids*/?)
+`
+
+type GetSavedPostsByUserAndPostIDsParams struct {
+	Userid  string
+	Postids []string
+}
+
+func (q *Queries) GetSavedPostsByUserAndPostIDs(ctx context.Context, arg GetSavedPostsByUserAndPostIDsParams) ([]string, error) {
+	query := getSavedPostsByUserAndPostIDs
+	var queryParams []interface{}
+	queryParams = append(queryParams, arg.Userid)
+	if len(arg.Postids) > 0 {
+		for _, v := range arg.Postids {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:postids*/?", strings.Repeat(",?", len(arg.Postids))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:postids*/?", "NULL", 1)
+	}
+	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var savedpostid string
+		if err := rows.Scan(&savedpostid); err != nil {
+			return nil, err
+		}
+		items = append(items, savedpostid)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
