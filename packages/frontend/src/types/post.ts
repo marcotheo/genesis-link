@@ -27,6 +27,7 @@ export interface SearchJobsApi {
         country: string;
         city: string;
         tags: string[];
+        isSaved: boolean;
         postedAt: number; // Assuming it's a timestamp (UNIX time in seconds or milliseconds)
       }[];
     };
