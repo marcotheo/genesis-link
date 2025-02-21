@@ -1,10 +1,84 @@
 import { TbBookmark, TbBookmarkFilled } from "@qwikest/icons/tablericons";
-import { component$ } from "@builder.io/qwik";
+import { $, component$, useContext } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 
 import { cn, formatNumberWithCommas, timeAgo } from "~/common/utils";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
+import { useCache } from "~/hooks/use-cache/useCache";
 import Heading from "~/components/heading/heading";
 import { SearchJobsApi } from "~/types/post";
+import { SearchJobCtx } from ".";
+
+const BookMark = component$<{
+  postId: string;
+  isSaved: boolean;
+}>(({ postId, isSaved }) => {
+  const searchCtx = useContext(SearchJobCtx);
+
+  const { mutate: savePost } = useMutate("POST /posts/{postId}/save");
+  const { mutate: deleteSavedPost } = useMutate("DELETE /posts/{postId}/save");
+
+  const { setCacheData } = useCache("GET /posts/search/jobs", {
+    queryStrings: {
+      page: searchCtx.page,
+      keyword: searchCtx.keyword,
+    },
+  });
+
+  const toggleSavePost = $(async () => {
+    let newIsSaved = isSaved;
+
+    if (!isSaved) {
+      const result = await savePost({
+        pathParams: { postId },
+      });
+
+      newIsSaved = !!result.result?.data.savePostId;
+    } else {
+      try {
+        await deleteSavedPost({
+          pathParams: { postId },
+        });
+
+        newIsSaved = false;
+      } catch (err) {
+        console.log("deleting saved post failed");
+      }
+    }
+
+    await setCacheData((cached) => {
+      const data = (cached?.data.posts ?? []).map((v) => {
+        return {
+          ...v,
+          isSaved: v.postId === postId ? newIsSaved : v.isSaved,
+        };
+      });
+
+      return {
+        status: "",
+        message: "",
+        data: {
+          posts: data,
+        },
+      };
+    });
+  });
+
+  return (
+    <button
+      class={cn(
+        "absolute z-50",
+        "top-2 md:top-5 right-0 md:right-3",
+        "text-5xl",
+        "duration-300",
+        "hover:brightness-150",
+      )}
+      onClick$={toggleSavePost}
+    >
+      {isSaved ? <TbBookmarkFilled /> : <TbBookmark />}
+    </button>
+  );
+});
 
 interface Props {
   postData: SearchJobsApi["response"]["data"]["posts"][0];
@@ -12,17 +86,19 @@ interface Props {
 
 export default component$<Props>(({ postData }) => {
   return (
-    <Link href={"/jobs/" + postData.postId}>
-      <div
-        class={cn(
-          "w-full p-5 space-y-5",
-          "border-t border-soft",
-          "animate-fade-in-slide",
-          "duration-300",
-          "dark:hover:brightness-150 hover:brightness-90",
-        )}
-      >
-        <div class="flex flex-row justify-between items-start">
+    <div class="relative">
+      <BookMark postId={postData.postId} isSaved={postData.isSaved} />
+
+      <Link href={"/jobs/" + postData.postId}>
+        <div
+          class={cn(
+            "w-full p-5 space-y-5",
+            "border-t border-soft",
+            "animate-fade-in-slide",
+            "duration-300",
+            "dark:hover:brightness-150 hover:brightness-90",
+          )}
+        >
           <div class="flex flex-col">
             <p class="text-sm text-input">
               {"Posted " + timeAgo(postData.postedAt)}
@@ -62,24 +138,17 @@ export default component$<Props>(({ postData }) => {
             </div>
           </div>
 
-          <button
-            class={cn("text-5xl", "duration-300", "hover:brightness-150")}
-            // onClick$={toggleSavePost}
-          >
-            {postData.isSaved ? <TbBookmarkFilled /> : <TbBookmark />}
-          </button>
-        </div>
+          <p>{postData.description}</p>
 
-        <p>{postData.description}</p>
-
-        <div class="flex flex-wrap gap-3 items-center">
-          {postData.tags.map((v) => (
-            <div key={v} class="rounded-full px-3 py-1 bg-soft text-sm">
-              {v}
-            </div>
-          ))}
+          <div class="flex flex-wrap gap-3 items-center">
+            {postData.tags.map((v) => (
+              <div key={v} class="rounded-full px-3 py-1 bg-soft text-sm">
+                {v}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 });
