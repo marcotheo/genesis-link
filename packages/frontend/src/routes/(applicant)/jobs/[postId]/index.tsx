@@ -7,7 +7,7 @@ import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { useCache } from "~/hooks/use-cache/useCache";
 import Heading from "~/components/heading/heading";
-import Button from "~/components/button/button";
+import ApplicationForm from "./ApplicationForm";
 import AdditionalHtml from "./AdditionalHtml";
 
 export const usePostId = routeLoader$(({ params }) => {
@@ -159,7 +159,7 @@ export default component$(() => {
 
           <div class="flex items-center gap-3">
             <BookMark postId={result.value.postId} />
-            <Button class="px-10">Apply</Button>
+            <ApplicationForm />
           </div>
         </div>
 
