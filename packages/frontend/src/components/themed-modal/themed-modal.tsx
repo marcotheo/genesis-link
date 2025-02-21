@@ -79,6 +79,7 @@ export const Close = component$<CloseProps>((props) => {
       class={cn(
         "rounded-md",
         "border border-input",
+        "duration-150 ease-linear",
         "bg-transparent hover:bg-primary-soft",
         "text-input",
         sizes[props.size ?? "default"],
