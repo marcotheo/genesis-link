@@ -163,7 +163,7 @@ export default component$(() => {
           </div>
         </div>
 
-        <div class={cn("flex flex-col gap-10", "overflow-y-auto grow")}>
+        <div class={cn("flex flex-col gap-10", "overflow-y-auto grow pr-1")}>
           {/* post tags */}
           <div class="flex flex-wrap gap-3 items-center">
             {state.result?.data.tags.map((v) => (
