@@ -64,11 +64,13 @@ export default component$(
             id="toolbar"
             class={cn(
               "flex items-center gap-3 p-1",
-              "border border-soft rounded-sm",
+              "border border-input rounded-sm",
             )}
           >
             <select class="ql-size rounded-md p-3">
-              <option selected>normal</option>
+              <option selected value="normal">
+                normal
+              </option>
               <option value="huge">huge</option>
               <option value="large">large</option>
               <option value="small">small</option>
@@ -137,7 +139,7 @@ export default component$(
           <div
             id="editor"
             class={cn(
-              "w-full border border-soft",
+              "w-full border border-input bg-ghost",
               "focus-within:ring-2 focus-within:ring-primary",
               "duration-300",
             )}
