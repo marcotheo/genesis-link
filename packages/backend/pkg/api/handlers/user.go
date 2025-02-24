@@ -116,9 +116,9 @@ func (h *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := params.Validate(); err != nil {
-		fmt.Println("(POST) UpdateUserInfo => Validation error:", err)
+		clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => Validation error %s", err))
 	} else {
-		fmt.Println("(POST) UpdateUserInfo => Validation successful")
+		clog.Logger.Info("(POST) UpdateUserInfo => Validation successful")
 	}
 
 	if params.ResumeLink != "" {
