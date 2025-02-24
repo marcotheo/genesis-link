@@ -5,7 +5,6 @@ import {
   NoSerialize,
   QRL,
   useStore,
-  useTask$,
 } from "@builder.io/qwik";
 
 import { TbFile } from "@qwikest/icons/tablericons";
@@ -25,7 +24,7 @@ interface ImageUploadProps {
   maxFiles?: number;
   ref?: QRL<(element: HTMLInputElement) => void>;
   name: string;
-  value?: NoSerialize<Blob[]> | NoSerialize<File[]> | null | undefined;
+  value?: NoSerialize<Blob>[] | NoSerialize<File>[] | null | undefined;
   onInput$?: (event: Event, element: HTMLInputElement) => void;
   onChange$?: (event: Event, element: HTMLInputElement) => void;
   onBlur$?: (event: Event, element: HTMLInputElement) => void;
@@ -146,20 +145,15 @@ export default component$<ImageUploadProps>(
       if (!!onFileSelect) onFileSelect(noSerialize(files));
     });
 
-    useTask$(({ track }) => {
-      const newValue = track(() => value as any);
-      fileState.files = newValue;
-    });
-
     return (
       <>
-        <div class="space-y-2 w-full">
-          <label>{label}</label>
+        <div class="space-y-1 w-full">
+          {label && <label>{label}</label>}
 
           <label
             class={cn(
               "flex relative",
-              "w-full",
+              "h-12 w-full",
               "border border-input rounded-md overflow-y-hidden",
               "hover:brightness-90 dark:hover:brightness-110 duration-300",
               !!fileState.error ? "border-destructive" : "",
@@ -169,6 +163,7 @@ export default component$<ImageUploadProps>(
               {...props}
               type="file"
               id={name}
+              multiple={multiple}
               onChange$={[handleFileChange, props.onChange$]}
               aria-invalid={!!errorMsg}
               aria-errormessage={`${name}-error`}
@@ -179,14 +174,14 @@ export default component$<ImageUploadProps>(
               <div
                 class={cn(
                   "flex justify-center items-center gap-3",
-                  "px-3 h-10",
+                  "h-full px-3",
                 )}
               >
                 {fileState.files.map((v) => (
                   <div
                     key={v.name}
                     class={cn(
-                      "px-2 pt-1 h-7",
+                      "h-8 px-2 pt-1",
                       "bg-primary rounded-full",
                       "max-w-48",
                     )}
@@ -199,7 +194,7 @@ export default component$<ImageUploadProps>(
               <div
                 class={cn(
                   "flex items-center gap-2",
-                  "px-3 h-10 bg-transparent",
+                  "h-full px-3 bg-transparent",
                 )}
               >
                 <TbFile />
