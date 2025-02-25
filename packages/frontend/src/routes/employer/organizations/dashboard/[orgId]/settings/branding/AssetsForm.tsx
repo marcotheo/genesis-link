@@ -42,8 +42,10 @@ export default component$<{
   const { mutate: updateAssets } = useMutate(
     "PUT /organizations/{orgId}/update/assets",
   );
-  const { mutate: logoMutate } = useMutate("POST /s3/url/put");
-  const { mutate: posterMutate } = useMutate("POST /s3/url/put");
+  const { mutate: logoMutate } = useMutate("POST /s3/generate/signed/url/put");
+  const { mutate: posterMutate } = useMutate(
+    "POST /s3/generate/signed/url/put",
+  );
 
   const [brandingVisualForm, { Form, Field }] = useForm<BrandingVisualsStep>({
     loader: {

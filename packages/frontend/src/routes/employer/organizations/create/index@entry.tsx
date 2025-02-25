@@ -53,7 +53,7 @@ const FlexWrapper = component$(() => {
 export default component$(() => {
   const toast = useToast();
   const { mutate, state } = useMutate("POST /organizations");
-  const { mutate: logoUpload } = useMutate("POST /s3/url/put");
+  const { mutate: logoUpload } = useMutate("POST /s3/generate/signed/url/put");
 
   const [createAddressForm, { Form, Field }] = useForm<SchemaType>({
     loader: {

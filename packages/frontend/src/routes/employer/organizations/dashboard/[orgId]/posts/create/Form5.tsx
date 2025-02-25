@@ -20,7 +20,9 @@ export default component$(() => {
     "POST /organizations/{orgId}/posts/{postId}/update/additionalInfoLink",
   );
 
-  const { mutate: getUploadLink } = useMutate("POST /s3/url/put");
+  const { mutate: getUploadLink } = useMutate(
+    "POST /s3/generate/signed/url/put",
+  );
 
   const [richTextEditorForm, { Form, Field }] = useForm<RichTextEditorStep>({
     loader: {
