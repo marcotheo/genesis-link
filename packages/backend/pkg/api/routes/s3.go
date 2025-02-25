@@ -23,6 +23,6 @@ func (o *S3Routes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
-		subRouter.POST("/url/put", o.handlers.CreatePutObjectSignedUrl)
+		subRouter.POST("/generate/signed/url/put", o.handlers.CreatePutObjectSignedUrl)
 	}
 }
