@@ -10,10 +10,13 @@ import Heading from "~/components/heading/heading";
 import ApplicationForm from "./ApplicationForm";
 import AdditionalHtml from "./AdditionalHtml";
 
-export const usePostId = routeLoader$(({ params }) => {
+export const usePostId = routeLoader$(({ params, sharedMap }) => {
   const { postId } = params; // Extract the route parameter
+  const userId = sharedMap.get("userId");
+
   return {
     postId,
+    userId,
   };
 });
 
@@ -159,7 +162,10 @@ export default component$(() => {
 
           <div class="flex items-center gap-3">
             <BookMark postId={result.value.postId} />
-            <ApplicationForm />
+            <ApplicationForm
+              userId={result.value.userId}
+              postId={result.value.postId}
+            />
           </div>
         </div>
 

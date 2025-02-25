@@ -36,11 +36,13 @@ const verifier = CognitoJwtVerifier.create({
 
 const isAuth = async (token: string, sharedMap: Map<string, any>) => {
   try {
-    await verifier.verify(token);
+    const result = await verifier.verify(token);
     sharedMap.set("isLoggedIn", true);
+    sharedMap.set("userId", result.sub);
   } catch (err) {
     console.error("Token verification failed:", err);
     sharedMap.set("isLoggedIn", false);
+    sharedMap.set("userId", "");
   }
 };
 
@@ -55,6 +57,7 @@ export const onRequest: RequestHandler = async ({
 
   if (!accessToken || !refreshToken || !tokenExpiresInCookie) {
     sharedMap.set("isLoggedIn", false);
+    sharedMap.set("userId", "");
     return;
   }
 
