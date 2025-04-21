@@ -22,6 +22,8 @@ export default component$<{ postId: string; userId: string }>(
     const toast = useToast();
     const open = useSignal(false);
 
+    const { mutate: sendApplication } = useMutate("POST /applications/create");
+
     const { mutate: uploadProposalLinkUrl } = useMutate(
       "POST /s3/generate/signed/url/put",
     );
@@ -61,6 +63,13 @@ export default component$<{ postId: string; userId: string }>(
             });
         }
 
+        await sendApplication({
+          bodyParams: {
+            postId: postId,
+            proposalLink: s3Key ? s3Key : "",
+          },
+        });
+
         toast.add({
           title: "Success",
           message: "Applied",
@@ -93,7 +102,10 @@ export default component$<{ postId: string; userId: string }>(
           modalTitle="Application Form"
           modalDescription="use this form to fill in details for your application for this job"
         >
-          <Form class="flex flex-col gap-5" onSubmit$={handleSubmit}>
+          <Form
+            class="flex flex-col gap-5 max-w-[47rem]"
+            onSubmit$={handleSubmit}
+          >
             <Field name="proposal">
               {(field, props) => (
                 <div class="space-y-1">
