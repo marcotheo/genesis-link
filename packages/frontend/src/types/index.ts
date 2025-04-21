@@ -27,6 +27,7 @@ import {
   UpdateUserInfoApi,
 } from "./users";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
+import { CreateApplication } from "./application";
 import { GenerateS3SignedUrlPutApi } from "./s3";
 
 export interface MutationsType {
@@ -47,6 +48,7 @@ export interface MutationsType {
   "POST /posts/{postId}/save": CreateSavedPostApi;
   "DELETE /posts/{postId}/save": DeleteSavedPostApi;
   "POST /s3/generate/signed/url/put": GenerateS3SignedUrlPutApi;
+  "POST /applications/create": CreateApplication;
 }
 
 export interface QueryType {
