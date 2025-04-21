@@ -14,12 +14,14 @@ CREATE TABLE applications (
 
 CREATE INDEX idx_applications_postId ON applications(postId);
 CREATE INDEX idx_applications_userId ON applications(userId);
+CREATE UNIQUE INDEX idx_applications_post_user_unique ON applications(postId, userId);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 DROP INDEX idx_applications_postId;
 DROP INDEX idx_applications_userId;
+DROP INDEX idx_applications_post_user_unique;
 
 DROP TABLE applications;
 -- +goose StatementEnd
