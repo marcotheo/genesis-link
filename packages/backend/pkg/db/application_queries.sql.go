@@ -13,7 +13,7 @@ import (
 const createApplication = `-- name: CreateApplication :one
 INSERT INTO applications (
     applicationId, 
-    resumeLink, 
+    proposalLink, 
     status, 
     postId, 
     userId, 
@@ -22,12 +22,12 @@ INSERT INTO applications (
 ) VALUES (
     ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 )
-RETURNING applicationid, resumelink, status, postid, userid, created_at, updated_at
+RETURNING applicationid, proposallink, status, postid, userid, created_at, updated_at
 `
 
 type CreateApplicationParams struct {
 	Applicationid string
-	Resumelink    sql.NullString
+	Proposallink  sql.NullString
 	Status        string
 	Postid        string
 	Userid        string
@@ -36,7 +36,7 @@ type CreateApplicationParams struct {
 func (q *Queries) CreateApplication(ctx context.Context, arg CreateApplicationParams) (Application, error) {
 	row := q.db.QueryRowContext(ctx, createApplication,
 		arg.Applicationid,
-		arg.Resumelink,
+		arg.Proposallink,
 		arg.Status,
 		arg.Postid,
 		arg.Userid,
@@ -44,7 +44,7 @@ func (q *Queries) CreateApplication(ctx context.Context, arg CreateApplicationPa
 	var i Application
 	err := row.Scan(
 		&i.Applicationid,
-		&i.Resumelink,
+		&i.Proposallink,
 		&i.Status,
 		&i.Postid,
 		&i.Userid,

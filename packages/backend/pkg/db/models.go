@@ -23,7 +23,7 @@ type Address struct {
 
 type Application struct {
 	Applicationid string
-	Resumelink    sql.NullString
+	Proposallink  sql.NullString
 	Status        string
 	Postid        string
 	Userid        string

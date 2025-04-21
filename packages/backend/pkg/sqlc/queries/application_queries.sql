@@ -1,7 +1,7 @@
 -- name: CreateApplication :one
 INSERT INTO applications (
     applicationId, 
-    resumeLink, 
+    proposalLink, 
     status, 
     postId, 
     userId, 

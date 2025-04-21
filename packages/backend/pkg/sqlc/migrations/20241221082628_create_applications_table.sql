@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE applications (
     applicationId TEXT NOT NULL PRIMARY KEY,
-    resumeLink TEXT,
+    proposalLink TEXT,
     status TEXT CHECK(status IN ('APPLIED', 'REVIEWED', 'SKIPPED', 'FOR_INTERVIEW', 'INTERVIEW', 'REJECTED_AFTER_INTERVIEW', 'JOB_OFFER', 'REJECTED_JOB_OFFER', 'ACCEPTED_JOB_OFFER', 'JOB_UNAVAILABLE')) NOT NULL,
     postId TEXT NOT NULL,
     userId TEXT NOT NULL,
