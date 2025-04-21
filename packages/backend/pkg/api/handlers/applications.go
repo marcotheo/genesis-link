@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
@@ -67,8 +68,16 @@ func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 	})
 
 	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(POST) CreateApplication => error searching for post %s \n", errQ))
-		http.Error(w, "Error finding post", http.StatusInternalServerError)
+		errMsg := errQ.Error()
+
+		if strings.Contains(errMsg, "UNIQUE constraint failed") {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreateApplication => duplicate application for userId=%s, postId=%s", userId, params.Postid))
+			http.Error(w, "You have already sent an application for this post.", http.StatusConflict) // 409 Conflict
+			return
+		}
+
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateApplication => error creating post: %s", errMsg))
+		http.Error(w, "Error creating application.", http.StatusInternalServerError)
 		return
 	}
 
