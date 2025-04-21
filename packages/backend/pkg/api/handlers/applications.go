@@ -26,8 +26,8 @@ func InitApplicationHandler(dataService *services.DataService, utilService *serv
 }
 
 type CreateApplicationParams struct {
-	Postid     string `json:"postId" validate:"required,nanoid"`
-	ResumeLink string `json:"resumeLink"`
+	Postid       string `json:"postId" validate:"required,nanoid"`
+	Proposallink string `json:"proposalLink"`
 }
 
 func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Request) {
@@ -58,9 +58,9 @@ func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 		fmt.Println("Error generating ID:", err)
 		return
 	}
-	application, errQ := h.dataService.Queries.CreateApplication(context.Background(), db.CreateApplicationParams{
+	_, errQ := h.dataService.Queries.CreateApplication(context.Background(), db.CreateApplicationParams{
 		Applicationid: id,
-		Resumelink:    h.utilService.StringToNullString(params.ResumeLink),
+		Proposallink:  h.utilService.StringToNullString(params.Proposallink),
 		Status:        "APPLIED",
 		Userid:        userId,
 		Postid:        params.Postid,
@@ -74,5 +74,5 @@ func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 
 	clog.Logger.Success("(POST) CreateApplication => create successful")
 
-	successResponse(w, application)
+	w.WriteHeader(http.StatusNoContent)
 }
