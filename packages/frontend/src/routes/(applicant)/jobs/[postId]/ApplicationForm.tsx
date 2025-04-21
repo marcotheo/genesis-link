@@ -4,6 +4,7 @@ import { Modal } from "@qwik-ui/headless";
 import * as v from "valibot";
 
 import * as TModal from "~/components/themed-modal/themed-modal";
+import LoadingOverlayV2 from "~/components/loading-overlay-v2";
 import Button from "~/components/button/button";
 import Editor from "~/components/editor/editor";
 
@@ -21,6 +22,7 @@ export default component$<{ postId: string; userId: string }>(
   ({ postId, userId }) => {
     const toast = useToast();
     const open = useSignal(false);
+    const loading = useSignal(false);
 
     const { mutate: sendApplication } = useMutate("POST /applications/create");
 
@@ -39,6 +41,8 @@ export default component$<{ postId: string; userId: string }>(
 
     const handleSubmit = $<SubmitHandler<SchemaType>>(async (values) => {
       try {
+        loading.value = true;
+
         const s3Key = `applicant/${userId}/proposal/${postId}`;
 
         if (values.proposal) {
@@ -63,22 +67,31 @@ export default component$<{ postId: string; userId: string }>(
             });
         }
 
-        await sendApplication({
+        const result = await sendApplication({
           bodyParams: {
             postId: postId,
             proposalLink: s3Key ? s3Key : "",
           },
         });
 
+        if (result.error) throw result.error;
+
         toast.add({
           title: "Success",
-          message: "Applied",
+          message: "Application Sent",
           type: "success",
         });
       } catch (err) {
         console.log(err);
+
+        toast.add({
+          title: "Failed",
+          message: typeof err === "string" ? err : "Error occured",
+          type: "destructive",
+        });
       } finally {
-        // store.loading = false;
+        open.value = false;
+        loading.value = false;
       }
     });
 
@@ -102,6 +115,10 @@ export default component$<{ postId: string; userId: string }>(
           modalTitle="Application Form"
           modalDescription="use this form to fill in details for your application for this job"
         >
+          <LoadingOverlayV2 open={loading}>
+            Submitting Application
+          </LoadingOverlayV2>
+
           <Form
             class="flex flex-col gap-5 max-w-[47rem]"
             onSubmit$={handleSubmit}

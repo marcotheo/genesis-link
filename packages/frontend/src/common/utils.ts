@@ -56,13 +56,21 @@ export const qwikFetch = async <T>(
   const response = await fetch(requestUrl, options);
 
   if (!response.ok) {
-    const errorBody = await response.json().catch(() => null);
-
     let errorMessage = "An unknown error occurred";
+    let raw = "";
 
-    if (errorBody && typeof errorBody === "object" && errorBody.message)
-      errorMessage = errorBody.message;
-    else errorMessage = await response.text();
+    try {
+      raw = await response.text(); // ✅ Read once
+      const parsed = JSON.parse(raw);
+
+      if (parsed && typeof parsed === "object" && parsed.message) {
+        errorMessage = parsed.message;
+      } else {
+        errorMessage = raw;
+      }
+    } catch {
+      errorMessage = raw || "An unknown error occurred";
+    }
 
     throw { status: response.status, message: errorMessage };
   }
