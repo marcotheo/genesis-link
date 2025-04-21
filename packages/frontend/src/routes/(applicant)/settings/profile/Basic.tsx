@@ -65,7 +65,9 @@ const Resume = component$<{ userId?: string; resumeLink?: string }>(
       loading: false,
     });
     const toast = useToast();
-    const { mutate: getSignedUrl } = useMutate("POST /s3/url/put");
+    const { mutate: getSignedUrl } = useMutate(
+      "POST /s3/generate/signed/url/put",
+    );
 
     const { mutate: updateResumeLink } = useMutate("PUT /users/update/info");
 
