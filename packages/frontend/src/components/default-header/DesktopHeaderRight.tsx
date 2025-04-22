@@ -50,7 +50,9 @@ const MenuItems = component$(() => {
 
   return (
     <>
-      <DropDownMenuItemLink link="/settings">Applications</DropDownMenuItemLink>
+      <DropDownMenuItemLink link="/applications">
+        Applications
+      </DropDownMenuItemLink>
       <DropDownMenuItemLink link="/settings/profile">
         Settings
       </DropDownMenuItemLink>
