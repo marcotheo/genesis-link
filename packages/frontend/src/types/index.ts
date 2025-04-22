@@ -26,8 +26,11 @@ import {
   GetUserSkillsApi,
   UpdateUserInfoApi,
 } from "./users";
+import {
+  CreateApplicationApi,
+  GetApplicationsByUserIdApi,
+} from "./application";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
-import { CreateApplication } from "./application";
 import { GenerateS3SignedUrlPutApi } from "./s3";
 
 export interface MutationsType {
@@ -48,7 +51,7 @@ export interface MutationsType {
   "POST /posts/{postId}/save": CreateSavedPostApi;
   "DELETE /posts/{postId}/save": DeleteSavedPostApi;
   "POST /s3/generate/signed/url/put": GenerateS3SignedUrlPutApi;
-  "POST /applications": CreateApplication;
+  "POST /applications": CreateApplicationApi;
 }
 
 export interface QueryType {
@@ -62,4 +65,5 @@ export interface QueryType {
   "GET /posts/search/jobs": SearchJobsApi;
   "GET /posts/{postId}": GetJobPostDetails;
   "GET /posts/{postId}/save": GetUserSavedPostApi;
+  "GET /applications/applicant": GetApplicationsByUserIdApi;
 }
