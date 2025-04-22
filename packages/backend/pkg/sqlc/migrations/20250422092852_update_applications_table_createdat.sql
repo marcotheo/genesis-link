@@ -9,7 +9,7 @@ CREATE TABLE applications (
     postId TEXT NOT NULL,
     userId TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (postId) REFERENCES posts(postId),
     FOREIGN KEY (userId) REFERENCES users(userId)
 );
