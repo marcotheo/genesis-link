@@ -89,7 +89,8 @@ func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 
 type ApplicationPartial struct {
 	Applicationid string `json:"applicationId"`
-	Proposallink  string `json:"proposalLink,omitempty"`
+	Company       string `json:"company"`
+	Title         string `json:"title"`
 	Status        string `json:"status"`
 	Postid        string `json:"postId"`
 	CreatedAt     int64  `json:"createdAt"`
@@ -152,7 +153,8 @@ func (h *ApplicationHandler) GetApplicationsByUserId(w http.ResponseWriter, r *h
 	for _, row := range applications {
 		item := ApplicationPartial{
 			Applicationid: row.Applicationid,
-			Proposallink:  h.utilService.ConvertNullString(row.Proposallink),
+			Company:       h.utilService.ConvertNullString(row.Company),
+			Title:         h.utilService.ConvertNullString(row.Title),
 			Status:        row.Status,
 			Postid:        row.Postid,
 			CreatedAt:     h.utilService.ConvertNullTime(row.CreatedAt),
