@@ -1,4 +1,4 @@
-// POST API /applications/create
+// POST API /applications
 export interface CreateApplication {
   bodyParams: {
     postId: string;

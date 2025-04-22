@@ -24,7 +24,7 @@ export default component$<{ postId: string; userId: string }>(
     const open = useSignal(false);
     const loading = useSignal(false);
 
-    const { mutate: sendApplication } = useMutate("POST /applications/create");
+    const { mutate: sendApplication } = useMutate("POST /applications");
 
     const { mutate: uploadProposalLinkUrl } = useMutate(
       "POST /s3/generate/signed/url/put",

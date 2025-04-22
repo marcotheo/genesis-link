@@ -48,7 +48,7 @@ export interface MutationsType {
   "POST /posts/{postId}/save": CreateSavedPostApi;
   "DELETE /posts/{postId}/save": DeleteSavedPostApi;
   "POST /s3/generate/signed/url/put": GenerateS3SignedUrlPutApi;
-  "POST /applications/create": CreateApplication;
+  "POST /applications": CreateApplication;
 }
 
 export interface QueryType {
