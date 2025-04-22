@@ -25,11 +25,12 @@ export interface GetApplicationsByUserIdApi {
       total: number;
       applications: {
         applicationId: string;
-        proposalLink: string;
+        company: string;
+        title: string;
         status: string;
         postId: string;
         createdAt: number;
-      };
-    }[];
+      }[];
+    };
   };
 }
