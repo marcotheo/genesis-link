@@ -8,6 +8,7 @@ import Button from "~/components/button/button";
 
 import { GetApplicationsByUserIdApi } from "~/types/application";
 import { useQuery } from "~/hooks/use-query/useQuery";
+import Heading from "~/components/heading/heading";
 
 export default component$(() => {
   const page = useSignal(1);
@@ -39,6 +40,10 @@ export default component$(() => {
 
   return (
     <div class="overflow-hidden pb-6">
+      <Heading>Applications</Heading>
+
+      <br />
+
       <Table
         loading={state.loading}
         data={state?.result?.data.applications ?? []}
