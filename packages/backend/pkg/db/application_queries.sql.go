@@ -53,3 +53,59 @@ func (q *Queries) CreateApplication(ctx context.Context, arg CreateApplicationPa
 	)
 	return i, err
 }
+
+const getApplicationsByUserId = `-- name: GetApplicationsByUserId :many
+SELECT 
+    applicationId,
+    proposalLink,
+    status,
+    postId,
+    created_at
+FROM applications
+WHERE userId = ?
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?
+`
+
+type GetApplicationsByUserIdParams struct {
+	Userid string
+	Limit  int64
+	Offset int64
+}
+
+type GetApplicationsByUserIdRow struct {
+	Applicationid string
+	Proposallink  sql.NullString
+	Status        string
+	Postid        string
+	CreatedAt     interface{}
+}
+
+func (q *Queries) GetApplicationsByUserId(ctx context.Context, arg GetApplicationsByUserIdParams) ([]GetApplicationsByUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getApplicationsByUserId, arg.Userid, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetApplicationsByUserIdRow
+	for rows.Next() {
+		var i GetApplicationsByUserIdRow
+		if err := rows.Scan(
+			&i.Applicationid,
+			&i.Proposallink,
+			&i.Status,
+			&i.Postid,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

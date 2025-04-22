@@ -11,3 +11,15 @@ INSERT INTO applications (
     ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 )
 RETURNING *;
+
+-- name: GetApplicationsByUserId :many
+SELECT 
+    applicationId,
+    proposalLink,
+    status,
+    postId,
+    created_at
+FROM applications
+WHERE userId = ?
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?;
