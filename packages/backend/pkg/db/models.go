@@ -27,8 +27,8 @@ type Application struct {
 	Status        string
 	Postid        string
 	Userid        string
-	CreatedAt     interface{}
-	UpdatedAt     interface{}
+	CreatedAt     sql.NullTime
+	UpdatedAt     sql.NullTime
 }
 
 type JobDetail struct {

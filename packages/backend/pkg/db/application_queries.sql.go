@@ -78,7 +78,7 @@ type GetApplicationsByUserIdRow struct {
 	Proposallink  sql.NullString
 	Status        string
 	Postid        string
-	CreatedAt     interface{}
+	CreatedAt     sql.NullTime
 }
 
 func (q *Queries) GetApplicationsByUserId(ctx context.Context, arg GetApplicationsByUserIdParams) ([]GetApplicationsByUserIdRow, error) {
@@ -108,4 +108,18 @@ func (q *Queries) GetApplicationsByUserId(ctx context.Context, arg GetApplicatio
 		return nil, err
 	}
 	return items, nil
+}
+
+const getApplicationsByUserIdCount = `-- name: GetApplicationsByUserIdCount :one
+SELECT  
+    COUNT(*) AS total_count
+FROM applications
+WHERE userId = ?
+`
+
+func (q *Queries) GetApplicationsByUserIdCount(ctx context.Context, userid string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getApplicationsByUserIdCount, userid)
+	var total_count int64
+	err := row.Scan(&total_count)
+	return total_count, err
 }

@@ -23,3 +23,9 @@ FROM applications
 WHERE userId = ?
 ORDER BY created_at DESC
 LIMIT ? OFFSET ?;
+
+-- name: GetApplicationsByUserIdCount :one
+SELECT  
+    COUNT(*) AS total_count
+FROM applications
+WHERE userId = ?;
