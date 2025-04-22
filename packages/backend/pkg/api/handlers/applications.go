@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -84,4 +85,83 @@ func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 	clog.Logger.Success("(POST) CreateApplication => create successful")
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+type ApplicationPartial struct {
+	Applicationid string `json:"applicationId"`
+	Proposallink  string `json:"proposalLink,omitempty"`
+	Status        string `json:"status"`
+	Postid        string `json:"postId"`
+	CreatedAt     int64  `json:"createdAt"`
+}
+
+type GetApplicationsByUserId struct {
+	Applications []ApplicationPartial `json:"applications"`
+	Total        int64                `json:"total"`
+}
+
+func (h *ApplicationHandler) GetApplicationsByUserId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetApplicationsByUserId => invoked")
+
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	pageStr := r.URL.Query().Get("page")
+	if pageStr == "" {
+		http.Error(w, "Page parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		http.Error(w, "Page must be a number", http.StatusBadRequest)
+		return
+	}
+
+	var limit int64 = 5
+
+	applications, errQ := h.dataService.Queries.GetApplicationsByUserId(context.Background(), db.GetApplicationsByUserIdParams{
+		Offset: int64((page - 1)) * limit,
+		Userid: userId,
+		Limit:  limit,
+	})
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByUserId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching applications", http.StatusInternalServerError)
+		return
+	}
+
+	totalCount, errQ := h.dataService.Queries.GetApplicationsByUserIdCount(context.Background(), userId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByUserId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching applications count", http.StatusInternalServerError)
+		return
+	}
+
+	var response []ApplicationPartial
+
+	for _, row := range applications {
+		item := ApplicationPartial{
+			Applicationid: row.Applicationid,
+			Proposallink:  h.utilService.ConvertNullString(row.Proposallink),
+			Status:        row.Status,
+			Postid:        row.Postid,
+			CreatedAt:     h.utilService.ConvertNullTime(row.CreatedAt),
+		}
+
+		response = append(response, item)
+	}
+
+	clog.Logger.Success("(GET) GetOrgsByUserId => successful")
+
+	successResponse(w, GetApplicationsByUserId{Applications: response, Total: totalCount})
 }

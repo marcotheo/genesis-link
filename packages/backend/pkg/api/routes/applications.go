@@ -23,6 +23,7 @@ func (o *ApplicationRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
-		subRouter.POST("/create", o.handlers.CreateApplication)
+		subRouter.POST("", o.handlers.CreateApplication)
+		subRouter.GET("/applicant", o.handlers.GetApplicationsByUserId)
 	}
 }
