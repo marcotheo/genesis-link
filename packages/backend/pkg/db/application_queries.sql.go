@@ -55,15 +55,18 @@ func (q *Queries) CreateApplication(ctx context.Context, arg CreateApplicationPa
 }
 
 const getApplicationsByUserId = `-- name: GetApplicationsByUserId :many
-SELECT 
-    applicationId,
-    proposalLink,
-    status,
-    postId,
-    created_at
-FROM applications
-WHERE userId = ?
-ORDER BY created_at DESC
+SELECT
+    o.company,
+    p.title,
+    a.applicationId,
+    a.status,
+    a.postId,
+    a.created_at
+FROM applications a
+LEFT JOIN posts p ON a.postId = p.postId
+LEFT JOIN organizations o ON p.orgId = o.orgId
+WHERE a.userId = ?
+ORDER BY a.created_at DESC
 LIMIT ? OFFSET ?
 `
 
@@ -74,8 +77,9 @@ type GetApplicationsByUserIdParams struct {
 }
 
 type GetApplicationsByUserIdRow struct {
+	Company       sql.NullString
+	Title         sql.NullString
 	Applicationid string
-	Proposallink  sql.NullString
 	Status        string
 	Postid        string
 	CreatedAt     sql.NullTime
@@ -91,8 +95,9 @@ func (q *Queries) GetApplicationsByUserId(ctx context.Context, arg GetApplicatio
 	for rows.Next() {
 		var i GetApplicationsByUserIdRow
 		if err := rows.Scan(
+			&i.Company,
+			&i.Title,
 			&i.Applicationid,
-			&i.Proposallink,
 			&i.Status,
 			&i.Postid,
 			&i.CreatedAt,

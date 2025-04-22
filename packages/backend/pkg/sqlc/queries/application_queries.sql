@@ -13,15 +13,18 @@ INSERT INTO applications (
 RETURNING *;
 
 -- name: GetApplicationsByUserId :many
-SELECT 
-    applicationId,
-    proposalLink,
-    status,
-    postId,
-    created_at
-FROM applications
-WHERE userId = ?
-ORDER BY created_at DESC
+SELECT
+    o.company,
+    p.title,
+    a.applicationId,
+    a.status,
+    a.postId,
+    a.created_at
+FROM applications a
+LEFT JOIN posts p ON a.postId = p.postId
+LEFT JOIN organizations o ON p.orgId = o.orgId
+WHERE a.userId = ?
+ORDER BY a.created_at DESC
 LIMIT ? OFFSET ?;
 
 -- name: GetApplicationsByUserIdCount :one
