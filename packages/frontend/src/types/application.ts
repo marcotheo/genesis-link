@@ -34,3 +34,28 @@ export interface GetApplicationsByUserIdApi {
     };
   };
 }
+
+// GET API /posts/{postId}/applications
+export interface GetApplicationsByPostIdApi {
+  pathParams: {
+    postId: string;
+  };
+  queryStrings: {
+    page: Signal<number>;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      total: number;
+      applications: {
+        applicationId: string;
+        company: string;
+        title: string;
+        status: string;
+        postId: string;
+        createdAt: number;
+      }[];
+    };
+  };
+}

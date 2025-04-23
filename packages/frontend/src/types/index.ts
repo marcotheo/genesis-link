@@ -21,15 +21,16 @@ import {
   SearchJobsApi,
 } from "./post";
 import {
+  CreateApplicationApi,
+  GetApplicationsByPostIdApi,
+  GetApplicationsByUserIdApi,
+} from "./application";
+import {
   CreateUserSkillsApi,
   GetAccountDetailsAPI,
   GetUserSkillsApi,
   UpdateUserInfoApi,
 } from "./users";
-import {
-  CreateApplicationApi,
-  GetApplicationsByUserIdApi,
-} from "./application";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
 import { GenerateS3SignedUrlPutApi } from "./s3";
 
@@ -65,5 +66,6 @@ export interface QueryType {
   "GET /posts/search/jobs": SearchJobsApi;
   "GET /posts/{postId}": GetJobPostDetails;
   "GET /posts/{postId}/save": GetUserSavedPostApi;
+  "GET /posts/{postId}/applications": GetApplicationsByPostIdApi;
   "GET /applications": GetApplicationsByUserIdApi;
 }
