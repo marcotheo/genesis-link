@@ -1,3 +1,4 @@
+import { PresignedHTTPRequest } from "./s3";
 import { Signal } from "@builder.io/qwik";
 
 // POST API /organizations
@@ -39,12 +40,6 @@ export interface GetOrganizationsByUserIdApi {
     };
   };
 }
-
-type PresignedHTTPRequest = {
-  Method: string; // HTTP method, e.g., "GET", "PUT"
-  URL: string; // Presigned URL
-  SignedHeader?: Record<string, string>; // Optional headers for the request
-};
 
 // GET API /organizations/{orgId}/assets
 export interface GetOrganizationAssetsApi {
