@@ -8,7 +8,7 @@ import { GetAddresssesByOrgIdApi } from "~/types/organizations";
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { useFetch } from "~/hooks/use-fetch/useFetch";
 import Button from "~/components/button/button";
-import { useOrgId } from "../../layout";
+import { usePathParams } from "../../layout";
 
 export const useAddressesLoader = routeLoader$(
   async ({ resolveValue, params }) => {
@@ -100,7 +100,7 @@ const AddressList = component$(() => {
 });
 
 const CreateAddressLink = component$(() => {
-  const result = useOrgId();
+  const result = usePathParams();
 
   return (
     <div class="flex justify-end">

@@ -8,9 +8,9 @@ import { cn, createDashboardPath, defaultCountry } from "~/common/utils";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
+import { usePathParams } from "../../../layout";
 import Alert from "~/components/alert/alert";
 import Input from "~/components/input/input";
-import { useOrgId } from "../../../layout";
 
 const FlexWrapper = component$(() => {
   return (
@@ -21,7 +21,7 @@ const FlexWrapper = component$(() => {
 });
 
 export default component$(() => {
-  const result = useOrgId();
+  const result = usePathParams();
 
   const { mutate, state } = useMutate("POST /organizations/{orgId}/addresses");
 

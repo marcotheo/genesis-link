@@ -11,10 +11,10 @@ import { useQuery } from "~/hooks/use-query/useQuery";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 
-import { useOrgId } from "../../../layout";
+import { usePathParams } from "../../../layout";
 
 export default component$(() => {
-  const pathParams = useOrgId();
+  const pathParams = usePathParams();
 
   const { state } = useQuery(
     "GET /posts/{postId}",

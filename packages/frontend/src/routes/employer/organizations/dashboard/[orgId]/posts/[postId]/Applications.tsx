@@ -6,10 +6,10 @@ import { Pagination } from "~/components/pagination/pagination";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import Heading from "~/components/heading/heading";
 import { Table } from "~/components/table/table";
-import { usePostId } from ".";
+import { usePathParams } from "../../../layout";
 
 export default component$(() => {
-  const pathParams = usePostId();
+  const pathParams = usePathParams();
   const page = useSignal(1);
 
   const { state } = useQuery(

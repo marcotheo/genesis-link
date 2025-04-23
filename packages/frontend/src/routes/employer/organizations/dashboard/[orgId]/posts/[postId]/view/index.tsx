@@ -3,10 +3,10 @@ import { component$ } from "@builder.io/qwik";
 import { timeAgo, cn, formatNumberWithCommas } from "~/common/utils";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import Heading from "~/components/heading/heading";
-import { useOrgId } from "../../../../layout";
+import { usePathParams } from "../../../../layout";
 
 export default component$(() => {
-  const pathParams = useOrgId();
+  const pathParams = usePathParams();
 
   const { state } = useQuery(
     "GET /posts/{postId}",

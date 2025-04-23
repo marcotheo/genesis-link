@@ -16,10 +16,12 @@ export const DashboardDrawerCtx = createContextId<Signal<boolean>>(
   "dashboard.drawer.context",
 );
 
-export const useOrgId = routeLoader$(({ params }) => {
-  const { orgId } = params; // Extract the route parameter
+export const usePathParams = routeLoader$(({ params }) => {
+  const { orgId, postId } = params; // Extract the route parameter
+
   return {
     orgId,
+    postId: postId || "",
   };
 });
 

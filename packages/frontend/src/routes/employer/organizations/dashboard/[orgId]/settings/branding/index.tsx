@@ -4,12 +4,12 @@ import { DocumentHead } from "@builder.io/qwik-city";
 
 import { useQuery } from "~/hooks/use-query/useQuery";
 import Heading from "~/components/heading/heading";
-import { useOrgId } from "../../../layout";
+import { usePathParams } from "../../../layout";
 import AssetsForm from "./AssetsForm";
 import { cn } from "~/common/utils";
 
 const Content = component$(() => {
-  const org = useOrgId();
+  const org = usePathParams();
   const bannerImgUrl = useSignal("");
   const logoImgUrl = useSignal("");
 

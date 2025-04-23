@@ -22,9 +22,9 @@ import {
 } from "@builder.io/qwik";
 import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
 
+import { DashboardDrawerCtx, usePathParams } from "./layout";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { cn, createDashboardPath } from "~/common/utils";
-import { DashboardDrawerCtx, useOrgId } from "./layout";
 import Button from "~/components/button/button";
 
 import LogoOnlyImage from "~/assets/images/logo_symbol.png?jsx";
@@ -92,7 +92,7 @@ const NavItem = component$<{ to: string; open: Signal<boolean> }>(
 );
 
 const SettingsItems = component$<{ open: Signal<boolean> }>(({ open }) => {
-  const org = useOrgId();
+  const org = usePathParams();
   const parentOpen = useSignal(false);
 
   if (open.value)
@@ -202,7 +202,7 @@ const SettingsItems = component$<{ open: Signal<boolean> }>(({ open }) => {
 });
 
 const NavItems = component$<{ open: Signal<boolean> }>(({ open }) => {
-  const org = useOrgId();
+  const org = usePathParams();
 
   return (
     <div class={cn("mt-3 space-y-3", open.value ? "px-5" : "px-3")}>

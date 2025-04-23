@@ -11,7 +11,7 @@ import { CreateAddessSchema, CreateAddressForm } from "~/common/formSchema";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useCache } from "~/hooks/use-cache/useCache";
 import { cn, defaultCountry } from "~/common/utils";
-import { useOrgId } from "../../../layout";
+import { usePathParams } from "../../../layout";
 
 const FlexWrapper = component$(() => {
   return (
@@ -22,7 +22,7 @@ const FlexWrapper = component$(() => {
 });
 
 export default component$(() => {
-  const org = useOrgId();
+  const org = usePathParams();
   const { setCacheData } = useCache("GET /organizations/{orgId}/addresses", {
     pathParams: { orgId: org.value.orgId },
   });

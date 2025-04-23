@@ -16,7 +16,7 @@ import { createDashboardPath, qwikFetch } from "~/common/utils";
 import { GetPostsByOrgApi } from "~/types/organizations";
 import { useAuthHeadersLoader } from "~/routes/layout";
 import { useQuery } from "~/hooks/use-query/useQuery";
-import { useOrgId } from "../../layout";
+import { usePathParams } from "../../layout";
 
 export const usePostsLoader = routeLoader$(async ({ resolveValue, params }) => {
   try {
@@ -46,7 +46,7 @@ export const usePostsLoader = routeLoader$(async ({ resolveValue, params }) => {
 export default component$(() => {
   const result = usePostsLoader();
   const nav = useNavigate();
-  const org = useOrgId();
+  const org = usePathParams();
   const page = useSignal(1);
 
   const { state } = useQuery(

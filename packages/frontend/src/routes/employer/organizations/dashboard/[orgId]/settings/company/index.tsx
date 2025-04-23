@@ -8,8 +8,8 @@ import { useQuery } from "~/hooks/use-query/useQuery";
 import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
+import { usePathParams } from "../../../layout";
 import Input from "~/components/input/input";
-import { useOrgId } from "../../../layout";
 import { cn } from "~/common/utils";
 
 const Item = component$<{ label: string; value: string; noEdit?: boolean }>(
@@ -196,7 +196,7 @@ const MobileNumber = component$<{ orgId: string; value?: string }>(
 );
 
 const AccountDetails = component$(() => {
-  const org = useOrgId();
+  const org = usePathParams();
 
   const { state } = useQuery(
     "GET /organizations/{orgId}/details",

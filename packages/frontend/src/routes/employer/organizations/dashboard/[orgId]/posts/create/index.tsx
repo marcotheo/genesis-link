@@ -10,7 +10,7 @@ import {
 
 import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { CreateJobPostFormData } from "./common";
-import { useOrgId } from "../../../layout";
+import { usePathParams } from "../../../layout";
 import StepHeader from "./StepHeader";
 import SuccessBox from "./SuccessBox";
 import { cn } from "~/common/utils";
@@ -27,7 +27,7 @@ export const FormDataCtx =
   createContextId<CreateJobPostFormData>("form.data.context");
 
 const ActiveForm = component$(() => {
-  const org = useOrgId();
+  const org = usePathParams();
   const activeStep = useContext(FormStepCtx);
   const formDataState = useStore<CreateJobPostFormData>({
     orgId: org.value.orgId,
