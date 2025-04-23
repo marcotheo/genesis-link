@@ -1,10 +1,9 @@
-import { Link, type DocumentHead } from "@builder.io/qwik-city";
 import { $, component$, useSignal } from "@builder.io/qwik";
+import { type DocumentHead } from "@builder.io/qwik-city";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
 import { Table } from "~/components/table/table";
-import Button from "~/components/button/button";
 
 import { GetApplicationsByUserIdApi } from "~/types/application";
 import { useQuery } from "~/hooks/use-query/useQuery";
@@ -33,7 +32,7 @@ export default component$(() => {
     },
   );
 
-  const DeadlineRow = $(
+  const CreatedAtRow = $(
     (item: GetApplicationsByUserIdApi["response"]["data"]["applications"][0]) =>
       dayjs.unix(item.createdAt).format("MMM DD, YYYY"),
   );
@@ -49,7 +48,7 @@ export default component$(() => {
         data={state?.result?.data.applications ?? []}
         headers={["Company", "Title", "Status", "CreatedAt"]}
         rowKey={"postId"}
-        rowDef={["company", "title", "status", DeadlineRow]}
+        rowDef={["company", "title", "status", CreatedAtRow]}
       />
 
       <div class="flex w-full justify-end">
