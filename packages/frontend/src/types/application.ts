@@ -50,10 +50,12 @@ export interface GetApplicationsByPostIdApi {
       total: number;
       applications: {
         applicationId: string;
-        company: string;
-        title: string;
+        name: string;
+        email: string;
+        mobileNumber: string;
+        resumeLink: string;
+        userId: string;
         status: string;
-        postId: string;
         createdAt: number;
       }[];
     };
