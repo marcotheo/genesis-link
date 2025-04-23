@@ -24,6 +24,6 @@ func (o *ApplicationRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
 		subRouter.POST("", o.handlers.CreateApplication)
-		subRouter.GET("/applicant", o.handlers.GetApplicationsByUserId)
+		subRouter.GET("", o.handlers.GetApplicationsByUserId)
 	}
 }
