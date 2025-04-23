@@ -13,7 +13,7 @@ export interface CreateApplicationApi {
   };
 }
 
-// GET API /applications/applicant
+// GET API /applications
 export interface GetApplicationsByUserIdApi {
   queryStrings: {
     page: Signal<number>;

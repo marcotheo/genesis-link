@@ -65,5 +65,5 @@ export interface QueryType {
   "GET /posts/search/jobs": SearchJobsApi;
   "GET /posts/{postId}": GetJobPostDetails;
   "GET /posts/{postId}/save": GetUserSavedPostApi;
-  "GET /applications/applicant": GetApplicationsByUserIdApi;
+  "GET /applications": GetApplicationsByUserIdApi;
 }

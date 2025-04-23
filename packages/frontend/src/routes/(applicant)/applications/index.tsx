@@ -14,7 +14,7 @@ export default component$(() => {
   const page = useSignal(1);
 
   const { state } = useQuery(
-    "GET /applications/applicant",
+    "GET /applications",
     {
       queryStrings: {
         page,
