@@ -96,8 +96,9 @@ const TableBody = component$(
                 key={rowId}
                 class={cn(
                   "border-b border-soft",
-                  "cursor-pointer hover:bg-soft",
+                  "hover:bg-soft",
                   "duration-200 ease-out",
+                  onRowClick && "cursor-pointer",
                 )}
                 onClick$={() => {
                   if (onRowClick) onRowClick(rowId);
