@@ -41,7 +41,7 @@ const Td = component$(() => {
 const TableSkeleton = component$<{ total: number }>(({ total }) => {
   return (
     <>
-      {[...Array(10)].map((_, idx) => (
+      {[...Array(5)].map((_, idx) => (
         <tr key={idx} class="border-b border-soft">
           {[...Array(total)].map((_, idx) => (
             <td key={idx} class="px-3 py-4 animate-pulse">
