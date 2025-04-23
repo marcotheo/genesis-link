@@ -43,6 +43,40 @@ export default component$(() => {
     },
   );
 
+  const Resume = $(
+    async (
+      item: GetApplicationsByPostIdApi["response"]["data"]["applications"][0],
+    ) => {
+      if (item.resumeLink) {
+        const imageResponse = await fetch(item.resumeLink.URL, {
+          method: item.resumeLink.Method,
+          headers: item.resumeLink.SignedHeader,
+        });
+
+        if (!imageResponse.ok) {
+          return "Error";
+        }
+
+        const imageBlob = await imageResponse.blob();
+        const imageObjectURL = URL.createObjectURL(imageBlob);
+
+        return (
+          <a
+            href={imageObjectURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            class="text-blue-600 underline underline-offset-4"
+          >
+            Download CV
+          </a>
+        );
+      }
+
+      return "N/A";
+    },
+  );
+
   const CreatedAtRow = $(
     (item: GetApplicationsByPostIdApi["response"]["data"]["applications"][0]) =>
       dayjs.unix(item.createdAt).format("MMM DD, YYYY"),
@@ -69,7 +103,7 @@ export default component$(() => {
           rowKey={"applicationId"}
           rowDef={[
             "name",
-            "resumeLink",
+            Resume,
             "email",
             "mobileNumber",
             "status",

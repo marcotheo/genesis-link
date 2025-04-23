@@ -11,7 +11,11 @@ interface ITableProps<T extends object> {
   headers: string[];
   data: T[];
   rowKey: RowDefKeyOf<T>;
-  rowDef: (RowDefKeyOf<T> | QRL<(item: T) => JSXOutput>)[];
+  rowDef: (
+    | RowDefKeyOf<T>
+    | QRL<(item: T) => JSXOutput>
+    | QRL<(item: T) => Promise<JSXOutput>>
+  )[];
   loading?: boolean | null;
   onRowClick?: QRL<(rowId: string) => void>;
 }
