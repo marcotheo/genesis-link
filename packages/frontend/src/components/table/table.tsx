@@ -13,6 +13,7 @@ interface ITableProps<T extends object> {
   rowKey: RowDefKeyOf<T>;
   rowDef: (RowDefKeyOf<T> | QRL<(item: T) => JSXOutput>)[];
   loading?: boolean | null;
+  onRowClick?: QRL<(rowId: string) => void>;
 }
 
 const Th = component$(() => {
@@ -60,6 +61,7 @@ const TableBody = component$(
     data,
     rowKey,
     rowDef,
+    onRowClick,
   }: ITableProps<T>) => {
     const getValue = (item: Object, property: typeof rowKey) => {
       const keys = property.split(".");
@@ -93,6 +95,9 @@ const TableBody = component$(
                   "cursor-pointer hover:bg-soft",
                   "duration-200 ease-out",
                 )}
+                onClick$={() => {
+                  if (onRowClick) onRowClick(rowId);
+                }}
               >
                 {rowDef.map((property, idx) => {
                   if (typeof property === "string") {

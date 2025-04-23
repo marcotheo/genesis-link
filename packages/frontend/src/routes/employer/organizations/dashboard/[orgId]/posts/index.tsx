@@ -1,4 +1,9 @@
-import { Link, routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
+import {
+  Link,
+  routeLoader$,
+  useNavigate,
+  type DocumentHead,
+} from "@builder.io/qwik-city";
 import { $, component$, useSignal } from "@builder.io/qwik";
 import { TbPlus } from "@qwikest/icons/tablericons";
 import dayjs from "dayjs";
@@ -40,6 +45,7 @@ export const usePostsLoader = routeLoader$(async ({ resolveValue, params }) => {
 
 export default component$(() => {
   const result = usePostsLoader();
+  const nav = useNavigate();
   const org = useOrgId();
   const page = useSignal(1);
 
@@ -91,6 +97,9 @@ export default component$(() => {
         headers={["Job Title", "Deadline"]}
         rowKey={"postId"}
         rowDef={["title", DeadlineRow]}
+        onRowClick={$((postId) => {
+          nav(createDashboardPath(org.value.orgId, `/posts/${postId}`));
+        })}
       />
 
       <div class="flex w-full justify-end">
