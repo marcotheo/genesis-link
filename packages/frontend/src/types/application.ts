@@ -1,5 +1,7 @@
 import { Signal } from "@builder.io/qwik";
 
+import { PresignedHTTPRequest } from "./s3";
+
 // POST API /applications
 export interface CreateApplicationApi {
   bodyParams: {
@@ -53,7 +55,7 @@ export interface GetApplicationsByPostIdApi {
         name: string;
         email: string;
         mobileNumber: string;
-        resumeLink: string;
+        resumeLink: PresignedHTTPRequest | null;
         userId: string;
         status: string;
         createdAt: number;
