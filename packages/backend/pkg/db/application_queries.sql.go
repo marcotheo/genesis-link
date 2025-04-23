@@ -54,6 +54,89 @@ func (q *Queries) CreateApplication(ctx context.Context, arg CreateApplicationPa
 	return i, err
 }
 
+const getApplicationsByPostId = `-- name: GetApplicationsByPostId :many
+SELECT
+    u.firstName,
+    u.lastName,
+    u.email,
+    u.mobileNumber,
+    u.resumeLink,
+    a.userId,
+    a.applicationId,
+    a.status,
+    a.created_at
+FROM applications a
+LEFT JOIN users u ON a.userId = u.userId
+WHERE a.postId = ?
+ORDER BY a.created_at DESC
+LIMIT ? OFFSET ?
+`
+
+type GetApplicationsByPostIdParams struct {
+	Postid string
+	Limit  int64
+	Offset int64
+}
+
+type GetApplicationsByPostIdRow struct {
+	Firstname     sql.NullString
+	Lastname      sql.NullString
+	Email         sql.NullString
+	Mobilenumber  sql.NullString
+	Resumelink    sql.NullString
+	Userid        string
+	Applicationid string
+	Status        string
+	CreatedAt     sql.NullTime
+}
+
+func (q *Queries) GetApplicationsByPostId(ctx context.Context, arg GetApplicationsByPostIdParams) ([]GetApplicationsByPostIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getApplicationsByPostId, arg.Postid, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetApplicationsByPostIdRow
+	for rows.Next() {
+		var i GetApplicationsByPostIdRow
+		if err := rows.Scan(
+			&i.Firstname,
+			&i.Lastname,
+			&i.Email,
+			&i.Mobilenumber,
+			&i.Resumelink,
+			&i.Userid,
+			&i.Applicationid,
+			&i.Status,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getApplicationsByPostIdCount = `-- name: GetApplicationsByPostIdCount :one
+SELECT  
+    COUNT(*) AS total_count
+FROM applications
+WHERE postId = ?
+`
+
+func (q *Queries) GetApplicationsByPostIdCount(ctx context.Context, postid string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getApplicationsByPostIdCount, postid)
+	var total_count int64
+	err := row.Scan(&total_count)
+	return total_count, err
+}
+
 const getApplicationsByUserId = `-- name: GetApplicationsByUserId :many
 SELECT
     o.company,
