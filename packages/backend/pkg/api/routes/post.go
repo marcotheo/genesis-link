@@ -7,13 +7,15 @@ import (
 )
 
 type PostRoutes struct {
-	handlers          *handler.PostHandler
-	middlewareService *services.MiddlewareService
+	postHandler        *handler.PostHandler
+	applicationHandler *handler.ApplicationHandler
+	middlewareService  *services.MiddlewareService
 }
 
-func InitPostRoutes(handlers *handler.PostHandler, middlewareService *services.MiddlewareService) *PostRoutes {
+func InitPostRoutes(postHandlers *handler.PostHandler, applicationHandler *handler.ApplicationHandler, middlewareService *services.MiddlewareService) *PostRoutes {
 	return &PostRoutes{
-		handlers,
+		postHandlers,
+		applicationHandler,
 		middlewareService,
 	}
 }
@@ -23,11 +25,12 @@ func (o *PostRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
-		subRouter.GET("/search/jobs", o.handlers.SearchJob)
-		subRouter.GET("/{postId}", o.handlers.GetPostDetails)
+		subRouter.GET("/search/jobs", o.postHandler.SearchJob)
+		subRouter.GET("/{postId}", o.postHandler.GetPostDetails)
+		subRouter.GET("/{postId}/applications", o.applicationHandler.GetApplicationsByPostId)
 
-		subRouter.POST("/{postId}/save", o.handlers.CreateSavedPost)
-		subRouter.GET("/{postId}/save", o.handlers.GetUserSavedPost)
-		subRouter.DELETE("/{postId}/save", o.handlers.DeleteSavedPost)
+		subRouter.POST("/{postId}/save", o.postHandler.CreateSavedPost)
+		subRouter.GET("/{postId}/save", o.postHandler.GetUserSavedPost)
+		subRouter.DELETE("/{postId}/save", o.postHandler.DeleteSavedPost)
 	}
 }

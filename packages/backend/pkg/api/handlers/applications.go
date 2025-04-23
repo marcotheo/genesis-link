@@ -87,7 +87,7 @@ func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusNoContent)
 }
 
-type ApplicationPartial struct {
+type ApplicantApplication struct {
 	Applicationid string `json:"applicationId"`
 	Company       string `json:"company"`
 	Title         string `json:"title"`
@@ -97,8 +97,8 @@ type ApplicationPartial struct {
 }
 
 type GetApplicationsByUserId struct {
-	Applications []ApplicationPartial `json:"applications"`
-	Total        int64                `json:"total"`
+	Applications []ApplicantApplication `json:"applications"`
+	Total        int64                  `json:"total"`
 }
 
 func (h *ApplicationHandler) GetApplicationsByUserId(w http.ResponseWriter, r *http.Request) {
@@ -148,10 +148,10 @@ func (h *ApplicationHandler) GetApplicationsByUserId(w http.ResponseWriter, r *h
 		return
 	}
 
-	var response []ApplicationPartial
+	var response []ApplicantApplication
 
 	for _, row := range applications {
-		item := ApplicationPartial{
+		item := ApplicantApplication{
 			Applicationid: row.Applicationid,
 			Company:       h.utilService.ConvertNullString(row.Company),
 			Title:         h.utilService.ConvertNullString(row.Title),
@@ -163,7 +163,82 @@ func (h *ApplicationHandler) GetApplicationsByUserId(w http.ResponseWriter, r *h
 		response = append(response, item)
 	}
 
-	clog.Logger.Success("(GET) GetOrgsByUserId => successful")
+	clog.Logger.Success("(GET) GetApplicationsByUserId => successful")
 
 	successResponse(w, GetApplicationsByUserId{Applications: response, Total: totalCount})
+}
+
+type EmployerPostApplication struct {
+	Name          string `json:"name"`
+	Email         string `json:"email"`
+	MobileNumber  string `json:"mobileNumber"`
+	Resumelink    string `json:"resumeLink"`
+	Userid        string `json:"userId"`
+	Applicationid string `json:"applicationId"`
+	Status        string `json:"status"`
+	CreatedAt     int64  `json:"createdAt"`
+}
+
+type GetApplicationsByPostIdParams struct {
+	Page int64 `json:"page" validate:"required"`
+}
+
+type GetApplicationsByPostId struct {
+	Applications []EmployerPostApplication `json:"applications"`
+	Total        int64                     `json:"total"`
+}
+
+func (h *ApplicationHandler) GetApplicationsByPostId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetApplicationsByPostId => invoked")
+
+	postId := r.PathValue("postId")
+
+	var params GetApplicationsByPostIdParams
+
+	if err := ParseAndValidateQuery(r, &params); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByPostId => invalid parameters %s \n", err))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var limit int64 = 5
+
+	applications, errQ := h.dataService.Queries.GetApplicationsByPostId(context.Background(), db.GetApplicationsByPostIdParams{
+		Offset: int64((params.Page - 1)) * limit,
+		Postid: postId,
+		Limit:  limit,
+	})
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByPostId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching applications", http.StatusInternalServerError)
+		return
+	}
+
+	totalCount, errQ := h.dataService.Queries.GetApplicationsByPostIdCount(context.Background(), postId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByPostId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching applications count", http.StatusInternalServerError)
+		return
+	}
+
+	var response []EmployerPostApplication
+
+	for _, row := range applications {
+		item := EmployerPostApplication{
+			Applicationid: row.Applicationid,
+			Userid:        row.Userid,
+			Name:          h.utilService.ConvertNullString(row.Firstname) + " " + h.utilService.ConvertNullString(row.Lastname),
+			Email:         h.utilService.ConvertNullString(row.Email),
+			MobileNumber:  h.utilService.ConvertNullString(row.Mobilenumber),
+			Resumelink:    h.utilService.ConvertNullString(row.Resumelink),
+			Status:        row.Status,
+			CreatedAt:     h.utilService.ConvertNullTime(row.CreatedAt),
+		}
+
+		response = append(response, item)
+	}
+
+	clog.Logger.Success("(GET) GetApplicationsByPostId => successful")
+
+	successResponse(w, GetApplicationsByPostId{Applications: response, Total: totalCount})
 }
