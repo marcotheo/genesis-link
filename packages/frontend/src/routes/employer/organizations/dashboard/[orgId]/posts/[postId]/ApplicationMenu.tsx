@@ -54,7 +54,7 @@ const ResumeDownload = component$<{ applicationId: string }>(
         onClick$={fetchResume}
         class="h-full w-full text-left text-text"
       >
-        Download CV
+        View CV
       </button>
     );
   },

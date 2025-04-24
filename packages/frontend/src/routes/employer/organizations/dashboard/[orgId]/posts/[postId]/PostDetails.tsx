@@ -108,6 +108,23 @@ export default component$(() => {
         </div>
       </div>
 
+      {/* post tags */}
+      <div class="flex flex-wrap gap-3 items-center">
+        {state.loading ? (
+          <>
+            <div class="px-3 py-4 animate-pulse bg-soft w-24 h-5 rounded-full" />
+            <div class="px-3 py-4 animate-pulse bg-soft w-24 h-5 rounded-full" />
+            <div class="px-3 py-4 animate-pulse bg-soft w-24 h-5 rounded-full" />
+          </>
+        ) : (
+          state.result?.data.tags.map((v) => (
+            <div key={v} class="rounded-full px-3 py-1 bg-soft text-sm">
+              {v}
+            </div>
+          ))
+        )}
+      </div>
+
       <div class="space-y-1">
         <Heading class="text-2xl md:text-4xl">Position Overview</Heading>
         {state.loading ? (
