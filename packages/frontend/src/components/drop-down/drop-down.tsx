@@ -95,9 +95,7 @@ export const DropDownMenuItem = component$(() => {
           "duration-100 ease-out",
         )}
       >
-        <p class="font-semibold text-xs">
-          <Slot />
-        </p>
+        <Slot />
       </div>
     </div>
   );
