@@ -44,6 +44,8 @@ const Resume = component$<{ applicationId: string }>(({ applicationId }) => {
 
       if (result.result?.data.resumeLink) {
         window.open(result.result.data.resumeLink, "_blank");
+
+        return;
       }
 
       toast.add({
@@ -110,6 +112,8 @@ const ProposalContent = component$<{ applicationId: string }>(
           const cleanHTML = DOMPurify.sanitize(data);
 
           htmlContent.value = cleanHTML;
+
+          return;
         }
 
         toast.add({
