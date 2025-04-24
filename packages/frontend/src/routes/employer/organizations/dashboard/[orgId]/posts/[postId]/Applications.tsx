@@ -1,11 +1,19 @@
+import { TbDotsVertical } from "@qwikest/icons/tablericons";
 import { $, component$, useSignal } from "@builder.io/qwik";
 import dayjs from "dayjs";
 
-import { GetApplicationsByPostIdApi } from "~/types/application";
+import Menu, {
+  DropDownMenuItem,
+  DropDownMenuItemLink,
+  DropDownSeparator,
+} from "~/components/drop-down/drop-down";
 import { Pagination } from "~/components/pagination/pagination";
-import { useQuery } from "~/hooks/use-query/useQuery";
 import Heading from "~/components/heading/heading";
 import { Table } from "~/components/table/table";
+
+import { GetApplicationsByPostIdApi } from "~/types/application";
+import { cn, createDashboardPath } from "~/common/utils";
+import { useQuery } from "~/hooks/use-query/useQuery";
 import { usePathParams } from "../../../layout";
 
 export default component$(() => {
@@ -32,6 +40,71 @@ export default component$(() => {
         },
       },
       runOnRender: true,
+    },
+  );
+
+  const MenuRow = $(
+    async (
+      item: GetApplicationsByPostIdApi["response"]["data"]["applications"][0],
+    ) => {
+      let imageObjectURL = "";
+
+      if (item.resumeLink) {
+        const imageResponse = await fetch(item.resumeLink.URL, {
+          method: item.resumeLink.Method,
+          headers: item.resumeLink.SignedHeader,
+        });
+
+        if (!imageResponse.ok) {
+          return "Error";
+        }
+
+        const imageBlob = await imageResponse.blob();
+        imageObjectURL = URL.createObjectURL(imageBlob);
+      }
+
+      return (
+        <div>
+          <Menu panelWidth="w-56">
+            <div
+              q:slot="trigger"
+              class={cn(
+                "bg-surface shadow-lg",
+                "rounded-full h-14 w-14",
+                "flex items-center justify-center",
+                "text-text relative",
+                "hover:brightness-90 dark:hover:brightness-125",
+                "transition-all duration-200 ease-in",
+              )}
+            >
+              <TbDotsVertical />
+            </div>
+
+            <DropDownMenuItemLink
+              link={createDashboardPath(pathParams.value.orgId, "")}
+            >
+              View Profile
+            </DropDownMenuItemLink>
+            <DropDownSeparator />
+            <DropDownMenuItem>
+              {imageObjectURL ? (
+                <a
+                  href={imageObjectURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                >
+                  Download CV
+                </a>
+              ) : (
+                "No CV"
+              )}
+            </DropDownMenuItem>
+            <DropDownSeparator />
+            <DropDownMenuItem>View Proposal</DropDownMenuItem>
+          </Menu>
+        </div>
+      );
     },
   );
 
@@ -89,6 +162,7 @@ export default component$(() => {
             "MobileNumber",
             "Status",
             "CreatedAt",
+            "",
           ]}
           rowKey={"applicationId"}
           rowDef={[
@@ -98,6 +172,7 @@ export default component$(() => {
             "mobileNumber",
             "status",
             CreatedAtRow,
+            MenuRow,
           ]}
         />
 
