@@ -101,7 +101,10 @@ export const useQuery = <Path extends keyof QueryType>(
       state.result = cachedResult;
       state.success = true;
       state.loading = false;
-      return { result: cachedResult, error: null };
+      return {
+        result: cachedResult as QueryType[Path]["response"],
+        error: null,
+      };
     }
 
     try {
