@@ -40,7 +40,6 @@ SELECT
     u.lastName,
     u.email,
     u.mobileNumber,
-    u.resumeLink,
     a.userId,
     a.applicationId,
     a.status,

@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/services"
@@ -172,14 +171,13 @@ func (h *ApplicationHandler) GetApplicationsByUserId(w http.ResponseWriter, r *h
 }
 
 type EmployerPostApplication struct {
-	Name          string                   `json:"name"`
-	Email         string                   `json:"email"`
-	MobileNumber  string                   `json:"mobileNumber"`
-	Resumelink    *v4.PresignedHTTPRequest `json:"resumeLink"`
-	Userid        string                   `json:"userId"`
-	Applicationid string                   `json:"applicationId"`
-	Status        string                   `json:"status"`
-	CreatedAt     int64                    `json:"createdAt"`
+	Name          string `json:"name"`
+	Email         string `json:"email"`
+	MobileNumber  string `json:"mobileNumber"`
+	Userid        string `json:"userId"`
+	Applicationid string `json:"applicationId"`
+	Status        string `json:"status"`
+	CreatedAt     int64  `json:"createdAt"`
 }
 
 type GetApplicationsByPostIdParams struct {
@@ -227,26 +225,12 @@ func (h *ApplicationHandler) GetApplicationsByPostId(w http.ResponseWriter, r *h
 	var response []EmployerPostApplication
 
 	for _, row := range applications {
-		var resumeLink *v4.PresignedHTTPRequest
-
-		if row.Resumelink.Valid {
-			signedLink, err := h.s3Service.GetObjectUrl(row.Resumelink.String, 300)
-			if err != nil {
-				clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByPostId => err ResumeLink %s \n", err))
-				http.Error(w, "error obtaining resume signed link", http.StatusInternalServerError)
-				return
-			}
-
-			resumeLink = signedLink
-		}
-
 		item := EmployerPostApplication{
 			Applicationid: row.Applicationid,
 			Userid:        row.Userid,
 			Name:          h.utilService.ConvertNullString(row.Firstname) + " " + h.utilService.ConvertNullString(row.Lastname),
 			Email:         h.utilService.ConvertNullString(row.Email),
 			MobileNumber:  h.utilService.ConvertNullString(row.Mobilenumber),
-			Resumelink:    resumeLink,
 			Status:        row.Status,
 			CreatedAt:     h.utilService.ConvertNullTime(row.CreatedAt),
 		}

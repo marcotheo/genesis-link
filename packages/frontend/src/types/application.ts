@@ -55,7 +55,6 @@ export interface GetApplicationsByPostIdApi {
         name: string;
         email: string;
         mobileNumber: string;
-        resumeLink: PresignedHTTPRequest | null;
         userId: string;
         status: string;
         createdAt: number;

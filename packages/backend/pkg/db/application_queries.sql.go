@@ -60,7 +60,6 @@ SELECT
     u.lastName,
     u.email,
     u.mobileNumber,
-    u.resumeLink,
     a.userId,
     a.applicationId,
     a.status,
@@ -83,7 +82,6 @@ type GetApplicationsByPostIdRow struct {
 	Lastname      sql.NullString
 	Email         sql.NullString
 	Mobilenumber  sql.NullString
-	Resumelink    sql.NullString
 	Userid        string
 	Applicationid string
 	Status        string
@@ -104,7 +102,6 @@ func (q *Queries) GetApplicationsByPostId(ctx context.Context, arg GetApplicatio
 			&i.Lastname,
 			&i.Email,
 			&i.Mobilenumber,
-			&i.Resumelink,
 			&i.Userid,
 			&i.Applicationid,
 			&i.Status,
