@@ -99,7 +99,7 @@ type ApplicantApplication struct {
 	CreatedAt     int64  `json:"createdAt"`
 }
 
-type GetApplicationsByUserId struct {
+type GetApplicationsByUserIdResponse struct {
 	Applications []ApplicantApplication `json:"applications"`
 	Total        int64                  `json:"total"`
 }
@@ -168,7 +168,7 @@ func (h *ApplicationHandler) GetApplicationsByUserId(w http.ResponseWriter, r *h
 
 	clog.Logger.Success("(GET) GetApplicationsByUserId => successful")
 
-	successResponse(w, GetApplicationsByUserId{Applications: response, Total: totalCount})
+	successResponse(w, GetApplicationsByUserIdResponse{Applications: response, Total: totalCount})
 }
 
 type EmployerPostApplication struct {
@@ -186,7 +186,7 @@ type GetApplicationsByPostIdParams struct {
 	Page int64 `json:"page" validate:"required"`
 }
 
-type GetApplicationsByPostId struct {
+type GetApplicationsByPostIdResponse struct {
 	Applications []EmployerPostApplication `json:"applications"`
 	Total        int64                     `json:"total"`
 }
@@ -256,5 +256,39 @@ func (h *ApplicationHandler) GetApplicationsByPostId(w http.ResponseWriter, r *h
 
 	clog.Logger.Success("(GET) GetApplicationsByPostId => successful")
 
-	successResponse(w, GetApplicationsByPostId{Applications: response, Total: totalCount})
+	successResponse(w, GetApplicationsByPostIdResponse{Applications: response, Total: totalCount})
+}
+
+type GetProposalLinkByApplicationIdResponse struct {
+	ProposalLink *v4.PresignedHTTPRequest `json:"prosalLink"`
+}
+
+func (h *ApplicationHandler) GetProposalLinkByApplicationId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetProposalLinkByApplicationId => invoked")
+
+	applicationId := r.PathValue("applicationId")
+
+	proposalLink, errQ := h.dataService.Queries.GetProposalLinkByApplicationId(context.Background(), applicationId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetProposalLinkByApplicationId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching proposal link", http.StatusInternalServerError)
+		return
+	}
+
+	var link *v4.PresignedHTTPRequest
+
+	if proposalLink.Valid {
+		signedLink, err := h.s3Service.GetObjectUrl(proposalLink.String, 300)
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByPostId => err ResumeLink %s \n", err))
+			http.Error(w, "error obtaining resume signed link", http.StatusInternalServerError)
+			return
+		}
+
+		link = signedLink
+	}
+
+	clog.Logger.Success("(GET) GetApplicationsByPostId => successful")
+
+	successResponse(w, GetProposalLinkByApplicationIdResponse{ProposalLink: link})
 }

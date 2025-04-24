@@ -14,17 +14,18 @@ import {
   UpdatePostAdditionalInfoLinkApi,
 } from "./organizations";
 import {
-  CreateSavedPostApi,
-  DeleteSavedPostApi,
-  GetJobPostDetails,
-  GetUserSavedPostApi,
-  SearchJobsApi,
-} from "./post";
-import {
   CreateApplicationApi,
   GetApplicationsByPostIdApi,
   GetApplicationsByUserIdApi,
+  GetProposalLinkByApplicationIdApi,
 } from "./application";
+import {
+  CreateSavedPostApi,
+  DeleteSavedPostApi,
+  GetJobPostDetailsApi,
+  GetUserSavedPostApi,
+  SearchJobsApi,
+} from "./post";
 import {
   CreateUserSkillsApi,
   GetAccountDetailsAPI,
@@ -64,8 +65,9 @@ export interface QueryType {
   "GET /organizations/{orgId}/assets": GetOrganizationAssetsApi;
   "GET /organizations/{orgId}/details": GetOrganizationDetailsApi;
   "GET /posts/search/jobs": SearchJobsApi;
-  "GET /posts/{postId}": GetJobPostDetails;
+  "GET /posts/{postId}": GetJobPostDetailsApi;
   "GET /posts/{postId}/save": GetUserSavedPostApi;
   "GET /posts/{postId}/applications": GetApplicationsByPostIdApi;
   "GET /applications": GetApplicationsByUserIdApi;
+  "/applications/{applicationId}/proposal-link": GetProposalLinkByApplicationIdApi;
 }

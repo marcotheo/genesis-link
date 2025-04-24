@@ -63,3 +63,17 @@ export interface GetApplicationsByPostIdApi {
     };
   };
 }
+
+// GET API /applications/{applicationId}/proposal-link
+export interface GetProposalLinkByApplicationIdApi {
+  pathParams: {
+    applicationId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      prosalLink: PresignedHTTPRequest | null;
+    };
+  };
+}

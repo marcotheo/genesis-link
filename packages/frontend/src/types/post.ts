@@ -35,7 +35,7 @@ export interface SearchJobsApi {
 }
 
 // GET API /posts/{postId}
-export interface GetJobPostDetails {
+export interface GetJobPostDetailsApi {
   pathParams: {
     postId: string;
   };
