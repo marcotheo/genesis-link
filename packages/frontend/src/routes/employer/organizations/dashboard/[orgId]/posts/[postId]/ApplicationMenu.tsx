@@ -17,8 +17,6 @@ import { usePathParams } from "../../../layout";
 
 const ResumeDownload = component$<{ applicationId: string }>(
   ({ applicationId }) => {
-    const open = useSignal(false);
-
     const { state, refetch } = useQuery(
       "GET /applications/{applicationId}/resume-link",
       {
