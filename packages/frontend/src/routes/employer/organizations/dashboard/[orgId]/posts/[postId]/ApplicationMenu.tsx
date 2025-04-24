@@ -13,53 +13,68 @@ import * as TModal from "~/components/themed-modal/themed-modal";
 import { GetApplicationsByPostIdApi } from "~/types/application";
 import { cn, createDashboardPath } from "~/common/utils";
 import { useQuery } from "~/hooks/use-query/useQuery";
+import { useToast } from "~/hooks/use-toast/useToast";
 import { usePathParams } from "../../../layout";
 
-const ResumeDownload = component$<{ applicationId: string }>(
-  ({ applicationId }) => {
-    const { state, refetch } = useQuery(
-      "GET /applications/{applicationId}/resume-link",
-      {
-        pathParams: {
-          applicationId,
+const Resume = component$<{ applicationId: string }>(({ applicationId }) => {
+  const toast = useToast();
+  const { state, refetch } = useQuery(
+    "GET /applications/{applicationId}/resume-link",
+    {
+      pathParams: {
+        applicationId,
+      },
+    },
+    {
+      defaultValues: {
+        status: "",
+        message: "",
+        data: {
+          resumeLink: null,
         },
       },
-      {
-        defaultValues: {
-          status: "",
-          message: "",
-          data: {
-            resumeLink: null,
-          },
-        },
-      },
-    );
+    },
+  );
 
-    const fetchResume = $(async () => {
-      try {
-        const result = await refetch();
-        if (result.result?.data.resumeLink) {
-          window.open(result.result.data.resumeLink, "_blank");
-        }
-      } catch (err) {
-        console.error("Error fetching resume URL:", err);
+  const fetchResume = $(async () => {
+    try {
+      const result = await refetch();
+
+      if (result.error) throw result.error;
+
+      if (result.result?.data.resumeLink) {
+        window.open(result.result.data.resumeLink, "_blank");
       }
-    });
 
-    return (
-      <button
-        disabled={!!state.loading}
-        onClick$={fetchResume}
-        class="h-full w-full text-left text-text"
-      >
-        View CV
-      </button>
-    );
-  },
-);
+      toast.add({
+        title: "Failed",
+        message: "No resume uploaded yet.",
+        type: "destructive",
+      });
+    } catch (err) {
+      console.error("Error fetching resume URL:", err);
+      toast.add({
+        title: "Failed",
+        message: "Failed to load resume. Please try again.",
+        type: "destructive",
+      });
+    }
+  });
+
+  return (
+    <button
+      disabled={!!state.loading}
+      onClick$={fetchResume}
+      class="h-full w-full text-left text-text"
+    >
+      View CV
+    </button>
+  );
+});
 
 const ProposalContent = component$<{ applicationId: string }>(
   ({ applicationId }) => {
+    const toast = useToast();
     const htmlContent = useSignal("");
     const open = useSignal(false);
 
@@ -85,6 +100,8 @@ const ProposalContent = component$<{ applicationId: string }>(
       try {
         const result = await refetch();
 
+        if (result.error) throw result.error;
+
         if (result.result?.data.prosalLink) {
           const data = await fetch(result.result.data.prosalLink).then(
             (response) => response.text(),
@@ -94,8 +111,20 @@ const ProposalContent = component$<{ applicationId: string }>(
 
           htmlContent.value = cleanHTML;
         }
+
+        toast.add({
+          title: "Not Available",
+          message: "No proposal submitted",
+          type: "info",
+        });
       } catch (err) {
+        open.value = false;
         console.error("unable to set html content");
+        toast.add({
+          title: "Failed",
+          message: "Failed to load proposal. Please try again.",
+          type: "destructive",
+        });
       }
     });
 
@@ -165,7 +194,7 @@ export default component$<{
         </DropDownMenuItemLink>
         <DropDownSeparator />
         <DropDownMenuItem>
-          <ResumeDownload applicationId={item.applicationId} />
+          <Resume applicationId={item.applicationId} />
         </DropDownMenuItem>
         <DropDownSeparator />
         <DropDownMenuItem>
