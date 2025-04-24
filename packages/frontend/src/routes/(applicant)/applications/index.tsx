@@ -1,5 +1,5 @@
+import { Link, type DocumentHead } from "@builder.io/qwik-city";
 import { $, component$, useSignal } from "@builder.io/qwik";
-import { type DocumentHead } from "@builder.io/qwik-city";
 import dayjs from "dayjs";
 
 import { Pagination } from "~/components/pagination/pagination";
@@ -8,6 +8,17 @@ import { Table } from "~/components/table/table";
 import { GetApplicationsByUserIdApi } from "~/types/application";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import Heading from "~/components/heading/heading";
+import Button from "~/components/button/button";
+
+const NavigateToApplicationPage = component$<{
+  row: GetApplicationsByUserIdApi["response"]["data"]["applications"][0];
+}>(({ row }) => {
+  return (
+    <Link href={`/applications/${row.applicationId}`}>
+      <Button>VIEW</Button>
+    </Link>
+  );
+});
 
 export default component$(() => {
   const page = useSignal(1);
@@ -49,6 +60,9 @@ export default component$(() => {
         headers={["Company", "Title", "Status", "CreatedAt"]}
         rowKey={"postId"}
         rowDef={["company", "title", "status", CreatedAtRow]}
+        renderMenu$={$((row: any) => (
+          <NavigateToApplicationPage row={row} />
+        ))}
       />
 
       <div class="flex w-full justify-end">
