@@ -77,3 +77,17 @@ export interface GetProposalLinkByApplicationIdApi {
     };
   };
 }
+
+// GET API /applications/{applicationId}/resume-link
+export interface GetResumeLinkByApplicationIdApi {
+  pathParams: {
+    applicationId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      resumeLink: string | null;
+    };
+  };
+}

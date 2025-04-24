@@ -225,3 +225,18 @@ func (q *Queries) GetProposalLinkByApplicationId(ctx context.Context, applicatio
 	err := row.Scan(&proposallink)
 	return proposallink, err
 }
+
+const getResumeLinkByApplicationId = `-- name: GetResumeLinkByApplicationId :one
+SELECT
+    u.resumeLink
+FROM applications a
+LEFT JOIN users u ON a.userId = u.userId
+WHERE a.applicationId = ?
+`
+
+func (q *Queries) GetResumeLinkByApplicationId(ctx context.Context, applicationid string) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, getResumeLinkByApplicationId, applicationid)
+	var resumelink sql.NullString
+	err := row.Scan(&resumelink)
+	return resumelink, err
+}

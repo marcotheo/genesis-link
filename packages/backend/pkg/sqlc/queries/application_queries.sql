@@ -62,3 +62,10 @@ SELECT
     proposalLink
 FROM applications
 WHERE applicationId = ?;
+
+-- name: GetResumeLinkByApplicationId :one
+SELECT
+    u.resumeLink
+FROM applications a
+LEFT JOIN users u ON a.userId = u.userId
+WHERE a.applicationId = ?;

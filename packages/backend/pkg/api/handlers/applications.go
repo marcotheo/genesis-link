@@ -259,6 +259,33 @@ func (h *ApplicationHandler) GetApplicationsByPostId(w http.ResponseWriter, r *h
 	successResponse(w, GetApplicationsByPostIdResponse{Applications: response, Total: totalCount})
 }
 
+type GetResumeLinkByApplicationIdResponse struct {
+	ResumeLink string `json:"resumeLink"`
+}
+
+func (h *ApplicationHandler) GetResumeLinkByApplicationId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetResumeLinkByApplicationId => invoked")
+
+	applicationId := r.PathValue("applicationId")
+
+	s3ResumeKey, errQ := h.dataService.Queries.GetResumeLinkByApplicationId(context.Background(), applicationId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetResumeLinkByApplicationId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching proposal link", http.StatusInternalServerError)
+		return
+	}
+
+	resumeLink := ""
+
+	if s3ResumeKey.Valid {
+		resumeLink = h.utilService.CloudfrontUrl + "/" + s3ResumeKey.String
+	}
+
+	clog.Logger.Success("(GET) GetResumeLinkByApplicationId => successful")
+
+	successResponse(w, GetResumeLinkByApplicationIdResponse{ResumeLink: resumeLink})
+}
+
 type GetProposalLinkByApplicationIdResponse struct {
 	ProposalLink string `json:"prosalLink"`
 }

@@ -18,6 +18,7 @@ import {
   GetApplicationsByPostIdApi,
   GetApplicationsByUserIdApi,
   GetProposalLinkByApplicationIdApi,
+  GetResumeLinkByApplicationIdApi,
 } from "./application";
 import {
   CreateSavedPostApi,
@@ -70,4 +71,5 @@ export interface QueryType {
   "GET /posts/{postId}/applications": GetApplicationsByPostIdApi;
   "GET /applications": GetApplicationsByUserIdApi;
   "GET /applications/{applicationId}/proposal-link": GetProposalLinkByApplicationIdApi;
+  "GET /applications/{applicationId}/resume-link": GetResumeLinkByApplicationIdApi;
 }

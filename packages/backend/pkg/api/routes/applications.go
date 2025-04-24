@@ -26,5 +26,6 @@ func (o *ApplicationRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.POST("", o.handlers.CreateApplication)
 		subRouter.GET("", o.handlers.GetApplicationsByUserId)
 		subRouter.GET("/{applicationId}/proposal-link", o.handlers.GetProposalLinkByApplicationId)
+		subRouter.GET("/{applicationId}/resume-link", o.handlers.GetResumeLinkByApplicationId)
 	}
 }
