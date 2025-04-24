@@ -68,7 +68,7 @@ WHERE postId = ? AND orgId = ?;
 
 -- name: GetPostDetailsByPostId :one
 SELECT  
-  posts.postId,
+    posts.postId,
     posts.title,
     posts.description,
     posts.additionalInfoLink,
