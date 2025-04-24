@@ -1,5 +1,6 @@
+import { TbDotsVertical, TbLoader } from "@qwikest/icons/tablericons";
 import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
-import { TbDotsVertical } from "@qwikest/icons/tablericons";
+import DOMPurify from "isomorphic-dompurify";
 import { Modal } from "@qwik-ui/headless";
 import dayjs from "dayjs";
 
@@ -18,11 +19,88 @@ import { cn, createDashboardPath } from "~/common/utils";
 import { useQuery } from "~/hooks/use-query/useQuery";
 import { usePathParams } from "../../../layout";
 
+const ProposalContent = component$<{ applicationId: string }>(
+  ({ applicationId }) => {
+    const htmlContent = useSignal("");
+    const open = useSignal(false);
+
+    const { state, refetch } = useQuery(
+      "GET /applications/{applicationId}/proposal-link",
+      {
+        pathParams: {
+          applicationId,
+        },
+      },
+      {
+        defaultValues: {
+          status: "",
+          message: "",
+          data: {
+            prosalLink: null,
+          },
+        },
+      },
+    );
+
+    const setHtmlContent = $(async () => {
+      try {
+        const result = await refetch();
+
+        if (result.result?.data.prosalLink) {
+          const data = await fetch(result.result.data.prosalLink).then(
+            (response) => response.text(),
+          );
+
+          const cleanHTML = DOMPurify.sanitize(data);
+
+          htmlContent.value = cleanHTML;
+        }
+      } catch (err) {
+        console.error("unable to set html content");
+      }
+    });
+
+    return (
+      <Modal.Root bind:show={open}>
+        <button
+          onClick$={[$(() => (open.value = true)), setHtmlContent]}
+          class="h-full w-full text-left text-text"
+        >
+          View Proposal
+        </button>
+
+        <TModal.Content
+          size="lg"
+          modalTitle="Applicant Proposal"
+          modalDescription="This proposal highlights the applicant's interest, experience, and fit for the role."
+        >
+          <div class="flex flex-col gap-5 max-w-[47rem]">
+            <div class="space-y-1">
+              {state.loading ? (
+                <div class="w-full min-h-32 flex justify-center items-center">
+                  <div class="animate-spin text-3xl w-fit">
+                    <TbLoader />
+                  </div>
+                </div>
+              ) : (
+                <div dangerouslySetInnerHTML={htmlContent.value} />
+              )}
+            </div>
+
+            <div class="flex justify-end gap-3 mt-5">
+              <TModal.Close class="min-[360px]:px-10">Close</TModal.Close>
+            </div>
+          </div>
+        </TModal.Content>
+      </Modal.Root>
+    );
+  },
+);
+
 const RowMenu = component$<{
   item: GetApplicationsByPostIdApi["response"]["data"]["applications"][0];
 }>(({ item }) => {
   const pathParams = usePathParams();
-  const open = useSignal(false);
   const resumeURL = useSignal("");
 
   const fetchResume = $(async () => {
@@ -85,25 +163,7 @@ const RowMenu = component$<{
         </DropDownMenuItem>
         <DropDownSeparator />
         <DropDownMenuItem>
-          <Modal.Root bind:show={open}>
-            <Modal.Trigger class={cn("text-text")}>View Proposal</Modal.Trigger>
-
-            <TModal.Content
-              size="lg"
-              modalTitle="Applicant Proposal"
-              modalDescription="This proposal highlights the applicant's interest, experience, and fit for the role."
-            >
-              <div class="flex flex-col gap-5 max-w-[47rem]">
-                <div class="space-y-1">
-                  <p>proposal Here</p>
-                </div>
-
-                <div class="flex justify-end gap-3 mt-5">
-                  <TModal.Close class="min-[360px]:px-10">Close</TModal.Close>
-                </div>
-              </div>
-            </TModal.Content>
-          </Modal.Root>
+          <ProposalContent applicationId={item.applicationId} />
         </DropDownMenuItem>
       </Menu>
     </div>

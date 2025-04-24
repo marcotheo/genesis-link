@@ -260,7 +260,7 @@ func (h *ApplicationHandler) GetApplicationsByPostId(w http.ResponseWriter, r *h
 }
 
 type GetProposalLinkByApplicationIdResponse struct {
-	ProposalLink *v4.PresignedHTTPRequest `json:"prosalLink"`
+	ProposalLink string `json:"prosalLink"`
 }
 
 func (h *ApplicationHandler) GetProposalLinkByApplicationId(w http.ResponseWriter, r *http.Request) {
@@ -268,27 +268,20 @@ func (h *ApplicationHandler) GetProposalLinkByApplicationId(w http.ResponseWrite
 
 	applicationId := r.PathValue("applicationId")
 
-	proposalLink, errQ := h.dataService.Queries.GetProposalLinkByApplicationId(context.Background(), applicationId)
+	s3ProposalKey, errQ := h.dataService.Queries.GetProposalLinkByApplicationId(context.Background(), applicationId)
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(GET) GetProposalLinkByApplicationId => errQ %s \n", errQ))
 		http.Error(w, "Error fetching proposal link", http.StatusInternalServerError)
 		return
 	}
 
-	var link *v4.PresignedHTTPRequest
+	proposalLink := ""
 
-	if proposalLink.Valid {
-		signedLink, err := h.s3Service.GetObjectUrl(proposalLink.String, 300)
-		if err != nil {
-			clog.Logger.Error(fmt.Sprintf("(GET) GetApplicationsByPostId => err ResumeLink %s \n", err))
-			http.Error(w, "error obtaining resume signed link", http.StatusInternalServerError)
-			return
-		}
-
-		link = signedLink
+	if s3ProposalKey.Valid {
+		proposalLink = h.utilService.CloudfrontUrl + "/" + s3ProposalKey.String
 	}
 
-	clog.Logger.Success("(GET) GetApplicationsByPostId => successful")
+	clog.Logger.Success("(GET) GetProposalLinkByApplicationId => successful")
 
-	successResponse(w, GetProposalLinkByApplicationIdResponse{ProposalLink: link})
+	successResponse(w, GetProposalLinkByApplicationIdResponse{ProposalLink: proposalLink})
 }

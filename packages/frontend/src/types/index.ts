@@ -69,5 +69,5 @@ export interface QueryType {
   "GET /posts/{postId}/save": GetUserSavedPostApi;
   "GET /posts/{postId}/applications": GetApplicationsByPostIdApi;
   "GET /applications": GetApplicationsByUserIdApi;
-  "/applications/{applicationId}/proposal-link": GetProposalLinkByApplicationIdApi;
+  "GET /applications/{applicationId}/proposal-link": GetProposalLinkByApplicationIdApi;
 }

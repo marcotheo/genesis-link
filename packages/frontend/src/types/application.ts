@@ -73,7 +73,7 @@ export interface GetProposalLinkByApplicationIdApi {
     status: string;
     message: string;
     data: {
-      prosalLink: PresignedHTTPRequest | null;
+      prosalLink: string | null;
     };
   };
 }
