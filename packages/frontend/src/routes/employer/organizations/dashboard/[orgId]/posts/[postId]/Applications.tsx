@@ -1,5 +1,6 @@
 import { TbDotsVertical } from "@qwikest/icons/tablericons";
 import { $, component$, useSignal } from "@builder.io/qwik";
+import { Modal } from "@qwik-ui/headless";
 import dayjs from "dayjs";
 
 import Menu, {
@@ -7,6 +8,7 @@ import Menu, {
   DropDownMenuItemLink,
   DropDownSeparator,
 } from "~/components/drop-down/drop-down";
+import * as TModal from "~/components/themed-modal/themed-modal";
 import { Pagination } from "~/components/pagination/pagination";
 import Heading from "~/components/heading/heading";
 import { Table } from "~/components/table/table";
@@ -47,6 +49,8 @@ export default component$(() => {
     async (
       item: GetApplicationsByPostIdApi["response"]["data"]["applications"][0],
     ) => {
+      const open = useSignal(false);
+
       let imageObjectURL = "";
 
       if (item.resumeLink) {
@@ -101,7 +105,31 @@ export default component$(() => {
               )}
             </DropDownMenuItem>
             <DropDownSeparator />
-            <DropDownMenuItem>View Proposal</DropDownMenuItem>
+            <DropDownMenuItem>
+              <Modal.Root bind:show={open}>
+                <Modal.Trigger class={cn("text-text")}>
+                  View Proposal
+                </Modal.Trigger>
+
+                <TModal.Content
+                  size="lg"
+                  modalTitle="Applicant Proposal"
+                  modalDescription="This proposal highlights the applicant's interest, experience, and fit for the role."
+                >
+                  <div class="flex flex-col gap-5 max-w-[47rem]">
+                    <div class="space-y-1">
+                      <p>proposal Here</p>
+                    </div>
+
+                    <div class="flex justify-end gap-3 mt-5">
+                      <TModal.Close class="min-[360px]:px-10">
+                        Close
+                      </TModal.Close>
+                    </div>
+                  </div>
+                </TModal.Content>
+              </Modal.Root>
+            </DropDownMenuItem>
           </Menu>
         </div>
       );
