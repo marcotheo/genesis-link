@@ -211,3 +211,17 @@ func (q *Queries) GetApplicationsByUserIdCount(ctx context.Context, userid strin
 	err := row.Scan(&total_count)
 	return total_count, err
 }
+
+const getProposalLinkByApplicationId = `-- name: GetProposalLinkByApplicationId :one
+SELECT
+    proposalLink
+FROM applications
+WHERE applicationId = ?
+`
+
+func (q *Queries) GetProposalLinkByApplicationId(ctx context.Context, applicationid string) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, getProposalLinkByApplicationId, applicationid)
+	var proposallink sql.NullString
+	err := row.Scan(&proposallink)
+	return proposallink, err
+}

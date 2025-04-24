@@ -56,3 +56,9 @@ SELECT
     COUNT(*) AS total_count
 FROM applications
 WHERE postId = ?;
+
+-- name: GetProposalLinkByApplicationId :one
+SELECT
+    proposalLink
+FROM applications
+WHERE applicationId = ?;
