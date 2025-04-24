@@ -7,6 +7,7 @@ interface Props {
   size?: "lg" | "md" | "sm";
   modalTitle?: string;
   modalDescription?: string;
+  class?: string;
 }
 
 const modalSizes = {
@@ -35,7 +36,7 @@ export const Trigger = component$<{ class?: string }>((props) => {
 });
 
 export const Content = component$<Props>(
-  ({ size = "sm", modalTitle, modalDescription }) => {
+  ({ size = "sm", modalTitle, modalDescription, ...props }) => {
     return (
       <Modal.Panel
         class={cn(
@@ -45,11 +46,12 @@ export const Content = component$<Props>(
           "data-[open]:animate-fade-in-scale",
           "data-[closing]:animate-fade-out-scale",
           modalSizes[size],
+          props.class,
         )}
       >
         <Modal.Title class="text-2xl">{modalTitle ?? ""}</Modal.Title>
 
-        <Modal.Description class="text-gray-500 text-sm">
+        <Modal.Description class="text-gray-500 text-sm whitespace-normal">
           {modalDescription ?? ""}
         </Modal.Description>
 
