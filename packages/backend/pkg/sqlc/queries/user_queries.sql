@@ -68,4 +68,5 @@ LEFT JOIN addresses a ON p.addressId = a.addressId
 LEFT JOIN organizations o ON p.orgId = o.orgId
 LEFT JOIN post_tags pt ON p.postId = pt.postId
 LEFT JOIN job_details jd ON p.postId = jd.postId
-WHERE s.userId = ?;
+WHERE s.userId = ?
+LIMIT ? OFFSET ?;

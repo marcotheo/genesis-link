@@ -103,7 +103,14 @@ LEFT JOIN organizations o ON p.orgId = o.orgId
 LEFT JOIN post_tags pt ON p.postId = pt.postId
 LEFT JOIN job_details jd ON p.postId = jd.postId
 WHERE s.userId = ?
+LIMIT ? OFFSET ?
 `
+
+type GetSavedPostsByUserIdParams struct {
+	Userid string
+	Limit  int64
+	Offset int64
+}
 
 type GetSavedPostsByUserIdRow struct {
 	Savedpostid     string
@@ -123,8 +130,8 @@ type GetSavedPostsByUserIdRow struct {
 	PostedAt        sql.NullTime
 }
 
-func (q *Queries) GetSavedPostsByUserId(ctx context.Context, userid string) ([]GetSavedPostsByUserIdRow, error) {
-	rows, err := q.db.QueryContext(ctx, getSavedPostsByUserId, userid)
+func (q *Queries) GetSavedPostsByUserId(ctx context.Context, arg GetSavedPostsByUserIdParams) ([]GetSavedPostsByUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSavedPostsByUserId, arg.Userid, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
