@@ -7,21 +7,20 @@ import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useCache } from "~/hooks/use-cache/useCache";
 import Heading from "~/components/heading/heading";
 import { SearchJobsApi } from "~/types/post";
-import { SearchJobCtx } from ".";
+import { SavedJobsCtx } from ".";
 
 const BookMark = component$<{
   postId: string;
   isSaved: boolean;
 }>(({ postId, isSaved }) => {
-  const searchCtx = useContext(SearchJobCtx);
+  const savedJobCtx = useContext(SavedJobsCtx);
 
   const { mutate: savePost } = useMutate("POST /posts/{postId}/save");
   const { mutate: deleteSavedPost } = useMutate("DELETE /posts/{postId}/save");
 
-  const { setCacheData } = useCache("GET /posts/search/jobs", {
+  const { setCacheData } = useCache("GET /users/saved-posts", {
     queryStrings: {
-      page: searchCtx.page,
-      keyword: searchCtx.keyword,
+      page: savedJobCtx.page,
     },
   });
 
