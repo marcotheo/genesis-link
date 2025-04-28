@@ -15,7 +15,7 @@ type FilterState = {
   page: Signal<number>;
 };
 
-export const SavedJobsCtx = createContextId<FilterState>("search.job.context");
+export const SavedJobsCtx = createContextId<FilterState>("saved.job.context");
 
 export default component$(() => {
   const page = useSignal(1);
