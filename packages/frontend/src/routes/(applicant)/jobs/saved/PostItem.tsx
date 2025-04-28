@@ -4,7 +4,7 @@ import { Link } from "@builder.io/qwik-city";
 
 import { cn, formatNumberWithCommas, timeAgo } from "~/common/utils";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { useCache } from "~/hooks/use-cache/useCache";
+import { useQuery } from "~/hooks/use-query/useQuery";
 import Heading from "~/components/heading/heading";
 import { SearchJobsApi } from "~/types/post";
 import { SavedJobsCtx } from ".";
@@ -15,52 +15,24 @@ const BookMark = component$<{
 }>(({ postId, isSaved }) => {
   const savedJobCtx = useContext(SavedJobsCtx);
 
-  const { mutate: savePost } = useMutate("POST /posts/{postId}/save");
   const { mutate: deleteSavedPost } = useMutate("DELETE /posts/{postId}/save");
 
-  const { setCacheData } = useCache("GET /users/saved-posts", {
+  const { refetch } = useQuery("GET /users/saved-posts", {
     queryStrings: {
       page: savedJobCtx.page,
     },
   });
 
   const toggleSavePost = $(async () => {
-    let newIsSaved = isSaved;
-
-    if (!isSaved) {
-      const result = await savePost({
+    try {
+      await deleteSavedPost({
         pathParams: { postId },
       });
 
-      newIsSaved = !!result.result?.data.savePostId;
-    } else {
-      try {
-        await deleteSavedPost({
-          pathParams: { postId },
-        });
-
-        newIsSaved = false;
-      } catch (err) {
-        console.log("deleting saved post failed");
-      }
+      refetch({ revalidate: true });
+    } catch (err) {
+      console.log("deleting saved post failed");
     }
-
-    await setCacheData((cached) => {
-      const data = (cached?.data.posts ?? []).map((v) => {
-        return {
-          ...v,
-          isSaved: v.postId === postId ? newIsSaved : v.isSaved,
-        };
-      });
-
-      return {
-        status: "",
-        message: "",
-        data: {
-          posts: data,
-        },
-      };
-    });
   });
 
   return (

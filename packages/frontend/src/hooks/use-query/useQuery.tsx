@@ -89,47 +89,51 @@ export const useQuery = <Path extends keyof QueryType>(
     };
   });
 
-  const refetch = $(async () => {
-    state.loading = true;
-    state.error = null;
+  const refetch = $(
+    async ({ revalidate = false }: { revalidate?: boolean }) => {
+      state.loading = true;
+      state.error = null;
 
-    const apiUrl = await getApiUrl();
+      const apiUrl = await getApiUrl();
 
-    // Check the cache first
-    const cachedResult = await getCachedData(apiUrl);
-    if (cachedResult) {
-      state.result = cachedResult;
-      state.success = true;
-      state.loading = false;
-      return {
-        result: cachedResult as QueryType[Path]["response"],
-        error: null,
-      };
-    }
+      // Check the cache first
+      if (!revalidate) {
+        const cachedResult = await getCachedData(apiUrl);
+        if (cachedResult) {
+          state.result = cachedResult;
+          state.success = true;
+          state.loading = false;
+          return {
+            result: cachedResult as QueryType[Path]["response"],
+            error: null,
+          };
+        }
+      }
 
-    try {
-      const result = await qwikFetch<QueryType[Path]["response"]>(apiUrl, {
-        method: "GET",
-        credentials: "include",
-      });
+      try {
+        const result = await qwikFetch<QueryType[Path]["response"]>(apiUrl, {
+          method: "GET",
+          credentials: "include",
+        });
 
-      // Cache the result
-      await setCacheData(apiUrl, result);
+        // Cache the result
+        await setCacheData(apiUrl, result);
 
-      state.result = result;
-      state.success = true;
-      setTimeout(() => {
+        state.result = result;
+        state.success = true;
+        setTimeout(() => {
+          state.success = false;
+        }, 5000);
+        return { result, error: null };
+      } catch (error) {
+        state.error = (error as Error).message;
         state.success = false;
-      }, 5000);
-      return { result, error: null };
-    } catch (error) {
-      state.error = (error as Error).message;
-      state.success = false;
-      return { result: null, error: state.error };
-    } finally {
-      state.loading = false;
-    }
-  });
+        return { result: null, error: state.error };
+      } finally {
+        state.loading = false;
+      }
+    },
+  );
 
   useTask$(async ({ track }) => {
     const apiParams = params as any;
@@ -155,12 +159,12 @@ export const useQuery = <Path extends keyof QueryType>(
     }
 
     // Execute the query when any of the signals change
-    refetch();
+    refetch({});
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
-    if (options?.runOnRender) refetch();
+    if (options?.runOnRender) refetch({});
   });
 
   return { state, refetch };
