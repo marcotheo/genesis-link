@@ -1,3 +1,5 @@
+import { Signal } from "@builder.io/qwik";
+
 // GET API /users/account/details"
 export interface GetAccountDetailsAPI {
   response: {
@@ -67,6 +69,36 @@ export interface CreateUserSkillsApi {
     message: string;
     data: {
       skills: UserSkill[];
+    };
+  };
+}
+
+// GET API /users/saved-posts
+export interface GetSavedPostByUserIdApi {
+  queryStrings: {
+    page: Signal<number>;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      posts: {
+        postId: string;
+        title: string;
+        company?: string;
+        description: string;
+        workSetup: string;
+        jobType: string;
+        salaryAmountMin: number;
+        salaryAmountMax: number;
+        salaryCurrency: string;
+        salaryType: string;
+        country: string;
+        city: string;
+        tags: string[];
+        isSaved: boolean;
+        postedAt: number; // Assuming it's a timestamp (UNIX time in seconds or milliseconds)
+      }[];
     };
   };
 }

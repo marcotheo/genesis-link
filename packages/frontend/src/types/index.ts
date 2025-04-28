@@ -21,18 +21,19 @@ import {
   GetResumeLinkByApplicationIdApi,
 } from "./application";
 import {
+  CreateUserSkillsApi,
+  GetAccountDetailsAPI,
+  GetSavedPostByUserIdApi,
+  GetUserSkillsApi,
+  UpdateUserInfoApi,
+} from "./users";
+import {
   CreateSavedPostApi,
   DeleteSavedPostApi,
   GetJobPostDetailsApi,
   GetUserSavedPostApi,
   SearchJobsApi,
 } from "./post";
-import {
-  CreateUserSkillsApi,
-  GetAccountDetailsAPI,
-  GetUserSkillsApi,
-  UpdateUserInfoApi,
-} from "./users";
 import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
 import { GenerateS3SignedUrlPutApi } from "./s3";
 
@@ -60,6 +61,7 @@ export interface MutationsType {
 export interface QueryType {
   "GET /users/account/details": GetAccountDetailsAPI;
   "GET /users/skills": GetUserSkillsApi;
+  "GET /users/saved-posts": GetSavedPostByUserIdApi;
   "GET /organizations": GetOrganizationsByUserIdApi;
   "GET /organizations/{orgId}/addresses": GetAddresssesByOrgIdApi;
   "GET /organizations/{orgId}/posts": GetPostsByOrgApi;
