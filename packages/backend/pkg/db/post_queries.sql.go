@@ -219,7 +219,7 @@ func (q *Queries) GetPostCountByOrgId(ctx context.Context, orgid string) (int64,
 
 const getPostDetailsByPostId = `-- name: GetPostDetailsByPostId :one
 SELECT  
-  posts.postId,
+    posts.postId,
     posts.title,
     posts.description,
     posts.additionalInfoLink,

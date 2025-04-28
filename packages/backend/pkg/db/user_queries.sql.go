@@ -79,6 +79,89 @@ func (q *Queries) CreateUserSkill(ctx context.Context, arg CreateUserSkillParams
 	return err
 }
 
+const getSavedPostsByUserId = `-- name: GetSavedPostsByUserId :many
+SELECT 
+  s.savedPostId,
+  s.postId,
+  p.title,
+  p.description,
+  p.workSetup,
+  o.company,
+  jd.jobType,
+  jd.salaryAmountMin,
+  jd.salaryAmountMax,
+  jd.salaryCurrency,
+  jd.salaryType,
+  a.country,
+  a.city,
+  COALESCE(GROUP_CONCAT(pt.tagName, ', '), '') AS tags,
+  p.posted_at
+FROM saved_posts s
+LEFT JOIN posts p ON s.postId = p.postId
+LEFT JOIN addresses a ON p.addressId = a.addressId
+LEFT JOIN organizations o ON p.orgId = o.orgId
+LEFT JOIN post_tags pt ON p.postId = pt.postId
+LEFT JOIN job_details jd ON p.postId = jd.postId
+WHERE s.userId = ?
+`
+
+type GetSavedPostsByUserIdRow struct {
+	Savedpostid     string
+	Postid          string
+	Title           sql.NullString
+	Description     sql.NullString
+	Worksetup       sql.NullString
+	Company         sql.NullString
+	Jobtype         sql.NullString
+	Salaryamountmin sql.NullInt64
+	Salaryamountmax sql.NullInt64
+	Salarycurrency  sql.NullString
+	Salarytype      sql.NullString
+	Country         sql.NullString
+	City            sql.NullString
+	Tags            interface{}
+	PostedAt        sql.NullTime
+}
+
+func (q *Queries) GetSavedPostsByUserId(ctx context.Context, userid string) ([]GetSavedPostsByUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSavedPostsByUserId, userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSavedPostsByUserIdRow
+	for rows.Next() {
+		var i GetSavedPostsByUserIdRow
+		if err := rows.Scan(
+			&i.Savedpostid,
+			&i.Postid,
+			&i.Title,
+			&i.Description,
+			&i.Worksetup,
+			&i.Company,
+			&i.Jobtype,
+			&i.Salaryamountmin,
+			&i.Salaryamountmax,
+			&i.Salarycurrency,
+			&i.Salarytype,
+			&i.Country,
+			&i.City,
+			&i.Tags,
+			&i.PostedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUser = `-- name: GetUser :one
 SELECT userid, firstname, lastname, email, mobilenumber, resumelink, google_id, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
