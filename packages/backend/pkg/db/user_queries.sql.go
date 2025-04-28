@@ -103,6 +103,7 @@ LEFT JOIN organizations o ON p.orgId = o.orgId
 LEFT JOIN post_tags pt ON p.postId = pt.postId
 LEFT JOIN job_details jd ON p.postId = jd.postId
 WHERE s.userId = ?
+GROUP BY s.savedPostId
 LIMIT ? OFFSET ?
 `
 
