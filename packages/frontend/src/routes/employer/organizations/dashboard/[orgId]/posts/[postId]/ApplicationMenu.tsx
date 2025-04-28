@@ -38,7 +38,7 @@ const Resume = component$<{ applicationId: string }>(({ applicationId }) => {
 
   const fetchResume = $(async () => {
     try {
-      const result = await refetch();
+      const result = await refetch({});
 
       if (result.error) throw result.error;
 
@@ -100,7 +100,7 @@ const ProposalContent = component$<{ applicationId: string }>(
 
     const setHtmlContent = $(async () => {
       try {
-        const result = await refetch();
+        const result = await refetch({});
 
         if (result.error) throw result.error;
 
