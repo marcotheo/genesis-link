@@ -30,7 +30,7 @@ export const useQuery = <Path extends keyof QueryType>(
 ) => {
   const hasMounted = useSignal(false);
   const queryCtx = useContext(QueryContext);
-  const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
+  const cachedTime = options?.cacheTime ?? queryCtx.cachedTime; // ms 1min default
 
   const state = useStore<{
     result: QueryType[Path]["response"] | null;
@@ -103,6 +103,7 @@ export const useQuery = <Path extends keyof QueryType>(
           state.result = cachedResult;
           state.success = true;
           state.loading = false;
+
           return {
             result: cachedResult as QueryType[Path]["response"],
             error: null,
@@ -138,17 +139,17 @@ export const useQuery = <Path extends keyof QueryType>(
   useTask$(async ({ track }) => {
     const apiParams = params as any;
 
-    if (apiParams.pathParams !== null)
-      for (const key in apiParams.pathParams)
-        if (isSignal(apiParams.pathParams[key]))
-          track(apiParams.pathParams[key]);
+    // Track pathParams and queryStrings
+    [apiParams?.pathParams, apiParams?.queryStrings].forEach((obj) => {
+      if (obj) {
+        Object.values(obj).forEach((value) => {
+          if (isSignal(value)) {
+            track(value);
+          }
+        });
+      }
+    });
 
-    if (apiParams.queryStrings !== null)
-      for (const key in apiParams.queryStrings)
-        if (isSignal(apiParams.queryStrings[key]))
-          track(apiParams.queryStrings[key]);
-
-    // Track cached result
     const apiUrl = await getApiUrl();
     track(() => queryCtx.cache[apiUrl]);
 
@@ -158,13 +159,18 @@ export const useQuery = <Path extends keyof QueryType>(
       return;
     }
 
+    console.log("run state tracker task");
+
     // Execute the query when any of the signals change
     refetch({});
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
-    if (options?.runOnRender) refetch({});
+    if (options?.runOnRender) {
+      console.log("run on render task");
+      refetch({});
+    }
   });
 
   return { state, refetch };
