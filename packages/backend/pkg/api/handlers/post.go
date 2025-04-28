@@ -788,3 +788,78 @@ func (h *PostHandler) DeleteSavedPost(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+type GetSavedPostsByUserIdParams struct {
+	Page int64 `json:"page" validate:"required"`
+}
+
+func (h *PostHandler) GetSavedPostsByUserId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetSavedPostsByUserId => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	var params GetSavedPostsByUserIdParams
+
+	if err := ParseAndValidateQuery(r, &params); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetSavedPostsByUserId => invalid parameters %s \n", err))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	posts, errQ := h.dataService.Queries.GetSavedPostsByUserId(context.Background(), db.GetSavedPostsByUserIdParams{
+		Offset: int64((params.Page - 1) * 10),
+		Limit:  5,
+		Userid: userId,
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetSavedPostsByUserId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching data", http.StatusInternalServerError)
+		return
+	}
+
+	var postsData []JobPostPartial
+
+	for _, post := range posts {
+		var tags []string
+
+		if post.Tags != "" {
+			tags = strings.Split(post.Tags.(string), ", ")
+		}
+
+		item := JobPostPartial{
+			PostId:          post.Postid,
+			Company:         h.utilService.ConvertNullString(post.Company),
+			Title:           h.utilService.ConvertNullString(post.Title),
+			Description:     h.utilService.ConvertNullString(post.Description),
+			Worksetup:       h.utilService.ConvertNullString(post.Worksetup),
+			JobType:         h.utilService.ConvertNullString(post.Jobtype),
+			SalaryAmountMin: h.utilService.ConvertNullInt64(post.Salaryamountmin),
+			SalaryAmountMax: h.utilService.ConvertNullInt64(post.Salaryamountmax),
+			SalaryCurrency:  h.utilService.ConvertNullString(post.Salarycurrency),
+			SalaryType:      h.utilService.ConvertNullString(post.Salarytype),
+			Country:         h.utilService.ConvertNullString(post.Country),
+			City:            h.utilService.ConvertNullString(post.City),
+			Tags:            tags,
+			IsSaved:         true,
+			PostedAt:        h.utilService.ConvertNullTime(post.PostedAt),
+		}
+
+		postsData = append(postsData, item)
+	}
+
+	clog.Logger.Success("(GET) GetSavedPostsByUserId => successful")
+
+	successResponse(w, SearchJobResponse{Posts: postsData})
+}

@@ -7,13 +7,15 @@ import (
 )
 
 type UserRoutes struct {
-	handlers          *handler.UserHandler
+	userHandler       *handler.UserHandler
+	postHandler       *handler.PostHandler
 	middlewareService *services.MiddlewareService
 }
 
-func InitUserRoutes(handlers *handler.UserHandler, middlewareService *services.MiddlewareService) *UserRoutes {
+func InitUserRoutes(userHandler *handler.UserHandler, postHandler *handler.PostHandler, middlewareService *services.MiddlewareService) *UserRoutes {
 	return &UserRoutes{
-		handlers,
+		userHandler,
+		postHandler,
 		middlewareService,
 	}
 }
@@ -23,10 +25,12 @@ func (o *UserRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.Use(o.middlewareService.CSRFMiddleware)
 		subRouter.Use(o.middlewareService.AuthMiddleware)
 
-		subRouter.PUT("/update/info", o.handlers.UpdateUserInfo)
-		subRouter.GET("/account/details", o.handlers.GetUser)
+		subRouter.PUT("/update/info", o.userHandler.UpdateUserInfo)
+		subRouter.GET("/account/details", o.userHandler.GetUser)
 
-		subRouter.POST("/skills", o.handlers.CreateUserSkills)
-		subRouter.GET("/skills", o.handlers.GetUserSkills)
+		subRouter.POST("/skills", o.userHandler.CreateUserSkills)
+		subRouter.GET("/skills", o.userHandler.GetUserSkills)
+
+		subRouter.GET("/saved-posts", o.postHandler.GetSavedPostsByUserId)
 	}
 }
