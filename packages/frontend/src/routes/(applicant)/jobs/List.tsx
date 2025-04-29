@@ -1,8 +1,7 @@
-import { component$, useContext, useVisibleTask$ } from "@builder.io/qwik";
-import { TbSearchOff } from "@qwikest/icons/tablericons";
-import { useLocation } from "@builder.io/qwik-city";
+import { component$, useContext } from "@builder.io/qwik";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
+import { TbSearchOff } from "@qwikest/icons/tablericons";
 import { useQuery } from "~/hooks/use-query/useQuery";
 
 import { cn } from "~/common/utils";
@@ -10,25 +9,21 @@ import PostItem from "./PostItem";
 import { SearchJobCtx } from ".";
 
 export default component$(() => {
-  const location = useLocation();
   const searchCtx = useContext(SearchJobCtx);
 
-  const { state } = useQuery("GET /posts/search/jobs", {
-    queryStrings: {
-      page: searchCtx.page,
-      keyword: searchCtx.keyword,
+  const { state } = useQuery(
+    "GET /posts/search/jobs",
+    {
+      queryStrings: {
+        page: searchCtx.page,
+        keyword: searchCtx.keyword,
+      },
     },
-  });
-
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    const queryParams = new URLSearchParams(location.url.search);
-    const page = queryParams.get("page") || null;
-    const keyword = queryParams.get("keyword") || null;
-
-    if (page) searchCtx.page.value = parseInt(page, 10);
-    if (keyword) searchCtx.keyword.value = keyword;
-  });
+    {
+      cacheTime: 0,
+      runOnRender: true,
+    },
+  );
 
   return (
     <>

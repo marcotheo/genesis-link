@@ -30,7 +30,8 @@ export const useQuery = <Path extends keyof QueryType>(
 ) => {
   const hasMounted = useSignal(false);
   const queryCtx = useContext(QueryContext);
-  const cachedTime = options?.cacheTime ?? queryCtx.cachedTime; // ms 1min default
+  const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
+  const cacheKeyTrack = useSignal(apiKey.split(" ")[1] ?? "");
 
   const state = useStore<{
     result: QueryType[Path]["response"] | null;
@@ -136,6 +137,14 @@ export const useQuery = <Path extends keyof QueryType>(
     },
   );
 
+  useTask$(({ track }) => {
+    const tracked = track(cacheKeyTrack);
+    track(() => queryCtx.cache[cacheKeyTrack.value]);
+
+    console.log("CACHE CHANGED", tracked);
+    refetch({});
+  });
+
   useTask$(async ({ track }) => {
     const apiParams = params as any;
 
@@ -150,8 +159,9 @@ export const useQuery = <Path extends keyof QueryType>(
       }
     });
 
+    // change tracked cacheKey when api parameter changes
     const apiUrl = await getApiUrl();
-    track(() => queryCtx.cache[apiUrl]);
+    cacheKeyTrack.value = apiUrl;
 
     if (!hasMounted.value) {
       // Skip execution on initial mount and route changes
@@ -162,14 +172,14 @@ export const useQuery = <Path extends keyof QueryType>(
     console.log("run state tracker task");
 
     // Execute the query when any of the signals change
-    refetch({});
+    refetch({ revalidate: options?.cacheTime === 0 });
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
     if (options?.runOnRender) {
       console.log("run on render task");
-      refetch({});
+      refetch({ revalidate: options?.cacheTime === 0 });
     }
   });
 

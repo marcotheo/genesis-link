@@ -5,7 +5,7 @@ import {
   useContextProvider,
   useSignal,
 } from "@builder.io/qwik";
-import { DocumentHead } from "@builder.io/qwik-city";
+import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 
 import Heading from "~/components/heading/heading";
 import { cn } from "~/common/utils";
@@ -23,9 +23,20 @@ type FilterState = {
 
 export const SearchJobCtx = createContextId<FilterState>("search.job.context");
 
+export const useSearchJobsParams = routeLoader$(({ query }) => {
+  const page = query.get("page") || 0;
+  const keyword = query.get("keyword") || null;
+
+  return {
+    page: page ? parseInt(page, 10) : 0,
+    keyword,
+  };
+});
+
 export default component$(() => {
-  const page = useSignal(0);
-  const keyword = useSignal("");
+  const params = useSearchJobsParams();
+  const page = useSignal(params.value.page ?? 0);
+  const keyword = useSignal(params.value.keyword ?? "");
   const province = useSignal("");
   const city = useSignal("");
   const workSetup = useSignal("");

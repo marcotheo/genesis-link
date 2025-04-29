@@ -18,6 +18,7 @@ export default component$(() => {
       },
     },
     {
+      cacheTime: 0,
       runOnRender: true,
     },
   );
