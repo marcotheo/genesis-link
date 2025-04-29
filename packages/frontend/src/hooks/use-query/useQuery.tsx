@@ -90,6 +90,14 @@ export const useQuery = <Path extends keyof QueryType>(
     };
   });
 
+  const cacheToState = $(async (cachedResult: any) => {
+    if (cachedResult) {
+      state.result = cachedResult;
+      state.success = true;
+      state.loading = false;
+    }
+  });
+
   const refetch = $(
     async ({ revalidate = false }: { revalidate?: boolean }) => {
       state.loading = true;
@@ -138,11 +146,10 @@ export const useQuery = <Path extends keyof QueryType>(
   );
 
   useTask$(({ track }) => {
-    const tracked = track(cacheKeyTrack);
-    track(() => queryCtx.cache[cacheKeyTrack.value]);
+    track(cacheKeyTrack);
+    const result = track(() => queryCtx.cache[cacheKeyTrack.value]);
 
-    console.log("CACHE CHANGED", tracked);
-    refetch({});
+    if (result?.data) cacheToState(result.data);
   });
 
   useTask$(async ({ track }) => {
@@ -169,8 +176,6 @@ export const useQuery = <Path extends keyof QueryType>(
       return;
     }
 
-    console.log("run state tracker task");
-
     // Execute the query when any of the signals change
     refetch({ revalidate: options?.cacheTime === 0 });
   });
@@ -178,7 +183,6 @@ export const useQuery = <Path extends keyof QueryType>(
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
     if (options?.runOnRender) {
-      console.log("run on render task");
       refetch({ revalidate: options?.cacheTime === 0 });
     }
   });
