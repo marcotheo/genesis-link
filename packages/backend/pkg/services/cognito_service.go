@@ -251,7 +251,7 @@ func (c *CognitoService) GetUser(accessToken string) (*CognitoUserAttributes, er
 				errMessage = fmt.Errorf("cognito error (%s): %w", apiErr.ErrorCode(), err)
 			}
 		} else {
-			errMessage = fmt.Errorf("failed to get user details, try again")
+			errMessage = err
 		}
 
 		return nil, errMessage
@@ -267,6 +267,43 @@ func (c *CognitoService) GetUser(accessToken string) (*CognitoUserAttributes, er
 		FamilyName: attrMap["family_name"],
 		GivenName:  attrMap["given_name"],
 		Sub:        attrMap["sub"],
+	}, nil
+}
+
+func getStringClaim(claims map[string]interface{}, key string) string {
+	if val, ok := claims[key]; ok {
+		if str, ok := val.(string); ok {
+			return str
+		}
+	}
+	return ""
+}
+
+func (c *CognitoService) ParseIDToken(idToken string) (*CognitoUserAttributes, error) {
+	parts := strings.Split(idToken, ".")
+	if len(parts) != 3 {
+		return nil, errors.New("invalid JWT format")
+	}
+
+	payloadSegment := parts[1]
+
+	// Decode base64 payload
+	payloadBytes, err := base64.RawURLEncoding.DecodeString(payloadSegment)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decode JSON claims
+	var claims map[string]interface{}
+	if err := json.Unmarshal(payloadBytes, &claims); err != nil {
+		return nil, err
+	}
+
+	return &CognitoUserAttributes{
+		Email:      getStringClaim(claims, "email"),
+		FamilyName: getStringClaim(claims, "family_name"),
+		GivenName:  getStringClaim(claims, "given_name"),
+		Sub:        getStringClaim(claims, "sub"),
 	}, nil
 }
 
