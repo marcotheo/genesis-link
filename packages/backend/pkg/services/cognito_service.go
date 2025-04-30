@@ -18,10 +18,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
+	"github.com/aws/smithy-go"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 )
 
-var Cognito_ErrInvalidAuthCode = errors.New("invalid authorization code")
+var ErrCognitoInvalidAuthCode = errors.New("invalid authorization code")
+var ErrCognitoInvalidAccessToken = errors.New("invalid or expired access token")
 
 type CognitoService struct {
 	Client        *cognitoidentityprovider.Client
@@ -198,7 +200,7 @@ func (c *CognitoService) GoogleExchangeAuthCode(code string) (CognitoTokens, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return CognitoTokens{}, fmt.Errorf("%w: %s", Cognito_ErrInvalidAuthCode, body)
+		return CognitoTokens{}, fmt.Errorf("%w: %s", ErrCognitoInvalidAuthCode, body)
 	}
 
 	var tokenResp CognitoTokens
@@ -222,6 +224,50 @@ func (c *CognitoService) GetUserId(accessToken string) (string, error) {
 	}
 
 	return sub, nil
+}
+
+type CognitoUserAttributes struct {
+	Email      string
+	FamilyName string
+	GivenName  string
+	Sub        string
+}
+
+func (c *CognitoService) GetUser(accessToken string) (*CognitoUserAttributes, error) {
+	input := &cognitoidentityprovider.GetUserInput{
+		AccessToken: aws.String(accessToken),
+	}
+
+	resp, err := c.Client.GetUser(context.TODO(), input)
+	if err != nil {
+		var apiErr smithy.APIError
+		var errMessage error
+
+		if errors.As(err, &apiErr) {
+			switch apiErr.ErrorCode() {
+			case "NotAuthorizedException", "InvalidParameterException":
+				errMessage = fmt.Errorf("%w: %s", ErrCognitoInvalidAccessToken, apiErr.ErrorMessage())
+			default:
+				errMessage = fmt.Errorf("cognito error (%s): %w", apiErr.ErrorCode(), err)
+			}
+		} else {
+			errMessage = fmt.Errorf("failed to get user details, try again")
+		}
+
+		return nil, errMessage
+	}
+	// Initialize a map to hold values
+	attrMap := make(map[string]string)
+	for _, attr := range resp.UserAttributes {
+		attrMap[*attr.Name] = *attr.Value
+	}
+
+	return &CognitoUserAttributes{
+		Email:      attrMap["email"],
+		FamilyName: attrMap["family_name"],
+		GivenName:  attrMap["given_name"],
+		Sub:        attrMap["sub"],
+	}, nil
 }
 
 func (c *CognitoService) RefreshAccessToken(userId string, refreshToken string) (types.AuthenticationResultType, error) {
