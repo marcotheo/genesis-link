@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -71,7 +72,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user, errQ := h.dataService.Queries.CreateUser(context.Background(), userData)
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(AUTH) CreateUser => errQ %s \n", errQ))
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
+		http.Error(w, "failed to create user", http.StatusInternalServerError)
 		return
 	}
 
@@ -226,6 +227,138 @@ func (h *AuthHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Success("(AUTH) SignInUser => success")
 
 	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
+}
+
+type GoogleSignInCodeParams struct {
+	Code string `json:"code" validate:"required"`
+}
+
+func (h *AuthHandler) ExternalProviderSignIn(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(AUTH) ExternalProviderSignIn => invoked")
+
+	genericErrMessage := "Something went wrong while signing you in. Please try again"
+	var params GoogleSignInCodeParams
+
+	err := ReadAndValidateBody(r, &params)
+	if err != nil {
+		clog.Logger.Error("(AUTH) ExternalProviderSignIn => Missing authorization code")
+		errorResponse(w, http.StatusBadRequest, "Missing authorization code")
+		return
+	}
+
+	res, err := h.cognitoService.GoogleExchangeAuthCode(params.Code)
+	if err != nil {
+		if errors.Is(err, services.ErrCognitoInvalidAuthCode) {
+			clog.Logger.Error("(AUTH) ExternalProviderSignIn => Invalid or expired authorization code")
+			errorResponse(w, http.StatusBadRequest, "Invalid or expired authorization code.")
+			return
+		}
+
+		clog.Logger.Error(fmt.Sprintf("(AUTH) ExternalProviderSignIn => failed to get user details: %s", err))
+		errorResponse(w, http.StatusInternalServerError, genericErrMessage)
+		return
+	}
+
+	userAttributes, err := h.cognitoService.ParseIDToken(res.IDToken)
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(AUTH) ExternalProviderSignIn => failed to get user details: %s", err))
+		errorResponse(w, http.StatusInternalServerError, genericErrMessage)
+		return
+	}
+
+	_, err = h.dataService.Queries.GetUser(context.Background(), userAttributes.Sub)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			_, errQ := h.dataService.Queries.CreateUser(context.Background(), db.CreateUserParams{
+				Userid:    userAttributes.Sub,
+				Firstname: userAttributes.GivenName,
+				Lastname:  userAttributes.FamilyName,
+				Email:     userAttributes.Email,
+			})
+
+			if errQ != nil {
+				clog.Logger.Error(fmt.Sprintf("(AUTH) ExternalProviderSignIn => User authenticated via Cognito but failed to create local user record %s \n", errQ))
+				http.Error(w, "Sign-in was successful, but account setup failed. Please try again.", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			clog.Logger.Error(fmt.Sprintf("(AUTH) ExternalProviderSignIn => error in query GetUser = (%s) \n", err))
+			errorResponse(w, http.StatusInternalServerError, genericErrMessage)
+			return
+		}
+	}
+
+	csrfToken, err := generateCSRFToken()
+	if err != nil {
+		errorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	secure := r.TLS != nil
+	domain := "." + os.Getenv("DOMAIN")
+	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
+
+	if domain == "." {
+		domain = "localhost"
+	}
+
+	// check from api gateway headers
+	if r.Header.Get("X-Forwarded-Proto") == "https" {
+		secure = true
+	}
+
+	csrfTokenCookie := &http.Cookie{
+		Name:     "csrfToken",
+		Value:    csrfToken,
+		Expires:  time.Now().Add(3 * time.Hour),
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	}
+
+	accessTokenCookie := &http.Cookie{
+		Name:     "accessToken",
+		Value:    res.AccessToken,
+		Expires:  time.Now().Add(10 * time.Minute),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	}
+
+	refreshTokenCookie := &http.Cookie{
+		Name:     "refreshToken",
+		Value:    res.RefreshToken,
+		Expires:  time.Now().Add(3 * time.Hour),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	}
+
+	expiresInCookie := &http.Cookie{
+		Name:     "tokenExpiresIn",
+		Value:    strconv.FormatInt(expiresIn, 10),
+		Expires:  time.Now().Add(3 * time.Hour),
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Domain:   domain,
+		Path:     "/",
+	}
+
+	http.SetCookie(w, csrfTokenCookie)
+	http.SetCookie(w, refreshTokenCookie)
+	http.SetCookie(w, accessTokenCookie)
+	http.SetCookie(w, expiresInCookie)
+
+	clog.Logger.Success("(AUTH) ExternalProviderSignIn => success")
+
+	successResponse(w, SignInUserResponse{ExpiresIn: int32(res.ExpiresIn)})
 }
 
 func (h *AuthHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {

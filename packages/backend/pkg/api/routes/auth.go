@@ -20,6 +20,7 @@ func (o *AuthRoutes) Routes() func(subRouter justarouter.SubRouter) {
 		subRouter.POST("/register", o.handlers.CreateUser)
 		subRouter.POST("/confirm", o.handlers.ConfirmSignUp)
 		subRouter.POST("/signin", o.handlers.SignInUser)
+		subRouter.POST("/oauth/callback", o.handlers.ExternalProviderSignIn)
 		subRouter.POST("/token/refresh", o.handlers.RefreshAccessToken)
 		subRouter.DELETE("/session/revoke", o.handlers.RevokeRefreshToken)
 	}
