@@ -13,6 +13,20 @@ export interface SignInApi {
   };
 }
 
+// POST API /auth/oauth/callback
+export interface OAuthCallbackApi {
+  bodyParams: {
+    code: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: {
+      ExpiresIn: number;
+    };
+  };
+}
+
 // POST API /auth/create
 export interface SignUpApi {
   bodyParams: {

@@ -34,11 +34,18 @@ import {
   GetUserSavedPostApi,
   SearchJobsApi,
 } from "./post";
-import { RefreshTokenApi, RevokeTokenApi, SignInApi, SignUpApi } from "./auth";
+import {
+  OAuthCallbackApi,
+  RefreshTokenApi,
+  RevokeTokenApi,
+  SignInApi,
+  SignUpApi,
+} from "./auth";
 import { GenerateS3SignedUrlPutApi } from "./s3";
 
 export interface MutationsType {
   "POST /auth/signin": SignInApi;
+  "POST /auth/oauth/callback": OAuthCallbackApi;
   "POST /auth/register": SignUpApi;
   "POST /auth/token/refresh": RefreshTokenApi;
   "POST /auth/session/revoke": RevokeTokenApi;
