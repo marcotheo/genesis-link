@@ -9,6 +9,7 @@ import {
 } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
+import { useToast } from "../use-toast/useToast";
 import { qwikFetch } from "~/common/utils";
 import { QueryType } from "~/types";
 
@@ -32,6 +33,7 @@ export const useQuery = <Path extends keyof QueryType>(
   const queryCtx = useContext(QueryContext);
   const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
   const cacheKeyTrack = useSignal(apiKey.split(" ")[1] ?? "");
+  const toast = useToast();
 
   const state = useStore<{
     result: QueryType[Path]["response"] | null;
@@ -136,7 +138,18 @@ export const useQuery = <Path extends keyof QueryType>(
         }, 5000);
         return { result, error: null };
       } catch (error) {
-        state.error = (error as Error).message;
+        const errMessage = (error as Error).message;
+        const errStatus = (error as any).status;
+
+        if (errStatus === 401) {
+          toast.add({
+            title: errMessage,
+            message: "",
+            type: "destructive",
+          });
+        }
+
+        state.error = errMessage;
         state.success = false;
         return { result: null, error: state.error };
       } finally {
