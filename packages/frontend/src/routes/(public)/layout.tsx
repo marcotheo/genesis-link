@@ -10,8 +10,13 @@ export default component$(() => {
         <DefaultHeader />
       </div>
 
-      <div class="grow overflow-auto">
-        <div class="h-full min-[350px]:px-5 sm:px-12 2xl:px-52">
+      <div class="flex flex-col grow overflow-auto">
+        <div
+          class={cn(
+            "flex flex-col grow",
+            "min-[350px]:px-5 sm:px-12 2xl:px-52",
+          )}
+        >
           <Slot />
         </div>
       </div>
