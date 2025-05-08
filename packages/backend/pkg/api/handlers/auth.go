@@ -249,7 +249,7 @@ func (h *AuthHandler) ExternalProviderSignIn(w http.ResponseWriter, r *http.Requ
 	res, err := h.cognitoService.GoogleExchangeAuthCode(params.Code)
 	if err != nil {
 		if errors.Is(err, services.ErrCognitoInvalidAuthCode) {
-			clog.Logger.Error("(AUTH) ExternalProviderSignIn => Invalid or expired authorization code")
+			clog.Logger.Error(fmt.Sprintf("(AUTH) ExternalProviderSignIn => Invalid or expired authorization code: %s", err))
 			errorResponse(w, http.StatusBadRequest, "Invalid or expired authorization code.")
 			return
 		}
