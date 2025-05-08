@@ -14,11 +14,14 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/MicahParks/keyfunc"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	"github.com/aws/smithy-go"
+	"github.com/golang-jwt/jwt/v4"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 )
 
@@ -26,32 +29,87 @@ var ErrCognitoInvalidAuthCode = errors.New("invalid authorization code")
 var ErrCognitoInvalidAccessToken = errors.New("invalid or expired access token")
 
 type CognitoService struct {
-	Client        *cognitoidentityprovider.Client
-	poolId        string
-	clientId      string
-	clientSecret  string
-	redirectUri   string
-	cognitoDomain string
+	Client            *cognitoidentityprovider.Client
+	poolId            string
+	clientId          string
+	clientSecret      string
+	redirectUri       string
+	cognitoDomain     string
+	cognitoJWKSURL    string
+	jwtExpectedIssuer string
 }
 
 func InitCognitoService() *CognitoService {
 	cfg := awsConfigInit()
 
+	region := os.Getenv("AWS_REGION")
 	poolId := os.Getenv("POOL_ID")
 	poolClientId := os.Getenv("POOL_CLIENT_ID")
 	poolClientSecret := os.Getenv("POOL_CLIENT_SECRET")
 	redirectUri := os.Getenv("IDP_REDIRECT_URI")
 	cognitoDomain := os.Getenv("COGNITO_DOMAIN")
 
+	// Construct JWKS and issuer URLs based on region and pool ID
+	cognitoJWKSURL := fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", region, poolId)
+	jwtExpectedIssuer := fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", region, poolId)
+
 	client := cognitoidentityprovider.NewFromConfig(*cfg)
 	return &CognitoService{
-		Client:        client,
-		poolId:        poolId,
-		clientId:      poolClientId,
-		clientSecret:  poolClientSecret,
-		redirectUri:   redirectUri,
-		cognitoDomain: cognitoDomain,
+		Client:            client,
+		poolId:            poolId,
+		clientId:          poolClientId,
+		clientSecret:      poolClientSecret,
+		redirectUri:       redirectUri,
+		cognitoDomain:     cognitoDomain,
+		cognitoJWKSURL:    cognitoJWKSURL,
+		jwtExpectedIssuer: jwtExpectedIssuer,
 	}
+}
+
+func (c *CognitoService) VerifyToken(accessToken string) error {
+	// Load JWKS from Cognito
+	jwks, err := keyfunc.Get(c.cognitoJWKSURL, keyfunc.Options{
+		RefreshInterval: time.Hour,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to get JWKS: %w", err)
+	}
+
+	// Parse and validate token
+	token, err := jwt.Parse(accessToken, jwks.Keyfunc)
+	if err != nil || !token.Valid {
+		return fmt.Errorf("%w: %v", ErrCognitoInvalidAccessToken, err)
+	}
+
+	// Validate standard claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return fmt.Errorf("%w: cannot extract claims", ErrCognitoInvalidAccessToken)
+	}
+
+	// Check token_use
+	if tokenUse, _ := claims["token_use"].(string); tokenUse != "access" {
+		return fmt.Errorf("%w: token_use is not 'access'", ErrCognitoInvalidAccessToken)
+	}
+
+	// Check issuer
+	if iss, _ := claims["iss"].(string); iss != c.jwtExpectedIssuer {
+		return fmt.Errorf("%w: invalid issuer", ErrCognitoInvalidAccessToken)
+	}
+
+	// Optional: check audience (if your tokens include it)
+	if aud, _ := claims["client_id"].(string); aud != c.clientId {
+		return fmt.Errorf("%w: client_id does not match", ErrCognitoInvalidAccessToken)
+	}
+
+	// Optional: check expiration
+	if exp, ok := claims["exp"].(float64); ok {
+		if time.Now().Unix() > int64(exp) {
+			return fmt.Errorf("%w: token expired", ErrCognitoInvalidAccessToken)
+		}
+	}
+
+	return nil
 }
 
 func calculateSecretHash(clientID, clientSecret, username string) string {
