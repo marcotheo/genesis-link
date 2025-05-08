@@ -1,16 +1,20 @@
-import { DocumentHead, Link, useLocation } from "@builder.io/qwik-city";
+import { DocumentHead, Link, routeLoader$ } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
 
-import { GoogleIcon } from "~/components/icons/icons";
 import Heading from "~/components/heading/heading";
 import CredentialsLogin from "./CredentialsLogin";
-import Button from "~/components/button/button";
+import GoogleLogin from "./GoogleLogin";
 import { cn } from "~/common/utils";
 
+export const useSignInParams = routeLoader$(({ query }) => {
+  return {
+    code: query.get("code") ?? "",
+    mode: query.get("mode") ?? "applicant",
+  };
+});
+
 const LoginHeader = component$(() => {
-  const location = useLocation();
-  const params = new URLSearchParams(location.url.search);
-  const mode = params.get("mode");
+  const params = useSignInParams();
 
   return (
     <div class="space-y-5">
@@ -28,7 +32,7 @@ const LoginHeader = component$(() => {
             class={cn(
               "w-1/2 py-1 px-4",
               "duration-300",
-              mode === "applicant"
+              params.value.mode === "applicant"
                 ? "bg-primary text-white"
                 : "dark:hover:brightness-125 hover:brightness-95",
             )}
@@ -40,7 +44,7 @@ const LoginHeader = component$(() => {
             class={cn(
               "w-1/2 py-1 px-4",
               "duration-300",
-              mode === "employer"
+              params.value.mode === "employer"
                 ? "bg-primary text-white"
                 : "dark:hover:brightness-125 hover:brightness-95",
             )}
@@ -83,16 +87,7 @@ export default component$(() => {
           <div class="border-gray-500 w-full h-[1px] bg-gray-500" />
         </div>
 
-        <Button
-          variant="outline"
-          class={cn(
-            "w-full border-gray-300",
-            "flex items-center justify-center gap-1",
-          )}
-        >
-          <GoogleIcon class="bg-transparent text-gray-500 dark:text-gray-400" />
-          <p class="bg-transparent">Google</p>
-        </Button>
+        <GoogleLogin />
       </div>
     </div>
   );
