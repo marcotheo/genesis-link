@@ -164,7 +164,8 @@ export const useQuery = <Path extends keyof QueryType>(
     track(cacheKeyTrack);
     const result = track(() => queryCtx.cache[cacheKeyTrack.value]);
 
-    if (result.data) cacheToState(result.data);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (result?.data) cacheToState(result.data);
   });
 
   useTask$(async ({ track }) => {
