@@ -1,5 +1,4 @@
 import { $, component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import DOMPurify from "isomorphic-dompurify";
 
 interface Props {
   htmlLink: string;
@@ -10,8 +9,9 @@ export default component$<Props>(({ htmlLink }) => {
 
   const setHtmlContent = $(async () => {
     try {
-      const data = await fetch(htmlLink).then((response) => response.text());
+      const DOMPurify = (await import("isomorphic-dompurify")).default;
 
+      const data = await fetch(htmlLink).then((response) => response.text());
       const cleanHTML = DOMPurify.sanitize(data);
 
       htmlContent.value = cleanHTML;

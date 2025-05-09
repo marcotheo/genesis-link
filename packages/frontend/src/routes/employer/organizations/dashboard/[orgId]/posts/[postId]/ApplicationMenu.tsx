@@ -1,6 +1,5 @@
 import { TbDotsVertical, TbLoader } from "@qwikest/icons/tablericons";
 import { $, component$, useSignal } from "@builder.io/qwik";
-import DOMPurify from "isomorphic-dompurify";
 import { Modal } from "@qwik-ui/headless";
 
 import Menu, {
@@ -99,6 +98,8 @@ const ProposalContent = component$<{ applicationId: string }>(
     );
 
     const setHtmlContent = $(async () => {
+      const DOMPurify = (await import("isomorphic-dompurify")).default;
+
       try {
         const result = await refetch({});
 
