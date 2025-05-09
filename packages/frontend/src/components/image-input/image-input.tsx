@@ -10,6 +10,7 @@ import {
 
 import { TbPhoto } from "@qwikest/icons/tablericons";
 import InputError from "../input-error/input-error";
+import { useSignal } from "@builder.io/qwik";
 import { cn } from "~/common/utils";
 
 interface ImageUploadProps {
@@ -61,6 +62,19 @@ export default component$<ImageUploadProps>(
       error: null,
       imgWidth: 0,
       imgHeight: 0,
+    });
+
+    const defaultImageDimensions = useSignal({
+      width: 0,
+      height: 0,
+    });
+
+    const handleLoadDefaultImage = $((e: Event) => {
+      const img = e.target as HTMLImageElement;
+      defaultImageDimensions.value = {
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      };
     });
 
     const getMaxSizeInBytes = $((size: number, unit: "KB" | "MB"): number => {
@@ -182,7 +196,10 @@ export default component$<ImageUploadProps>(
                 <img
                   src={fileState.defaultImgUrl}
                   alt="default alt image"
-                  style={{ maxWidth: "100%" }}
+                  style={{ maxWidth: "100%", height: "auto" }}
+                  onLoad$={handleLoadDefaultImage}
+                  width={defaultImageDimensions.value.width}
+                  height={defaultImageDimensions.value.height}
                 />
               </div>
             ) : (
