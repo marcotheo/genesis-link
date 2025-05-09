@@ -111,7 +111,6 @@ export default component$(() => {
         {
           bodyParams: {
             ...formDataCtx.form1,
-            wfh: formDataCtx.form1.wfh === "yes" ? 1 : 0,
             deadline: dayjs(formDataCtx.form1.deadline).format("YYYY-MM-DD"),
             addressId: selectedAddress.value,
           },

@@ -163,7 +163,7 @@ export interface CreateOrgJobPostApi {
     title: string;
     description?: string;
     additionalInfoLink?: string;
-    wfh: 0 | 1;
+    workSetup: string;
     deadline: string;
     addressId: string;
     tags: {
