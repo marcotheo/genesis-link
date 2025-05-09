@@ -4,11 +4,6 @@ import { Modal } from "@qwik-ui/headless";
 import Heading from "~/components/heading/heading";
 import { cn } from "~/common/utils";
 
-interface LoadingOverlayProps {
-  open: null | boolean;
-  type?: "text" | "component";
-}
-
 export default component$<{
   open: Signal<boolean>;
   type?: "text" | "component";

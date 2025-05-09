@@ -25,7 +25,7 @@ const ModalForm = component$<{ open: Signal<boolean> }>(({ open }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [form, { Form, Field }] = useForm<SchemaType>({
+  const [, { Form, Field }] = useForm<SchemaType>({
     loader: {
       value: {
         keyword: "",

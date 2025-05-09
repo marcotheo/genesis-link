@@ -35,7 +35,7 @@ export const useSearchJobsParams = routeLoader$(({ query }) => {
 
 export default component$(() => {
   const params = useSearchJobsParams();
-  const page = useSignal(params.value.page ?? 0);
+  const page = useSignal(params.value.page);
   const keyword = useSignal(params.value.keyword ?? "");
   const province = useSignal("");
   const city = useSignal("");

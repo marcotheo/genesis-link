@@ -59,7 +59,7 @@ export const useQuery = <Path extends keyof QueryType>(
       }
 
     // build api path
-    let [_, apiPath] = apiKey.split(" ") ?? ["GET", ""];
+    let [, apiPath] = apiKey.split(" ");
 
     // update parameters inside the api path
     if (apiPath.includes("{") && apiPath.includes("}"))
@@ -78,6 +78,8 @@ export const useQuery = <Path extends keyof QueryType>(
 
   const getCachedData = $((key: string) => {
     const cached = queryCtx.cache[key];
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (cached && Date.now() - cached.timestamp < cachedTime) {
       return cached.data;
     }

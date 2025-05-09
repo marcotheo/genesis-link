@@ -39,7 +39,8 @@ export const useMutate = <Path extends keyof MutationsType>(url: Path) => {
         const csrfToken = await getCsrfToken();
         const additionalOptions = options ? options : {};
 
-        let [method, apiPath] = url.split(" ") ?? ["POST", ""];
+        // eslint-disable-next-line prefer-const
+        let [method, apiPath] = url.split(" ");
 
         // update parameters inside the api path
         if (

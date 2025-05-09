@@ -40,7 +40,6 @@ interface ImageUploadProps {
 export default component$<ImageUploadProps>(
   ({
     name,
-    value,
     label,
     errorMsg,
     maxFiles,
@@ -48,6 +47,10 @@ export default component$<ImageUploadProps>(
     maxSize,
     maxDimensions,
     onFileSelect,
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    value,
+
     ...props
   }) => {
     const { multiple } = props;

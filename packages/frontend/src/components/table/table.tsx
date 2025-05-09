@@ -106,7 +106,7 @@ const TableBody = component$(
         {loading ? (
           <TableSkeleton total={headers.length} />
         ) : (
-          (data ?? []).map((item) => {
+          data.map((item) => {
             const rowId = getValue(item, rowKey);
 
             return (

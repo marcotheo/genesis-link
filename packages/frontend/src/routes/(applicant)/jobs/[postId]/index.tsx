@@ -62,7 +62,7 @@ const BookMark = component$<{ postId: string }>(({ postId }) => {
       }
     }
 
-    await setCacheData((cached) => {
+    await setCacheData(() => {
       return {
         status: "",
         message: "",

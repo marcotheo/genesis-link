@@ -86,12 +86,14 @@ const labelVariants = {
 export default component$<SelectProps>(
   ({
     variant = "default",
-    name,
     label,
     errorMsg,
     options,
-    value,
     class: customClass,
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    value,
+
     ...props
   }) => {
     const triggerRef = useSignal<Element>();

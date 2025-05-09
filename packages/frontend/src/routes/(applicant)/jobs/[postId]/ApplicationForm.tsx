@@ -30,7 +30,7 @@ export default component$<{ postId: string; userId: string }>(
       "POST /s3/generate/signed/url/put",
     );
 
-    const [form, { Form, Field }] = useForm<SchemaType>({
+    const [, { Form, Field }] = useForm<SchemaType>({
       loader: {
         value: {
           proposal: undefined,
