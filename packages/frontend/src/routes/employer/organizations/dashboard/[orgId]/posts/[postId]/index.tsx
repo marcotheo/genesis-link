@@ -1,4 +1,3 @@
-import { routeLoader$ } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
 
 import Applications from "./Applications";

@@ -8,7 +8,7 @@ import {
   useStore,
 } from "@builder.io/qwik";
 
-import { DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
+import { DocumentHead } from "@builder.io/qwik-city";
 import { CreateJobPostFormData } from "./common";
 import { usePathParams } from "../../../layout";
 import StepHeader from "./StepHeader";
