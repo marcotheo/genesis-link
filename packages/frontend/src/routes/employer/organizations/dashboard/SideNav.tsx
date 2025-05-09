@@ -112,7 +112,7 @@ const SettingsItems = component$<{ open: Signal<boolean> }>(({ open }) => {
         >
           <div class="flex items-center gap-3">
             <TbSettings font-size="25px" />
-            {open.value ? "Settings" : ""}
+            Settings
           </div>
 
           <div class={cn("duration-300", parentOpen.value ? "rotate-180" : "")}>
@@ -134,14 +134,14 @@ const SettingsItems = component$<{ open: Signal<boolean> }>(({ open }) => {
             open={open}
           >
             <TbBuilding font-size="25px" />
-            {open.value ? "Company" : ""}
+            Company
           </NavItem>
           <NavItem
             to={createDashboardPath(org.value.orgId, "/settings/branding")}
             open={open}
           >
             <TbBrand4Chan font-size="25px" />
-            {open.value ? "Branding" : ""}
+            Branding
           </NavItem>
         </div>
       </>

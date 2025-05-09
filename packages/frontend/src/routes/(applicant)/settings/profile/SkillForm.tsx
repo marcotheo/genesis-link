@@ -71,7 +71,7 @@ export default component$(() => {
 
           if (cached)
             newResult.data.skills = [
-              ...(cached.data.skills ?? []),
+              ...cached.data.skills,
               ...response.result.data.skills,
             ];
 
