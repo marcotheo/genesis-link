@@ -50,10 +50,10 @@ export default component$<ImageUploadProps>(
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     value,
+    multiple,
 
     ...props
   }) => {
-    const { multiple } = props;
     const fileState = useStore<{
       files: NoSerialize<File[]> | null;
       error: string | null;
@@ -164,9 +164,9 @@ export default component$<ImageUploadProps>(
           >
             <input
               {...props}
+              multiple={multiple}
               type="file"
               id={name}
-              multiple={multiple}
               onChange$={[handleFileChange, props.onChange$]}
               aria-invalid={!!errorMsg}
               aria-errormessage={`${name}-error`}
