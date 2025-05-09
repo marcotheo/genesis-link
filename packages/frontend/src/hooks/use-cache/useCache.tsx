@@ -66,7 +66,7 @@ export const useCache = <Path extends keyof QueryType>(
       const apiUrl = await getApiUrl();
 
       // Retrieve existing data or default to null
-      const newData = callback(queryCtx.cache[apiUrl]?.data ?? null);
+      const newData = callback(queryCtx.cache[apiUrl].data ?? null);
 
       console.log("NEW CACHE", newData);
 

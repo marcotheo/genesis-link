@@ -93,7 +93,7 @@ export default component$(() => {
 
       <Table
         loading={state.loading}
-        data={state?.result?.data.posts ?? []}
+        data={state.result?.data.posts ?? []}
         headers={["Job Title", "Deadline"]}
         rowKey={"postId"}
         rowDef={["title", DeadlineRow]}

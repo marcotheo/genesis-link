@@ -74,8 +74,8 @@ const Organizations = component$(() => {
         <div class="flex w-full justify-end">
           <Pagination
             totalPages={
-              state.result?.data.total
-                ? Math.ceil(state.result?.data.total / limit)
+              state.result.data.total
+                ? Math.ceil(state.result.data.total / limit)
                 : 0
             }
             currentPage={page}

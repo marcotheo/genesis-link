@@ -49,7 +49,7 @@ export default component$(() => {
       <div>
         <Table
           loading={state.loading}
-          data={state?.result?.data.applications ?? []}
+          data={state.result?.data.applications ?? []}
           headers={["Name", "Email", "MobileNumber", "Status", "CreatedAt"]}
           rowKey={"applicationId"}
           rowDef={["name", "email", "mobileNumber", "status", CreatedAtRow]}
@@ -62,7 +62,7 @@ export default component$(() => {
           <Pagination
             totalPages={
               state.result?.data.total
-                ? Math.ceil(state.result?.data.total / 5)
+                ? Math.ceil(state.result.data.total / 5)
                 : 0
             }
             currentPage={page}

@@ -162,7 +162,7 @@ export const useQuery = <Path extends keyof QueryType>(
     track(cacheKeyTrack);
     const result = track(() => queryCtx.cache[cacheKeyTrack.value]);
 
-    if (result?.data) cacheToState(result.data);
+    if (result.data) cacheToState(result.data);
   });
 
   useTask$(async ({ track }) => {
@@ -196,7 +196,7 @@ export const useQuery = <Path extends keyof QueryType>(
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
     if (options?.runOnRender) {
-      refetch({ revalidate: options?.cacheTime === 0 });
+      refetch({ revalidate: options.cacheTime === 0 });
     }
   });
 
