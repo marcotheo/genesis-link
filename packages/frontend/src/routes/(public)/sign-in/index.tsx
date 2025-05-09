@@ -7,9 +7,17 @@ import GoogleLogin from "./GoogleLogin";
 import { cn } from "~/common/utils";
 
 export const useSignInParams = routeLoader$(({ query }) => {
+  let mode = query.get("mode") ?? "applicant";
+  const state = query.get("state");
+
+  if (state) {
+    const stateParsed = JSON.parse(state);
+    mode = stateParsed.mode;
+  }
+
   return {
     code: query.get("code") ?? "",
-    mode: query.get("mode") ?? "applicant",
+    mode,
   };
 });
 

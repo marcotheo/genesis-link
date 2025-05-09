@@ -64,9 +64,13 @@ export default component$(() => {
   const redirectToGoogleLogin = $(() => {
     const domain = cognitoDomain;
     const clientId = poolClientId; // Replace with your actual app client ID
-    const redirectUri = encodeURIComponent(oauthRedirectUrl);
 
-    const loginUrl = `${domain}/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&identity_provider=Google&scope=email+openid+profile`;
+    const redirectUri = encodeURIComponent(oauthRedirectUrl);
+    const state = encodeURIComponent(
+      JSON.stringify({ mode: params.value.mode }),
+    );
+
+    const loginUrl = `${domain}/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&identity_provider=Google&scope=email+openid+profile&state=${state}`;
 
     window.location.href = loginUrl;
   });
