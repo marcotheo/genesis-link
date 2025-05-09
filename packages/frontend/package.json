@@ -46,7 +46,7 @@
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-plugin-qwik": "1.13.0",
-    "isomorphic-dompurify": "^2.21.0",
+    "isomorphic-dompurify": "2.24.0",
     "nanoid": "^5.0.9",
     "postcss": "^8.4.39",
     "prettier": "3.3.3",
