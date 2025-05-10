@@ -68,6 +68,7 @@ const Content = component$(() => {
       });
 
       if (!imageResponse.ok) {
+        console.error("Failed to Fetch Image");
         toast.add({
           title: "Logo mage Fetch Error",
           message: "An error occurred while loading the image.",
