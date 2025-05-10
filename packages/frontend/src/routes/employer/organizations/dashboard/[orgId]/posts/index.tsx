@@ -78,7 +78,7 @@ export default component$(() => {
       <br />
       <div class="flex justify-end">
         <Link href={createDashboardPath(org.value.orgId, "/posts/create")}>
-          <Button variant="ghost">
+          <Button class="px-5 py-3" variant="ghost">
             <div class="flex gap-3 items-center bg-transparent">
               <div class="bg-transparent">
                 <TbPlus />

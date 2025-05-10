@@ -1,6 +1,6 @@
 import { Link, routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
+import { TbPlus, TbTrash } from "@qwikest/icons/tablericons";
 import { $, component$, useStore } from "@builder.io/qwik";
-import { TbTrash } from "@qwikest/icons/tablericons";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { cn, createDashboardPath, qwikFetch } from "~/common/utils";
@@ -106,7 +106,12 @@ const CreateAddressLink = component$(() => {
     <div class="flex justify-end">
       <Link href={createDashboardPath(result.value.orgId, "/addresses/create")}>
         <Button class="px-5 py-3" variant="ghost">
-          + Add Address
+          <div class="flex gap-3 items-center bg-transparent">
+            <div class="bg-transparent">
+              <TbPlus />
+            </div>
+            Add Address
+          </div>
         </Button>
       </Link>
     </div>
