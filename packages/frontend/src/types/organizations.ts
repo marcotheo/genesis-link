@@ -50,8 +50,8 @@ export interface GetOrganizationAssetsApi {
     status: string;
     message: string;
     data: {
-      bannerLink: PresignedHTTPRequest | null;
-      logoLink: PresignedHTTPRequest | null;
+      bannerLink: string | null;
+      logoLink: string | null;
     };
   };
 }

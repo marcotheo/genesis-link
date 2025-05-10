@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
@@ -204,8 +203,8 @@ func (h *OrgHandler) GetOrganizationDetailsByOrgId(w http.ResponseWriter, r *htt
 }
 
 type GetOrganizationAssetsByOrgIdResponse struct {
-	Bannerlink *v4.PresignedHTTPRequest `json:"bannerLink"`
-	Logolink   *v4.PresignedHTTPRequest `json:"logoLink"`
+	Bannerlink string `json:"bannerLink"`
+	Logolink   string `json:"logoLink"`
 }
 
 func (h *OrgHandler) GetOrganizationAssetsByOrgId(w http.ResponseWriter, r *http.Request) {
@@ -220,28 +219,15 @@ func (h *OrgHandler) GetOrganizationAssetsByOrgId(w http.ResponseWriter, r *http
 		return
 	}
 
-	var bannerSignedLink *v4.PresignedHTTPRequest
-	var logoSignedLink *v4.PresignedHTTPRequest
+	var bannerSignedLink string
+	var logoSignedLink string
 
 	if result.Bannerlink.Valid {
-		signedLink, err := h.s3Service.GetObjectUrl(result.Bannerlink.String, 300)
-		if err != nil {
-			clog.Logger.Error(fmt.Sprintf("(GET) GetOrganizationAssetsByOrgId => err Bannerlink %s \n", err))
-			http.Error(w, "error obtaining banner signed link", http.StatusInternalServerError)
-			return
-		}
-
-		bannerSignedLink = signedLink
+		bannerSignedLink = h.utilService.CloudfrontUrl + "/" + result.Bannerlink.String
 	}
 
 	if result.Logolink.Valid {
-		signedLink, err := h.s3Service.GetObjectUrl(result.Logolink.String, 300)
-		if err != nil {
-			http.Error(w, "error obtaining logo signed link", http.StatusInternalServerError)
-			return
-		}
-
-		logoSignedLink = signedLink
+		logoSignedLink = h.utilService.CloudfrontUrl + "/" + result.Logolink.String
 	}
 
 	clog.Logger.Success("(GET) GetOrganizationAssetsByOrgId => success")

@@ -3,7 +3,6 @@ import { TbLoader } from "@qwikest/icons/tablericons";
 import { DocumentHead } from "@builder.io/qwik-city";
 
 import { useQuery } from "~/hooks/use-query/useQuery";
-import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
 import { usePathParams } from "../../../layout";
 import AssetsForm from "./AssetsForm";
@@ -13,7 +12,6 @@ const Content = component$(() => {
   const org = usePathParams();
   const bannerImgUrl = useSignal("");
   const logoImgUrl = useSignal("");
-  const toast = useToast();
 
   const { state } = useQuery(
     "GET /organizations/{orgId}/assets",
@@ -32,56 +30,12 @@ const Content = component$(() => {
 
     if (isServer) return;
 
-    if (
-      stateTracked?.data.bannerLink?.SignedHeader &&
-      Object.keys(stateTracked.data.bannerLink.SignedHeader).length > 0
-    ) {
-      const imageResponse = await fetch(stateTracked.data.bannerLink.URL, {
-        method: stateTracked.data.bannerLink.Method,
-        headers: stateTracked.data.bannerLink.SignedHeader,
-      });
-
-      if (!imageResponse.ok) {
-        console.error("Failed to Fetch Image");
-        toast.add({
-          title: "Banner Image Fetch Error",
-          message: "An error occurred while loading the image.",
-          type: "destructive",
-        });
-      } else {
-        const imageBlob = await imageResponse.blob();
-        const imageObjectURL = URL.createObjectURL(imageBlob);
-
-        bannerImgUrl.value = imageObjectURL;
-      }
-    } else {
-      bannerImgUrl.value = stateTracked?.data.bannerLink?.URL ?? "";
+    if (stateTracked?.data.bannerLink) {
+      bannerImgUrl.value = stateTracked.data.bannerLink;
     }
 
-    if (
-      stateTracked?.data.logoLink?.SignedHeader &&
-      Object.keys(stateTracked.data.logoLink.SignedHeader).length > 0
-    ) {
-      const imageResponse = await fetch(stateTracked.data.logoLink.URL, {
-        method: stateTracked.data.logoLink.Method,
-        headers: stateTracked.data.logoLink.SignedHeader,
-      });
-
-      if (!imageResponse.ok) {
-        console.error("Failed to Fetch Image");
-        toast.add({
-          title: "Logo mage Fetch Error",
-          message: "An error occurred while loading the image.",
-          type: "destructive",
-        });
-      } else {
-        const imageBlob = await imageResponse.blob();
-        const imageObjectURL = URL.createObjectURL(imageBlob);
-
-        logoImgUrl.value = imageObjectURL;
-      }
-    } else {
-      logoImgUrl.value = stateTracked?.data.logoLink?.URL ?? "";
+    if (stateTracked?.data.logoLink) {
+      logoImgUrl.value = stateTracked.data.logoLink;
     }
   });
 
