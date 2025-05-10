@@ -14,6 +14,21 @@ export const checkRequiredEnvs = () => {
     return false;
   }
 
+  if (!process.env.OAUTH_IDP_REDIRECT_URI) {
+    console.error("must define OAUTH_IDP_REDIRECT_URI env variable");
+    return false;
+  }
+
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    console.error("must define GOOGLE_CLIENT_ID env variable");
+    return false;
+  }
+
+  if (!process.env.GOOGLE_CLIENT_SECRET) {
+    console.error("must define GOOGLE_CLIENT_SECRET env variable");
+    return false;
+  }
+
   if (["production", "preview"].includes($app.stage)) {
     if (!process.env.DOMAIN) {
       console.error("For production deployment 'DOMAIN' env is required");
