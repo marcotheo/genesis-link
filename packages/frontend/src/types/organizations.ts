@@ -1,4 +1,3 @@
-import { PresignedHTTPRequest } from "./s3";
 import { Signal } from "@builder.io/qwik";
 
 // POST API /organizations
