@@ -3,6 +3,7 @@ import { TbLoader } from "@qwikest/icons/tablericons";
 import { DocumentHead } from "@builder.io/qwik-city";
 
 import { useQuery } from "~/hooks/use-query/useQuery";
+import { useToast } from "~/hooks/use-toast/useToast";
 import Heading from "~/components/heading/heading";
 import { usePathParams } from "../../../layout";
 import AssetsForm from "./AssetsForm";
@@ -12,6 +13,7 @@ const Content = component$(() => {
   const org = usePathParams();
   const bannerImgUrl = useSignal("");
   const logoImgUrl = useSignal("");
+  const toast = useToast();
 
   const { state } = useQuery(
     "GET /organizations/{orgId}/assets",
@@ -40,13 +42,18 @@ const Content = component$(() => {
       });
 
       if (!imageResponse.ok) {
-        throw new Error("Failed to fetch the image");
+        console.error("Failed to Fetch Image");
+        toast.add({
+          title: "Banner Image Fetch Error",
+          message: "An error occurred while loading the image.",
+          type: "destructive",
+        });
+      } else {
+        const imageBlob = await imageResponse.blob();
+        const imageObjectURL = URL.createObjectURL(imageBlob);
+
+        bannerImgUrl.value = imageObjectURL;
       }
-
-      const imageBlob = await imageResponse.blob();
-      const imageObjectURL = URL.createObjectURL(imageBlob);
-
-      bannerImgUrl.value = imageObjectURL;
     } else {
       bannerImgUrl.value = stateTracked?.data.bannerLink?.URL ?? "";
     }
@@ -61,13 +68,17 @@ const Content = component$(() => {
       });
 
       if (!imageResponse.ok) {
-        throw new Error("Failed to fetch the image");
+        toast.add({
+          title: "Logo mage Fetch Error",
+          message: "An error occurred while loading the image.",
+          type: "destructive",
+        });
+      } else {
+        const imageBlob = await imageResponse.blob();
+        const imageObjectURL = URL.createObjectURL(imageBlob);
+
+        logoImgUrl.value = imageObjectURL;
       }
-
-      const imageBlob = await imageResponse.blob();
-      const imageObjectURL = URL.createObjectURL(imageBlob);
-
-      logoImgUrl.value = imageObjectURL;
     } else {
       logoImgUrl.value = stateTracked?.data.logoLink?.URL ?? "";
     }
