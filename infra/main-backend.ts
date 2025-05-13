@@ -1,4 +1,3 @@
-import * as path from "path";
 import { getSiteUrl } from "./utils";
 
 export const main_backend = async ({
@@ -6,87 +5,68 @@ export const main_backend = async ({
   poolId,
   poolClientId,
   poolClientSecret,
+  cloudFrontUrl,
+  poolDomain,
 }: {
   bucket: $util.Output<string>;
   poolId: $util.Output<string>;
   poolClientId: $util.Output<string>;
   poolClientSecret: $util.Output<string>;
+  cloudFrontUrl: $util.Output<string>;
+  poolDomain: $util.Output<string>;
 }) => {
-  if (!["production", "preview"].includes($app.stage)) return {};
-
   const callerIdentity = aws.getCallerIdentity();
   const accountId = await callerIdentity.then((identity) => identity.accountId);
 
-  // Create an AWS Lambda function
-  const role = new aws.iam.Role(`${process.env.PROJ_NAME}BackendRole`, {
-    assumeRolePolicy: {
-      Version: "2012-10-17",
-      Statement: [
-        {
-          Action: "sts:AssumeRole",
-          Principal: {
-            Service: "lambda.amazonaws.com",
-          },
-          Effect: "Allow",
-        },
-      ],
-    },
-  });
+  const baseDomain = getSiteUrl();
 
-  new aws.iam.RolePolicy(`${process.env.PROJ_NAME}BackendRolePolicy`, {
-    role: role.id,
-    policy: {
-      Version: "2012-10-17",
-      Statement: [
+  const backendFunction = new sst.aws.Function(
+    `${process.env.PROJ_NAME}Lambda`,
+    {
+      runtime: "go",
+      handler: "packages/backend",
+      dev: false,
+
+      permissions: [
         {
-          Action: [
+          actions: [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
             "logs:PutLogEvents",
           ],
-          Effect: "Allow",
-          Resource: "*",
+          effect: "allow",
+          resources: ["*"],
         },
         {
-          Action: ["cognito-idp:*"],
-          Effect: "Allow",
-          Resource: [
+          actions: ["cognito-idp:*"],
+          effect: "allow",
+          resources: [
             `arn:aws:cognito-idp:${aws.config.region}:${accountId}:userpool/*`,
           ],
         },
       ],
-    },
-  });
 
-  const rootDir = process.cwd();
+      environment: {
+        POOL_ID: poolId,
+        POOL_CLIENT_ID: poolClientId,
+        POOL_CLIENT_SECRET: poolClientSecret,
+        POOL_DOMAIN: poolDomain.apply(
+          (v) => `https://${v}.auth.${aws.config.region}.amazoncognito.com`
+        ),
+        IDP_REDIRECT_URI: baseDomain.apply((v) => v + "/sign-in"),
 
-  const filePath = path.resolve(rootDir, "packages/backend/deployment.zip");
+        ALLOWED_ORIGINS: baseDomain,
+        DOMAIN: process.env.DOMAIN ?? "localhost",
+        AUTH_SESSION_SECRET: process.env.AUTH_SESSION_SECRET,
 
-  const lambdaFunction = $util
-    .all([poolId, poolClientId, poolClientSecret, getSiteUrl(), bucket])
-    .apply(
-      ([var1, var2, var3, var4, var5]) =>
-        new aws.lambda.Function(`${process.env.PROJ_NAME}Lambda`, {
-          runtime: aws.lambda.Runtime.CustomAL2023,
-          code: new $util.asset.FileArchive(filePath),
-          timeout: 10,
-          role: role.arn,
-          handler: "bootstrap", // Custom runtimes can have handler set to an empty string ""
-          environment: {
-            variables: {
-              POOL_ID: var1,
-              POOL_CLIENT_ID: var2,
-              POOL_CLIENT_SECRET: var3,
-              ALLOWED_ORIGINS: var4,
-              DB_URL: process.env.DB_URL,
-              AUTH_SESSION_SECRET:
-                process.env.AUTH_SESSION_SECRET ?? "simple-secret",
-              DOMAIN: process.env.DOMAIN,
-              ASSET_BUCKET: var5,
-            },
-          },
-        })
-    );
+        DB_URL: process.env.DB_URL,
+        ASSET_BUCKET: bucket,
+        CLOUDFRONT_URL: cloudFrontUrl.apply((v) => "https://" + v),
+
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+      },
+    }
+  );
 
   // Create an API Gateway
   const api = new aws.apigatewayv2.Api(`${process.env.PROJ_NAME}APIGateway`, {
@@ -98,7 +78,7 @@ export const main_backend = async ({
     {
       apiId: api.id,
       integrationType: "AWS_PROXY",
-      integrationUri: lambdaFunction.arn,
+      integrationUri: backendFunction.arn,
       integrationMethod: "ANY",
       payloadFormatVersion: "2.0",
       passthroughBehavior: "WHEN_NO_TEMPLATES",
@@ -123,10 +103,16 @@ export const main_backend = async ({
   // Grant permissions
   new aws.lambda.Permission(`${process.env.PROJ_NAME}APIGatewayPermssions`, {
     action: "lambda:InvokeFunction",
-    function: lambdaFunction,
+    function: backendFunction.nodes.function,
     principal: "apigateway.amazonaws.com",
     sourceArn: $util.interpolate`${api.executionArn}/*/*`,
   });
+
+  if (!["production", "preview"].includes($app.stage))
+    return {
+      apiUrl: api.apiEndpoint,
+      functionName: backendFunction.name,
+    };
 
   // Custom Domain
   const domainName = `api${$app.stage === "production" ? "." : `-${$app.stage}.`}${process.env.DOMAIN}`;
@@ -157,7 +143,6 @@ export const main_backend = async ({
 
   return {
     apiUrl: domainName,
-    functionName: lambdaFunction.name,
-    functionRole: role.name,
+    functionName: backendFunction.name,
   };
 };

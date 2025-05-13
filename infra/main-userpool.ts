@@ -1,56 +1,9 @@
-import { getSiteUrl } from "./utils";
-
 export const main_user_pool = () => {
-  // Create an IAM Role for the Lambda function
-  const lambdaRole = new aws.iam.Role("SignUpCognitoLambdaRole", {
-    assumeRolePolicy: {
-      Version: "2012-10-17",
-      Statement: [
-        {
-          Action: "sts:AssumeRole",
-          Principal: {
-            Service: "lambda.amazonaws.com",
-          },
-          Effect: "Allow",
-        },
-      ],
-    },
-  });
-
-  // Attach a policy to the IAM Role to allow sending emails via an external service
-  new aws.iam.RolePolicy("SignUpCognitoLambdaRolePolicy", {
-    role: lambdaRole.id,
-    policy: JSON.stringify({
-      Version: "2012-10-17",
-      Statement: [
-        {
-          Effect: "Allow",
-          Action: [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-          ],
-          Resource: "*",
-        },
-      ],
-    }),
-  });
-
-  const filePath = `${process.cwd()}/packages/events/signup/deployment.zip`;
-
-  // Create a Lambda function for custom email sending
-  const signUpLambdaFunction = new aws.lambda.Function(
-    "CognitoCustomMessageLambda",
+  const signUpLambdaFunction = new sst.aws.Function(
+    "CognitoVerificationEmailFunction",
     {
-      runtime: aws.lambda.Runtime.CustomAL2023,
-      role: lambdaRole.arn,
-      handler: "bootstrap", // Custom runtimes can have handler set to an empty string ""
-      code: new $util.asset.FileArchive(filePath),
-      environment: {
-        variables: {
-          SITE_URL: getSiteUrl(),
-        },
-      },
+      runtime: "go",
+      handler: "./packages/events/signup",
     }
   );
 
@@ -72,7 +25,7 @@ export const main_user_pool = () => {
   });
 
   // enable cognito domain for oauth logins (3rd party IDP's)
-  new aws.cognito.UserPoolDomain("UserPoolDomain", {
+  const userPoolDomain = new aws.cognito.UserPoolDomain("UserPoolDomain", {
     domain: process.env.APP_NAME, // e.g., "myapp-auth"
     userPoolId: pool.id,
   });
@@ -123,7 +76,7 @@ export const main_user_pool = () => {
   // Grant permission for Cognito to invoke the Lambda function
   new aws.lambda.Permission("CognitoLambdaInvokePermission", {
     action: "lambda:InvokeFunction",
-    function: signUpLambdaFunction,
+    function: signUpLambdaFunction.nodes.function,
     principal: "cognito-idp.amazonaws.com",
     sourceArn: pool.arn,
   });
@@ -133,5 +86,6 @@ export const main_user_pool = () => {
     poolClientId: client.id,
     poolClientSecret: client.clientSecret,
     signUpLambdaFunction: signUpLambdaFunction.name,
+    domain: userPoolDomain.domain,
   };
 };
