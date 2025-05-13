@@ -34,7 +34,7 @@ type CognitoService struct {
 	clientId          string
 	clientSecret      string
 	redirectUri       string
-	cognitoDomain     string
+	poolDomain        string
 	cognitoJWKSURL    string
 	jwtExpectedIssuer string
 }
@@ -47,7 +47,7 @@ func InitCognitoService() *CognitoService {
 	poolClientId := os.Getenv("POOL_CLIENT_ID")
 	poolClientSecret := os.Getenv("POOL_CLIENT_SECRET")
 	redirectUri := os.Getenv("IDP_REDIRECT_URI")
-	cognitoDomain := os.Getenv("COGNITO_DOMAIN")
+	poolDomain := os.Getenv("POOL_DOMAIN")
 
 	// Construct JWKS and issuer URLs based on region and pool ID
 	cognitoJWKSURL := fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", region, poolId)
@@ -60,7 +60,7 @@ func InitCognitoService() *CognitoService {
 		clientId:          poolClientId,
 		clientSecret:      poolClientSecret,
 		redirectUri:       redirectUri,
-		cognitoDomain:     cognitoDomain,
+		poolDomain:        poolDomain,
 		cognitoJWKSURL:    cognitoJWKSURL,
 		jwtExpectedIssuer: jwtExpectedIssuer,
 	}
@@ -239,7 +239,7 @@ func (c *CognitoService) GoogleExchangeAuthCode(code string) (CognitoTokens, err
 	data.Set("code", code)
 	data.Set("redirect_uri", c.redirectUri)
 
-	req, err := http.NewRequest("POST", c.cognitoDomain+"/oauth2/token", bytes.NewBufferString(data.Encode()))
+	req, err := http.NewRequest("POST", c.poolDomain+"/oauth2/token", bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		return CognitoTokens{}, err
 	}
