@@ -11,6 +11,7 @@ import (
 )
 
 var adapterLambda *httpadapter.HandlerAdapterV2
+
 var conn *sql.DB
 
 // initialize the routes into a lambda adapter
