@@ -6,10 +6,10 @@
   "scripts": {
     "prod": "pnpm build-functions && sst deploy --stage production",
     "preview": "pnpm build-functions && sst deploy --stage preview",
-    "dev": "pnpm build-functions && sst dev",
+    "dev": "sst dev",
     "prod-down": "sst remove --stage production",
     "preview-down": "sst remove --stage preview",
-    "dev-down": "sst remove --stage dev",
+    "dev-down": "sst remove",
     "build-functions": "pnpm build-backend && pnpm build-event-signup",
     "build-backend": "make -C packages/backend root-build",
     "build-event-signup": "make -C packages/events/signup root-build"
@@ -18,6 +18,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "sst": "3.4.3"
+    "sst": "3.14.12"
   }
 }
