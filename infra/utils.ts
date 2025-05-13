@@ -29,6 +29,21 @@ export const checkRequiredEnvs = () => {
     return false;
   }
 
+  if (!process.env.DB_URL) {
+    console.error("must define DB_URL env variable");
+    return false;
+  }
+
+  if (!process.env.AUTH_SESSION_SECRET) {
+    console.error("must define AUTH_SESSION_SECRET env variable");
+    return false;
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("must define OPENAI_API_KEY env variable");
+    return false;
+  }
+
   if (["production", "preview"].includes($app.stage)) {
     if (!process.env.DOMAIN) {
       console.error("For production deployment 'DOMAIN' env is required");
