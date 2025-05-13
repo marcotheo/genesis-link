@@ -9,11 +9,7 @@ import { AuthContext } from "~/providers/auth/auth";
 import Button from "~/components/button/button";
 import { useSignInParams } from ".";
 
-import {
-  cognitoDomain,
-  oauthRedirectUrl,
-  poolClientId,
-} from "~/common/constants";
+import { poolDomain, oauthRedirectUrl, poolClientId } from "~/common/constants";
 import { cn } from "~/common/utils";
 
 export default component$(() => {
@@ -62,7 +58,7 @@ export default component$(() => {
   });
 
   const redirectToGoogleLogin = $(() => {
-    const domain = cognitoDomain;
+    const domain = poolDomain;
     const clientId = poolClientId; // Replace with your actual app client ID
 
     const redirectUri = encodeURIComponent(oauthRedirectUrl);
