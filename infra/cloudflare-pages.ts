@@ -1,40 +1,19 @@
+import { getSiteUrl } from "./utils";
+
 export const cloudflare_pages = ({
   cdnDomain,
   apiUrl,
   poolId,
   poolClientId,
+  poolDomain,
 }: {
   cdnDomain: $util.Output<string>;
-  apiUrl: $util.Output<string>;
+  apiUrl: $util.Output<string> | string;
   poolId: $util.Output<string>;
   poolClientId: $util.Output<string>;
+  poolDomain: $util.Output<string>;
 }) => {
   if (!["production", "preview"].includes($app.stage)) return {};
-
-  if (!process.env.CLOUDFLARE_DEFAULT_ACCOUNT_ID) {
-    console.error("CLOUDFLARE_DEFAULT_ACCOUNT_ID does not exist");
-    return;
-  }
-
-  if (!process.env.GITHUB_OWNER) {
-    console.error("GITHUB_OWNER does not exist");
-    return;
-  }
-
-  if (!process.env.GITHUB_REPO_NAME) {
-    console.error("GITHUB_REPO_NAME does not exist");
-    return;
-  }
-
-  if (!process.env.GITHUB_BRANCH) {
-    console.error("GITHUB_BRANCH does not exist");
-    return;
-  }
-
-  if (!process.env.APP_NAME) {
-    console.error("APP_NAME does not exist");
-    return;
-  }
 
   console.log("Deploying cloudflare pages ...");
 
@@ -42,6 +21,7 @@ export const cloudflare_pages = ({
   const domainName =
     ($app.stage === "production" ? "" : `${$app.stage}.`) + process.env.DOMAIN;
   const zoneId = process.env.ZONE_ID;
+  const baseDomain = getSiteUrl();
 
   const app = new cloudflare.PagesProject(`${process.env.APP_NAME}FE`, {
     accountId,
@@ -64,6 +44,10 @@ export const cloudflare_pages = ({
           QWIK_AWS_REGION: process.env.AWS_REGION,
           QWIK_POOL_ID: poolId,
           QWIK_POOL_CLIENT_ID: poolClientId,
+          QWIK_IDP_REDIRECT_URI: baseDomain.apply((v) => v + "/sign-in"),
+          QWIK_POOL_DOMAIN: poolDomain.apply(
+            (v) => `https://${v}.auth.${aws.config.region}.amazoncognito.com`
+          ),
         },
       },
     },
