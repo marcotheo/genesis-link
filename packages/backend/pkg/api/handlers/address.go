@@ -132,6 +132,11 @@ func (h *AddressHandler) DeleteAddressById(w http.ResponseWriter, r *http.Reques
 	orgId := r.PathValue("orgId")
 	addressId := r.PathValue("addressId")
 
+	if orgId == "{orgId}" {
+		errorResponse(w, http.StatusBadRequest, "Invalid Request")
+		return
+	}
+
 	errQ := h.dataService.Queries.DeleteAddress(context.Background(), db.DeleteAddressParams{
 		Orgid:     orgId,
 		Addressid: addressId,
@@ -139,7 +144,7 @@ func (h *AddressHandler) DeleteAddressById(w http.ResponseWriter, r *http.Reques
 
 	if errQ != nil {
 		clog.Logger.Error(fmt.Sprintf("(DELETE) DeleteAddressById => errQ %s \n", errQ))
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong, Try Again Later")
 		return
 	}
 
