@@ -59,6 +59,31 @@ export const checkRequiredEnvs = () => {
       console.error("For production deployment 'ZONE_ID' env is required");
       return false;
     }
+
+    if (!process.env.CLOUDFLARE_DEFAULT_ACCOUNT_ID) {
+      console.error("CLOUDFLARE_DEFAULT_ACCOUNT_ID does not exist");
+      return;
+    }
+
+    if (!process.env.GITHUB_OWNER) {
+      console.error("GITHUB_OWNER does not exist");
+      return;
+    }
+
+    if (!process.env.GITHUB_REPO_NAME) {
+      console.error("GITHUB_REPO_NAME does not exist");
+      return;
+    }
+
+    if (!process.env.GITHUB_BRANCH) {
+      console.error("GITHUB_BRANCH does not exist");
+      return;
+    }
+
+    if (!process.env.APP_NAME) {
+      console.error("APP_NAME does not exist");
+      return;
+    }
   }
 
   return true;
