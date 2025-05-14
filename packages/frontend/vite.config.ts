@@ -45,7 +45,7 @@ export default defineConfig(({ command, mode }): UserConfig => {
 
           return acc;
         },
-        {} as Record<string, string>,
+        { QWIK_MODE: mode } as Record<string, string>,
       ),
     },
 
@@ -78,6 +78,16 @@ export default defineConfig(({ command, mode }): UserConfig => {
         // Don't cache the server response in dev mode
         "Cache-Control": "public, max-age=0",
       },
+      proxy:
+        mode !== "production" && process.env.QWIK_API_URL
+          ? {
+              "/api/v1": {
+                target: process.env.QWIK_API_URL + "/api/v1", // 👈 your real API URL
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/v1/, ""),
+              },
+            }
+          : undefined,
     },
     preview: {
       headers: {
