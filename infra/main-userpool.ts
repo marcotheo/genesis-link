@@ -24,9 +24,14 @@ export const main_user_pool = () => {
     },
   });
 
+  const domainName =
+    $app.stage === "production"
+      ? process.env.APP_NAME
+      : process.env.APP_NAME + "-" + $app.stage;
+
   // enable cognito domain for oauth logins (3rd party IDP's)
   const userPoolDomain = new aws.cognito.UserPoolDomain("UserPoolDomain", {
-    domain: process.env.APP_NAME, // e.g., "myapp-auth"
+    domain: domainName, // e.g., "myapp-auth"
     userPoolId: pool.id,
   });
 

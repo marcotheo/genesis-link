@@ -1,9 +1,4 @@
 /// <reference path="./.sst/platform/config.d.ts" />
-import { main_backend } from "./infra/main-backend";
-import { main_user_pool } from "./infra/main-userpool";
-import { cdn } from "./infra/cdn";
-import { cloudflare_pages } from "./infra/cloudflare-pages";
-import { checkRequiredEnvs } from "./infra/utils";
 
 export default $config({
   app(input) {
@@ -18,30 +13,39 @@ export default $config({
     };
   },
   async run() {
+    const { checkRequiredEnvs } = await import("./infra/utils");
+    const { cdn } = await import("./infra/cdn");
+    const { main_user_pool } = await import("./infra/main-userpool");
+    const { main_backend } = await import("./infra/main-backend");
+    const { cloudflare_pages } = await import("./infra/cloudflare-pages");
+
     if (!checkRequiredEnvs()) return;
 
     const cdnInfra = cdn();
 
-    const mainUserPool = main_user_pool();
+    const userPool = main_user_pool();
 
-    const mainBackendResult = await main_backend({
+    const backendInfra = await main_backend({
       bucket: cdnInfra.AssetsBucket,
-      poolId: mainUserPool.poolId,
-      poolClientId: mainUserPool.poolClientId,
-      poolClientSecret: mainUserPool.poolClientSecret,
+      poolId: userPool.poolId,
+      poolClientId: userPool.poolClientId,
+      poolClientSecret: userPool.poolClientSecret,
+      poolDomain: userPool.domain,
+      cloudFrontUrl: cdnInfra.AssetsDistribution,
     });
 
     const cloudflareResults = cloudflare_pages({
       cdnDomain: cdnInfra.AssetsDistribution,
-      apiUrl: $util.interpolate`https://${mainBackendResult.apiUrl}`,
-      poolId: mainUserPool.poolId,
-      poolClientId: mainUserPool.poolClientId,
+      apiUrl: backendInfra.apiUrl,
+      poolId: userPool.poolId,
+      poolClientId: userPool.poolClientId,
+      poolDomain: userPool.domain,
     });
 
     return {
       ...cdnInfra,
-      ...mainUserPool,
-      ...mainBackendResult,
+      ...userPool,
+      ...backendInfra,
       ...cloudflareResults,
     };
   },

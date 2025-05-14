@@ -4,15 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prod": "pnpm build-functions && sst deploy --stage production",
-    "preview": "pnpm build-functions && sst deploy --stage preview",
+    "prod": "sst deploy --stage production",
+    "preview": "sst deploy --stage preview",
     "dev": "sst dev",
     "prod-down": "sst remove --stage production",
     "preview-down": "sst remove --stage preview",
-    "dev-down": "sst remove",
-    "build-functions": "pnpm build-backend && pnpm build-event-signup",
-    "build-backend": "make -C packages/backend root-build",
-    "build-event-signup": "make -C packages/events/signup root-build"
+    "dev-down": "sst remove"
   },
   "keywords": [],
   "author": "",
