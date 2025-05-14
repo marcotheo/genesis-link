@@ -10,6 +10,7 @@
 - cloudflare account
 - aws account
 - aws cli installed
+- create google client needed for google sign-in
 
 ## Local development Guide
 
@@ -19,6 +20,8 @@
 4. setup frontend project (refer to readme file under `packages/frontend/README.md` section `## LOCAL DEVELOPMENT SETUP`)
 
 ## Production Deployment Guide
+
+- make sure you create google client for the google sign in feature (clientId and secret needed in .env before running `pnpm prod`)
 
 1. make sure you own a domain already (recommended in aws route53)
 2. create a hosted zone if not yet already for the domain
