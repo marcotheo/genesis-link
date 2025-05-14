@@ -83,10 +83,6 @@ export const useMutate = <Path extends keyof MutationsType>(url: Path) => {
         return { result: null, error: state.error };
       } finally {
         state.loading = false;
-
-        if (state.error) {
-          throw state.error;
-        }
       }
     },
   );

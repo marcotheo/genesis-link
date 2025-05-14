@@ -4,7 +4,6 @@ import {
   TbBuilding,
   TbChevronDown,
   TbChevronLeft,
-  TbDashboard,
   TbLocation,
   TbLogout,
   TbSettings,

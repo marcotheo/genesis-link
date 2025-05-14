@@ -50,12 +50,14 @@ const AddressList = component$(() => {
 
   const onDelete = $(async (addressId: string) => {
     try {
-      await mutate({
+      const { error } = await mutate({
         pathParams: {
           orgId: params.value.orgId,
           addressId,
         },
       });
+
+      if (error) throw error;
 
       if (state.addresses)
         state.addresses = state.addresses.filter(
