@@ -1,9 +1,16 @@
+import { getSiteUrl } from "./utils";
+
 export const main_user_pool = () => {
+  const baseDomain = getSiteUrl();
+
   const signUpLambdaFunction = new sst.aws.Function(
     "CognitoVerificationEmailFunction",
     {
       runtime: "go",
       handler: "./packages/events/signup",
+      environment: {
+        SITE_URL: baseDomain,
+      },
     }
   );
 
