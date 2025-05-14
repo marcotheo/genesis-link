@@ -22,13 +22,25 @@ type AuthHandler struct {
 	dataService    *services.DataService
 	cognitoService *services.CognitoService
 	utilService    *services.UtilService
+	isLocalHost    bool
+	domain         string
 }
 
 func InitAuthHandler(dataService *services.DataService, cognitoService *services.CognitoService, utilService *services.UtilService) *AuthHandler {
+	domain := os.Getenv("DOMAIN")
+	isLocalHost := domain == "localhost" || domain == ""
+
+	// Only prepend "." if not localhost
+	if !isLocalHost {
+		domain = "." + domain
+	}
+
 	return &AuthHandler{
 		dataService:    dataService,
 		cognitoService: cognitoService,
 		utilService:    utilService,
+		isLocalHost:    isLocalHost,
+		domain:         domain,
 	}
 }
 
@@ -138,6 +150,23 @@ func generateCSRFToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(token), nil
 }
 
+// Helper to build a cookie with optional domain
+func builderCookie(name, value string, expires time.Time, httpOnly bool, secure bool, isLocalHost bool, domain string) *http.Cookie {
+	cookie := &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Expires:  expires,
+		HttpOnly: httpOnly,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
+		Path:     "/",
+	}
+	if !isLocalHost {
+		cookie.Domain = domain
+	}
+	return cookie
+}
+
 func (h *AuthHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(AUTH) SignInUser => invoked")
 
@@ -163,61 +192,17 @@ func (h *AuthHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	secure := r.TLS != nil
-	domain := "." + os.Getenv("DOMAIN")
 	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
 
-	if domain == "." {
-		domain = "localhost"
-	}
-
 	// check from api gateway headers
-	if r.Header.Get("X-Forwarded-Proto") == "https" {
+	if r.Header.Get("X-Forwarded-Proto") == "https" && !h.isLocalHost {
 		secure = true
 	}
 
-	csrfTokenCookie := &http.Cookie{
-		Name:     "csrfToken",
-		Value:    csrfToken,
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
-
-	accessTokenCookie := &http.Cookie{
-		Name:     "accessToken",
-		Value:    *res.AccessToken,
-		Expires:  time.Now().Add(10 * time.Minute),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
-
-	refreshTokenCookie := &http.Cookie{
-		Name:     "refreshToken",
-		Value:    *res.RefreshToken,
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
-
-	expiresInCookie := &http.Cookie{
-		Name:     "tokenExpiresIn",
-		Value:    strconv.FormatInt(expiresIn, 10),
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
+	csrfTokenCookie := builderCookie("csrfToken", csrfToken, time.Now().Add(3*time.Hour), false, secure, h.isLocalHost, h.domain)
+	accessTokenCookie := builderCookie("accessToken", *res.AccessToken, time.Now().Add(10*time.Minute), true, secure, h.isLocalHost, h.domain)
+	refreshTokenCookie := builderCookie("refreshToken", *res.RefreshToken, time.Now().Add(3*time.Hour), true, secure, h.isLocalHost, h.domain)
+	expiresInCookie := builderCookie("tokenExpiresIn", strconv.FormatInt(expiresIn, 10), time.Now().Add(3*time.Hour), false, secure, h.isLocalHost, h.domain)
 
 	http.SetCookie(w, csrfTokenCookie)
 	http.SetCookie(w, refreshTokenCookie)
@@ -295,61 +280,17 @@ func (h *AuthHandler) ExternalProviderSignIn(w http.ResponseWriter, r *http.Requ
 	}
 
 	secure := r.TLS != nil
-	domain := "." + os.Getenv("DOMAIN")
 	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
 
-	if domain == "." {
-		domain = "localhost"
-	}
-
 	// check from api gateway headers
-	if r.Header.Get("X-Forwarded-Proto") == "https" {
+	if r.Header.Get("X-Forwarded-Proto") == "https" && !h.isLocalHost {
 		secure = true
 	}
 
-	csrfTokenCookie := &http.Cookie{
-		Name:     "csrfToken",
-		Value:    csrfToken,
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
-
-	accessTokenCookie := &http.Cookie{
-		Name:     "accessToken",
-		Value:    res.AccessToken,
-		Expires:  time.Now().Add(10 * time.Minute),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
-
-	refreshTokenCookie := &http.Cookie{
-		Name:     "refreshToken",
-		Value:    res.RefreshToken,
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
-
-	expiresInCookie := &http.Cookie{
-		Name:     "tokenExpiresIn",
-		Value:    strconv.FormatInt(expiresIn, 10),
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
+	csrfTokenCookie := builderCookie("csrfToken", csrfToken, time.Now().Add(3*time.Hour), false, secure, h.isLocalHost, h.domain)
+	accessTokenCookie := builderCookie("accessToken", res.AccessToken, time.Now().Add(10*time.Minute), true, secure, h.isLocalHost, h.domain)
+	refreshTokenCookie := builderCookie("refreshToken", res.RefreshToken, time.Now().Add(3*time.Hour), true, secure, h.isLocalHost, h.domain)
+	expiresInCookie := builderCookie("tokenExpiresIn", strconv.FormatInt(expiresIn, 10), time.Now().Add(3*time.Hour), false, secure, h.isLocalHost, h.domain)
 
 	http.SetCookie(w, csrfTokenCookie)
 	http.SetCookie(w, refreshTokenCookie)
@@ -399,40 +340,15 @@ func (h *AuthHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 	clog.Logger.Info("(AUTH) RefreshAccessToken => success")
 
 	secure := r.TLS != nil
-	domain := "." + os.Getenv("DOMAIN")
-
-	if domain == "." {
-		domain = "localhost"
-	}
+	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
 
 	// check from api gateway headers
-	if r.Header.Get("X-Forwarded-Proto") == "https" {
+	if r.Header.Get("X-Forwarded-Proto") == "https" && !h.isLocalHost {
 		secure = true
 	}
 
-	accessTokenCookie := &http.Cookie{
-		Name:     "accessToken",
-		Value:    *res.AccessToken,
-		Expires:  time.Now().Add(10 * time.Minute),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
-
-	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
-
-	expiresInCookie := &http.Cookie{
-		Name:     "tokenExpiresIn",
-		Value:    strconv.FormatInt(expiresIn, 10),
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	}
+	accessTokenCookie := builderCookie("accessToken", *res.AccessToken, time.Now().Add(10*time.Minute), true, secure, h.isLocalHost, h.domain)
+	expiresInCookie := builderCookie("tokenExpiresIn", strconv.FormatInt(expiresIn, 10), time.Now().Add(3*time.Hour), false, secure, h.isLocalHost, h.domain)
 
 	http.SetCookie(w, accessTokenCookie)
 	http.SetCookie(w, expiresInCookie)
