@@ -5,7 +5,6 @@ CREATE TABLE users (
     email TEXT NOT NULL,
     mobileNumber TEXT,
     resumeLink TEXT,
-    google_id TEXT UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

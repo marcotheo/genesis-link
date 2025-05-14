@@ -102,7 +102,6 @@ type User struct {
 	Email        string
 	Mobilenumber sql.NullString
 	Resumelink   sql.NullString
-	GoogleID     sql.NullString
 	CreatedAt    sql.NullTime
 	UpdatedAt    sql.NullTime
 }

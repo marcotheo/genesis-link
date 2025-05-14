@@ -16,7 +16,7 @@ INSERT INTO users (
 ) VALUES (
   ?, ?, ?, ?
 )
-RETURNING userid, firstname, lastname, email, mobilenumber, resumelink, google_id, created_at, updated_at
+RETURNING userid, firstname, lastname, email, mobilenumber, resumelink, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -41,7 +41,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.Mobilenumber,
 		&i.Resumelink,
-		&i.GoogleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -171,7 +170,7 @@ func (q *Queries) GetSavedPostsByUserId(ctx context.Context, arg GetSavedPostsBy
 }
 
 const getUser = `-- name: GetUser :one
-SELECT userid, firstname, lastname, email, mobilenumber, resumelink, google_id, created_at, updated_at FROM users
+SELECT userid, firstname, lastname, email, mobilenumber, resumelink, created_at, updated_at FROM users
 WHERE userId = ? LIMIT 1
 `
 
@@ -185,7 +184,6 @@ func (q *Queries) GetUser(ctx context.Context, userid string) (User, error) {
 		&i.Email,
 		&i.Mobilenumber,
 		&i.Resumelink,
-		&i.GoogleID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
