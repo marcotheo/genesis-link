@@ -54,6 +54,8 @@ export const qwikFetch = async <T>(
     requestUrl = requestUrl + "/api/v1" + url;
   }
 
+  console.log("request", requestUrl);
+
   const response = await fetch(requestUrl, options);
 
   if (!response.ok) {
@@ -102,6 +104,8 @@ export const rawFetch = async <T>(
   } else {
     requestUrl = requestUrl + "/api/v1" + url;
   }
+
+  console.log("request", requestUrl);
 
   const response = await fetch(requestUrl, options);
 
