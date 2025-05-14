@@ -308,26 +308,26 @@ func (h *AuthHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 	refreshToken, errorRefreshToken := r.Cookie("refreshToken")
 	if errorRefreshToken != nil {
 		if errorRefreshToken == http.ErrNoCookie {
-			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
+			errorResponse(w, http.StatusUnauthorized, "Session Invalid")
 			return
 		}
-		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
+		errorResponse(w, http.StatusBadRequest, "Session Invalid")
 		return
 	}
 
 	accessToken, errorAccessToken := r.Cookie("accessToken")
 	if errorAccessToken != nil {
 		if errorAccessToken == http.ErrNoCookie {
-			errorResponse(w, http.StatusUnauthorized, "No access token found")
+			errorResponse(w, http.StatusUnauthorized, "Session Invalid")
 			return
 		}
-		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
+		errorResponse(w, http.StatusBadRequest, "Session Invalid")
 		return
 	}
 
 	userId, errUserId := h.cognitoService.GetUserId(accessToken.Value)
 	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		errorResponse(w, http.StatusBadRequest, "Session Invalid")
 		return
 	}
 

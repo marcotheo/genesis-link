@@ -281,6 +281,15 @@ func (c *CognitoService) GetUserId(accessToken string) (string, error) {
 		return "", fmt.Errorf("'sub' claim not found in access token")
 	}
 
+	username, ok := claims["username"].(string)
+	if !ok {
+		return "", fmt.Errorf("'username' claim not found in access token")
+	}
+
+	if strings.Contains(username, "Google") {
+		return username, nil
+	}
+
 	return sub, nil
 }
 
@@ -367,6 +376,8 @@ func (c *CognitoService) ParseIDToken(idToken string) (*CognitoUserAttributes, e
 
 func (c *CognitoService) RefreshAccessToken(userId string, refreshToken string) (types.AuthenticationResultType, error) {
 	clog.Logger.Info("(COGNITO) refreshing access token")
+
+	fmt.Println("userId", userId)
 
 	secretHash := calculateSecretHash(c.clientId, c.clientSecret, userId)
 
