@@ -3,18 +3,22 @@ module github.com/marcotheo/genesis-link/packages/backend
 go 1.22.2
 
 require (
+	github.com/MicahParks/keyfunc v1.9.0
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.32.4
 	github.com/aws/aws-sdk-go-v2/config v1.27.18
 	github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider v1.41.4
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.66.3
+	github.com/aws/smithy-go v1.22.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/go-playground/validator/v10 v10.21.0
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/marcotheo/justarouter v1.0.6
 	github.com/matoous/go-nanoid/v2 v2.1.0
+	github.com/sashabaranov/go-openai v1.36.1
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240416075003-747366ff79c4
 	go.uber.org/dig v1.17.1
 )
@@ -35,7 +39,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.20.11 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.24.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.12 // indirect
-	github.com/aws/smithy-go v1.22.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

@@ -9,7 +9,6 @@ import {
 } from "@builder.io/qwik";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
-import { RefreshResponse } from "~/routes/layout";
 
 interface AuthState {
   ExpiresIn: number | null;
@@ -20,7 +19,7 @@ export const AuthContext = createContextId<AuthState>("auth.context");
 export default component$(() => {
   const authState = useStore<AuthState>({ ExpiresIn: null });
 
-  const { mutate } = useMutate<RefreshResponse>("/users/token/refresh");
+  const { mutate } = useMutate("POST /auth/token/refresh");
 
   const getCookie = $((name: string) => {
     const value = `; ${document.cookie}`;
@@ -43,9 +42,12 @@ export default component$(() => {
     const refreshTokenJob = async () => {
       console.log("REFRESHING ACCESS TOKEN ...");
 
-      const response = await mutate(undefined, {
-        credentials: "include",
-      });
+      const response = await mutate(
+        {},
+        {
+          credentials: "include",
+        },
+      );
 
       if (response.result) {
         const unixTimestamp = Math.floor(Date.now() / 1000); // time now in seconds

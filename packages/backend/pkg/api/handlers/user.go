@@ -2,19 +2,14 @@ package handler
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 
-	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/services"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 type UserHandler struct {
@@ -31,95 +26,29 @@ func InitUserHandler(dataService *services.DataService, cognitoService *services
 	}
 }
 
-type CreateUserParamsValidation struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
-}
-
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) CreateUser => invoked")
-
-	var userValidation CreateUserParamsValidation
-
-	errRead := ReadAndValidateBody(r, &userValidation)
-	if errRead != nil {
-		http.Error(w, errRead.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// create user in cognito user pool
-	userId, err := h.cognitoService.SignUpUser(userValidation.Email, userValidation.Password)
-	if err != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error signing up user in cognito: %s", err))
-		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
-		return
-	}
-
-	// pass to validated data to actual db params
-	var userData db.CreateUserParams
-	errCopier := copier.Copy(&userData, &userValidation)
-	if errCopier != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => Error copying: %s", errCopier))
-		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
-		return
-	}
-
-	userData.Userid = userId
-
-	user, errQ := h.dataService.Queries.CreateUser(context.Background(), userData)
-	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) CreateUser => errQ %s \n", errQ))
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
-		return
-	}
-
-	clog.Logger.Success("(USER) CreateUser => create successful")
-
-	successResponse(w, user)
-}
-
-type ConfirmSignUpParamsValidation struct {
-	Username string `json:"username" validate:"required"`
-	Code     string `json:"code" validate:"required"`
-}
-
-type ConfirmSignUpResponse struct {
-	Confirmed bool
-}
-
-func (h *UserHandler) ConfirmSignUp(w http.ResponseWriter, r *http.Request) {
-	var inputValidation ConfirmSignUpParamsValidation
-
-	errRead := ReadAndValidateBody(r, &inputValidation)
-	if errRead != nil {
-		errorResponse(w, http.StatusBadRequest, errRead.Error())
-		return
-	}
-
-	isConfirmed, err := h.cognitoService.ConfirmUser(inputValidation.Username, inputValidation.Code)
-	if err != nil {
-		errMessage := err.Error()
-
-		if strings.Contains(errMessage, "CodeMismatchException") {
-			errorResponse(w, http.StatusBadRequest, "Invalid Code")
-		} else if strings.Contains(errMessage, "UserNotFoundException") {
-			errorResponse(w, http.StatusBadRequest, "User not found")
-		} else if strings.Contains(errMessage, "LimitExceededException") {
-			errorResponse(w, http.StatusBadRequest, "Verification Attempts Exceeded")
-		} else {
-			errorResponse(w, http.StatusInternalServerError, "Something Went Wrong!")
-		}
-
-		return
-	}
-
-	successResponse(w, ConfirmSignUpResponse{Confirmed: isConfirmed})
+type UserDetailsAPI struct {
+	Userid       string `json:"userId"`
+	Email        string `json:"email"`
+	Mobilenumber string `json:"mobileNumber"`
+	Resumelink   string `json:"resumeLink"`
+	CreatedAt    int64  `json:"createdAt"`
+	UpdatedAt    int64  `json:"updatedAt"`
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(USER) GetUser => invoked")
 
-	userId := r.PathValue("userId")
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
 
 	user, err := h.dataService.Queries.GetUser(context.Background(), userId)
 
@@ -138,252 +67,242 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	clog.Logger.Success("(USER) GetUser => details successfuly retrieved")
 
-	successResponse(w, user)
-}
-
-type SignInUserParamsValidation struct {
-	Email    string `json:"email" validate:"required"`
-	Password string `json:"password" validate:"required"`
-}
-
-type SignInUserResponse struct {
-	ExpiresIn int32
-}
-
-// Generates a random CSRF token
-func generateCSRFToken() (string, error) {
-	token := make([]byte, 32)
-	_, err := rand.Read(token)
-	if err != nil {
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(token), nil
-}
-
-func (h *UserHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) SignInUser => invoked")
-
-	var inputValidation SignInUserParamsValidation
-
-	errRead := ReadAndValidateBody(r, &inputValidation)
-	if errRead != nil {
-		errorResponse(w, http.StatusBadRequest, errRead.Error())
-		return
-	}
-
-	res, err := h.cognitoService.SignInUser(inputValidation.Email, inputValidation.Password)
-	if err != nil {
-		clog.Logger.Error(fmt.Sprintf("error signin %s \n", err))
-		errorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	csrfToken, err := generateCSRFToken()
-	if err != nil {
-		errorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	secure := r.TLS != nil
-
-	domain := os.Getenv("COOKIE_DOMAIN")
-	if domain == "" {
-		domain = "localhost" // Default value if the environment variable is not set
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "csrfToken",
-		Value:    csrfToken,
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
+	successResponse(w, UserDetailsAPI{
+		Userid:       user.Userid,
+		Email:        user.Email,
+		Mobilenumber: h.utilService.ConvertNullString(user.Mobilenumber),
+		Resumelink:   h.utilService.ConvertNullString(user.Resumelink),
+		CreatedAt:    h.utilService.ConvertNullTime(user.CreatedAt),
+		UpdatedAt:    h.utilService.ConvertNullTime(user.UpdatedAt),
 	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refreshToken",
-		Value:    *res.RefreshToken,
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "accessToken",
-		Value:    *res.AccessToken,
-		Expires:  time.Now().Add(10 * time.Minute),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
-
-	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "tokenExpiresIn",
-		Value:    strconv.FormatInt(expiresIn, 10),
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
-
-	clog.Logger.Success("(USER) SignInUser => success")
-
-	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
 }
 
-func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) RefreshAccessToken => invoked")
+type UpdateUserInfoParams struct {
+	ResumeLink   string `json:"resumeLink"`
+	MobileNumber string `json:"mobileNumber"`
+	Email        string `json:"email"`
+}
 
-	refreshToken, errorRefreshToken := r.Cookie("refreshToken")
-	if errorRefreshToken != nil {
-		if errorRefreshToken == http.ErrNoCookie {
-			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
-			return
-		}
-		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
-		return
+// Validate checks if at least one field is not empty.
+func (u *UpdateUserInfoParams) Validate() error {
+	if u.ResumeLink == "" && u.MobileNumber == "" && u.Email == "" {
+		return errors.New("no update field provided")
 	}
+	return nil
+}
 
-	accessToken, errorAccessToken := r.Cookie("accessToken")
+func (h *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) UpdateUserInfo => invoked")
+
+	token, errorAccessToken := r.Cookie("accessToken")
 	if errorAccessToken != nil {
-		if errorAccessToken == http.ErrNoCookie {
-			errorResponse(w, http.StatusUnauthorized, "No access token found")
-			return
-		}
-		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	userId, errUserId := h.cognitoService.GetUserId(accessToken.Value)
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
 	if errUserId != nil {
 		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
 		return
 	}
 
-	res, err := h.cognitoService.RefreshAccessToken(userId, refreshToken.Value)
-	if err != nil {
-		errorResponse(w, http.StatusBadRequest, err.Error())
+	var params UpdateUserInfoParams
+
+	errRead := ReadAndValidateBody(r, &params)
+	if errRead != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => ReadAndValidateBody %s", errRead))
+		http.Error(w, errRead.Error(), http.StatusBadRequest)
 		return
 	}
 
-	clog.Logger.Info("(USER) RefreshAccessToken => success")
-
-	secure := r.TLS != nil
-
-	domain := os.Getenv("COOKIE_DOMAIN")
-	if domain == "" {
-		domain = "localhost" // Default value if the environment variable is not set
+	if err := params.Validate(); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => Validation error %s", err))
+	} else {
+		clog.Logger.Info("(POST) UpdateUserInfo => Validation successful")
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "accessToken",
-		Value:    *res.AccessToken,
-		Expires:  time.Now().Add(10 * time.Minute),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
+	if params.ResumeLink != "" {
+		err := h.dataService.Queries.UpdateResumeLink(context.Background(), db.UpdateResumeLinkParams{
+			Userid:     userId,
+			Resumelink: h.utilService.StringToNullString(params.ResumeLink),
+		})
 
-	expiresIn := time.Now().Unix() + int64(res.ExpiresIn)
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "tokenExpiresIn",
-		Value:    strconv.FormatInt(expiresIn, 10),
-		Expires:  time.Now().Add(3 * time.Hour),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
-
-	successResponse(w, SignInUserResponse{ExpiresIn: res.ExpiresIn})
-}
-
-func (h *UserHandler) RevokeRefreshToken(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(USER) RevokeRefreshToken => invoked")
-
-	refreshToken, errorRefreshToken := r.Cookie("refreshToken")
-	if errorRefreshToken != nil {
-		if errorRefreshToken == http.ErrNoCookie {
-			errorResponse(w, http.StatusUnauthorized, "No refresh token found")
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => ResumeLink err %s \n", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 			return
 		}
-		errorResponse(w, http.StatusBadRequest, "Error reading cookie")
+	}
+
+	if params.MobileNumber != "" {
+		err := h.dataService.Queries.UpdateMobileNumber(context.Background(), db.UpdateMobileNumberParams{
+			Userid:       userId,
+			Mobilenumber: h.utilService.StringToNullString(params.MobileNumber),
+		})
+
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => MobileNumber err %s \n", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if params.Email != "" {
+		err := h.dataService.Queries.UpdateEmail(context.Background(), db.UpdateEmailParams{
+			Userid: userId,
+			Email:  params.Email,
+		})
+
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) UpdateUserInfo => Email err %s \n", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	clog.Logger.Success("(POST) UpdateUserInfo => update successful")
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+type SkillParams struct {
+	SkillName     string `json:"skillName" validate:"required"`
+	SkillLevel    string `json:"skillLevel" validate:"omitempty,oneof=beginner intermediate advanced"` // Optional, must be one of the valid levels if present
+	SkillCategory string `json:"skillCategory" validate:"omitempty"`
+}
+
+type CreateUserSkillsParams struct {
+	Skills []SkillParams `json:"skills" validate:"required,dive"`
+}
+
+func (h *UserHandler) CreateUserSkills(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) CreateUserSkills => invoked")
+
+	// Parse and validate the request body
+	var params CreateUserSkillsParams
+	if err := ReadAndValidateBody(r, &params); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err := h.cognitoService.RevokeToken(refreshToken.Value)
+	// Retrieve the access token and validate it
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	// Begin a database transaction for multi-row insert
+	tx, err := h.dataService.Conn.Begin()
 	if err != nil {
-		errorResponse(w, http.StatusBadRequest, err.Error())
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => error beginning transaction: %s", err))
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
 		return
 	}
 
-	clog.Logger.Info("(USER) RevokeRefreshToken => success")
+	defer tx.Rollback()
 
-	secure := r.TLS != nil
+	qtx := h.dataService.Queries.WithTx(tx)
 
-	domain := os.Getenv("COOKIE_DOMAIN")
-	if domain == "" {
-		domain = "localhost" // Default value if the environment variable is not set
+	var skillsResponse []Skill
+
+	// Insert each skill for the user
+	for _, skill := range params.Skills {
+		skillId, err := gonanoid.New()
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => Error generating skillId: %s", err))
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+
+		// Insert the skill into the database
+		if err := qtx.CreateUserSkill(context.Background(), db.CreateUserSkillParams{
+			Skillid:       skillId,
+			Userid:        userId,
+			Skillname:     skill.SkillName,
+			Skilllevel:    h.utilService.StringToNullString(skill.SkillLevel),
+			Skillcategory: h.utilService.StringToNullString(skill.SkillCategory),
+		}); err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+			http.Error(w, "Error inserting skill data", http.StatusInternalServerError)
+			return
+		}
+
+		skillsResponse = append(skillsResponse, Skill{
+			SkillID:       skillId,
+			SkillName:     skill.SkillName,
+			SkillLevel:    skill.SkillLevel,
+			SkillCategory: skill.SkillCategory,
+		})
+
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "accessToken",
-		Value:    "",
-		Expires:  time.Now(),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
+		return
+	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refreshToken",
-		Value:    "",
-		Expires:  time.Now(),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
+	clog.Logger.Success("(POST) CreateUserSkills => create successful")
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "csrfToken",
-		Value:    "",
-		Expires:  time.Now(),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
+	successResponse(w, GetUserSkillsResponse{Skills: skillsResponse})
+}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "tokenExpiresIn",
-		Value:    "",
-		Expires:  time.Now(),
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode, // to be changed to accomodate lax value if deployed
-		Secure:   secure,
-		Domain:   domain,
-		Path:     "/",
-	})
+type Skill struct {
+	SkillID       string `json:"skillId"`
+	SkillName     string `json:"skillName"`
+	SkillLevel    string `json:"skillLevel,omitempty"`
+	SkillCategory string `json:"skillCategory,omitempty"`
+}
 
-	successResponse(w, true)
+type GetUserSkillsResponse struct {
+	Skills []Skill `json:"skills"`
+}
+
+func (h *UserHandler) GetUserSkills(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetUserSkills => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	userSkills, errQ := h.dataService.Queries.GetUserSkillsByUserId(context.Background(), userId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetUserSkills => errQ %s \n", errQ))
+		http.Error(w, "Error fetching user skills", http.StatusInternalServerError)
+		return
+	}
+
+	// Map skills to response format
+	var skillsData []Skill
+	for _, skill := range userSkills {
+		item := Skill{
+			SkillID:       skill.Skillid,
+			SkillName:     skill.Skillname,
+			SkillLevel:    h.utilService.ConvertNullString(skill.Skilllevel),
+			SkillCategory: h.utilService.ConvertNullString(skill.Skillcategory),
+		}
+		skillsData = append(skillsData, item)
+	}
+
+	clog.Logger.Success("(GET) GetUserSkills => successful")
+
+	// Return skills response
+	successResponse(w, GetUserSkillsResponse{Skills: skillsData})
 }

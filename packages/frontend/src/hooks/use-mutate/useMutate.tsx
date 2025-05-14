@@ -1,5 +1,6 @@
 import { useStore, $ } from "@builder.io/qwik";
 import { qwikFetch } from "~/common/utils";
+import { MutationsType } from "~/types";
 
 export interface FetchState<T> {
   result: T | null;
@@ -8,8 +9,8 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useMutate = <T,>(url: string) => {
-  const state = useStore<FetchState<T>>({
+export const useMutate = <Path extends keyof MutationsType>(url: Path) => {
+  const state = useStore<FetchState<MutationsType[Path]["response"]>>({
     result: null,
     loading: null,
     error: null,
@@ -24,41 +25,67 @@ export const useMutate = <T,>(url: string) => {
     return match ? decodeURIComponent(match[2]) : undefined;
   });
 
-  const mutate = $(async (json: any | string, options?: RequestInit) => {
-    state.loading = true;
-    state.error = null;
+  const mutate = $(
+    async (
+      params: Omit<MutationsType[Path], "response">,
+      options?: RequestInit,
+    ) => {
+      const mutateParams = params as any;
 
-    try {
-      const csrfToken = await getCsrfToken();
-      const additionalOptions = options ? options : {};
+      state.loading = true;
+      state.error = null;
 
-      const newUrl = typeof json === "string" ? url + "/" + json : url;
+      try {
+        const csrfToken = await getCsrfToken();
+        const additionalOptions = options ? options : {};
 
-      const result = await qwikFetch<T>(newUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
-        },
-        credentials: "include",
-        ...additionalOptions,
-        body: json ? JSON.stringify(json) : undefined,
-      });
+        // eslint-disable-next-line prefer-const
+        let [method, apiPath] = url.split(" ");
 
-      state.result = result;
-      state.success = true;
-      setTimeout(() => {
+        // update parameters inside the api path
+        if (
+          apiPath.includes("{") &&
+          apiPath.includes("}") &&
+          typeof mutateParams.pathParams === "object"
+        ) {
+          apiPath = apiPath.replace(
+            /\{(\w+)\}/g,
+            (_, key) => mutateParams.pathParams[key] || `{${key}}`,
+          );
+        }
+
+        const result = await qwikFetch<MutationsType[Path]["response"]>(
+          apiPath,
+          {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
+            },
+            credentials: "include",
+            ...additionalOptions,
+            body: mutateParams.bodyParams
+              ? JSON.stringify(mutateParams.bodyParams)
+              : undefined,
+          },
+          true,
+        );
+
+        state.result = result;
+        state.success = true;
+        setTimeout(() => {
+          state.success = false;
+        }, 5000);
+        return { result, error: null };
+      } catch (error) {
+        state.error = (error as Error).message;
         state.success = false;
-      }, 5000);
-      return { result, error: null };
-    } catch (error) {
-      state.error = (error as Error).message;
-      state.success = false;
-      return { result: null, error: state.error };
-    } finally {
-      state.loading = false;
-    }
-  });
+        return { result: null, error: state.error };
+      } finally {
+        state.loading = false;
+      }
+    },
+  );
 
   return { state, mutate };
 };

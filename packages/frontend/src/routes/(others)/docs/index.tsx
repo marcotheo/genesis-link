@@ -1,5 +1,6 @@
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { component$ } from "@builder.io/qwik";
+import { Modal } from "@qwik-ui/headless";
 
 import Menu, {
   DropDownMenuItem,
@@ -11,11 +12,19 @@ import Card, {
   CardFooter,
   CardHeader,
 } from "~/components/card/card";
-import Dialog, { DialogTrigger } from "~/components/dialog/dialog";
+import ThemedSelect from "~/components/themed-select/themed-select";
+import * as TModal from "~/components/themed-modal/themed-modal";
 import CdnImage from "~/components/cdn-image/cdn-image";
 import Heading from "~/components/heading/heading";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
+import { cn } from "~/common/utils";
+
+const sampleOptions = [
+  { label: "Beginner", value: "Beginner" },
+  { label: "Intermediate", value: "Intermediate" },
+  { label: "Advanced", value: "Advanced" },
+];
 
 export default component$(() => {
   return (
@@ -56,44 +65,118 @@ export default component$(() => {
                 <Heading>Inputs</Heading>
                 <div class="w-full h-[1px] bg-gray-500" />
               </div>
-              <div class="flex flex-col items-end w-full md:w-[50rem] md:flex-row md:gap-5">
-                <Input label="Outlined" />
-                <Input label="Underline" variant="underline" />
-                <Input label="Filled" variant="filled" />
+              <div class="space-y-5">
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <Input label="Outlined" />
+                  <Input label="Underline" variant="underline" />
+                  <Input label="Filled" variant="filled" />
+                </div>
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <Input label="Outlined" errorMsg="error message" />
+                  <Input
+                    label="Underline"
+                    variant="underline"
+                    errorMsg="error message"
+                  />
+                  <Input
+                    label="Filled"
+                    variant="filled"
+                    errorMsg="error message"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="w-full">
+              <div class="flex gap-2 items-center pb-3">
+                <Heading>Select</Heading>
+                <div class="w-full h-[1px] bg-gray-500" />
+              </div>
+              <div class="space-y-5">
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <ThemedSelect label="Outlined" options={sampleOptions} />
+                  <ThemedSelect
+                    label="Underline"
+                    variant="underline"
+                    options={sampleOptions}
+                  />
+                  <ThemedSelect
+                    label="Filled"
+                    variant="filled"
+                    options={sampleOptions}
+                  />
+                </div>
+                <div class="flex flex-col items-start w-full md:w-[50rem] md:flex-row md:gap-5">
+                  <ThemedSelect
+                    label="Outlined"
+                    options={sampleOptions}
+                    errorMsg="error message"
+                  />
+                  <ThemedSelect
+                    label="Underline"
+                    variant="underline"
+                    options={sampleOptions}
+                    errorMsg="error message"
+                  />
+                  <ThemedSelect
+                    label="Filled"
+                    variant="filled"
+                    options={sampleOptions}
+                    errorMsg="error message"
+                  />
+                </div>
               </div>
             </div>
 
             <div>
               <div class="flex gap-2 items-center pb-3">
-                <Heading>Menus</Heading>
+                <Heading>DropDown</Heading>
                 <div class="w-full h-[1px] bg-gray-500" />
               </div>
 
-              <div class="flex justify-between gap-5">
-                <Menu triggerTitle="Menu">
+              <div class="flex gap-5">
+                <Menu>
+                  <div
+                    q:slot="trigger"
+                    class={cn(
+                      "px-5 py-3 rounded-md",
+                      "bg-transparent border border-primary",
+                      "text-primary",
+                    )}
+                  >
+                    Menu
+                  </div>
+
                   <div q:slot="label">
                     <DropDownMenuLabel>Sample Menu</DropDownMenuLabel>
                   </div>
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                   <DropDownSeparator />
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                 </Menu>
 
-                <Menu triggerTitle="Menu">
-                  <DropDownMenuLabel q:slot="label">
-                    Sample Menu
-                  </DropDownMenuLabel>
+                <Menu panelWidth="w-56">
+                  <div
+                    q:slot="trigger"
+                    class={cn(
+                      "px-5 py-3 rounded-md",
+                      "bg-transparent border border-primary",
+                      "text-primary",
+                    )}
+                  >
+                    Custom Width Panel
+                  </div>
+
+                  <div q:slot="label">
+                    <DropDownMenuLabel>Sample Menu</DropDownMenuLabel>
+                  </div>
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                   <DropDownSeparator />
                   <DropDownMenuItem>Item 1</DropDownMenuItem>
                   <DropDownMenuItem>Item 2</DropDownMenuItem>
-                  <DropDownMenuItem>Item 3</DropDownMenuItem>
                 </Menu>
               </div>
             </div>
@@ -105,25 +188,65 @@ export default component$(() => {
               </div>
 
               <div class="flex gap-5">
-                <Dialog size="lg">
-                  <DialogTrigger q:slot="trigger">LG</DialogTrigger>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                  <div>asdasdasd</div>
-                </Dialog>
+                <Modal.Root>
+                  <TModal.Trigger>Large</TModal.Trigger>
+                  <TModal.Content
+                    size="lg"
+                    modalTitle="Create New Address"
+                    modalDescription="enter information for new address option"
+                  >
+                    <div class="flex gap-3">
+                      <Input label="Outlined" />
+                      <Input label="Outlined" />
+                    </div>
 
-                <Dialog size="md">
-                  <DialogTrigger q:slot="trigger">MD</DialogTrigger>
-                  <div>asdasdasd</div>
-                </Dialog>
+                    <br />
 
-                <Dialog size="sm">
-                  <DialogTrigger q:slot="trigger">SM</DialogTrigger>
-                  <div>asdasdasd</div>
-                </Dialog>
+                    <div class="w-full flex justify-end">
+                      <TModal.Close>Submit</TModal.Close>
+                    </div>
+                  </TModal.Content>
+                </Modal.Root>
+
+                <Modal.Root>
+                  <TModal.Trigger>Medium</TModal.Trigger>
+                  <TModal.Content
+                    size="md"
+                    modalTitle="Create New Address"
+                    modalDescription="enter information for new address option"
+                  >
+                    <div class="flex gap-3">
+                      <Input label="Outlined" />
+                      <Input label="Outlined" />
+                    </div>
+
+                    <br />
+
+                    <div class="w-full flex justify-end">
+                      <TModal.Close>Submit</TModal.Close>
+                    </div>
+                  </TModal.Content>
+                </Modal.Root>
+
+                <Modal.Root>
+                  <TModal.Trigger>Small</TModal.Trigger>
+                  <TModal.Content
+                    size="sm"
+                    modalTitle="Create New Address"
+                    modalDescription="enter information for new address option"
+                  >
+                    <div class="flex gap-3">
+                      <Input label="Outlined" />
+                      <Input label="Outlined" />
+                    </div>
+
+                    <br />
+
+                    <div class="w-full flex justify-end">
+                      <TModal.Close>Submit</TModal.Close>
+                    </div>
+                  </TModal.Content>
+                </Modal.Root>
               </div>
             </div>
 

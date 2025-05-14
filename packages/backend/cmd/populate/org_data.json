@@ -1,0 +1,257 @@
+[
+  {
+    "company": "Tech Solutions Inc.",
+    "email": "info@techsolutions.com",
+    "contactNumber": "+639171234567",
+    "bannerLink": "https://example.com/banners/techsolutions.jpg",
+    "logoLink": "https://example.com/logos/techsolutions.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "NCR",
+      "province": "Metro Manila",
+      "city": "Makati",
+      "barangay": "Bel-Air",
+      "addressDetails": "123 Ayala Avenue, Bel-Air, Makati"
+    },
+    "posts": [
+      {
+        "title": "Backend Developer",
+        "description": "Build and maintain APIs using Node.js and PostgreSQL.",
+        "additionalInfoLink": "https://company.com/job-details",
+        "workSetup": "remote",
+        "deadline": "2025-05-01",
+        "addressId": "abc987xyz",
+        "tags": [
+          {
+            "tagName": "Node.js",
+            "tagCategory": "Backend Framework"
+          },
+          {
+            "tagName": "PostgreSQL",
+            "tagCategory": "Database"
+          },
+          {
+            "tagName": "REST API",
+            "tagCategory": "Technology"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 50000,
+          "salaryAmountMax": 70000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Develop and maintain backend services."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Proficiency in Node.js and PostgreSQL."
+            }
+          ]
+        }
+      },
+      {
+        "title": "Data Analyst",
+        "description": "Analyze business data and provide insights.",
+        "additionalInfoLink": "https://company.com/job-details",
+        "workSetup": "on-site",
+        "deadline": "2025-05-15",
+        "addressId": "xyz654def",
+        "tags": [
+          {
+            "tagName": "SQL",
+            "tagCategory": "Data Analysis"
+          },
+          {
+            "tagName": "Python",
+            "tagCategory": "Programming Language"
+          },
+          {
+            "tagName": "Power BI",
+            "tagCategory": "Business Intelligence"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 45000,
+          "salaryAmountMax": 60000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Gather, clean, and analyze data for insights."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience in SQL, Python, and Power BI."
+            }
+          ]
+        }
+      },
+      {
+        "title": "UI/UX Designer",
+        "description": "Design and improve user interfaces for web applications.",
+        "additionalInfoLink": "https://company.com/job-details",
+        "workSetup": "hybrid",
+        "deadline": "2025-06-01",
+        "addressId": "lmn321pqr",
+        "tags": [
+          {
+            "tagName": "Figma",
+            "tagCategory": "Design Tool"
+          },
+          {
+            "tagName": "User Experience",
+            "tagCategory": "Design Principle"
+          },
+          {
+            "tagName": "Prototyping",
+            "tagCategory": "Design Methodology"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "contract",
+          "salaryType": "fixed",
+          "salaryAmountMin": 60000,
+          "salaryAmountMax": 80000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Create user-friendly designs for web applications."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience in Figma and UX best practices."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "company": "Innovate Tech Solutions",
+    "email": "contact@innovate-tech.com",
+    "contactNumber": "+639176543210",
+    "bannerLink": "https://example.com/banners/innovate-tech.jpg",
+    "logoLink": "https://example.com/logos/innovate-tech.jpg",
+    "address": {
+      "country": "Philippines",
+      "region": "NCR",
+      "province": "Metro Manila",
+      "city": "Taguig",
+      "barangay": "Fort Bonifacio",
+      "addressDetails": "30th Street, Fort Bonifacio, Taguig"
+    },
+    "posts": [
+      {
+        "title": "Software Engineer",
+        "description": "Develop scalable web applications using Go and React.",
+        "additionalInfoLink": "https://example.com/jobs/software-engineer",
+        "workSetup": "remote",
+        "deadline": "2025-05-10",
+        "addressId": "job123xyz",
+        "tags": [
+          {
+            "tagName": "Go",
+            "tagCategory": "Backend Language"
+          },
+          {
+            "tagName": "React",
+            "tagCategory": "Frontend Framework"
+          },
+          {
+            "tagName": "SQL",
+            "tagCategory": "Database"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 60000,
+          "salaryAmountMax": 90000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Develop, test, and deploy backend APIs."
+            },
+            {
+              "requirementType": "responsibility",
+              "requirement": "Collaborate with frontend engineers to integrate APIs."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Strong experience with Go and PostgreSQL."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience with cloud platforms such as AWS or GCP."
+            }
+          ]
+        }
+      },
+      {
+        "title": "Frontend Developer",
+        "description": "Create dynamic user interfaces using React and TypeScript.",
+        "additionalInfoLink": "https://example.com/jobs/frontend-developer",
+        "workSetup": "hybrid",
+        "deadline": "2025-06-01",
+        "addressId": "job456abc",
+        "tags": [
+          {
+            "tagName": "React",
+            "tagCategory": "Frontend Framework"
+          },
+          {
+            "tagName": "TypeScript",
+            "tagCategory": "Programming Language"
+          },
+          {
+            "tagName": "CSS",
+            "tagCategory": "Design"
+          }
+        ],
+        "jobDetails": {
+          "jobType": "full-time",
+          "salaryType": "monthly",
+          "salaryAmountMin": 50000,
+          "salaryAmountMax": 70000,
+          "salaryCurrency": "PHP"
+        },
+        "postRequirements": {
+          "requirements": [
+            {
+              "requirementType": "responsibility",
+              "requirement": "Develop responsive UI components."
+            },
+            {
+              "requirementType": "responsibility",
+              "requirement": "Ensure UI/UX consistency across devices."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Proficiency in React and TypeScript."
+            },
+            {
+              "requirementType": "qualification",
+              "requirement": "Experience in state management libraries like Redux or Zustand."
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

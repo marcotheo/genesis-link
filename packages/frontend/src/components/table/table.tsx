@@ -1,4 +1,4 @@
-import { component$, QRL, Slot, JSXOutput } from "@builder.io/qwik";
+import { component$, QRL, Slot, JSXOutput, JSX } from "@builder.io/qwik";
 import { cn } from "~/common/utils";
 
 export type RowDefKeyOf<ObjectType extends object> = {
@@ -11,8 +11,14 @@ interface ITableProps<T extends object> {
   headers: string[];
   data: T[];
   rowKey: RowDefKeyOf<T>;
-  rowDef: (RowDefKeyOf<T> | QRL<(item: T) => JSXOutput>)[];
+  rowDef: (
+    | RowDefKeyOf<T>
+    | QRL<(item: T) => JSXOutput>
+    | QRL<(item: T) => Promise<JSXOutput>>
+  )[];
+  renderMenu$?: QRL<(row: T) => JSX.Element>;
   loading?: boolean | null;
+  onRowClick?: QRL<(rowId: string) => void>;
 }
 
 const Th = component$(() => {
@@ -36,7 +42,7 @@ const Td = component$(() => {
 const TableSkeleton = component$<{ total: number }>(({ total }) => {
   return (
     <>
-      {[...Array(10)].map((_, idx) => (
+      {[...Array(5)].map((_, idx) => (
         <tr key={idx} class="border-b border-soft">
           {[...Array(total)].map((_, idx) => (
             <td key={idx} class="px-3 py-4 animate-pulse">
@@ -49,9 +55,25 @@ const TableSkeleton = component$<{ total: number }>(({ total }) => {
   );
 });
 
-const TableHeaders = component$<{ headers: string[] }>(({ headers }) => {
-  return headers.map((value) => <Th key={value}>{value}</Th>);
+const TableHeaders = component$<{
+  headers: string[];
+  renderMenu$?: QRL<(row: any) => JSX.Element>;
+}>(({ headers, renderMenu$ }) => {
+  return (
+    <>
+      {headers.map((value) => (
+        <Th key={value}>{value}</Th>
+      ))}
+      {renderMenu$ && <Th></Th>}
+    </>
+  );
 });
+
+const RenderMenu = component$(
+  (props: { menuFn: QRL<(row: any) => JSX.Element>; row: any }) => {
+    return <>{props.menuFn(props.row)}</>;
+  },
+);
 
 const TableBody = component$(
   <T extends object>({
@@ -60,6 +82,8 @@ const TableBody = component$(
     data,
     rowKey,
     rowDef,
+    onRowClick,
+    renderMenu$,
   }: ITableProps<T>) => {
     const getValue = (item: Object, property: typeof rowKey) => {
       const keys = property.split(".");
@@ -82,7 +106,7 @@ const TableBody = component$(
         {loading ? (
           <TableSkeleton total={headers.length} />
         ) : (
-          (data ?? []).map((item) => {
+          data.map((item) => {
             const rowId = getValue(item, rowKey);
 
             return (
@@ -90,9 +114,13 @@ const TableBody = component$(
                 key={rowId}
                 class={cn(
                   "border-b border-soft",
-                  "cursor-pointer hover:bg-soft",
+                  "hover:bg-soft",
                   "duration-200 ease-out",
+                  onRowClick && "cursor-pointer",
                 )}
+                onClick$={() => {
+                  if (onRowClick) onRowClick(rowId);
+                }}
               >
                 {rowDef.map((property, idx) => {
                   if (typeof property === "string") {
@@ -103,6 +131,11 @@ const TableBody = component$(
 
                   return <Td key={idx}>{property(item)}</Td>;
                 })}
+                {renderMenu$ && (
+                  <Td>
+                    <RenderMenu menuFn={renderMenu$} row={item} />
+                  </Td>
+                )}
               </tr>
             );
           })
@@ -114,17 +147,20 @@ const TableBody = component$(
 
 export const Table = component$(<T extends object>(props: ITableProps<T>) => {
   return (
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto w-full">
       <table
         class={cn(
-          "w-full min-w-[800px]",
+          "w-full",
           "rounded-lg overflow-hidden",
           "table border-collapse",
         )}
       >
         <thead>
           <tr class="brightness-125 shadow-md">
-            <TableHeaders headers={props.headers} />
+            <TableHeaders
+              headers={props.headers}
+              renderMenu$={props.renderMenu$}
+            />
           </tr>
         </thead>
         <tbody>

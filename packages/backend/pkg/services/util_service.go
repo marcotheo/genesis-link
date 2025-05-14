@@ -2,15 +2,23 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type UtilService struct {
+	CloudfrontUrl string
 }
 
 func InitUtilService() *UtilService {
-	return &UtilService{}
+	cdnUrl := os.Getenv("CLOUDFRONT_URL")
+
+	return &UtilService{
+		CloudfrontUrl: cdnUrl,
+	}
 }
 
 func (a *UtilService) GenerateUUID() string {
@@ -32,4 +40,33 @@ func (a *UtilService) ConvertNullInt64(nullInt sql.NullInt64) int64 {
 	}
 
 	return 0
+}
+
+func (a *UtilService) ConvertNullTime(nullTime sql.NullTime) int64 {
+	if nullTime.Valid {
+		return nullTime.Time.Unix()
+	}
+
+	return 0
+}
+
+func (a *UtilService) StringToNullString(input string) sql.NullString {
+	if input == "" {
+		return sql.NullString{Valid: false} // Represents NULL
+	}
+	return sql.NullString{String: input, Valid: true} // Represents a valid string
+}
+
+func (a *UtilService) HandleInterfaceToString(value interface{}) string {
+	if value == nil {
+		return ""
+	}
+	switch v := value.(type) {
+	case string:
+		return v
+	case time.Time:
+		return v.Format("2006-01-02 15:04:05") // Format as a string
+	default:
+		return fmt.Sprintf("%v", v) // Convert other types to string
+	}
 }

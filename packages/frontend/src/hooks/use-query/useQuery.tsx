@@ -4,12 +4,14 @@ import {
   useTask$,
   useContext,
   useVisibleTask$,
+  useSignal,
+  isSignal,
 } from "@builder.io/qwik";
-import { Signal } from "@builder.io/qwik";
 
 import { QueryContext } from "~/providers/query/query";
-import { isServer } from "@builder.io/qwik/build";
+import { useToast } from "../use-toast/useToast";
 import { qwikFetch } from "~/common/utils";
+import { QueryType } from "~/types";
 
 export interface FetchState<T> {
   result: T | null;
@@ -18,112 +20,191 @@ export interface FetchState<T> {
   success: boolean;
 }
 
-export const useQuery = <T,>(
-  baseUrl: string,
-  signalObject: Record<string, Signal<any>>,
+export const useQuery = <Path extends keyof QueryType>(
+  apiKey: Path,
+  params: Omit<QueryType[Path], "response">, // must contain optiona properties of { pathParams and queryStrings } refer to /types folder index.ts
   options?: {
-    defaultValues?: T | null;
+    defaultValues?: QueryType[Path]["response"] | null;
     cacheTime?: number; // in milliseconds
     runOnRender?: boolean;
   },
 ) => {
+  const hasMounted = useSignal(false);
   const queryCtx = useContext(QueryContext);
+  const cachedTime = options?.cacheTime || queryCtx.cachedTime; // ms 1min default
+  const cacheKeyTrack = useSignal(apiKey.split(" ")[1] ?? "");
+  const toast = useToast();
 
-  const cachedTime = options?.cacheTime || 60000 * 3; // ms 1min default
-
-  const state = useStore<FetchState<T>>({
+  const state = useStore<{
+    result: QueryType[Path]["response"] | null;
+    loading: boolean | null;
+    error: null | string;
+    success: boolean;
+  }>({
     result: options?.defaultValues ?? null,
     loading: options?.runOnRender ? true : null,
     error: null,
     success: false,
   });
 
-  const buildQueryString = $((params: Record<string, Signal<any>>): string => {
-    const query = new URLSearchParams();
-    for (const key in params) {
-      query.append(key, params[key].value);
-    }
-    return query.toString();
+  const getApiUrl = $((): string => {
+    const apiParams = params as any;
+
+    // build Query String
+    const searchParams = new URLSearchParams();
+    if (!!apiParams.queryStrings)
+      for (const key in apiParams.queryStrings) {
+        if (apiParams.queryStrings[key]?.value)
+          searchParams.append(key, apiParams.queryStrings[key].value);
+      }
+
+    // build api path
+    let [, apiPath] = apiKey.split(" ");
+
+    // update parameters inside the api path
+    if (apiPath.includes("{") && apiPath.includes("}"))
+      apiPath = apiPath.replace(
+        /\{(\w+)\}/g,
+        (_, key) =>
+          apiParams.pathParams[key].value ||
+          apiParams.pathParams[key] ||
+          `{${key}}`,
+      );
+
+    return (
+      apiPath + (searchParams.size > 0 ? `?${searchParams.toString()}` : "")
+    );
   });
 
   const getCachedData = $((key: string) => {
     const cached = queryCtx.cache[key];
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (cached && Date.now() - cached.timestamp < cachedTime) {
       return cached.data;
     }
+
     return null;
   });
 
-  const setCacheData = $((key: string, data: T) => {
+  const setCacheData = $((key: string, data: QueryType[Path]["response"]) => {
     queryCtx.cache[key] = {
       data,
       timestamp: Date.now(),
     };
   });
 
-  const refetch = $(async () => {
-    state.loading = true;
-    state.error = null;
-
-    const queryString = await buildQueryString(signalObject);
-
-    const url = `${baseUrl}?${queryString}`;
-
-    // Check the cache first
-    const cachedResult = await getCachedData(url);
+  const cacheToState = $(async (cachedResult: any) => {
     if (cachedResult) {
       state.result = cachedResult;
       state.success = true;
       state.loading = false;
-      return { result: cachedResult, error: null };
-    }
-
-    try {
-      const result = await qwikFetch<T>(url, {
-        method: "GET", // Adjust method if needed
-        credentials: "include",
-      });
-
-      // Cache the result
-      await setCacheData(url, result);
-
-      state.result = result;
-      state.success = true;
-      setTimeout(() => {
-        state.success = false;
-      }, 5000);
-      return { result, error: null };
-    } catch (error) {
-      state.error = (error as Error).message;
-      state.success = false;
-      return { result: null, error: state.error };
-    } finally {
-      state.loading = false;
     }
   });
 
+  const refetch = $(
+    async ({ revalidate = false }: { revalidate?: boolean }) => {
+      state.loading = true;
+      state.error = null;
+
+      const apiUrl = await getApiUrl();
+
+      // Check the cache first
+      if (!revalidate) {
+        const cachedResult = await getCachedData(apiUrl);
+        if (cachedResult) {
+          state.result = cachedResult;
+          state.success = true;
+          state.loading = false;
+
+          return {
+            result: cachedResult as QueryType[Path]["response"],
+            error: null,
+          };
+        }
+      }
+
+      try {
+        const result = await qwikFetch<QueryType[Path]["response"]>(
+          apiUrl,
+          {
+            method: "GET",
+            credentials: "include",
+          },
+          true,
+        );
+
+        // Cache the result
+        await setCacheData(apiUrl, result);
+
+        state.result = result;
+        state.success = true;
+        setTimeout(() => {
+          state.success = false;
+        }, 5000);
+        return { result, error: null };
+      } catch (error) {
+        const errMessage = (error as Error).message;
+        const errStatus = (error as any).status;
+
+        if (errStatus === 401) {
+          toast.add({
+            title: errMessage,
+            message: "",
+            type: "destructive",
+          });
+        }
+
+        state.error = errMessage;
+        state.success = false;
+        return { result: null, error: state.error };
+      } finally {
+        state.loading = false;
+      }
+    },
+  );
+
   useTask$(({ track }) => {
-    // Track all signals within the signalObject
-    for (const key in signalObject) {
-      track(() => signalObject[key].value);
+    track(cacheKeyTrack);
+    const result = track(() => queryCtx.cache[cacheKeyTrack.value]);
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (result?.data) cacheToState(result.data);
+  });
+
+  useTask$(async ({ track }) => {
+    const apiParams = params as any;
+
+    // Track pathParams and queryStrings
+    [apiParams?.pathParams, apiParams?.queryStrings].forEach((obj) => {
+      if (obj) {
+        Object.values(obj).forEach((value) => {
+          if (isSignal(value)) {
+            track(value);
+          }
+        });
+      }
+    });
+
+    // change tracked cacheKey when api parameter changes
+    const apiUrl = await getApiUrl();
+    cacheKeyTrack.value = apiUrl;
+
+    if (!hasMounted.value) {
+      // Skip execution on initial mount and route changes
+      hasMounted.value = true;
+      return;
     }
 
     // Execute the query when any of the signals change
-    if (isServer) return;
-
-    refetch();
+    refetch({ revalidate: options?.cacheTime === 0 });
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
-    // Cache the default values as well, if provided
-    if (!!options?.defaultValues) {
-      const queryString = await buildQueryString(signalObject);
-      const url = `${baseUrl}?${queryString}`;
-      setCacheData(url, options.defaultValues);
+    if (options?.runOnRender) {
+      refetch({ revalidate: options.cacheTime === 0 });
     }
-
-    if (options?.runOnRender) refetch();
   });
 
   return { state, refetch };

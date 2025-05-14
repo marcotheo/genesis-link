@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -8,31 +9,107 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/MicahParks/keyfunc"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
+	"github.com/aws/smithy-go"
+	"github.com/golang-jwt/jwt/v4"
 	clog "github.com/marcotheo/genesis-link/packages/backend/pkg/logger"
 )
 
+var ErrCognitoInvalidAuthCode = errors.New("invalid authorization code")
+var ErrCognitoInvalidAccessToken = errors.New("invalid or expired access token")
+
 type CognitoService struct {
-	Client       *cognitoidentityprovider.Client
-	poolId       string
-	clientId     string
-	clientSecret string
+	Client            *cognitoidentityprovider.Client
+	poolId            string
+	clientId          string
+	clientSecret      string
+	redirectUri       string
+	poolDomain        string
+	cognitoJWKSURL    string
+	jwtExpectedIssuer string
 }
 
 func InitCognitoService() *CognitoService {
 	cfg := awsConfigInit()
 
+	region := os.Getenv("AWS_REGION")
 	poolId := os.Getenv("POOL_ID")
 	poolClientId := os.Getenv("POOL_CLIENT_ID")
 	poolClientSecret := os.Getenv("POOL_CLIENT_SECRET")
+	redirectUri := os.Getenv("IDP_REDIRECT_URI")
+	poolDomain := os.Getenv("POOL_DOMAIN")
+
+	// Construct JWKS and issuer URLs based on region and pool ID
+	cognitoJWKSURL := fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", region, poolId)
+	jwtExpectedIssuer := fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", region, poolId)
 
 	client := cognitoidentityprovider.NewFromConfig(*cfg)
-	return &CognitoService{Client: client, poolId: poolId, clientId: poolClientId, clientSecret: poolClientSecret}
+	return &CognitoService{
+		Client:            client,
+		poolId:            poolId,
+		clientId:          poolClientId,
+		clientSecret:      poolClientSecret,
+		redirectUri:       redirectUri,
+		poolDomain:        poolDomain,
+		cognitoJWKSURL:    cognitoJWKSURL,
+		jwtExpectedIssuer: jwtExpectedIssuer,
+	}
+}
+
+func (c *CognitoService) VerifyToken(accessToken string) error {
+	// Load JWKS from Cognito
+	jwks, err := keyfunc.Get(c.cognitoJWKSURL, keyfunc.Options{
+		RefreshInterval: time.Hour,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to get JWKS: %w", err)
+	}
+
+	// Parse and validate token
+	token, err := jwt.Parse(accessToken, jwks.Keyfunc)
+	if err != nil || !token.Valid {
+		return fmt.Errorf("%w: %v", ErrCognitoInvalidAccessToken, err)
+	}
+
+	// Validate standard claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return fmt.Errorf("%w: cannot extract claims", ErrCognitoInvalidAccessToken)
+	}
+
+	// Check token_use
+	if tokenUse, _ := claims["token_use"].(string); tokenUse != "access" {
+		return fmt.Errorf("%w: token_use is not 'access'", ErrCognitoInvalidAccessToken)
+	}
+
+	// Check issuer
+	if iss, _ := claims["iss"].(string); iss != c.jwtExpectedIssuer {
+		return fmt.Errorf("%w: invalid issuer", ErrCognitoInvalidAccessToken)
+	}
+
+	// Optional: check audience (if your tokens include it)
+	if aud, _ := claims["client_id"].(string); aud != c.clientId {
+		return fmt.Errorf("%w: client_id does not match", ErrCognitoInvalidAccessToken)
+	}
+
+	// Optional: check expiration
+	if exp, ok := claims["exp"].(float64); ok {
+		if time.Now().Unix() > int64(exp) {
+			return fmt.Errorf("%w: token expired", ErrCognitoInvalidAccessToken)
+		}
+	}
+
+	return nil
 }
 
 func calculateSecretHash(clientID, clientSecret, username string) string {
@@ -91,7 +168,7 @@ func (c *CognitoService) ConfirmUser(username string, code string) (bool, error)
 	return true, nil
 }
 
-func decodeJWT(token string) (map[string]interface{}, error) {
+func (c *CognitoService) DecodeJWT(token string) (map[string]interface{}, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("invalid token format")
@@ -130,7 +207,12 @@ func (c *CognitoService) SignInUser(username string, password string) (types.Aut
 			return types.AuthenticationResultType{}, errors.New("invalid credentials")
 		}
 
-		return types.AuthenticationResultType{}, fmt.Errorf("failed authenticate user: %w", err)
+		if strings.Contains(err.Error(), "User does not exist") {
+			return types.AuthenticationResultType{}, errors.New("invalid credentials")
+		}
+
+		return types.AuthenticationResultType{}, errors.New("something went wrong")
+
 	}
 
 	clog.Logger.Info("(COGNITO) user authenticated")
@@ -139,9 +221,57 @@ func (c *CognitoService) SignInUser(username string, password string) (types.Aut
 	return *result.AuthenticationResult, nil
 }
 
+type CognitoTokens struct {
+	AccessToken  string `json:"access_token"`
+	IDToken      string `json:"id_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int    `json:"expires_in"`
+	TokenType    string `json:"token_type"`
+}
+
+func (c *CognitoService) GoogleExchangeAuthCode(code string) (CognitoTokens, error) {
+	clog.Logger.Info("(COGNITO) exchanging google auth code for tokens ...")
+
+	data := url.Values{}
+	data.Set("grant_type", "authorization_code")
+	data.Set("client_id", c.clientId)
+	data.Set("client_secret", c.clientSecret)
+	data.Set("code", code)
+	data.Set("redirect_uri", c.redirectUri)
+
+	req, err := http.NewRequest("POST", c.poolDomain+"/oauth2/token", bytes.NewBufferString(data.Encode()))
+	if err != nil {
+		return CognitoTokens{}, err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return CognitoTokens{}, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return CognitoTokens{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return CognitoTokens{}, fmt.Errorf("%w: %s", ErrCognitoInvalidAuthCode, body)
+	}
+
+	var tokenResp CognitoTokens
+	if err := json.Unmarshal(body, &tokenResp); err != nil {
+		return CognitoTokens{}, fmt.Errorf("failed to parse token response: %w", err)
+	}
+
+	return tokenResp, nil
+}
+
 func (c *CognitoService) GetUserId(accessToken string) (string, error) {
 	// Decode the access token to get the 'sub' claim
-	claims, err := decodeJWT(accessToken)
+	claims, err := c.DecodeJWT(accessToken)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode access token: %w", err)
 	}
@@ -151,11 +281,103 @@ func (c *CognitoService) GetUserId(accessToken string) (string, error) {
 		return "", fmt.Errorf("'sub' claim not found in access token")
 	}
 
+	username, ok := claims["username"].(string)
+	if !ok {
+		return "", fmt.Errorf("'username' claim not found in access token")
+	}
+
+	if strings.Contains(username, "Google") {
+		return username, nil
+	}
+
 	return sub, nil
+}
+
+type CognitoUserAttributes struct {
+	Email      string
+	FamilyName string
+	GivenName  string
+	Sub        string
+}
+
+func (c *CognitoService) GetUser(accessToken string) (*CognitoUserAttributes, error) {
+	input := &cognitoidentityprovider.GetUserInput{
+		AccessToken: aws.String(accessToken),
+	}
+
+	resp, err := c.Client.GetUser(context.TODO(), input)
+	if err != nil {
+		var apiErr smithy.APIError
+		var errMessage error
+
+		if errors.As(err, &apiErr) {
+			switch apiErr.ErrorCode() {
+			case "NotAuthorizedException", "InvalidParameterException":
+				errMessage = fmt.Errorf("%w: %s", ErrCognitoInvalidAccessToken, apiErr.ErrorMessage())
+			default:
+				errMessage = fmt.Errorf("cognito error (%s): %w", apiErr.ErrorCode(), err)
+			}
+		} else {
+			errMessage = err
+		}
+
+		return nil, errMessage
+	}
+	// Initialize a map to hold values
+	attrMap := make(map[string]string)
+	for _, attr := range resp.UserAttributes {
+		attrMap[*attr.Name] = *attr.Value
+	}
+
+	return &CognitoUserAttributes{
+		Email:      attrMap["email"],
+		FamilyName: attrMap["family_name"],
+		GivenName:  attrMap["given_name"],
+		Sub:        attrMap["sub"],
+	}, nil
+}
+
+func getStringClaim(claims map[string]interface{}, key string) string {
+	if val, ok := claims[key]; ok {
+		if str, ok := val.(string); ok {
+			return str
+		}
+	}
+	return ""
+}
+
+func (c *CognitoService) ParseIDToken(idToken string) (*CognitoUserAttributes, error) {
+	parts := strings.Split(idToken, ".")
+	if len(parts) != 3 {
+		return nil, errors.New("invalid JWT format")
+	}
+
+	payloadSegment := parts[1]
+
+	// Decode base64 payload
+	payloadBytes, err := base64.RawURLEncoding.DecodeString(payloadSegment)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decode JSON claims
+	var claims map[string]interface{}
+	if err := json.Unmarshal(payloadBytes, &claims); err != nil {
+		return nil, err
+	}
+
+	return &CognitoUserAttributes{
+		Email:      getStringClaim(claims, "email"),
+		FamilyName: getStringClaim(claims, "family_name"),
+		GivenName:  getStringClaim(claims, "given_name"),
+		Sub:        getStringClaim(claims, "sub"),
+	}, nil
 }
 
 func (c *CognitoService) RefreshAccessToken(userId string, refreshToken string) (types.AuthenticationResultType, error) {
 	clog.Logger.Info("(COGNITO) refreshing access token")
+
+	fmt.Println("userId", userId)
 
 	secretHash := calculateSecretHash(c.clientId, c.clientSecret, userId)
 

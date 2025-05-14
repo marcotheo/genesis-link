@@ -6,8 +6,7 @@ import { awsRegion, poolClientId, userPoolId } from "~/common/constants";
 import ToasterProvider from "~/providers/toaster/toaster";
 import QueryProvider from "~/providers/query/query";
 import AuthProvider from "~/providers/auth/auth";
-import { cn, rawFetch } from "~/common/utils";
-import Header from "./Header";
+import { rawFetch } from "~/common/utils";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -37,11 +36,13 @@ const verifier = CognitoJwtVerifier.create({
 
 const isAuth = async (token: string, sharedMap: Map<string, any>) => {
   try {
-    await verifier.verify(token);
+    const result = await verifier.verify(token);
     sharedMap.set("isLoggedIn", true);
+    sharedMap.set("userId", result.sub);
   } catch (err) {
     console.error("Token verification failed:", err);
     sharedMap.set("isLoggedIn", false);
+    sharedMap.set("userId", "");
   }
 };
 
@@ -56,6 +57,7 @@ export const onRequest: RequestHandler = async ({
 
   if (!accessToken || !refreshToken || !tokenExpiresInCookie) {
     sharedMap.set("isLoggedIn", false);
+    sharedMap.set("userId", "");
     return;
   }
 
@@ -73,7 +75,7 @@ export const onRequest: RequestHandler = async ({
   try {
     const cookies = `refreshToken=${refreshToken.value}; accessToken=${accessToken.value}`;
 
-    const res = await rawFetch<RefreshResponse>("/users/token/refresh", {
+    const res = await rawFetch<RefreshResponse>("/auth/token/refresh", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -150,17 +152,7 @@ export default component$(() => {
     <ToasterProvider>
       <QueryProvider>
         <AuthProvider>
-          <div class="h-screen flex flex-col">
-            <div class={cn("min-[350px]:px-5 sm:px-12 2xl:px-52")}>
-              <Header />
-            </div>
-
-            <div class="grow overflow-auto">
-              <div class="h-full min-[350px]:px-5 sm:px-12 2xl:px-52">
-                <Slot />
-              </div>
-            </div>
-          </div>
+          <Slot />
         </AuthProvider>
       </QueryProvider>
     </ToasterProvider>

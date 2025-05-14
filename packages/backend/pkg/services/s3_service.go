@@ -47,3 +47,23 @@ func (c *S3Service) PutObjectUrl(key string, lifetimeSecs int64) (*v4.PresignedH
 
 	return request, nil
 }
+
+// Generate a signed URL for downloading an object (GET operation)
+func (c *S3Service) GetObjectUrl(key string, lifetimeSecs int64) (*v4.PresignedHTTPRequest, error) {
+	clog.Logger.Info("(S3) Generate Get Object Signed Url")
+
+	request, err := c.PresignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: &c.Bucket,
+		Key:    aws.String(key),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(lifetimeSecs * int64(time.Second))
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate GET signed URL: %w", err)
+	}
+
+	clog.Logger.Info("(S3) GET signed URL generated successfully")
+
+	return request, nil
+}

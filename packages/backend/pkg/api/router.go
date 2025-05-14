@@ -43,29 +43,41 @@ func InitializeApp() (*http.Handler, *sql.DB) {
 	container.Provide(services.InitCognitoService)
 	container.Provide(services.InitS3Service)
 	container.Provide(services.InitMiddlewareService)
+	container.Provide(services.InitOpenAIService)
+
+	container.Provide(handler.InitAuthHandler)
 	container.Provide(handler.InitUserHandler)
-	container.Provide(handler.InitPostHandler)
-	container.Provide(handler.InitS3Handler)
+	container.Provide(handler.InitOrgHandler)
 	container.Provide(handler.InitAddressHandler)
+	container.Provide(handler.InitPostHandler)
+	container.Provide(handler.InitApplicationHandler)
+	container.Provide(handler.InitS3Handler)
+
+	container.Provide(routes.InitAuthRoutes)
 	container.Provide(routes.InitUserRoutes)
+	container.Provide(routes.InitOrgRoutes)
 	container.Provide(routes.InitPostRoutes)
-	container.Provide(routes.InitAddressRoutes)
+	container.Provide(routes.InitApplicationRoutes)
 	container.Provide(routes.InitS3Routes)
 
 	err := container.Invoke(func(
 		dataService *services.DataService,
+		authRoutes *routes.AuthRoutes,
 		userRoutes *routes.UserRoutes,
+		orgRoutes *routes.OrgRoutes,
 		postRoutes *routes.PostRoutes,
-		addressRoutes *routes.AddressRoutes,
+		applicationRoutes *routes.ApplicationRoutes,
 		s3Routes *routes.S3Routes,
 	) {
 		dbConn = dataService.Conn
 
 		clog.Logger.Info("INITIALIZING ROUTES")
 
-		router.AddSubRoutes("/api/v1/address", addressRoutes.Routes())
+		router.AddSubRoutes("/api/v1/auth", authRoutes.Routes())
 		router.AddSubRoutes("/api/v1/users", userRoutes.Routes())
+		router.AddSubRoutes("/api/v1/organizations", orgRoutes.Routes())
 		router.AddSubRoutes("/api/v1/posts", postRoutes.Routes())
+		router.AddSubRoutes("/api/v1/applications", applicationRoutes.Routes())
 		router.AddSubRoutes("/api/v1/s3", s3Routes.Routes())
 
 		router.POST("/api/v1/health", healthCheckHandler)

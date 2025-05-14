@@ -18,3 +18,9 @@ export const isBlob = (input: unknown) => {
 
   return true;
 };
+
+export const isBlobArray = (input: unknown): boolean => {
+  if (!Array.isArray(input)) return false;
+
+  return input.every((item) => item instanceof Blob);
+};

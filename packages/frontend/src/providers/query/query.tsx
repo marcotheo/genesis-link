@@ -3,40 +3,34 @@ import {
   createContextId,
   Slot,
   useContextProvider,
-  $,
-  QRL,
+  useStore,
 } from "@builder.io/qwik";
 
 interface QueryState {
-  cache: Record<string, any>;
-  setCacheData: QRL<(key: string, data: any) => void>;
-  getCachedData: QRL<(key: string, cacheTime: number) => any>;
+  cache: Record<
+    string,
+    {
+      data: any;
+      timestamp: number;
+    }
+  >;
+  cachedTime: number;
 }
 
 export const QueryContext = createContextId<QueryState>("query.context");
 
-export default component$(() => {
-  const cache = {} as Record<string, any>;
+interface Props {
+  cacheTime?: number; // in milliseconds
+}
 
-  const setCacheData = $((key: string, data: any) => {
-    cache[key] = {
-      data,
-      timestamp: Date.now(),
-    };
-  });
+export default component$<Props>(({ cacheTime }) => {
+  const cache = useStore<Record<string, { data: any; timestamp: number }>>({});
 
-  const getCachedData = $((key: string, cacheTime: number) => {
-    const cached = cache[key];
-    if (cached && Date.now() - cached.timestamp < cacheTime) {
-      return cached.data;
-    }
-    return null;
-  });
+  const finalGlobalCachedTime = cacheTime ?? 60000 * 3; // ms 1min default
 
   useContextProvider(QueryContext, {
     cache,
-    setCacheData,
-    getCachedData,
+    cachedTime: finalGlobalCachedTime,
   });
 
   return (

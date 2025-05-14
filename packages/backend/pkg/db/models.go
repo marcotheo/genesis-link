@@ -16,7 +16,19 @@ type Address struct {
 	City           sql.NullString
 	Barangay       sql.NullString
 	Addressdetails sql.NullString
-	Userid         sql.NullString
+	Orgid          string
+	CreatedAt      sql.NullTime
+	UpdatedAt      sql.NullTime
+}
+
+type Application struct {
+	Applicationid string
+	Proposallink  sql.NullString
+	Status        string
+	Postid        string
+	Userid        string
+	CreatedAt     sql.NullTime
+	UpdatedAt     sql.NullTime
 }
 
 type JobDetail struct {
@@ -27,24 +39,34 @@ type JobDetail struct {
 	Salaryamountmin sql.NullInt64
 	Salaryamountmax sql.NullInt64
 	Salarycurrency  sql.NullString
+	CreatedAt       sql.NullTime
+	UpdatedAt       sql.NullTime
+}
+
+type Organization struct {
+	Orgid         string
+	Company       string
+	Email         string
+	Contactnumber sql.NullString
+	Bannerlink    sql.NullString
+	Logolink      sql.NullString
+	Userid        string
+	CreatedAt     sql.NullTime
+	UpdatedAt     sql.NullTime
 }
 
 type Post struct {
 	Postid             string
-	Company            string
 	Title              string
 	Description        sql.NullString
-	Posterlink         sql.NullString
-	Logolink           sql.NullString
 	Additionalinfolink sql.NullString
-	Wfh                sql.NullInt64
-	Email              sql.NullString
-	Phone              sql.NullString
+	Worksetup          string
 	Deadline           sql.NullInt64
-	Addressid          string
-	Userid             string
+	Embedding          interface{}
 	PostedAt           sql.NullTime
 	UpdatedAt          sql.NullTime
+	Addressid          string
+	Orgid              string
 }
 
 type PostRequirement struct {
@@ -52,11 +74,45 @@ type PostRequirement struct {
 	Postid          string
 	Requirementtype string
 	Requirement     string
+	CreatedAt       sql.NullTime
+	UpdatedAt       sql.NullTime
+}
+
+type PostTag struct {
+	Tagid       string
+	Postid      string
+	Tagname     string
+	Tagcategory sql.NullString
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
+}
+
+type SavedPost struct {
+	Savedpostid string
+	Postid      string
+	Userid      string
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
 }
 
 type User struct {
-	Userid    string
-	Email     string
-	CreatedAt interface{}
-	UpdatedAt interface{}
+	Userid       string
+	Firstname    string
+	Lastname     string
+	Email        string
+	Mobilenumber sql.NullString
+	Resumelink   sql.NullString
+	GoogleID     sql.NullString
+	CreatedAt    sql.NullTime
+	UpdatedAt    sql.NullTime
+}
+
+type UserSkill struct {
+	Skillid       string
+	Userid        string
+	Skillname     string
+	Skilllevel    sql.NullString
+	Skillcategory sql.NullString
+	CreatedAt     sql.NullTime
+	UpdatedAt     sql.NullTime
 }

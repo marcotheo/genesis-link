@@ -27,7 +27,7 @@ export const useVerifyUser = routeLoader$(async (requestEvent) => {
     };
 
   try {
-    await qwikFetch<Response>("/users/confirm", {
+    await qwikFetch<Response>("/auth/confirm", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default component$(() => {
               <Heading class="text-center" size="md">
                 User Verified Successfuly
               </Heading>
-              <Link href="/sign-in">
+              <Link href="/sign-in?mode=applicant">
                 <Button class="w-full bg-success hover:bg-success hover:brightness-110">
                   Sign In
                 </Button>

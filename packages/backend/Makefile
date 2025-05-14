@@ -6,6 +6,7 @@ include .env
 .PHONY: run
 
 MIG_DIR=pkg/sqlc/migrations
+GOOSE=goose
 
 run:
 	go run cmd/service/main.go
@@ -22,6 +23,9 @@ root-build:
 	chmod +x bootstrap
 	zip -r deployment.zip server bootstrap
 
+migration:
+	goose -dir ${MIG_DIR} create $(NAME) sql
+
 db-status:
 	goose -dir ${MIG_DIR} turso $(DB_URL) status
 
@@ -30,3 +34,6 @@ db-up:
 
 db-reset:
 	goose -dir ${MIG_DIR} turso $(DB_URL) reset
+
+db-down-latest:
+	goose -dir ${MIG_DIR} turso $(DB_URL) down

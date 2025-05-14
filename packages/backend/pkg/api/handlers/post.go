@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/jinzhu/copier"
 	"github.com/marcotheo/genesis-link/packages/backend/pkg/db"
@@ -19,48 +20,41 @@ type PostHandler struct {
 	dataService    *services.DataService
 	utilService    *services.UtilService
 	cognitoService *services.CognitoService
+	openAIService  *services.OpenAIService
 }
 
-func InitPostHandler(dataService *services.DataService, utilService *services.UtilService, cognitoService *services.CognitoService) *PostHandler {
+func InitPostHandler(dataService *services.DataService, utilService *services.UtilService, cognitoService *services.CognitoService, openAIService *services.OpenAIService) *PostHandler {
 	return &PostHandler{
 		dataService:    dataService,
 		utilService:    utilService,
 		cognitoService: cognitoService,
+		openAIService:  openAIService,
 	}
 }
 
+type PostTag struct {
+	TagName     string `json:"tagName" validate:"required"`
+	TagCategory string `json:"tagCategory" validate:"required"`
+}
+
 type CreatePostParams struct {
-	Company            string `json:"company" validate:"required"`
-	Title              string `json:"title" validate:"required"`
-	Description        string `json:"description"`
-	PosterLink         string `json:"posterLink"`
-	LogoLink           string `json:"logoLink"`
-	AdditionalInfoLink string `json:"additionalInfoLink"`
-	Wfh                int    `json:"wfh" validate:"oneof=0 1"`
-	Email              string `json:"email" validate:"required"`
-	Phone              string `json:"phone" validate:"required"`
-	Deadline           string `json:"deadline" validate:"required,date"`
-	AddressId          string `json:"addressId" validate:"required,nanoid"`
+	Title              string    `json:"title" validate:"required"`
+	Description        string    `json:"description"`
+	AdditionalInfoLink string    `json:"additionalInfoLink"`
+	Worksetup          string    `json:"workSetup" validate:"required,oneof=remote on-site hybrid"`
+	Deadline           string    `json:"deadline" validate:"required,date"`
+	AddressId          string    `json:"addressId" validate:"required,nanoid"`
+	Tags               []PostTag `json:"tags" validate:"required,dive"`
 }
 
 type CreatePostResponse struct {
-	PostId string
+	PostId string `json:"postId"`
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreatePost => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
+	orgId := r.PathValue("orgId")
 
 	var createPostParams CreatePostParams
 
@@ -87,15 +81,36 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := gonanoid.New()
+	postId, err := gonanoid.New()
 	if err != nil {
-		fmt.Println("Error generating ID:", err)
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating post id %s \n", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
 
-	postData.Postid = id
-	postData.Userid = userId
+	postData.Postid = postId
+	postData.Orgid = orgId
 	postData.Deadline = sql.NullInt64{Int64: deadlineTimestamp, Valid: true}
+
+	var tagNames []string
+	for _, tag := range createPostParams.Tags {
+		tagName := strings.TrimSpace(strings.ToLower(tag.TagName)) // Remove spaces and convert to uppercase
+		if tagName != "" {                                         // Only add non-empty tag names
+			tagNames = append(tagNames, tagName)
+		}
+	}
+
+	embeddingInput := fmt.Sprintf("%s | %s",
+		strings.TrimSpace(strings.ToLower(createPostParams.Title)),
+		strings.Join(tagNames, ", "))
+
+	postData.Embedding, err = h.openAIService.GenerateEmbedding(embeddingInput)
+
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => error generating embedding %s \n", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
 
 	errQ := h.dataService.Queries.CreatePost(context.Background(), postData)
 	if errQ != nil {
@@ -104,13 +119,98 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clog.Logger.Success("(POST) CreatePost => create successful")
+	clog.Logger.Success("(POST) CreatePost => post created")
 
-	successResponse(w, CreatePostResponse{PostId: id})
+	// ---------- INSERT THE TAGS -------------
+
+	// Begin a database transaction for multi-row insert
+	tx, err := h.dataService.Conn.Begin()
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => error beginning transaction: %s", err))
+		errorResponse(w, http.StatusInternalServerError, "Something Went Wrong")
+		return
+	}
+
+	defer tx.Rollback()
+
+	qtx := h.dataService.Queries.WithTx(tx)
+
+	// Insert each tag for the post
+	for _, tag := range createPostParams.Tags {
+		tagId, err := gonanoid.New()
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreatePost => Error generating tagId: %s", err))
+			http.Error(w, "Error Generating TagId", http.StatusInternalServerError)
+			return
+		}
+
+		// Insert the skill into the database
+		if err := qtx.CreatePostTag(context.Background(), db.CreatePostTagParams{
+			Tagid:       tagId,
+			Postid:      postId,
+			Tagname:     tag.TagName,
+			Tagcategory: h.utilService.StringToNullString(tag.TagCategory),
+		}); err != nil {
+			clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+			http.Error(w, "Error inserting skill data", http.StatusInternalServerError)
+			return
+		}
+
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateUserSkills => err %s", err))
+		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(POST) CreatePost => tags created")
+
+	// ---------- INSERT THE TAGS -------------
+
+	successResponse(w, CreatePostResponse{PostId: postId})
+}
+
+type UpdatePostAdditionalInfoLinkParams struct {
+	AdditionalInfoLink string `json:"additionalInfoLink" validate:"required"`
+}
+
+func (h *PostHandler) UpdatePostAdditionalInfoLink(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) UpdatePostAdditionalInfoLink => invoked")
+
+	postId := r.PathValue("postId")
+	orgId := r.PathValue("orgId")
+
+	var params UpdatePostAdditionalInfoLinkParams
+
+	errRead := ReadAndValidateBody(r, &params)
+	if errRead != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) UpdatePostAdditionalInfoLink => ReadAndValidateBody %s", errRead))
+		http.Error(w, errRead.Error(), http.StatusBadRequest)
+		return
+	}
+
+	errQ := h.dataService.Queries.UpdatePostAdditionalInfoLink(context.Background(), db.UpdatePostAdditionalInfoLinkParams{
+		Orgid:  orgId,
+		Postid: postId,
+		Additionalinfolink: sql.NullString{
+			Valid:  true,
+			String: params.AdditionalInfoLink,
+		},
+	})
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) UpdatePostAdditionalInfoLink => errQ %s \n", errQ))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(POST) UpdatePostAdditionalInfoLink => update successful")
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 type CreateJobDetailsParams struct {
-	Postid          string `json:"postId" validate:"required,nanoid"`
 	JobType         string `json:"jobType" validate:"oneof=full-time part-time contract internship"`
 	SalaryType      string `json:"salaryType" validate:"omitempty,oneof=fixed hourly monthly"`
 	SalaryAmountMin int    `json:"salaryAmountMin"`
@@ -121,17 +221,8 @@ type CreateJobDetailsParams struct {
 func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 	clog.Logger.Info("(POST) CreateJobDetails => invoked")
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
+	postId := r.PathValue("postId")
+	orgId := r.PathValue("orgId")
 
 	var jobDetailsParams CreateJobDetailsParams
 
@@ -141,9 +232,9 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errGetPostQuery := h.dataService.Queries.GetUserPost(context.Background(), db.GetUserPostParams{
-		Userid: userId,
-		Postid: jobDetailsParams.Postid,
+	_, errGetPostQuery := h.dataService.Queries.CheckIfPostExistByOrg(context.Background(), db.CheckIfPostExistByOrgParams{
+		Orgid:  orgId,
+		Postid: postId,
 	})
 
 	if errGetPostQuery != nil {
@@ -167,13 +258,14 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := gonanoid.New()
+	jobDetailsId, err := gonanoid.New()
 	if err != nil {
 		fmt.Println("Error generating ID:", err)
 		return
 	}
 
-	jobDetailsData.Jobdetailid = id
+	jobDetailsData.Jobdetailid = jobDetailsId
+	jobDetailsData.Postid = postId
 
 	errQ := h.dataService.Queries.CreateJobDetails(context.Background(), jobDetailsData)
 	if errQ != nil {
@@ -187,13 +279,12 @@ func (h *PostHandler) CreateJobDetails(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-type Requirement struct {
+type RequirementParams struct {
 	RequirementType string `json:"requirementType" validate:"required,oneof=responsibility qualification"`
-	Requirement     string `json:"requirement" validate:"required,min=5,max=500"`
+	Requirement     string `json:"requirement" validate:"required,min=1,max=500"`
 }
 type PostRequirementsParams struct {
-	Postid       string        `json:"postId" validate:"required,nanoid"`
-	Requirements []Requirement `json:"requirements" validate:"required,dive"`
+	Requirements []RequirementParams `json:"requirements" validate:"required,dive"`
 }
 
 func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Request) {
@@ -206,21 +297,12 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	token, errorAccessToken := r.Cookie("accessToken")
-	if errorAccessToken != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	postId := r.PathValue("postId")
+	orgId := r.PathValue("orgId")
 
-	userId, errUserId := h.cognitoService.GetUserId(token.Value)
-	if errUserId != nil {
-		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
-		return
-	}
-
-	_, errGetPostQuery := h.dataService.Queries.GetUserPost(context.Background(), db.GetUserPostParams{
-		Userid: userId,
-		Postid: postRequirementsParams.Postid,
+	_, errGetPostQuery := h.dataService.Queries.CheckIfPostExistByOrg(context.Background(), db.CheckIfPostExistByOrgParams{
+		Orgid:  orgId,
+		Postid: postId,
 	})
 
 	if errGetPostQuery != nil {
@@ -249,7 +331,7 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 	qtx := h.dataService.Queries.WithTx(tx)
 
 	for _, data := range postRequirementsParams.Requirements {
-		id, err := gonanoid.New()
+		requirementId, err := gonanoid.New()
 
 		if err != nil {
 			fmt.Println("(POST) CreatePostRequirements => Error generating ID:", err)
@@ -257,8 +339,8 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 		}
 
 		if err = qtx.CreatePostRequirement(context.Background(), db.CreatePostRequirementParams{
-			Postid:          postRequirementsParams.Postid,
-			Requirementid:   id,
+			Postid:          postId,
+			Requirementid:   requirementId,
 			Requirementtype: data.RequirementType,
 			Requirement:     data.Requirement,
 		}); err != nil {
@@ -277,23 +359,22 @@ func (h *PostHandler) CreatePostRequirements(w http.ResponseWriter, r *http.Requ
 
 	clog.Logger.Success("(POST) CreatePostRequirements => create successful")
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 type Post struct {
-	PostId   string `json:"Postid"`
-	Title    string `json:"Title"`
-	Company  string `json:"Company,omitempty"`
-	Deadline int64  `json:"Deadline,omitempty"`
+	PostId   string `json:"postId"`
+	Title    string `json:"title"`
+	Deadline int64  `json:"deadline,omitempty"`
 }
 
 type GetPostsResponse struct {
-	Posts []Post
-	Total int64
+	Posts []Post `json:"posts"`
+	Total int64  `json:"total"`
 }
 
-func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
-	clog.Logger.Info("(POST) GetPosts => invoked")
+func (h *PostHandler) GetPostsByOrg(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetPostsByOrg => invoked")
 
 	pageStr := r.URL.Query().Get("page")
 	if pageStr == "" {
@@ -307,6 +388,188 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	orgId := r.PathValue("orgId")
+
+	posts, errQ := h.dataService.Queries.GetPostsByOrgId(context.Background(), db.GetPostsByOrgIdParams{Offset: int64((page - 1) * 10), Orgid: orgId})
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetPostsByOrg => errQ %s \n", errQ))
+		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+		return
+	}
+
+	totalCount, errQ := h.dataService.Queries.GetPostCountByOrgId(context.Background(), orgId)
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetPostsByOrg => errQ %s \n", errQ))
+		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+		return
+	}
+
+	var postsData []Post
+
+	for _, post := range posts {
+		item := Post{
+			PostId:   post.Postid,
+			Title:    post.Title,
+			Deadline: h.utilService.ConvertNullInt64(post.Deadline),
+		}
+
+		postsData = append(postsData, item)
+	}
+
+	clog.Logger.Success("(GET) GetPostsByOrg => successful")
+
+	successResponse(w, GetPostsResponse{Posts: postsData, Total: totalCount})
+}
+
+type Requirement struct {
+	Requirementtype string `json:"requirementType"`
+	Requirement     string `json:"requirement"`
+}
+type JobPostFullDetails struct {
+	PostId             string        `json:"postId"`
+	Title              string        `json:"title"`
+	Company            string        `json:"company,omitempty"`
+	AdditionalInfoLink string        `json:"additionalInfoLink"`
+	Description        string        `json:"description"`
+	Worksetup          string        `json:"workSetup"`
+	JobType            string        `json:"jobType"`
+	SalaryAmountMin    int64         `json:"salaryAmountMin"`
+	SalaryAmountMax    int64         `json:"salaryAmountMax"`
+	SalaryCurrency     string        `json:"salaryCurrency"`
+	SalaryType         string        `json:"salaryType"`
+	Country            string        `json:"country"`
+	City               string        `json:"city"`
+	Tags               []string      `json:"tags"`
+	Requirements       []Requirement `json:"requirements"`
+	PostedAt           int64         `json:"postedAt"`
+}
+
+func (h *PostHandler) GetPostDetails(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetPostDetails => invoked")
+
+	postId := r.PathValue("postId")
+
+	var post db.GetPostDetailsByPostIdRow
+	var requirements []Requirement
+	var wg sync.WaitGroup
+	errChan := make(chan error, 1) // Buffered channel to capture the first error
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		postDbResponse, err := h.dataService.Queries.GetPostDetailsByPostId(context.Background(), postId)
+
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetPostDetails => error fetch post details %s \n", err))
+			errChan <- fmt.Errorf("error fetching post details: %v", err)
+			return
+		}
+
+		post = postDbResponse
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		rawRequirements, err := h.dataService.Queries.GetPostRequirements(context.Background(), postId)
+		if err != nil {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetPostDetails => error fetch post requirements %s \n", err))
+			errChan <- fmt.Errorf("error fetch post requirements: %v", err)
+			return
+		}
+
+		requirements = make([]Requirement, len(rawRequirements))
+
+		for i, req := range rawRequirements {
+			requirements[i] = Requirement{
+				Requirementtype: req.Requirementtype,
+				Requirement:     req.Requirement,
+			}
+		}
+	}()
+
+	wg.Wait()
+	close(errChan)
+
+	if err := <-errChan; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if post.Postid == "" {
+		clog.Logger.Error("(GET) GetPostDetails => post does not exist")
+		errorResponse(w, http.StatusBadRequest, "post does not exist!")
+		return
+	}
+
+	var tags []string
+	var additionalInfoLink string = ""
+
+	if post.Tags != "" {
+		tags = strings.Split(post.Tags.(string), ", ")
+	}
+
+	if post.Additionalinfolink.Valid {
+		additionalInfoLink = h.utilService.CloudfrontUrl + "/" + post.Additionalinfolink.String
+	}
+
+	clog.Logger.Success("(GET) GetPostDetails => successful")
+
+	successResponse(w, JobPostFullDetails{
+		PostId:             post.Postid,
+		Title:              post.Title,
+		Company:            post.Company,
+		AdditionalInfoLink: additionalInfoLink,
+		Description:        h.utilService.ConvertNullString(post.Description),
+		Worksetup:          post.Worksetup,
+		JobType:            h.utilService.ConvertNullString(post.Jobtype),
+		SalaryAmountMin:    h.utilService.ConvertNullInt64(post.Salaryamountmin),
+		SalaryAmountMax:    h.utilService.ConvertNullInt64(post.Salaryamountmax),
+		SalaryCurrency:     h.utilService.ConvertNullString(post.Salarycurrency),
+		SalaryType:         h.utilService.ConvertNullString(post.Salarytype),
+		Country:            post.Country,
+		City:               h.utilService.ConvertNullString(post.City),
+		Tags:               tags,
+		Requirements:       requirements,
+		PostedAt:           h.utilService.ConvertNullTime(post.PostedAt),
+	})
+}
+
+type JobPostPartial struct {
+	PostId          string   `json:"postId"`
+	Title           string   `json:"title"`
+	Company         string   `json:"company,omitempty"`
+	Description     string   `json:"description"`
+	Worksetup       string   `json:"workSetup"`
+	JobType         string   `json:"jobType"`
+	SalaryAmountMin int64    `json:"salaryAmountMin"`
+	SalaryAmountMax int64    `json:"salaryAmountMax"`
+	SalaryCurrency  string   `json:"salaryCurrency"`
+	SalaryType      string   `json:"salaryType"`
+	Country         string   `json:"country"`
+	City            string   `json:"city"`
+	Tags            []string `json:"tags"`
+	IsSaved         bool     `json:"isSaved"`
+	PostedAt        int64    `json:"postedAt"`
+}
+
+type SearchJobParams struct {
+	Keyword  string `json:"keyword" validate:"required"`
+	Province string `json:"province"`
+	City     string `json:"city"`
+	Page     int64  `json:"page" validate:"required"`
+}
+
+type SearchJobResponse struct {
+	Posts []JobPostPartial `json:"posts"`
+}
+
+func (h *PostHandler) SearchJob(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) SearchJob => invoked")
+
+	// Validate access token and retrieve user ID
 	token, errorAccessToken := r.Cookie("accessToken")
 	if errorAccessToken != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -319,34 +582,284 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, errQ := h.dataService.Queries.GetPostsByUserId(context.Background(), db.GetPostsByUserIdParams{Offset: int64((page - 1) * 10), Userid: userId})
-	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
-		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+	var params SearchJobParams
+
+	if err := ParseAndValidateQuery(r, &params); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => invalid parameters %s \n", err))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	totalCount, errQ := h.dataService.Queries.GetPostCountByUserId(context.Background(), userId)
-	if errQ != nil {
-		clog.Logger.Error(fmt.Sprintf("(USER) GetPosts => errQ %s \n", errQ))
-		http.Error(w, "Error fetching response", http.StatusInternalServerError)
+	matchEmbedding, err := h.openAIService.GenerateEmbedding(strings.ToLower(params.Keyword))
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => error generating embedding %s \n", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
 
-	var postsData []Post
+	clog.Logger.Info("(GET) SearchJob => querying for jobs ...")
+
+	posts, errQ := h.dataService.Queries.JobSearchQuery(context.Background(), db.JobSearchQueryParams{
+		Offset:       int64((params.Page - 1) * 10),
+		Embedding:    matchEmbedding,
+		Country:      "Philippines",
+		Province:     h.utilService.StringToNullString(params.Province),
+		Provincenull: h.utilService.StringToNullString(params.Province),
+		Citynull:     h.utilService.StringToNullString(params.City),
+		City:         h.utilService.StringToNullString(params.City),
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => errQ %s \n", errQ))
+		http.Error(w, "Error fetching data", http.StatusInternalServerError)
+		return
+	}
+
+	var postsData []JobPostPartial
+	var postIds []string
 
 	for _, post := range posts {
-		item := Post{
-			PostId:   post.Postid,
-			Title:    post.Title,
-			Company:  post.Company,
-			Deadline: h.utilService.ConvertNullInt64(post.Deadline),
+		var tags []string
+
+		if post.Tags != "" {
+			tags = strings.Split(post.Tags.(string), ", ")
+		}
+
+		item := JobPostPartial{
+			PostId:          post.Postid,
+			Company:         post.Company,
+			Title:           post.Title,
+			Description:     h.utilService.ConvertNullString(post.Description),
+			Worksetup:       post.Worksetup,
+			JobType:         h.utilService.ConvertNullString(post.Jobtype),
+			SalaryAmountMin: h.utilService.ConvertNullInt64(post.Salaryamountmin),
+			SalaryAmountMax: h.utilService.ConvertNullInt64(post.Salaryamountmax),
+			SalaryCurrency:  h.utilService.ConvertNullString(post.Salarycurrency),
+			SalaryType:      h.utilService.ConvertNullString(post.Salarytype),
+			Country:         post.Country,
+			City:            h.utilService.ConvertNullString(post.City),
+			Tags:            tags,
+			PostedAt:        h.utilService.ConvertNullTime(post.PostedAt),
+		}
+
+		postsData = append(postsData, item)
+		postIds = append(postIds, post.Postid)
+	}
+
+	savedPosts, errSavedPostQ := h.dataService.Queries.GetSavedPostsByUserAndPostIDs(context.Background(), db.GetSavedPostsByUserAndPostIDsParams{
+		Userid:  userId,
+		Postids: postIds,
+	})
+
+	if errSavedPostQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) SearchJob => errSavedPostQ %s \n", errSavedPostQ))
+		http.Error(w, "Error fetching data", http.StatusInternalServerError)
+		return
+	}
+
+	for idx, post := range postsData {
+		for _, savedPost := range savedPosts {
+			if post.PostId == savedPost.Postid {
+				postsData[idx].IsSaved = true
+			}
+		}
+	}
+
+	clog.Logger.Success("(GET) SearchJob => successful")
+
+	successResponse(w, SearchJobResponse{Posts: postsData})
+}
+
+type GetUserSavedPostResponse struct {
+	SavedPostId string `json:"savePostId"`
+}
+
+func (h *PostHandler) CreateSavedPost(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(POST) CreateSavedPost => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	postId := r.PathValue("postId")
+
+	savedPostId, err := gonanoid.New()
+	if err != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateSavedPost => Error generating savedJobId: %s", err))
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	errQ := h.dataService.Queries.CreateSavedPost(context.Background(), db.CreateSavedPostParams{
+		Savedpostid: savedPostId,
+		Postid:      postId,
+		Userid:      userId,
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(POST) CreateSavedPost => errQ %s \n", errQ))
+		http.Error(w, "Error fetching user skills", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Success("(POST) CreateSavedPost => successful")
+
+	successResponse(w, GetUserSavedPostResponse{SavedPostId: savedPostId})
+}
+
+func (h *PostHandler) GetUserSavedPost(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetUserSavedPost => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	postId := r.PathValue("postId")
+	savedPostId := ""
+
+	result, errQ := h.dataService.Queries.GetUserSavedPost(context.Background(), db.GetUserSavedPostParams{
+		Postid: postId,
+		Userid: userId,
+	})
+
+	if errQ != nil {
+		if !strings.Contains(errQ.Error(), "no rows in result set") {
+			clog.Logger.Error(fmt.Sprintf("(GET) GetUserSavedPost => errQ %s \n", errQ))
+			http.Error(w, "Error fetching saved post", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	savedPostId = result
+
+	clog.Logger.Success("(GET) GetUserSavedPost => successful")
+
+	successResponse(w, GetUserSavedPostResponse{SavedPostId: savedPostId})
+}
+
+func (h *PostHandler) DeleteSavedPost(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(DELETE) DeleteSavedPost => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	postId := r.PathValue("postId")
+
+	errQ := h.dataService.Queries.DeleteSavedPost(context.Background(), db.DeleteSavedPostParams{
+		Postid: postId,
+		Userid: userId,
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(DELETE) DeleteSavedPost => errQ %s \n", errQ))
+		http.Error(w, "Error deleting saved post", http.StatusInternalServerError)
+		return
+	}
+
+	clog.Logger.Info("(DELETE) DeleteSavedPost => successful")
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+type GetSavedPostsByUserIdParams struct {
+	Page int64 `json:"page" validate:"required"`
+}
+
+func (h *PostHandler) GetSavedPostsByUserId(w http.ResponseWriter, r *http.Request) {
+	clog.Logger.Info("(GET) GetSavedPostsByUserId => invoked")
+
+	// Validate access token and retrieve user ID
+	token, errorAccessToken := r.Cookie("accessToken")
+	if errorAccessToken != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId, errUserId := h.cognitoService.GetUserId(token.Value)
+	if errUserId != nil {
+		errorResponse(w, http.StatusBadRequest, "Invalid Access Token")
+		return
+	}
+
+	var params GetSavedPostsByUserIdParams
+
+	if err := ParseAndValidateQuery(r, &params); err != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetSavedPostsByUserId => invalid parameters %s \n", err))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	posts, errQ := h.dataService.Queries.GetSavedPostsByUserId(context.Background(), db.GetSavedPostsByUserIdParams{
+		Offset: int64((params.Page - 1) * 10),
+		Limit:  5,
+		Userid: userId,
+	})
+
+	if errQ != nil {
+		clog.Logger.Error(fmt.Sprintf("(GET) GetSavedPostsByUserId => errQ %s \n", errQ))
+		http.Error(w, "Error fetching data", http.StatusInternalServerError)
+		return
+	}
+
+	var postsData []JobPostPartial
+
+	for _, post := range posts {
+		var tags []string
+
+		if post.Tags != "" {
+			tags = strings.Split(post.Tags.(string), ", ")
+		}
+
+		item := JobPostPartial{
+			PostId:          post.Postid,
+			Company:         h.utilService.ConvertNullString(post.Company),
+			Title:           h.utilService.ConvertNullString(post.Title),
+			Description:     h.utilService.ConvertNullString(post.Description),
+			Worksetup:       h.utilService.ConvertNullString(post.Worksetup),
+			JobType:         h.utilService.ConvertNullString(post.Jobtype),
+			SalaryAmountMin: h.utilService.ConvertNullInt64(post.Salaryamountmin),
+			SalaryAmountMax: h.utilService.ConvertNullInt64(post.Salaryamountmax),
+			SalaryCurrency:  h.utilService.ConvertNullString(post.Salarycurrency),
+			SalaryType:      h.utilService.ConvertNullString(post.Salarytype),
+			Country:         h.utilService.ConvertNullString(post.Country),
+			City:            h.utilService.ConvertNullString(post.City),
+			Tags:            tags,
+			IsSaved:         true,
+			PostedAt:        h.utilService.ConvertNullTime(post.PostedAt),
 		}
 
 		postsData = append(postsData, item)
 	}
 
-	clog.Logger.Success("(POST) GetPosts => successful")
+	clog.Logger.Success("(GET) GetSavedPostsByUserId => successful")
 
-	successResponse(w, GetPostsResponse{Posts: postsData, Total: totalCount})
+	successResponse(w, SearchJobResponse{Posts: postsData})
 }

@@ -2,10 +2,14 @@
 -- +goose StatementBegin
 CREATE TABLE users (
     userId TEXT NOT NULL PRIMARY KEY,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    mobileNumber TEXT,
+    resumeLink TEXT,
     google_id TEXT UNIQUE,
-    created_at DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd
 
