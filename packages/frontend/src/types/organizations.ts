@@ -149,9 +149,15 @@ export interface GetAddresssesByOrgIdApi {
 
 // DELETE API /organizations/{orgId}/addresses/{addressId}
 export interface DeleteOrgAddressApi {
-  status: string;
-  message: string;
-  data: null;
+  pathParams: {
+    orgId: string;
+    addressId: string;
+  };
+  response: {
+    status: string;
+    message: string;
+    data: null;
+  };
 }
 // ============ ORG ADDRESSES ============
 

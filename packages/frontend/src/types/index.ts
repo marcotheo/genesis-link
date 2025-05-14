@@ -4,6 +4,7 @@ import {
   CreateOrgJobPostApi,
   CreatePostJobDetailsApi,
   CreatePostRequirementsApi,
+  DeleteOrgAddressApi,
   GetAddresssesByOrgIdApi,
   GetOrganizationAssetsApi,
   GetOrganizationDetailsApi,
@@ -55,6 +56,7 @@ export interface MutationsType {
   "PUT /organizations/{orgId}/update/details": UpdateOrganizationDetailsApi;
   "PUT /organizations/{orgId}/update/assets": UpdateOrganizationAssetsApi;
   "POST /organizations/{orgId}/addresses": CreateOrgAddressApi;
+  "DELETE /organizations/{orgId}/addresses/{addressId}": DeleteOrgAddressApi;
   "POST /organizations/{orgId}/posts": CreateOrgJobPostApi;
   "POST /organizations/{orgId}/posts/{postId}/job_details": CreatePostJobDetailsApi;
   "POST /organizations/{orgId}/posts/{postId}/requirements": CreatePostRequirementsApi;

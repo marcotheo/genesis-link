@@ -5,8 +5,9 @@ import { $, component$, useStore } from "@builder.io/qwik";
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { cn, createDashboardPath, qwikFetch } from "~/common/utils";
 import { GetAddresssesByOrgIdApi } from "~/types/organizations";
+import { useMutate } from "~/hooks/use-mutate/useMutate";
 import { useAuthHeadersLoader } from "~/routes/layout";
-import { useFetch } from "~/hooks/use-fetch/useFetch";
+import { useToast } from "~/hooks/use-toast/useToast";
 import Button from "~/components/button/button";
 import { usePathParams } from "../../layout";
 
@@ -36,17 +37,24 @@ export const useAddressesLoader = routeLoader$(
 
 const AddressList = component$(() => {
   const result = useAddressesLoader();
+  const toast = useToast();
+  const params = usePathParams();
+
   const state = useStore({
     addresses: result.value,
   });
 
-  const { fetch, state: fetchState } = useFetch("/address");
+  const { mutate, state: fetchState } = useMutate(
+    "DELETE /organizations/{orgId}/addresses/{addressId}",
+  );
 
   const onDelete = $(async (addressId: string) => {
     try {
-      await fetch(addressId, {
-        method: "DELETE",
-        credentials: "include",
+      await mutate({
+        pathParams: {
+          orgId: params.value.orgId,
+          addressId,
+        },
       });
 
       if (state.addresses)
@@ -55,6 +63,12 @@ const AddressList = component$(() => {
         );
     } catch (err) {
       console.log("Error:", err);
+
+      toast.add({
+        title: "Failed Delete",
+        message: err as string,
+        type: "destructive",
+      });
     }
   });
 
