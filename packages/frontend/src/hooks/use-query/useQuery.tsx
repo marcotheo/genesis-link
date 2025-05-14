@@ -125,10 +125,14 @@ export const useQuery = <Path extends keyof QueryType>(
       }
 
       try {
-        const result = await qwikFetch<QueryType[Path]["response"]>(apiUrl, {
-          method: "GET",
-          credentials: "include",
-        });
+        const result = await qwikFetch<QueryType[Path]["response"]>(
+          apiUrl,
+          {
+            method: "GET",
+            credentials: "include",
+          },
+          true,
+        );
 
         // Cache the result
         await setCacheData(apiUrl, result);

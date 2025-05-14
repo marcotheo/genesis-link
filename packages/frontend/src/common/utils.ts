@@ -6,7 +6,7 @@ import { $ } from "@builder.io/qwik";
 import utc from "dayjs/plugin/utc";
 import dayjs from "dayjs";
 
-import { baseApiUrl } from "./constants";
+import { baseApiUrl, isProduction } from "./constants";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc); // Add UTC support
@@ -44,8 +44,9 @@ export const capitalizeFirstLetter = (input: string) => {
 export const qwikFetch = async <T>(
   url?: string,
   options?: RequestInit,
+  isBrowser?: boolean,
 ): Promise<T> => {
-  let requestUrl: string = baseApiUrl;
+  let requestUrl: string = isProduction || !isBrowser ? baseApiUrl : "";
 
   if (url && url.includes("http")) {
     requestUrl = url;
@@ -89,11 +90,12 @@ export const qwikFetch = async <T>(
 export const rawFetch = async <T>(
   url?: string,
   options?: RequestInit,
+  isBrowser?: boolean,
 ): Promise<{
   result: T;
   response: Response;
 }> => {
-  let requestUrl: string = baseApiUrl;
+  let requestUrl: string = isProduction || !isBrowser ? baseApiUrl : "";
 
   if (url && url.includes("http")) {
     requestUrl = url;

@@ -68,6 +68,7 @@ export const useMutate = <Path extends keyof MutationsType>(url: Path) => {
               ? JSON.stringify(mutateParams.bodyParams)
               : undefined,
           },
+          true,
         );
 
         state.result = result;
