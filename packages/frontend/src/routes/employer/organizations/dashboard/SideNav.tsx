@@ -206,10 +206,6 @@ const NavItems = component$<{ open: Signal<boolean> }>(({ open }) => {
 
   return (
     <div class={cn("mt-3 space-y-3", open.value ? "px-5" : "px-3")}>
-      <NavItem to={createDashboardPath(org.value.orgId, "")} open={open}>
-        <TbDashboard font-size="25px" />
-        {open.value ? "Dashboard" : ""}
-      </NavItem>
       <NavItem to={createDashboardPath(org.value.orgId, "/posts")} open={open}>
         <TbBriefcase font-size="25px" />
 
