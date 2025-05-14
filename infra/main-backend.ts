@@ -142,7 +142,7 @@ export const main_backend = async ({
   });
 
   return {
-    apiUrl: domainName,
+    apiUrl: customDomain.domainName.apply((v) => "https://" + v),
     functionName: backendFunction.name,
   };
 };
