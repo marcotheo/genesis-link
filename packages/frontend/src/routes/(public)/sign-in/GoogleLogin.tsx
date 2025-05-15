@@ -1,5 +1,5 @@
 import { component$, $, useVisibleTask$, useContext } from "@builder.io/qwik";
-// import { useNavigate } from "@builder.io/qwik-city";
+import { useNavigate } from "@builder.io/qwik-city";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
@@ -15,7 +15,7 @@ import { cn } from "~/common/utils";
 export default component$(() => {
   const params = useSignInParams();
   const authCtx = useContext(AuthContext);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const toast = useToast();
 
   const { mutate, state } = useMutate("POST /auth/oauth/callback");
@@ -34,17 +34,17 @@ export default component$(() => {
         const unixTimestamp = Math.floor(Date.now() / 1000);
         authCtx.ExpiresIn = result.result.data.ExpiresIn + unixTimestamp;
 
-        // force full reload so cookies are re-sent to server
-        location.href =
-          params.value.mode === "applicant" ? "/" : "/employer/organizations";
+        // // force full reload so cookies are re-sent to server
+        // location.href =
+        //   params.value.mode === "applicant" ? "/" : "/employer/organizations";
 
-        // await navigate(
-        //   params.value.mode === "applicant" ? "/" : "/employer/organizations",
-        //   {
-        //     forceReload: true,
-
-        //   },
-        // );
+        await navigate(
+          params.value.mode === "applicant" ? "/" : "/employer/organizations",
+          {
+            forceReload: true,
+            type: "link",
+          },
+        );
       }
 
       if (result.error) {
