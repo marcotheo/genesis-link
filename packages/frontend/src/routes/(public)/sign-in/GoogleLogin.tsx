@@ -34,7 +34,7 @@ export default component$(() => {
         const unixTimestamp = Math.floor(Date.now() / 1000);
         authCtx.ExpiresIn = result.result.data.ExpiresIn + unixTimestamp;
 
-        navigate(
+        await navigate(
           params.value.mode === "applicant" ? "/" : "/employer/organizations",
         );
       }
