@@ -120,6 +120,9 @@ export const onRequest: RequestHandler = async ({
 
 export const useAuthCheck = routeLoader$(async ({ sharedMap }) => {
   const isLoggedIn = sharedMap.get("isLoggedIn");
+
+  console.log("==========AUTH CHECK===============", isLoggedIn);
+
   return !!isLoggedIn;
 });
 
