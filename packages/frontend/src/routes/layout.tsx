@@ -51,15 +51,23 @@ export const onRequest: RequestHandler = async ({
   sharedMap,
   json,
 }) => {
+  console.log("==========ON REQUEST===============");
   const accessToken = cookie.get("accessToken");
   const refreshToken = cookie.get("refreshToken");
   const tokenExpiresInCookie = cookie.get("tokenExpiresIn");
 
   if (!accessToken || !refreshToken || !tokenExpiresInCookie) {
+    console.log("==========ON REQUEST CHECK AUTH FALSE===============");
     sharedMap.set("isLoggedIn", false);
     sharedMap.set("userId", "");
     return;
   }
+
+  console.log(
+    "==========ON REQUEST CHECK AUTH ATA===============",
+    accessToken.value,
+    refreshToken.value,
+  );
 
   const unixTimestamp = Math.floor(Date.now() / 1000);
   const expiresIn = parseInt(tokenExpiresInCookie.value, 10);
