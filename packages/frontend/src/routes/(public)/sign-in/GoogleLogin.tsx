@@ -34,12 +34,17 @@ export default component$(() => {
         const unixTimestamp = Math.floor(Date.now() / 1000);
         authCtx.ExpiresIn = result.result.data.ExpiresIn + unixTimestamp;
 
-        await navigate(
-          params.value.mode === "applicant" ? "/" : "/employer/organizations",
-          {
-            forceReload: true,
-          },
-        );
+        // force full reload so cookies are re-sent to server
+        location.href =
+          params.value.mode === "applicant" ? "/" : "/employer/organizations";
+
+        // await navigate(
+        //   params.value.mode === "applicant" ? "/" : "/employer/organizations",
+        //   {
+        //     forceReload: true,
+
+        //   },
+        // );
       }
 
       if (result.error) {
