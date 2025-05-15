@@ -36,6 +36,9 @@ export default component$(() => {
 
         await navigate(
           params.value.mode === "applicant" ? "/" : "/employer/organizations",
+          {
+            forceReload: true,
+          },
         );
       }
 
