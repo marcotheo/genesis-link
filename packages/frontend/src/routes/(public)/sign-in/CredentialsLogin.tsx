@@ -1,6 +1,6 @@
 import { reset, SubmitHandler, useForm, valiForm$ } from "@modular-forms/qwik";
-import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
 import { $, component$, useContext } from "@builder.io/qwik";
+import { Link } from "@builder.io/qwik-city";
 import * as v from "valibot";
 
 import { useMutate } from "~/hooks/use-mutate/useMutate";
@@ -10,6 +10,7 @@ import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import Button from "~/components/button/button";
 import Input from "~/components/input/input";
 import Alert from "~/components/alert/alert";
+import { useSignInParams } from ".";
 
 const SignInSchema = v.object({
   email: v.pipe(
@@ -23,13 +24,9 @@ const SignInSchema = v.object({
 type SignInForm = v.InferInput<typeof SignInSchema>;
 
 export default component$(() => {
-  const location = useLocation();
-  const params = new URLSearchParams(location.url.search);
-  const mode = params.get("mode");
+  const params = useSignInParams();
 
   const authCtx = useContext(AuthContext);
-
-  const navigate = useNavigate();
 
   const { mutate, state } = useMutate("POST /auth/signin");
 
@@ -59,7 +56,9 @@ export default component$(() => {
         authCtx.ExpiresIn = response.result.data.ExpiresIn + unixTimestamp;
         reset(signInForm);
 
-        navigate(mode === "applicant" ? "/" : "/employer/organizations");
+        // force full reload so cookies are re-sent to server
+        location.href =
+          params.value.mode === "applicant" ? "/" : "/employer/organizations";
       }
 
       if (response.error) console.log("Error form", response.error);
