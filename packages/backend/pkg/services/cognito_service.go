@@ -370,7 +370,7 @@ func (c *CognitoService) ParseIDToken(idToken string) (*CognitoUserAttributes, e
 		Email:      getStringClaim(claims, "email"),
 		FamilyName: getStringClaim(claims, "family_name"),
 		GivenName:  getStringClaim(claims, "given_name"),
-		Sub:        getStringClaim(claims, "sub"),
+		Sub:        getStringClaim(claims, "cognito:username"),
 	}, nil
 }
 

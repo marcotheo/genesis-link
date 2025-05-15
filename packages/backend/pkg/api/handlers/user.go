@@ -53,7 +53,6 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.dataService.Queries.GetUser(context.Background(), userId)
 
 	if err != nil {
-		fmt.Printf("err %s \n", err)
 		clog.Logger.Error(fmt.Sprintf("(USER) GetUser => error in query get user = (%s) \n", err))
 		errorResponse(w, http.StatusInternalServerError, err.Error())
 		return
