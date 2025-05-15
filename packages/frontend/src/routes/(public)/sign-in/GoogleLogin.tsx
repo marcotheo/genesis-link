@@ -1,5 +1,5 @@
 import { component$, $, useVisibleTask$, useContext } from "@builder.io/qwik";
-import { useNavigate } from "@builder.io/qwik-city";
+// import { useNavigate } from "@builder.io/qwik-city";
 
 import LoadingOverlay from "~/components/loading-overlay/loading-overlay";
 import { useMutate } from "~/hooks/use-mutate/useMutate";
@@ -15,7 +15,7 @@ import { cn } from "~/common/utils";
 export default component$(() => {
   const params = useSignInParams();
   const authCtx = useContext(AuthContext);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const toast = useToast();
 
   const { mutate, state } = useMutate("POST /auth/oauth/callback");
